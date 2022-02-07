@@ -5,6 +5,8 @@ A plugin integrating Azure Speech Cognitive Services to Unreal Engine with only 
 1. TextToVoiceAsync
 2. VoiceToTextAsync
 
+Post on Unreal Engine Forum: https://forums.unrealengine.com/t/free-azurespeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394
+
 # Examples
 Blueprint Nodes:
 
