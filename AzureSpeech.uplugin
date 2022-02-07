@@ -1,0 +1,27 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0.0",
+	"FriendlyName": "Azure Speech",
+	"Description": "Support for Azure Cognition Services: Speech-To-Text & Text-To-Speech",
+	"Category": "Other",
+	"CreatedBy": "Lucas Vilas-Boas",
+	"CreatedByURL": "https://www.linkedin.com/in/lucoiso",
+	"DocsURL": "https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "AzureSpeech",
+			"Type": "DeveloperTool",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	]
+}
