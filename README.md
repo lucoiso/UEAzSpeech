@@ -7,6 +7,10 @@ A plugin integrating Azure Speech Cognitive Services to Unreal Engine with only 
 
 Post on Unreal Engine Forum: https://forums.unrealengine.com/t/free-azurespeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394
 
+# Installation
+Just clone this repository or download the .zip file in the latest version and drop the files inside the 'Plugins/' folder of your project folder.
+Note that if your project doesn't have a 'Plugins' folder, you can create one.
+
 # Examples
 Blueprint Nodes:
 
