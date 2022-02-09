@@ -1,3 +1,5 @@
+// Lucas Vilas-Boas - 2022
+
 #include "VoiceToTextAsync.h"
 
 UVoiceToTextAsync* UVoiceToTextAsync::VoiceToTextAsync(const UObject* WorldContextObject, FAzureSpeechData Parameters)

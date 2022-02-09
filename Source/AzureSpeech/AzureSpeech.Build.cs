@@ -1,3 +1,5 @@
+// Lucas Vilas-Boas - 2022
+
 using System;
 using System.IO;
 using UnrealBuildTool;
@@ -37,15 +39,37 @@ public class AzureSpeech : ModuleRules
             : "AzureSpeech current only support Win64 builds.");
     }
 
-    private string ModulePath => ModuleDirectory;
+    private string ThirdPartyPath
+    {
+        get
+        {
+            return Path.GetFullPath(Path.Combine(ModuleDirectory, "../ThirdParty/"));
+        }
+    }
 
-    private string ThirdPartyPath => Path.GetFullPath(Path.Combine(ModulePath, "../ThirdParty/"));
+    private string BinariesPath
+    {
+        get
+        {
+            return Path.GetFullPath(Path.Combine(ModuleDirectory, "../../Binaries/"));
+        }
+    }
 
-    private string BinariesPath => Path.GetFullPath(Path.Combine(ModulePath, "../../Binaries/"));
+    private string LibraryPath
+    {
+        get
+        {
+            return Path.GetFullPath(Path.Combine(ThirdPartyPath, "lib"));
+        }
+    }
 
-    private string LibraryPath => Path.GetFullPath(Path.Combine(ThirdPartyPath, "lib"));
-
-    private string IncludePath => Path.GetFullPath(Path.Combine(ThirdPartyPath, "include"));
+    private string IncludePath
+    {
+        get
+        {
+            return Path.GetFullPath(Path.Combine(ThirdPartyPath, "include"));
+        }
+    }
 
     public string GetUProjectPath()
     {
@@ -128,24 +152,19 @@ public class AzureSpeech : ModuleRules
 
     public bool LoadSpeechLib(ReadOnlyTargetRules Target)
     {
-        var IsLibrarySupported = false;
+        if (Target.Platform != UnrealTargetPlatform.Win64) return false;
+        
+        var PlatformString = Target.Platform.ToString();
 
-        if (Target.Platform == UnrealTargetPlatform.Win64)
-        {
-            IsLibrarySupported = true;
+        PublicAdditionalLibraries.Add(Path.Combine(LibraryPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 
-            var PlatformString = Target.Platform.ToString();
+        LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.core.dll");
+        LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
+        LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.codec.dll");
+        LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.kws.dll");
+        LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.lu.dll");
+        LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
 
-            PublicAdditionalLibraries.Add(Path.Combine(LibraryPath, "Microsoft.CognitiveServices.Speech.core.lib"));
-
-            LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.core.dll");
-            LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
-            LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.codec.dll");
-            LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.kws.dll");
-            LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.lu.dll");
-            LoadAndCopyDLL(Target, PlatformString, "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
-        }
-
-        return IsLibrarySupported;
+        return true;
     }
 }

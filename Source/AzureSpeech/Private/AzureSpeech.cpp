@@ -1,3 +1,5 @@
+// Lucas Vilas-Boas - 2022
+
 #include "AzureSpeech.h"
 #include "Core.h"
 #include "Modules/ModuleManager.h"

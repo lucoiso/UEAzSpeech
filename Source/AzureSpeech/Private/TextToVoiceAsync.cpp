@@ -1,3 +1,5 @@
+// Lucas Vilas-Boas - 2022
+
 #include "TextToVoiceAsync.h"
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldContextObject, FString TextToConvert,

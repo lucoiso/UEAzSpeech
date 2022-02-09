@@ -1,3 +1,5 @@
+// Lucas Vilas-Boas - 2022
+
 #pragma once
 
 THIRD_PARTY_INCLUDES_START
