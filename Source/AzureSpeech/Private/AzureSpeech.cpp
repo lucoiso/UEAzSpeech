@@ -2,8 +2,10 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/AzureSpeech
 
-// #include "Core.h"
 #include "AzureSpeech.h"
+#include "Core.h"
+#include "Modules/ModuleManager.h"
+#include "GenericPlatform/GenericPlatformProcess.h"
 #include "Interfaces/IPluginManager.h"
 
 #define LOCTEXT_NAMESPACE "FAzureSpeechModule"

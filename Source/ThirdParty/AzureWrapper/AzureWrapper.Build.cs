@@ -10,6 +10,7 @@ public class AzureWrapper : ModuleRules
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
 	{
 		Type = ModuleType.External;
+		bEnableExceptions = true;
 
 		PublicIncludePaths.AddRange(
             new[]
