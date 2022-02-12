@@ -11,6 +11,7 @@ public class AzureSpeech : ModuleRules
     public AzureSpeech(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        bEnableExceptions = true;
 
         PublicDependencyModuleNames.AddRange(
             new[]

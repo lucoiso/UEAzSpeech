@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/AzureSpeech
 
 #pragma once
+
 #include "Modules/ModuleManager.h"
 
 /**

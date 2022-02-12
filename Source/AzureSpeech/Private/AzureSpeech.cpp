@@ -5,14 +5,15 @@
 #include "AzureSpeech.h"
 #include "Core.h"
 #include "Modules/ModuleManager.h"
-#include "GenericPlatform/GenericPlatformProcess.h"
 #include "Interfaces/IPluginManager.h"
+#include "Misc/Paths.h"
+#include "GenericPlatform/GenericPlatformProcess.h"
 
 #define LOCTEXT_NAMESPACE "FAzureSpeechModule"
 
 void FAzureSpeechModule::StartupModule()
 {
-#if PLATFORM_WINDOWS
+#if PLATFORM_WINDOWS && defined _WIN64
 	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzureSpeech")->GetBaseDir(),
 	                                       TEXT("Source/ThirdParty/AzureWrapper/lib/"));
 
@@ -24,7 +25,7 @@ void FAzureSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkDLL);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecDLL);
 #else
-		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("AzureSpeechError", "Failed to load AzureSpeech - Currently supports only Win64 builds"));
+	FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("AzureSpeechError", "Failed to load AzureSpeech - Currently supports only Win64 builds"));
 #endif
 }
 
