@@ -1,9 +1,11 @@
-// Lucas Vilas-Boas - 2022
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/AzureSpeech
 
 #include "TextToVoiceAsync.h"
 
-UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldContextObject, FString TextToConvert,
-                                                       FString VoiceName, FAzureSpeechData Parameters)
+UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldContextObject, const FString TextToConvert,
+                                                       const FString VoiceName, const FAzureSpeechData Parameters)
 {
 	UTextToVoiceAsync* TextToVoiceAsync = NewObject<UTextToVoiceAsync>();
 	TextToVoiceAsync->WorldContextObject = WorldContextObject;

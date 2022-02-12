@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0.0",
+	"VersionName": "1.1.0",
 	"EngineVersion" : "4.27",
 	"FriendlyName": "Azure Speech",
 	"Description": "Support for Azure Cognition Services: Speech-To-Text & Text-To-Speech",
@@ -10,15 +10,15 @@
 	"CreatedByURL": "https://www.linkedin.com/in/lucoiso",
 	"DocsURL": "https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/94ad3e51c6f443718cdb312b48742bb3",
-	"SupportURL": "",
+	"SupportURL": "https://forums.unrealengine.com/t/free-azurespeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394",
 	"CanContainContent": false,
-	"IsBetaVersion": false,
+	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"Modules": [
 		{
 			"Name": "AzureSpeech",
-			"Type": "DeveloperTool",
+			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64"

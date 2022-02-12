@@ -1,4 +1,6 @@
-// Lucas Vilas-Boas - 2022
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/AzureSpeech
 
 #pragma once
 
@@ -6,6 +8,7 @@
 #include "AzureSpeechData.h"
 #include "AzureSpeechWrapper.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
+#include "Async/Async.h"
 #include "TextToVoiceAsync.generated.h"
 
 /**
@@ -22,8 +25,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzureSpeech")
-	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject, FString TextToConvert,
-	                                           FString VoiceName, FAzureSpeechData Parameters);
+	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject, const FString TextToConvert,
+	                                           const FString VoiceName, const FAzureSpeechData Parameters);
 
 	virtual void Activate() override;
 
@@ -36,8 +39,8 @@ private:
 
 namespace AzureSpeech
 {
-	static void AsyncTextToVoice(FAzureSpeechData Parameters, FString TextToConvert,
-	                             FTextToVoiceDelegate Delegate, FString VoiceName)
+	static void AsyncTextToVoice(const FAzureSpeechData Parameters, const FString TextToConvert,
+	                             FTextToVoiceDelegate Delegate, const FString VoiceName)
 	{
 		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, TextToConvert, Delegate, VoiceName]()
 		{
@@ -62,12 +65,12 @@ namespace AzureSpeech
 				Delegate.Broadcast(bOutputValue);
 			});
 
-			const FString _OutputValueStr = bOutputValue ? "Success" : "Error";
+			const FString OutputValueStr = bOutputValue ? "Success" : "Error";
 
 			UE_LOG(LogTemp, Warning,
 			       TEXT("AzureSpeech Debug - Subscription: %s, Region: %s, Language: %s, Text To Voice Result: %s"),
 			       *FString(Parameters.SubscriptionID), *FString(Parameters.RegionID), *FString(Parameters.LanguageID),
-			       *_OutputValueStr);
+			       *OutputValueStr);
 		});
 	}
-}
+} // namespace AzureSpeech

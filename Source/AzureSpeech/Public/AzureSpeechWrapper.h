@@ -1,4 +1,6 @@
-// Lucas Vilas-Boas - 2022
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/AzureSpeech
 
 #pragma once
 
@@ -9,6 +11,7 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
+
 namespace FAzureSpeechWrapper
 {
 	static wchar_t* DoVoiceToTextWork(const std::string SubscriptionID, const std::string RegionID,
@@ -69,6 +72,7 @@ namespace FAzureSpeechWrapper
 		{
 			return true;
 		}
+
 		return false;
 	}
-}
+} // namespace FAzureSpeechWrapper

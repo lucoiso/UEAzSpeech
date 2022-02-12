@@ -1,4 +1,6 @@
-// Lucas Vilas-Boas - 2022
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/AzureSpeech
 
 #pragma once
 
@@ -6,6 +8,7 @@
 #include "AzureSpeechData.h"
 #include "AzureSpeechWrapper.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
+#include "Async/Async.h"
 #include "VoiceToTextAsync.generated.h"
 
 /**
@@ -34,7 +37,7 @@ private:
 
 namespace AzureSpeech
 {
-	static void AsyncVoiceToText(FAzureSpeechData Parameters, FVoiceToTextDelegate Delegate)
+	static void AsyncVoiceToText(const FAzureSpeechData Parameters, FVoiceToTextDelegate Delegate)
 	{
 		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, Delegate]()
 		{
@@ -62,4 +65,4 @@ namespace AzureSpeech
 			       *RecognizedString);
 		});
 	}
-}
+} // namespace AzureSpeech

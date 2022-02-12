@@ -1,6 +1,9 @@
-// Lucas Vilas-Boas - 2022
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/AzureSpeech
 
 #pragma once
+#include "Modules/ModuleManager.h"
 
 /**
  *
@@ -13,13 +16,14 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
-	void* CoreDLL;
-	void* AudioDLL;
-	void* CodecDLL;
-	void* KwsDLL;
-	void* LuDLL;
-	void* SilkDLL;
+	void* CoreDLL = nullptr;
+	void* AudioDLL = nullptr;
+	void* KwsDLL = nullptr;
+	void* LuDLL = nullptr;
+	void* MasDLL = nullptr;
+	void* SilkDLL = nullptr;
+	void* CodecDLL = nullptr;
 
 	void FreeDependency(void*& Handle);
-	bool LoadDependency(const FString& Name, void*& Handle);
+	void LoadDependency(const FString& Path, void*& Handle);
 };
