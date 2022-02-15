@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/TextToVoiceAsync.h"
+#include "AzSpeechWrapper.h"
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldContextObject, const FString TextToConvert,
                                                        const FString VoiceName, const FAzSpeechData Parameters)
@@ -18,5 +19,5 @@ UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldConte
 
 void UTextToVoiceAsync::Activate()
 {
-	AzSpeech::AsyncTextToVoice(Parameters, TextToConvert, TaskCompleted, VoiceName);
+	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(Parameters, TextToConvert, TaskCompleted, VoiceName);
 }
