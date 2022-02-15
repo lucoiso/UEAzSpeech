@@ -1,14 +1,14 @@
 // Author: Lucas Vilas-Boas
 // Year: 2022
-// Repo: https://github.com/lucoiso/AzureSpeech
+// Repo: https://github.com/lucoiso/UEAzSpeech
 
 using System;
 using System.IO;
 using UnrealBuildTool;
 
-public class AzureSpeech : ModuleRules
+public class AzSpeech : ModuleRules
 {
-    public AzureSpeech(ReadOnlyTargetRules Target) : base(Target)
+    public AzSpeech(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         bEnableExceptions = true;

@@ -1,6 +1,6 @@
 // Author: Lucas Vilas-Boas
 // Year: 2022
-// Repo: https://github.com/lucoiso/AzureSpeech
+// Repo: https://github.com/lucoiso/UEAzSpeech
 
 using System.IO;
 using UnrealBuildTool;

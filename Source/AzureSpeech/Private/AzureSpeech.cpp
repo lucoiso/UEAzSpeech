@@ -1,20 +1,20 @@
 // Author: Lucas Vilas-Boas
 // Year: 2022
-// Repo: https://github.com/lucoiso/AzureSpeech
+// Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzureSpeech.h"
+#include "AzSpeech.h"
 #include "Core.h"
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
 #include "GenericPlatform/GenericPlatformProcess.h"
 
-#define LOCTEXT_NAMESPACE "FAzureSpeechModule"
+#define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-void FAzureSpeechModule::StartupModule()
+void FAzSpeechModule::StartupModule()
 {
 #if PLATFORM_WINDOWS && defined _WIN64
-	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzureSpeech")->GetBaseDir(),
+	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
 	                                       TEXT("Source/ThirdParty/AzureWrapper/lib/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreDLL);
@@ -25,11 +25,11 @@ void FAzureSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkDLL);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecDLL);
 #else
-	FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("AzureSpeechError", "Failed to load AzureSpeech - Currently supports only Win64 builds"));
+	FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("AzSpeechError", "Failed to load AzSpeech - Currently supports only Win64 builds"));
 #endif
 }
 
-void FAzureSpeechModule::ShutdownModule()
+void FAzSpeechModule::ShutdownModule()
 {
 	FreeDependency(CoreDLL);
 	FreeDependency(AudioDLL);
@@ -40,7 +40,7 @@ void FAzureSpeechModule::ShutdownModule()
 	FreeDependency(CodecDLL);
 }
 
-void FAzureSpeechModule::FreeDependency(void*& Handle)
+void FAzSpeechModule::FreeDependency(void*& Handle)
 {
 	if (Handle != nullptr)
 	{
@@ -49,7 +49,7 @@ void FAzureSpeechModule::FreeDependency(void*& Handle)
 	}
 }
 
-void FAzureSpeechModule::LoadDependency(const FString& Path, void*& Handle)
+void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 {
 	Handle = FPlatformProcess::GetDllHandle(*Path);
 
@@ -57,11 +57,11 @@ void FAzureSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load required library %s. Plug-in will not be functional."), *Path);
 
-		// const FText MsgInfo = ("AzureSpeechError", FText::FromString(FString("Failed to load AzureSpeech library: ") + Path));
+		// const FText MsgInfo = ("AzSpeechError", FText::FromString(FString("Failed to load AzSpeech library: ") + Path));
 		// FMessageDialog::Open(EAppMsgType::Ok, MsgInfo);
 	}
 }
 
 #undef LOCTEXT_NAMESPACE
 
-IMPLEMENT_MODULE(FAzureSpeechModule, AzureSpeech)
+IMPLEMENT_MODULE(FAzSpeechModule, AzSpeech)

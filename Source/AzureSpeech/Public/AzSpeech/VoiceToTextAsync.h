@@ -1,12 +1,12 @@
 // Author: Lucas Vilas-Boas
 // Year: 2022
-// Repo: https://github.com/lucoiso/AzureSpeech
+// Repo: https://github.com/lucoiso/UEAzSpeech
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzureSpeechData.h"
-#include "AzureSpeechWrapper.h"
+#include "AzSpeechData.h"
+#include "AzSpeechWrapper.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "Async/Async.h"
 #include "VoiceToTextAsync.generated.h"
@@ -14,30 +14,30 @@
 /**
  * 
  */
-UCLASS(NotPlaceable, Category = "AzureSpeech")
-class AZURESPEECH_API UVoiceToTextAsync final : public UBlueprintAsyncActionBase
+UCLASS(NotPlaceable, Category = "AzSpeech")
+class AZSPEECH_API UVoiceToTextAsync final : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintAssignable, Category = "AzureSpeech")
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVoiceToTextDelegate TaskCompleted;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
-		Category = "AzureSpeech")
-	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, FAzureSpeechData Parameters);
+		Category = "AzSpeech")
+	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 
 private:
 	const UObject* WorldContextObject;
-	FAzureSpeechData Parameters;
+	FAzSpeechData Parameters;
 };
 
 
-namespace AzureSpeech
+namespace AzSpeech
 {
-	static void AsyncVoiceToText(const FAzureSpeechData Parameters, FVoiceToTextDelegate Delegate)
+	static void AsyncVoiceToText(const FAzSpeechData Parameters, FVoiceToTextDelegate Delegate)
 	{
 		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, Delegate]()
 		{
@@ -48,7 +48,7 @@ namespace AzureSpeech
 					const std::string RegionID = std::string(TCHAR_TO_UTF8(*Parameters.RegionID));
 					const std::string LanguageID = std::string(TCHAR_TO_UTF8(*Parameters.LanguageID));
 
-					return FAzureSpeechWrapper::DoVoiceToTextWork(SubscriptionID, RegionID, LanguageID);
+					return FAzSpeechWrapper::DoVoiceToTextWork(SubscriptionID, RegionID, LanguageID);
 				});
 
 			VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
@@ -60,9 +60,9 @@ namespace AzureSpeech
 			});
 
 			UE_LOG(LogTemp, Warning,
-			       TEXT("AzureSpeech Debug - Subscription: %s, Region: %s, Language: %s, Voice To Text Result: %s"),
+			       TEXT("AzSpeech Debug - Subscription: %s, Region: %s, Language: %s, Voice To Text Result: %s"),
 			       *FString(Parameters.SubscriptionID), *FString(Parameters.RegionID), *FString(Parameters.LanguageID),
 			       *RecognizedString);
 		});
 	}
-} // namespace AzureSpeech
+} // namespace AzSpeech

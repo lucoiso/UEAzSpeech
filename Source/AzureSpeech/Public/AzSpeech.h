@@ -1,6 +1,6 @@
 // Author: Lucas Vilas-Boas
 // Year: 2022
-// Repo: https://github.com/lucoiso/AzureSpeech
+// Repo: https://github.com/lucoiso/UEAzSpeech
 
 #pragma once
 
@@ -10,7 +10,7 @@
  *
  */
 
-class FAzureSpeechModule : public IModuleInterface
+class FAzSpeechModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;

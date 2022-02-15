@@ -1,11 +1,11 @@
 // Author: Lucas Vilas-Boas
 // Year: 2022
-// Repo: https://github.com/lucoiso/AzureSpeech
+// Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "VoiceToTextAsync.h"
+#include "AzSpeech/VoiceToTextAsync.h"
 
 UVoiceToTextAsync* UVoiceToTextAsync::VoiceToTextAsync(const UObject* WorldContextObject,
-                                                       const FAzureSpeechData Parameters)
+                                                       const FAzSpeechData Parameters)
 {
 	UVoiceToTextAsync* VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;
@@ -15,5 +15,5 @@ UVoiceToTextAsync* UVoiceToTextAsync::VoiceToTextAsync(const UObject* WorldConte
 
 void UVoiceToTextAsync::Activate()
 {
-	AzureSpeech::AsyncVoiceToText(Parameters, TaskCompleted);
+	AzSpeech::AsyncVoiceToText(Parameters, TaskCompleted);
 }
