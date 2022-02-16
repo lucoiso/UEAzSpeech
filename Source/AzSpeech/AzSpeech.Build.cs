@@ -12,13 +12,7 @@ public class AzSpeech : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         bEnableExceptions = true;
-
-        PublicIncludePaths.AddRange(
-                new string[] {
-                    Path.Combine(ModuleDirectory, "Public/AzSpeech")
-                }
-            );
-
+        
         PublicDependencyModuleNames.AddRange(
             new[]
             {
