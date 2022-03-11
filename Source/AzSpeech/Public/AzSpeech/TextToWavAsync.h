@@ -22,7 +22,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FTextToWavDelegate TaskCompleted;
 
-	/* Creates a Text-To-Voice task that will convert your text into speech */
+	/* Creates a Text-To-Voice task that will convert your text into a .wav audio file */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzSpeech")
 	static UTextToWavAsync* TextToWavAsync(const UObject* WorldContextObject, const FString TextToConvert,
