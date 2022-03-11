@@ -36,7 +36,7 @@ You have these asynchronous functions to manage all the workaround:
 >  3.1.  **Text to Convert**: The text that will be converted to audio;  
 >  3.2. **Voice Name**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
 >  3.3. **File Path**: Output path to save the audio file;  
->  3.4. **File Name**: Output file's name;  
+>  3.4. **File Name**: Output file name;  
 >  3.5. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
 
@@ -45,50 +45,61 @@ You have these asynchronous functions to manage all the workaround:
 > 4.1. **API Access Key**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 4.2. **Region ID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
 > 4.3. **Language ID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+ 
+## C++ Usage
 
-## C++ Implementation (Text-to-Voice):
+**You need to include the module "AzSpeech" inside your .Build.cs class to be allowed to call AzSpeech functions from C++.**
+![image](https://user-images.githubusercontent.com/77353979/157924008-6ce0c137-3c21-4c82-b0b9-de1a0ab3ac9f.png)
 
-![image](https://user-images.githubusercontent.com/77353979/154168468-7ef7fda0-f47c-4a8e-b9a2-fef94a59073b.png)
+> ## Text-to-Voice:
+> ![image](https://user-images.githubusercontent.com/77353979/157922114-40eb65fc-f542-4f9a-b7eb-eb912b7042b8.png)
+>
+> 1. **UTextToVoiceAsync::TextToVoiceAsync(WorldContextObject, TextToConvert, VoiceName, FAzSpeechData)**: Will convert the specified text to a sound that will be played by the default sound output device.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **TextToConvert**: The text that will be converted to audio;  
+> 1.3. **VoiceName**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
+> 1.4. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+>
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+>
+> The **TextToVoiceAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
-_(Using GameMode class only for demonstration)_
+> ## Voice-to-Text:
+>![image](https://user-images.githubusercontent.com/77353979/157922705-f743c1d2-b1ff-4855-9742-4436c32594c2.png)
+>
+> 1. **UVoiceToTextAsync::VoiceToTextAsync(WorldContextObject, FAzSpeechData)**: Will convert the specified text to a sound that will be played by the default sound output device.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+> 
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 
+> The **VoiceToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
-You need to include the module "AzSpeech" inside your .Build.cs class to be allowed to call AzSpeech functions from C++.
-
-1. **UTextToVoiceAsync::TextToVoiceAsync(WorldContextObject, TextToConvert, VoiceName, FAzSpeechData)**: Will convert the specified text to a sound that will be played by the default sound output device.  
-1.1. **WorldContextObject**: Task Owner.  
-1.2. **TextToConvert**: The text that will be converted to audio;  
-1.3. **VoiceName**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
-1.4. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
-
-
-2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
-2.1. **Subscription ID**: It's your Speech Service Subscription ID from your Microsoft Azure Portal;  
-2.2. **Region ID**: Region that will be passed to Speech service. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-2.3. **Language ID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
-
-The **TextToVoiceAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
-
-## C++ Implementation (Voice-to-Text):
-
-![image](https://user-images.githubusercontent.com/77353979/154168475-f277e85d-7d1a-482a-9d09-97f0947bad1d.png)
-
-_(Using GameMode class only for demonstration)_
-
-You need to include the module "AzSpeech" inside your .Build.cs class to be allowed to call AzSpeech functions from C++.
-
-1. **UVoiceToTextAsync::VoiceToTextAsync(WorldContextObject, FAzSpeechData)**: Will convert the specified text to a sound that will be played by the default sound output device.  
-1.1. **WorldContextObject**: Task Owner.  
-1.2. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
-
-2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
-2.1. **Subscription ID**: It's your Speech Service Subscription ID from your Microsoft Azure Portal;  
-2.2. **Region ID**: Region that will be passed to Speech service. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-2.3. **Language ID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
-
-The **VoiceToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
+> ## Text-to-WAV:
+> ![image](https://user-images.githubusercontent.com/77353979/157923215-8446ecda-fa04-44e7-a0f2-82430e74f755.png)
+> 
+>  1. **Text to WAV Async**: Will convert the specified text to a .wav file.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **TextToConvert**: The text that will be converted to audio;  
+> 1.3. **FilePath**: Output path to save the audio file;  
+> 1.4. **FileName**: Output file name;  
+> 1.5. **VoiceName**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
+> 1.6. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+>
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+>
+> The **TextToWavAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
 # More informations:
-
 ## How to get the Speech Service API Access Key and Region ID:
 ![image](https://user-images.githubusercontent.com/77353979/157915218-c636d31c-7f7d-4d89-8842-708a6bfbe9c5.png)
 
