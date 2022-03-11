@@ -2,9 +2,9 @@
 ## About the project:
 
 A plugin integrating Azure Speech Cognitive Services to Unreal Engine with simple functions which can do these asynchronous tasks: 
-  1. VoiceToTextAsync
-  2. TextToVoiceAsync
-  3. TextToWavAsync
+  1. Voice-To-Text (Convert a speech into a string)
+  2. Text-To-Voice (Convert a string into a speech)
+  3. Text-To-Wav (Convert a string into a .wav audio file)
 
 **Product on Unreal Engine Marketplace:** https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text  
 **Post on Unreal Engine Forum:** https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394  
