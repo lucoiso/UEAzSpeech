@@ -18,9 +18,11 @@ class AZSPEECH_API UVoiceToTextAsync final : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 
 public:
+	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVoiceToTextDelegate TaskCompleted;
 
+	/* Creates a Voice-To-Text task that will convert your speech into string */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzSpeech")
 	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, FAzSpeechData Parameters);

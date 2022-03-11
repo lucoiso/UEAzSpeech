@@ -14,6 +14,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVoiceToTextDelegate, const FString&
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, OutputValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, OutputValue);
+
 /**
  *
  */
@@ -24,12 +26,17 @@ struct AZSPEECH_API FAzSpeechData
 {
 	GENERATED_USTRUCT_BODY()
 
+	/* API Access Key from Azure Portal - Speech Service panel: Keys and Endpoint */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
-	FString SubscriptionID;
+	FString APIAccessKey;
 
+	/* Speech Resource Region ID from Azure Portal - Speech Service panel: Keys and Endpoint - 
+	IDs List: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
 	FString RegionID;
 
+	/* Text/Voice Language ID to set localization - 
+	IDs List: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
 	FString LanguageID;
 };
