@@ -165,7 +165,7 @@ You have these asynchronous functions to manage all the workaround:
 
 See the official Microsoft documentation for Azure Cognitive Services: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/
 
-## Extra: How to get a audio file at runtime
+## Extra: How to get a audio file at runtime (Editor Only)
 **Add the module "AudioEditor" to your Build.cs**  
 **AudioCompEx is a UAudioComponent**  
 **includes: "Sound/SoundWave.h", "Components/AudioComponent.h" and "Factories/SoundFactory.h"**  
