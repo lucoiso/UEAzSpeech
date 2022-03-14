@@ -164,3 +164,26 @@ You have these asynchronous functions to manage all the workaround:
 ![image](https://user-images.githubusercontent.com/77353979/157915218-c636d31c-7f7d-4d89-8842-708a6bfbe9c5.png)
 
 See the official Microsoft documentation for Azure Cognitive Services: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/
+
+## Extra: How to get a audio file at runtime
+**Add the module "AudioEditor" to your Build.cs**  
+**AudioCompEx is a UAudioComponent**  
+**includes: "Sound/SoundWave.h", "Components/AudioComponent.h" and "Factories/SoundFactory.h"**  
+```
+void Foo()
+{
+  USoundFactory* NewFactory = NewObject<USoundFactory>(this, TEXT("Sound Factory"));
+
+  bool bOperationCanceled;
+  UObject* MyRuntimeObject = NewFactory->FactoryCreateFile(USoundWave::StaticClass(), this, "RuntimeAudio", 
+                                                          EObjectFlags::RF_NoFlags, TEXT("FILEPATH"), 
+                                                          TEXT(""), nullptr, bOperationCanceled);
+
+  USoundWave* MyRuntimeAudio = Cast<USoundWave>(MyRuntimeObject);
+  if (IsValid(MyRuntimeAudio))
+  {
+    AudioCompEx->SetSound(MyRuntimeAudio);
+    AudioCompEx->Play();
+  }
+}
+```
