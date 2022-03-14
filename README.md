@@ -52,8 +52,28 @@ You have these asynchronous functions to manage all the workaround:
 ![image](https://user-images.githubusercontent.com/77353979/157924008-6ce0c137-3c21-4c82-b0b9-de1a0ab3ac9f.png)
 
 > ## Text-to-Voice:
-> ![image](https://user-images.githubusercontent.com/77353979/157922114-40eb65fc-f542-4f9a-b7eb-eb912b7042b8.png)
+>``` 
+> #include "AzSpeech/TextToVoiceAsync.h"
+> 
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
 >
+>   UTextToVoiceAsync* MyTask = UTextToVoiceAsync::TextToVoiceAsync(this, "Text to Convert",
+>		                                                                "Voice Name", MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const bool TaskResult)
+> {
+> }
+>```
 > 1. **UTextToVoiceAsync::TextToVoiceAsync(WorldContextObject, TextToConvert, VoiceName, FAzSpeechData)**: Will convert the specified text to a sound that will be played by the default sound output device.  
 > 1.1. **WorldContextObject**: Task Owner.  
 > 1.2. **TextToConvert**: The text that will be converted to audio;  
@@ -68,7 +88,27 @@ You have these asynchronous functions to manage all the workaround:
 > The **TextToVoiceAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
 > ## Voice-to-Text:
->![image](https://user-images.githubusercontent.com/77353979/157922705-f743c1d2-b1ff-4855-9742-4436c32594c2.png)
+>```
+> #include "AzSpeech/VoiceToTextAsync.h"
+> 
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   UVoiceToTextAsync* MyTask = UVoiceToTextAsync::VoiceToTextAsync(this, MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const FString& TaskResult)
+> {
+> }
+>```
 >
 > 1. **UVoiceToTextAsync::VoiceToTextAsync(WorldContextObject, FAzSpeechData)**: Will convert the specified text to a sound that will be played by the default sound output device.  
 > 1.1. **WorldContextObject**: Task Owner.  
@@ -82,7 +122,27 @@ You have these asynchronous functions to manage all the workaround:
 > The **VoiceToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
 > ## Text-to-WAV:
-> ![image](https://user-images.githubusercontent.com/77353979/157923215-8446ecda-fa04-44e7-a0f2-82430e74f755.png)
+>```
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   UTextToWavAsync* MyTask = UTextToWavAsync::TextToWavAsync(this, "Text to Convert",
+>		                                                          "File Path", "File Name",
+>		                                                          "Voice Name", MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const bool TaskResult)
+> {
+> }
+>```
 > 
 >  1. **Text to WAV Async**: Will convert the specified text to a .wav file.  
 > 1.1. **WorldContextObject**: Task Owner.  
