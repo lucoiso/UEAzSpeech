@@ -156,7 +156,7 @@ namespace FAzSpeechWrapper
 				});
 
 				UE_LOG(LogTemp, Warning,
-				       TEXT("AzSpeech Debug - Subscription: %s, Region: %s, Language: %s, Voice To Text Result: %s"),
+				       TEXT("AzSpeech Debug - API Access Key: %s, Region: %s, Language: %s, Voice To Text Result: %s"),
 				       *FString(Parameters.APIAccessKey), *FString(Parameters.RegionID),
 				       *FString(Parameters.LanguageID),
 				       *RecognizedString);
@@ -192,7 +192,7 @@ namespace FAzSpeechWrapper
 					const FString OutputValueStr = bOutputValue ? "Success" : "Error";
 
 					UE_LOG(LogTemp, Warning,
-						TEXT("AzSpeech Debug - Subscription: %s, Region: %s, Language: %s, Text To Voice Result: %s"),
+						TEXT("AzSpeech Debug - API Access Key: %s, Region: %s, Language: %s, Text To Voice Result: %s"),
 						*FString(Parameters.APIAccessKey), *FString(Parameters.RegionID),
 						*FString(Parameters.LanguageID),
 						*OutputValueStr);
@@ -230,7 +230,7 @@ namespace FAzSpeechWrapper
 					const FString OutputValueStr = bOutputValue ? "Success" : "Error";
 
 					UE_LOG(LogTemp, Warning,
-						TEXT("AzSpeech Debug - Subscription: %s, Region: %s, Language: %s, Text To Voice Result: %s"),
+						TEXT("AzSpeech Debug - API Access Key: %s, Region: %s, Language: %s, Text To Voice Result: %s"),
 						*FString(Parameters.APIAccessKey), *FString(Parameters.RegionID),
 						*FString(Parameters.LanguageID),
 						*OutputValueStr);
