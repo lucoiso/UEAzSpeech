@@ -2,8 +2,10 @@ Binaries
 DerivedDataCache
 Intermediate
 Saved
+enc_temp_folder
 .vscode
 .vs
+.idea
 *.VC.db
 *.opensdf
 *.opendb
@@ -12,3 +14,5 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
+*.ipch
+*.TMP
