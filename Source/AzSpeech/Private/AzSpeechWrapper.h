@@ -18,16 +18,17 @@ namespace FAzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static wchar_t* DoVoiceToTextWork(const std::string APIAccessKey, const std::string RegionID,
+		static std::string DoVoiceToTextWork(const std::string APIAccessKey, const std::string RegionID,
 		                                  const std::string LanguageID)
 		{
 			if (APIAccessKey.size() == 0 || RegionID.size() == 0 || LanguageID.size() == 0)
 			{
-				return new wchar_t;
+				return "Invalid parameters";
 			}
 
-			const auto Config = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
+			const auto& Config = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
 				APIAccessKey, RegionID);
+			
 			Config->SetSpeechRecognitionLanguage(LanguageID);
 			Config->SetSpeechSynthesisLanguage(LanguageID);
 			Config->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Raw);
@@ -42,15 +43,7 @@ namespace FAzSpeechWrapper
 				RecognizedString = SpeechRecognitionResult->Text;
 			}
 
-			const std::string Locale = setlocale(LC_ALL, "");
-			const char* SrcBuf = RecognizedString.c_str();
-			const size_t Size = strlen(SrcBuf) + 1;
-			wchar_t* DstBuf = new wchar_t[Size];
-			size_t OutSize;
-			mbstowcs_s(&OutSize, DstBuf, Size, SrcBuf, Size - 1);
-			setlocale(LC_ALL, Locale.c_str());
-
-			return DstBuf;
+			return RecognizedString;
 		}
 
 		static bool DoTextToVoiceWork(const std::string TextToConvert, const std::string APIAccessKey,
@@ -62,8 +55,9 @@ namespace FAzSpeechWrapper
 				return false;
 			}
 
-			const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
+			const auto& SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
 				APIAccessKey, RegionID);
+			
 			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
 			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
 
@@ -92,12 +86,12 @@ namespace FAzSpeechWrapper
 				return false;
 			}
 
-			const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(APIAccessKey, RegionID);
+			const auto& SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(APIAccessKey, RegionID);
 
 			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
 			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
 
-			auto QualifiedFileInfo = [FilePath, FileName]() -> const std::string
+			const auto QualifiedFileInfo = [FilePath, FileName]() -> const std::string
 			{
 				std::string LocalPath = FilePath;
 				if (*FilePath.end() != '\\') 
@@ -114,7 +108,7 @@ namespace FAzSpeechWrapper
 				return LocalPath + LocalName;
 			};
 
-			const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(QualifiedFileInfo());
+			const auto& AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(QualifiedFileInfo());
 
 			const auto& SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, AudioConfig);
 
@@ -137,18 +131,18 @@ namespace FAzSpeechWrapper
 		{
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, Delegate]()
 			{
-				const TFuture<wchar_t*> VoiceToTextAsyncWork =
-					Async(EAsyncExecution::Thread, [Parameters]() -> wchar_t*
+				const TFuture<std::string> VoiceToTextAsyncWork =
+					Async(EAsyncExecution::Thread, [Parameters]() -> std::string
 					{
-						const std::string APIAccessKey = std::string(TCHAR_TO_UTF8(*Parameters.APIAccessKey));
-						const std::string RegionID = std::string(TCHAR_TO_UTF8(*Parameters.RegionID));
-						const std::string LanguageID = std::string(TCHAR_TO_UTF8(*Parameters.LanguageID));
+						const std::string APIAccessKey = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
+						const std::string RegionID = TCHAR_TO_UTF8(*Parameters.RegionID);
+						const std::string LanguageID = TCHAR_TO_UTF8(*Parameters.LanguageID);
 
 						return Standard_Cpp::DoVoiceToTextWork(APIAccessKey, RegionID, LanguageID);
 					});
 
 				VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				const FString& RecognizedString = VoiceToTextAsyncWork.Get();
+				const FString& RecognizedString = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
 
 				AsyncTask(ENamedThreads::GameThread, [RecognizedString, Delegate]()
 				{
@@ -171,11 +165,11 @@ namespace FAzSpeechWrapper
 					const TFuture<bool> TextToVoiceAsyncWork =
 						Async(EAsyncExecution::Thread, [Parameters, TextToConvert, VoiceName]() -> bool
 							{
-								const std::string APIAccessKeyStr = std::string(TCHAR_TO_UTF8(*Parameters.APIAccessKey));
-								const std::string RegionIDStr = std::string(TCHAR_TO_UTF8(*Parameters.RegionID));
-								const std::string LanguageIDStr = std::string(TCHAR_TO_UTF8(*Parameters.LanguageID));
-								const std::string VoiceNameStr = std::string(TCHAR_TO_UTF8(*VoiceName));
-								const std::string ToConvertStr = std::string(TCHAR_TO_UTF8(*TextToConvert));
+								const std::string APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
+								const std::string RegionIDStr =TCHAR_TO_UTF8(*Parameters.RegionID);
+								const std::string LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
+								const std::string VoiceNameStr = TCHAR_TO_UTF8(*VoiceName);
+								const std::string ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
 
 								return Standard_Cpp::DoTextToVoiceWork(ToConvertStr, APIAccessKeyStr, RegionIDStr, LanguageIDStr,
 									VoiceNameStr);
@@ -207,13 +201,13 @@ namespace FAzSpeechWrapper
 					const TFuture<bool> TextToVoiceAsyncWork =
 						Async(EAsyncExecution::Thread, [Parameters, TextToConvert, VoiceName, FilePath, FileName]() -> bool
 							{
-								const std::string APIAccessKeyStr = std::string(TCHAR_TO_UTF8(*Parameters.APIAccessKey));
-								const std::string RegionIDStr = std::string(TCHAR_TO_UTF8(*Parameters.RegionID));
-								const std::string LanguageIDStr = std::string(TCHAR_TO_UTF8(*Parameters.LanguageID));
-								const std::string NameIDStr = std::string(TCHAR_TO_UTF8(*VoiceName));
-								const std::string FilePathStr = std::string(TCHAR_TO_UTF8(*FilePath));
-								const std::string FileNameStr = std::string(TCHAR_TO_UTF8(*FileName));
-								const std::string ToConvertStr = std::string(TCHAR_TO_UTF8(*TextToConvert));
+								const std::string APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
+								const std::string RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
+								const std::string LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
+								const std::string NameIDStr = TCHAR_TO_UTF8(*VoiceName);
+								const std::string FilePathStr = TCHAR_TO_UTF8(*FilePath);
+								const std::string FileNameStr = TCHAR_TO_UTF8(*FileName);
+								const std::string ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
 
 								return Standard_Cpp::DoTextToWavWork(ToConvertStr, APIAccessKeyStr, RegionIDStr, LanguageIDStr,
 									NameIDStr, FilePathStr, FileNameStr);
