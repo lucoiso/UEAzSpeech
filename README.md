@@ -1,20 +1,24 @@
 # Plugin: AzSpeech
-## About the project:
+## About the project
 
 A plugin integrating Azure Speech Cognitive Services to Unreal Engine with simple functions which can do these asynchronous tasks: 
   1. Voice-To-Text (Convert a speech into a string)
   2. Text-To-Voice (Convert a string into a speech)
   3. Text-To-Wav (Convert a string into a .wav audio file)
 
-**Product on Unreal Engine Marketplace:** https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text  
-**Post on Unreal Engine Forum:** https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394  
+## Links
+
+**Marketplace:** [AzSpeech - Text and Voice
+](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)  
+**Forum:** [[FREE] AzSpeech plugin: Async Text-to-Voice and Voice-to-Text with Microsoft Azure](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)  
+**Microsoft Documentation:** [Speech Service Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 
 # Documentation
 ## Installation
 Just clone this repository or download the .zip file in the latest version and drop the files inside the 'Plugins/' folder of your project folder.
 Note that if your project doesn't have a 'Plugins' folder, you can create one.
 
-## Blueprint Usage:
+## Blueprint Usage
 
 ![image](https://user-images.githubusercontent.com/77353979/157914741-628ab8e4-6882-47e6-bede-eee2f72ecbec.png)  
 You have these asynchronous functions to manage all the workaround:
@@ -51,7 +55,7 @@ You have these asynchronous functions to manage all the workaround:
 **You need to include the module "AzSpeech" inside your .Build.cs class to be allowed to call AzSpeech functions from C++.**
 ![image](https://user-images.githubusercontent.com/77353979/157924008-6ce0c137-3c21-4c82-b0b9-de1a0ab3ac9f.png)
 
-> ## Text-to-Voice:
+> ## Text-to-Voice
 >``` 
 > #include "AzSpeech/TextToVoiceAsync.h"
 > 
@@ -87,7 +91,7 @@ You have these asynchronous functions to manage all the workaround:
 >
 > The **TextToVoiceAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
-> ## Voice-to-Text:
+> ## Voice-to-Text
 >```
 > #include "AzSpeech/VoiceToTextAsync.h"
 > 
@@ -121,7 +125,7 @@ You have these asynchronous functions to manage all the workaround:
 > 
 > The **VoiceToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
-> ## Text-to-WAV:
+> ## Text-to-WAV
 >```
 > void AMyExampleActor::Example()
 > {
