@@ -219,6 +219,42 @@ You have these asynchronous functions to manage all the workaround:
 > 
 > The **WavToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
+> ## Text-to-Stream
+>```
+> #include "AzSpeech/TextToStreamAsync.h"
+> 
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   UTextToStreamAsync* MyTask = UTextToStreamAsync::TextToStreamAsync(this, "TextToConvert", "VoiceName", MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const TArray<uint8>& TaskResult)
+> {
+> }
+>```
+>
+> 1. **UTextToStreamAsync::TextToStreamAsync(WorldContextObject, TextToConvert, VoiceName, FAzSpeechData)**: Will convert the specified text file into a audio data stream.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **TextToConvert**: The text that will be converted to data stream;  
+> 1.3. **VoiceName**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
+> 1.4. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+> 
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 
+> The **TextToStreamAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
+
 
 # More informations:
 ## How to get the Speech Service API Access Key and Region ID:
