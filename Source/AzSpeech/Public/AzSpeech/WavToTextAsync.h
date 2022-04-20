@@ -7,29 +7,32 @@
 #include "CoreMinimal.h"
 #include "AzSpeechData.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
-#include "VoiceToTextAsync.generated.h"
+#include "WavToTextAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UVoiceToTextAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API UWavToTextAsync : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FVoiceToTextDelegate TaskCompleted;
+		FWavToTextDelegate TaskCompleted;
 
-	/* Creates a Voice-To-Text task that will convert your speech into string */
+	/* Creates a Wav-To-Text task that will convert your Wav file into string */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzSpeech")
-	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, FAzSpeechData Parameters);
+		static UWavToTextAsync* WavToTextAsync(const UObject* WorldContextObject, FAzSpeechData Parameters,
+			const FString FilePath, const FString FileName);
 
 	virtual void Activate() override;
 
 private:
 	const UObject* WorldContextObject;
 	FAzSpeechData Parameters;
+	FString FilePath;
+	FString FileName;
 };

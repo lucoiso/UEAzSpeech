@@ -5,9 +5,9 @@
 #include "AzSpeech/TextToWavAsync.h"
 #include "AzSpeechWrapper.h"
 
-UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObject, const FString TextToConvert, 
-												const FString FilePath, const FString FileName, 
-												const FString VoiceName, const FAzSpeechData Parameters)
+UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObject, const FString TextToConvert,
+	const FString FilePath, const FString FileName,
+	const FString VoiceName, const FAzSpeechData Parameters)
 {
 	UTextToWavAsync* TextToWavAsync = NewObject<UTextToWavAsync>();
 	TextToWavAsync->WorldContextObject = WorldContextObject;

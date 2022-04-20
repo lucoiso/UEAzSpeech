@@ -10,7 +10,7 @@
 #include "TextToVoiceAsync.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
 class AZSPEECH_API UTextToVoiceAsync final : public UBlueprintAsyncActionBase
@@ -26,7 +26,7 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzSpeech")
 	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject, const FString TextToConvert,
-	                                           const FString VoiceName, const FAzSpeechData Parameters);
+											   const FString VoiceName, const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 
