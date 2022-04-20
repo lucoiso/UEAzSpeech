@@ -147,6 +147,8 @@ You have these asynchronous functions to manage all the workaround:
 
 > ## Text-to-WAV
 >```
+> #include "AzSpeech/TextToWavAsync.h"
+>
 > void AMyExampleActor::Example()
 > {
 >   FAzSpeechData MyNewData;
