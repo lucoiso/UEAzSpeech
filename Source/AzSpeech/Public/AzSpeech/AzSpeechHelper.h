@@ -20,9 +20,9 @@ class AZSPEECH_API UAzSpeechHelper : public UBlueprintFunctionLibrary
 public:
 	/* Convert a file into a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
-		static USoundWave* ConvertFileIntoSoundWave(const FString FilePath, const FString ObjectName = "Transient_AzSpeechSoundWave");
+		static USoundWave* ConvertFileIntoSoundWave(const FString FilePath, const FString FileName);
 
 	/* Convert a data stream (TArray<uint8>) into a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
-		static USoundWave* ConvertStreamIntoSoundWave(TArray<uint8> RawData, const FString ObjectName = "Transient_AzSpeechSoundWave");
+		static USoundWave* ConvertStreamIntoSoundWave(TArray<uint8> RawData);
 };

@@ -6,8 +6,9 @@
 #include "Sound/SoundWave.h"
 #include "Misc/FileHelper.h"
 
-USoundWave* CreateNewSoundWave(const FString ObjectName)
+USoundWave* CreateNewSoundWave()
 {
+	const FString ObjectName = "Transient_AzSpeechSoundWave";
 	USoundWave* SoundWave = FindObject<USoundWave>(ANY_PACKAGE, *ObjectName);
 
 	if (!IsValid(SoundWave))
@@ -27,22 +28,42 @@ USoundWave* CreateNewSoundWave(const FString ObjectName)
 	return SoundWave;
 }
 
-USoundWave* UAzSpeechHelper::ConvertFileIntoSoundWave(const FString FilePath, const FString ObjectName)
+USoundWave* UAzSpeechHelper::ConvertFileIntoSoundWave(const FString FilePath, const FString FileName)
 {
-	TArray<uint8> RawData;
-	if (FFileHelper::LoadFileToArray(RawData, *FilePath, EFileRead::FILEREAD_NoFail))
+	if (!FilePath.IsEmpty() && !FileName.IsEmpty())
 	{
-		return ConvertStreamIntoSoundWave(RawData, ObjectName);
+		const auto QualifiedFileInfo = [FilePath, FileName]() -> const FString
+		{
+			FString LocalPath = FilePath;
+			if (*FilePath.end() != '\\')
+			{
+				LocalPath += '\\';
+			}
+
+			FString LocalName = FileName;
+			if (FileName.Right(FileName.Len() - 4) != ".wav")
+			{
+				LocalName += ".wav";
+			}
+
+			return LocalPath + LocalName;
+		};
+
+		TArray<uint8> RawData;
+		if (FFileHelper::LoadFileToArray(RawData, *QualifiedFileInfo(), EFileRead::FILEREAD_NoFail))
+		{
+			return ConvertStreamIntoSoundWave(RawData);
+		}
 	}
 
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertStreamIntoSoundWave(TArray<uint8> RawData, const FString ObjectName)
+USoundWave* UAzSpeechHelper::ConvertStreamIntoSoundWave(TArray<uint8> RawData)
 {
 	if (!RawData.IsEmpty())
 	{
-		USoundWave* SoundWave = CreateNewSoundWave(ObjectName);
+		USoundWave* SoundWave = CreateNewSoundWave();
 
 		SoundWave->RawData.Lock(LOCK_READ_WRITE);
 		void* RawDataPtr = SoundWave->RawData.Realloc(RawData.Num());
