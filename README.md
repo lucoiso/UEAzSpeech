@@ -5,6 +5,8 @@ A plugin integrating Azure Speech Cognitive Services to Unreal Engine with simpl
   1. Voice-To-Text (Convert a speech into a string)
   2. Text-To-Voice (Convert a string into a speech)
   3. Text-To-Wav (Convert a string into a .wav audio file)
+  4. Wav-To-Text (Convert a .wav audio file into a string)
+  5. Text-To-Stream (Convert a string into a audio data stream)
 
 ## Links
 
