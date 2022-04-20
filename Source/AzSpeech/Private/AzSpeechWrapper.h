@@ -181,8 +181,6 @@ THIRD_PARTY_INCLUDES_END
 			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
 			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
 
-			std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream> OutputStream;
-
 			const auto& SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig,
 				Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(
 					Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream()));
