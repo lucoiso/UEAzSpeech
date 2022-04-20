@@ -18,5 +18,5 @@ UTextToStreamAsync* UTextToStreamAsync::TextToStreamAsync(const UObject* WorldCo
 
 void UTextToStreamAsync::Activate()
 {
-	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToStream(Parameters, TextToConvert, TaskCompleted, VoiceName);
+	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToStream(TextToConvert, VoiceName, Parameters, TaskCompleted);
 }

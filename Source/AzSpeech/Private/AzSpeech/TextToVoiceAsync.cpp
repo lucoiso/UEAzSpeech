@@ -19,5 +19,5 @@ UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldConte
 
 void UTextToVoiceAsync::Activate()
 {
-	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(Parameters, TextToConvert, TaskCompleted, VoiceName);
+	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(TextToConvert, VoiceName, Parameters, TaskCompleted);
 }

@@ -229,8 +229,8 @@ THIRD_PARTY_INCLUDES_END
 				});
 		}
 
-		static void AsyncTextToVoice(const FAzSpeechData Parameters, const FString TextToConvert,
-			FTextToVoiceDelegate Delegate, const FString VoiceName)
+		static void AsyncTextToVoice(const FString TextToConvert,
+			const FString VoiceName, const FAzSpeechData Parameters, FTextToVoiceDelegate Delegate)
 		{
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, TextToConvert, Delegate, VoiceName]()
 				{
@@ -265,8 +265,7 @@ THIRD_PARTY_INCLUDES_END
 				});
 		}
 
-		static void AsyncTextToWav(const FAzSpeechData Parameters, const FString TextToConvert,
-			FTextToWavDelegate Delegate, const FString VoiceName, const FString FilePath, const FString FileName)
+		static void AsyncTextToWav(const FString TextToConvert, const FString VoiceName, const FString FilePath, const FString FileName, const FAzSpeechData Parameters, FTextToWavDelegate Delegate)
 		{
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, TextToConvert, Delegate, VoiceName, FilePath, FileName]()
 				{
@@ -303,7 +302,7 @@ THIRD_PARTY_INCLUDES_END
 				});
 		}
 
-		static void AsyncWavToText(const FAzSpeechData Parameters, const FString FilePath, const FString FileName,
+		static void AsyncWavToText(const FString FilePath, const FString FileName, const FAzSpeechData Parameters,
 			FWavToTextDelegate Delegate)
 		{
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, FilePath, FileName, Delegate]()
@@ -337,8 +336,8 @@ THIRD_PARTY_INCLUDES_END
 				});
 		}
 
-		static void AsyncTextToStream(const FAzSpeechData Parameters, const FString TextToConvert,
-			FTextToStreamDelegate Delegate, const FString VoiceName)
+		static void AsyncTextToStream(const FString TextToConvert, const FString VoiceName,
+			const FAzSpeechData Parameters, FTextToStreamDelegate Delegate)
 		{
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, TextToConvert, Delegate, VoiceName]()
 				{

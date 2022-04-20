@@ -5,7 +5,7 @@
 #include "AzSpeech/WavToTextAsync.h"
 #include "AzSpeechWrapper.h"
 
-UWavToTextAsync* UWavToTextAsync::WavToTextAsync(const UObject* WorldContextObject, FAzSpeechData Parameters, const FString FilePath, const FString FileName)
+UWavToTextAsync* UWavToTextAsync::WavToTextAsync(const UObject* WorldContextObject, const FString FilePath, const FString FileName, FAzSpeechData Parameters)
 {
 	UWavToTextAsync* WavToTextAsync = NewObject<UWavToTextAsync>();
 	WavToTextAsync->WorldContextObject = WorldContextObject;
@@ -18,5 +18,5 @@ UWavToTextAsync* UWavToTextAsync::WavToTextAsync(const UObject* WorldContextObje
 
 void UWavToTextAsync::Activate()
 {
-	FAzSpeechWrapper::Unreal_Cpp::AsyncWavToText(Parameters, FilePath, FileName, TaskCompleted);
+	FAzSpeechWrapper::Unreal_Cpp::AsyncWavToText(FilePath, FileName, Parameters, TaskCompleted);
 }
