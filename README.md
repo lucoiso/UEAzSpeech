@@ -8,6 +8,10 @@ A plugin integrating Azure Speech Cognitive Services to Unreal Engine with simpl
   4. Wav-To-Text (Convert a .wav audio file into a string)
   5. Text-To-Stream (Convert a string into a audio data stream)
 
+And helper functions:
+* Runtime USoundWave importer via Audio File
+* Runtime USoundWave importer via Audio Data Stream
+
 ## Links
 
 **Marketplace:** [AzSpeech - Text and Voice
