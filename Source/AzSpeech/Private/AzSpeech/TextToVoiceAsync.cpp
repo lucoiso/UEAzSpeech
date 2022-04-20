@@ -6,7 +6,7 @@
 #include "AzSpeechWrapper.h"
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldContextObject, const FString TextToConvert,
-                                                       const FString VoiceName, const FAzSpeechData Parameters)
+	const FString VoiceName, const FAzSpeechData Parameters)
 {
 	UTextToVoiceAsync* TextToVoiceAsync = NewObject<UTextToVoiceAsync>();
 	TextToVoiceAsync->WorldContextObject = WorldContextObject;
@@ -19,5 +19,5 @@ UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldConte
 
 void UTextToVoiceAsync::Activate()
 {
-	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(Parameters, TextToConvert, TaskCompleted, VoiceName);
+	FAzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(TextToConvert, VoiceName, Parameters, TaskCompleted);
 }
