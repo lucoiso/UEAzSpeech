@@ -44,7 +44,7 @@ You have these asynchronous functions to manage all the workaround:
 >  3.5. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
 > ![image](https://user-images.githubusercontent.com/77353979/164303053-4a08911c-0e67-4e74-b825-d8e6eabccc8d.png)  
->  4. **WAV to Text Async**: Will convert the specified .waf file into a string.  
+>  4. **WAV to Text Async**: Will convert the specified .wav file into a string.  
 >  4.1. **File Path**: Input path of the audio file;  
 >  4.2. **File Name**: Input file name;  
 >  4.3. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
@@ -182,6 +182,43 @@ You have these asynchronous functions to manage all the workaround:
 > 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 >
 > The **TextToWavAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
+
+> ## WAV-to-Text
+>```
+> #include "AzSpeech/WavToTextAsync.h"
+> 
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   UWavToTextAsync* MyTask = UWavToTextAsync::WavToTextAsync(this, "FilePath", "FileName", MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const FString& TaskResult)
+> {
+> }
+>```
+>
+> 1. **UWavToTextAsync::WavToTextAsync(WorldContextObject, FilePath, FileName, FAzSpeechData)**: Will convert the specified .wav file into a string.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **FilePath**: Input path of the audio file.  
+> 1.3. **FileName**: Input file name.    
+> 1.4. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+> 
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 
+> The **WavToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
+
 
 # More informations:
 ## How to get the Speech Service API Access Key and Region ID:
