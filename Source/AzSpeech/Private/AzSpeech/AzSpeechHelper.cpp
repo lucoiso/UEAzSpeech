@@ -13,7 +13,7 @@ USoundWave* CreateNewSoundWave()
 
 	if (!IsValid(SoundWave))
 	{
-		SoundWave = NewObject<USoundWave>((UObject*)GetTransientPackage(), *ObjectName, RF_Transient);
+		SoundWave = NewObject<USoundWave>(GetTransientPackage(), *ObjectName, RF_Transient);
 	}
 	else
 	{
@@ -49,8 +49,7 @@ USoundWave* UAzSpeechHelper::ConvertFileIntoSoundWave(const FString FilePath, co
 			return LocalPath + LocalName;
 		};
 
-		TArray<uint8> RawData;
-		if (FFileHelper::LoadFileToArray(RawData, *QualifiedFileInfo(), EFileRead::FILEREAD_NoFail))
+		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *QualifiedFileInfo(), FILEREAD_NoFail))
 		{
 			return ConvertStreamIntoSoundWave(RawData);
 		}
@@ -61,7 +60,11 @@ USoundWave* UAzSpeechHelper::ConvertFileIntoSoundWave(const FString FilePath, co
 
 USoundWave* UAzSpeechHelper::ConvertStreamIntoSoundWave(TArray<uint8> RawData)
 {
+#if ENGINE_MAJOR_VERSION >= 5
 	if (!RawData.IsEmpty())
+#else	
+	if (RawData.Num() != 0)
+#endif
 	{
 		USoundWave* SoundWave = CreateNewSoundWave();
 
@@ -78,11 +81,14 @@ USoundWave* UAzSpeechHelper::ConvertStreamIntoSoundWave(TArray<uint8> RawData)
 		const int32 NumSamples = WaveInfo.SampleDataSize / SizeOfSample;
 		const int32 NumFrames = NumSamples / ChannelCount;
 
-		SoundWave->Duration = NumFrames / (*WaveInfo.pSamplesPerSec);
-		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
+		SoundWave->Duration = NumFrames / *WaveInfo.pSamplesPerSec;
 		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
 		SoundWave->NumChannels = ChannelCount;
 		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
+		
+#if ENGINE_MAJOR_VERSION >= 5
+		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
+#endif
 
 		SoundWave->InitAudioResource(SoundWave->RawData);
 

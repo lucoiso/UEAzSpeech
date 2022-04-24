@@ -7,7 +7,10 @@
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
+
+#if ENGINE_MAJOR_VERSION < 5
 #include "GenericPlatform/GenericPlatformProcess.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
@@ -15,7 +18,7 @@ void FAzSpeechModule::StartupModule()
 {
 #if PLATFORM_WINDOWS && defined _WIN64
 	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
-		TEXT("Source/ThirdParty/AzureWrapper/lib/"));
+	                                       TEXT("Source/ThirdParty/AzureWrapper/lib/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreDLL);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioDLL);

@@ -4,7 +4,9 @@
 
 #pragma once
 
+#if ENGINE_MAJOR_VERSION < 5
 #include "Modules/ModuleManager.h"
+#endif
 
 /**
  *

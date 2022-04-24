@@ -1,8 +1,8 @@
 {
 	"FileVersion": 3,
 	"Version": 3,
-	"VersionName": "3.0.0",
-	"EngineVersion": "5.0",
+	"VersionName": "3.0.1",
+	"EngineVersion": "5.0.0",
 	"FriendlyName": "AzSpeech",
 	"Description": "Support for Azure Cognition Services: Speech-To-Text & Text-To-Speech",
 	"Category": "Game Features",

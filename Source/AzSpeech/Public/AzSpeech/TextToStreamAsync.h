@@ -13,20 +13,20 @@
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToStreamAsync : public UBlueprintAsyncActionBase
+class AZSPEECH_API UTextToStreamAsync final : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-		FTextToStreamDelegate TaskCompleted;
+	FTextToStreamDelegate TaskCompleted;
 
 	/* Creates a Text-To-Stream task that will convert your text into a audio data stream */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzSpeech")
-		static UTextToStreamAsync* TextToStreamAsync(const UObject* WorldContextObject, const FString TextToConvert,
-			const FString VoiceName, const FAzSpeechData Parameters);
+	static UTextToStreamAsync* TextToStreamAsync(const UObject* WorldContextObject, const FString TextToConvert,
+	                                             const FString VoiceName, const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 

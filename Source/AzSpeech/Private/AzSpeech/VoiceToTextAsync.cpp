@@ -6,7 +6,7 @@
 #include "AzSpeechWrapper.h"
 
 UVoiceToTextAsync* UVoiceToTextAsync::VoiceToTextAsync(const UObject* WorldContextObject,
-	const FAzSpeechData Parameters)
+                                                       const FAzSpeechData Parameters)
 {
 	UVoiceToTextAsync* VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;

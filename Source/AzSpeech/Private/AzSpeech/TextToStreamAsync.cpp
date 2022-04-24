@@ -5,7 +5,9 @@
 #include "AzSpeech/TextToStreamAsync.h"
 #include "AzSpeechWrapper.h"
 
-UTextToStreamAsync* UTextToStreamAsync::TextToStreamAsync(const UObject* WorldContextObject, const FString TextToConvert, const FString VoiceName, const FAzSpeechData Parameters)
+UTextToStreamAsync* UTextToStreamAsync::TextToStreamAsync(const UObject* WorldContextObject,
+                                                          const FString TextToConvert, const FString VoiceName,
+                                                          const FAzSpeechData Parameters)
 {
 	UTextToStreamAsync* NewAsyncTask = NewObject<UTextToStreamAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

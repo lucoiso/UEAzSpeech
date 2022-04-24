@@ -26,8 +26,8 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
 		Category = "AzSpeech")
 	static UTextToWavAsync* TextToWavAsync(const UObject* WorldContextObject, const FString TextToConvert,
-											const FString FilePath, const FString FileName,
-											   const FString VoiceName, const FAzSpeechData Parameters);
+	                                       const FString FilePath, const FString FileName,
+	                                       const FString VoiceName, const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 
