@@ -4,7 +4,7 @@
 	"VersionName": "3.0.1",
 	"EngineVersion": "5.0.0",
 	"FriendlyName": "AzSpeech",
-	"Description": "Support for Azure Cognition Services: Speech-To-Text & Text-To-Speech",
+	"Description": "Integrates Microsoft Azure Cognition Services: Speech",
 	"Category": "Game Features",
 	"CreatedBy": "Lucas Vilas-Boas",
 	"CreatedByURL": "https://dev.epicgames.com/community/profile/4ePp/lucoiso",
