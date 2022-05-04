@@ -338,18 +338,18 @@ namespace FAzSpeechWrapper
 					});
 
 				WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				const FString bOutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
+				const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
 
-				AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
+				AsyncTask(ENamedThreads::GameThread, [OutputValue, Delegate]
 				{
-					Delegate.Broadcast(bOutputValue);
+					Delegate.Broadcast(OutputValue);
 				});
 
 				UE_LOG(LogTemp, Warning,
 				       TEXT("AzSpeech Debug - API Access Key: %s, Region: %s, Language: %s, Wav-To-Text Result: %s"),
 				       *FString(Parameters.APIAccessKey), *FString(Parameters.RegionID),
 				       *FString(Parameters.LanguageID),
-				       *bOutputValue);
+				       *OutputValue);
 			});
 		}
 
