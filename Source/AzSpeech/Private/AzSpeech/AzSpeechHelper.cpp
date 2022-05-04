@@ -62,7 +62,7 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(TArray<uint8> RawData)
 {
 #if ENGINE_MAJOR_VERSION >= 5
 	if (!RawData.IsEmpty())
-#else	
+#else
 	if (RawData.Num() != 0)
 #endif
 	{
@@ -85,7 +85,7 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(TArray<uint8> RawData)
 		SoundWave->NumChannels = ChannelCount;
 		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
 		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
-		
+
 #if ENGINE_MAJOR_VERSION >= 5
 		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
 #endif
