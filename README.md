@@ -73,7 +73,7 @@ You have these asynchronous functions to manage all the workaround:
 >  7.2. **File Name**: Input file name;  
  
 > ![image](https://user-images.githubusercontent.com/77353979/166697554-55ba6118-8a20-4a7b-9dd9-0f85e0961ee1.png)  
-> 8. **Convert Stream To Sound Wave**: Will convert the specified data stream into a transient USoundWave.
+> 8. **Convert Stream To Sound Wave**: Will convert the specified data stream into a transient USoundWave.  
 > 8.1 **Raw Data**: Data stream of a specified audio.
 
 ## C++ Usage
