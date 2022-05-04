@@ -28,7 +28,7 @@ USoundWave* CreateNewSoundWave()
 	return SoundWave;
 }
 
-USoundWave* UAzSpeechHelper::ConvertFileIntoSoundWave(const FString FilePath, const FString FileName)
+USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString FilePath, const FString FileName)
 {
 	if (!FilePath.IsEmpty() && !FileName.IsEmpty())
 	{
@@ -51,14 +51,14 @@ USoundWave* UAzSpeechHelper::ConvertFileIntoSoundWave(const FString FilePath, co
 
 		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *QualifiedFileInfo(), FILEREAD_NoFail))
 		{
-			return ConvertStreamIntoSoundWave(RawData);
+			return ConvertStreamToSoundWave(RawData);
 		}
 	}
 
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertStreamIntoSoundWave(TArray<uint8> RawData)
+USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(TArray<uint8> RawData)
 {
 #if ENGINE_MAJOR_VERSION >= 5
 	if (!RawData.IsEmpty())
