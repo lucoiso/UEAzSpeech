@@ -25,13 +25,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<
  */
 
 /* Microsoft Azure informations related to Speech service */
-USTRUCT(BlueprintType, Category = "AzSpeech")
+USTRUCT(BlueprintType, Category = "AzSpeech", meta = (DisplayName="AzSpeechData"))
 struct AZSPEECH_API FAzSpeechData
 {
 	GENERATED_USTRUCT_BODY()
 
 	/* API Access Key from Azure Portal - Speech Service panel: Keys and Endpoint */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings",
+		meta = (DisplayName="API Access Key"))
 	FString APIAccessKey;
 
 	/* Speech Resource Region ID from Azure Portal - Speech Service panel: Keys and Endpoint -
