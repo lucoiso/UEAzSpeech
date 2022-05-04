@@ -82,15 +82,13 @@ USoundWave* UAzSpeechHelper::ConvertStreamIntoSoundWave(TArray<uint8> RawData)
 		const int32 NumFrames = NumSamples / ChannelCount;
 
 		SoundWave->Duration = NumFrames / *WaveInfo.pSamplesPerSec;
-		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
 		SoundWave->NumChannels = ChannelCount;
 		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
+		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
 		
 #if ENGINE_MAJOR_VERSION >= 5
 		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
 #endif
-
-		SoundWave->InitAudioResource(SoundWave->RawData);
 
 		return SoundWave;
 	}
