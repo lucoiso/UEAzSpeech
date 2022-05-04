@@ -26,7 +26,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DeprecatedFunction="true",
-		DeprecationMessage="This function will be replaced soon. Use ConvertFileToSoundWave instead it."))
+		DeprecationMessage="This function will be replaced soon. Use ConvertStreamToSoundWave instead it."))
 	static USoundWave* ConvertStreamIntoSoundWave(const TArray<uint8> RawData)
 	{
 		return ConvertStreamToSoundWave(RawData);
