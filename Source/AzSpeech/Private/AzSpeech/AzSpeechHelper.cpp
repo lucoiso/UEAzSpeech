@@ -58,7 +58,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString FilePath, cons
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(TArray<uint8> RawData)
+USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawData)
 {
 #if ENGINE_MAJOR_VERSION >= 5
 	if (!RawData.IsEmpty())
