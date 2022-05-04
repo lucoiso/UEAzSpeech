@@ -26,7 +26,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 
 ## Blueprint Usage
 
-![image](https://user-images.githubusercontent.com/77353979/164302957-90595cbb-2548-40b2-89da-7db118614dde.png)  
+![image](https://user-images.githubusercontent.com/77353979/166697446-6a842789-e543-4eec-b5c1-134b22480e7e.png)  
 You have these asynchronous functions to manage all the workaround:
 
 > ![image](https://user-images.githubusercontent.com/77353979/157915810-15434664-5681-4538-89c2-801df6934749.png)  
@@ -67,13 +67,13 @@ You have these asynchronous functions to manage all the workaround:
 > 6.2. **Region ID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
 > 6.3. **Language ID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 
-> ![image](https://user-images.githubusercontent.com/77353979/164303797-0787565a-4252-4528-9709-e6458e519702.png)  
-> 7. **Convert File Into Sound Wave**: Will load a specified audio file and transform into a transient USoundWave.  
+> ![image](https://user-images.githubusercontent.com/77353979/166697585-4ec0e9b2-447d-42b5-a745-812b3fbcd086.png)  
+> 7. **Convert File To Sound Wave**: Will load a specified audio file and transform into a transient USoundWave.  
 >  7.1. **File Path**: Input path of the audio file;  
 >  7.2. **File Name**: Input file name;  
  
-> ![image](https://user-images.githubusercontent.com/77353979/164303943-c5c0456d-70ab-4aed-8ffa-e0daa289c461.png)  
-> 8. **Convert Stream into a Sound Wave**: Will convert the specified data stream into a transient USoundWave.
+> ![image](https://user-images.githubusercontent.com/77353979/166697554-55ba6118-8a20-4a7b-9dd9-0f85e0961ee1.png)  
+> 8. **Convert Stream To Sound Wave**: Will convert the specified data stream into a transient USoundWave.
 > 8.1 **Raw Data**: Data stream of a specified audio.
 
 ## C++ Usage
