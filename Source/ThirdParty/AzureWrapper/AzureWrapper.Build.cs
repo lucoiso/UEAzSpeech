@@ -19,33 +19,32 @@ public class AzureWrapper : ModuleRules
 			}
 		);
 
-		if (Target.Platform == UnrealTargetPlatform.Win64)
-		{
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.core.lib"));
+		if (Target.Platform != UnrealTargetPlatform.Win64) return;
 
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.core.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+		PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.core.lib"));
 
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.core.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.extension.kws.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.extension.lu.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.extension.mas.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
-				"Microsoft.CognitiveServices.Speech.extension.codec.dll"));
-		}
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.core.dll");
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
+		PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.core.dll"));
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.extension.kws.dll"));
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.extension.lu.dll"));
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.extension.mas.dll"));
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"));
+		RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "lib",
+			"Microsoft.CognitiveServices.Speech.extension.codec.dll"));
 	}
 }
