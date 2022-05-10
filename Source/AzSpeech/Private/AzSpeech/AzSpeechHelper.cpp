@@ -9,14 +9,14 @@
 USoundWave* CreateNewSoundWave()
 {
 	const FString ObjectName = "Transient_AzSpeechSoundWave";
-	USoundWave* SoundWave = FindObject<USoundWave>(ANY_PACKAGE, *ObjectName);
 
-	if (!IsValid(SoundWave))
+	if (USoundWave* SoundWave = FindObject<USoundWave>(GetTransientPackage(), *ObjectName);
+		IsValid(SoundWave))	
 	{
-		SoundWave = NewObject<USoundWave>(GetTransientPackage(), *ObjectName, RF_Transient);
-	}
-	else
-	{
+		SoundWave->FreeResources();
+		SoundWave->RemoveAudioResource();
+		SoundWave->MarkAsGarbage();
+		
 		if (SoundWave->RawData.IsLocked())
 		{
 			SoundWave->RawData.Unlock();
@@ -24,8 +24,8 @@ USoundWave* CreateNewSoundWave()
 
 		SoundWave->RawData.RemoveBulkData();
 	}
-
-	return SoundWave;
+	
+	return NewObject<USoundWave>(GetTransientPackage(), *ObjectName, RF_Transient);
 }
 
 USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString FilePath, const FString FileName)
