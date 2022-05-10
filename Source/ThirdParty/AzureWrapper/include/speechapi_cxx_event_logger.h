@@ -10,6 +10,7 @@
 #include <functional>
 #include <azac_api_c_diagnostics.h>
 #include <azac_api_cxx_common.h>
+#include <speechapi_cxx_log_level.h>
 
 namespace Microsoft {
 namespace CognitiveServices {
@@ -72,6 +73,16 @@ public:
         }
 
         AZAC_THROW_ON_FAIL(diagnostics_logmessage_set_filters(str.c_str()));
+    }
+
+    /// <summary>
+    /// Sets the level of the messages to be captured by the logger
+    /// </summary>
+    /// <param name="level">Maximum level of detail to be captured by the logger.</param>
+    static void SetLevel(Level level)
+    {
+        const auto levelStr = Details::LevelToString(level);
+        diagnostics_set_log_level("event", levelStr);
     }
 
 private:

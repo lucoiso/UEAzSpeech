@@ -436,6 +436,11 @@
 #define SPXERR_MEDIA_NO_DEVICE_AVAILABLE __SPX_ERRCODE_FAILED(0x066)
 
 /// <summary>
+/// Enabled Voice Activity Detection while using keyword recognition is not allowed.
+/// </summary>
+#define SPXERR_VAD_COULD_NOT_USE_WITH_KEYWORD_RECOGNIZER __SPX_ERRCODE_FAILED(0x067)
+
+/// <summary>
 /// The specified RecoEngineAdapter could not be created.
 /// </summary>
 #define SPXERR_COULD_NOT_CREATE_ENGINE_ADAPTER \

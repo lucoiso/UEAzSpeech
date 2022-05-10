@@ -86,7 +86,7 @@ SPXAPI synth_result_get_reason(SPXRESULTHANDLE hresult, Result_Reason* reason);
 SPXAPI synth_result_get_reason_canceled(SPXRESULTHANDLE hresult, Result_CancellationReason* reason);
 SPXAPI synth_result_get_canceled_error_code(SPXRESULTHANDLE hresult, Result_CancellationErrorCode* errorCode);
 SPXAPI synth_result_get_audio_data(SPXRESULTHANDLE hresult, uint8_t* buffer, uint32_t bufferSize, uint32_t* filledSize);
-SPXAPI synth_result_get_audio_length(SPXRESULTHANDLE hresult, uint32_t* audioLength);
+SPXAPI synth_result_get_audio_length_duration(SPXRESULTHANDLE hresult, uint32_t* audioLength, uint64_t* audioDuration);
 SPXAPI synth_result_get_audio_format(SPXRESULTHANDLE hresult, SPXAUDIOSTREAMFORMATHANDLE* hformat);
 SPXAPI synth_result_get_property_bag(SPXRESULTHANDLE hresult, SPXPROPERTYBAGHANDLE* hpropbag);
 

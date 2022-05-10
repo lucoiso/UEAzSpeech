@@ -31,7 +31,6 @@ class Session;
 
 /// <summary>
 /// Class for conversation transcriber.
-/// Note: This is only available on the Cognitive Services Speech Devices SDK to optimize the experience for multi-microphone devices.
 /// Added in version 1.5.0.
 /// </summary>
 class ConversationTranscriber : public Recognizer

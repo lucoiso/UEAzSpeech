@@ -10,6 +10,14 @@
 #include <speechapi_c_connection.h>
 
 
+enum SpeechSynthesis_BoundaryType
+{
+    SpeechSynthesis_BoundaryType_Word = 0,
+    SpeechSynthesis_BoundaryType_Punctuation = 1,
+    SpeechSynthesis_BoundaryType_Sentence = 2
+};
+typedef enum SpeechSynthesis_BoundaryType SpeechSynthesis_BoundaryType;
+
 SPXAPI_(bool) synthesizer_handle_is_valid(SPXSYNTHHANDLE hsynth);
 SPXAPI synthesizer_handle_release(SPXSYNTHHANDLE hsynth);
 
@@ -57,8 +65,9 @@ SPXAPI synthesizer_connection_connected_set_callback(SPXCONNECTIONHANDLE hConnec
 SPXAPI synthesizer_connection_disconnected_set_callback(SPXCONNECTIONHANDLE hConnection, CONNECTION_CALLBACK_FUNC pCallback, void * pvContext);
 
 SPXAPI synthesizer_synthesis_event_get_result(SPXEVENTHANDLE hevent, SPXRESULTHANDLE* phresult);
-SPXAPI synthesizer_word_boundary_event_get_values(SPXEVENTHANDLE hevent, uint64_t* pAudioOffset, uint32_t* pTextOffset, uint32_t* pWordLength);
+SPXAPI synthesizer_word_boundary_event_get_values(SPXEVENTHANDLE hevent, uint64_t *pAudioOffset, uint64_t *pDuration,
+                                                  uint32_t *pTextOffset, uint32_t *pWordLength, SpeechSynthesis_BoundaryType *pBoundaryType);
+SPXAPI__(const char*) synthesizer_event_get_text(SPXEVENTHANDLE hEvent);
 SPXAPI synthesizer_viseme_event_get_values(SPXEVENTHANDLE hevent, uint64_t* pAudioOffset, uint32_t* pVisemeId);
 SPXAPI__(const char*) synthesizer_viseme_event_get_animation(SPXEVENTHANDLE hEvent);
 SPXAPI synthesizer_bookmark_event_get_values(SPXEVENTHANDLE hevent, uint64_t* pAudioOffset);
-SPXAPI__(const char*) synthesizer_bookmark_event_get_text(SPXEVENTHANDLE hEvent);

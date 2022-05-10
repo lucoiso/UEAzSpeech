@@ -62,4 +62,4 @@ AZAC_API_(void) diagnostics_log_trace_string(int level, const char* pszTitle, co
 AZAC_API_(void) diagnostics_log_trace_message(int level, const char* pszTitle, const char* fileName, const int lineNumber, const char* pszFormat, ...);
 AZAC_API_(void) diagnostics_log_trace_message2(int level, const char* pszTitle, const char* fileName, const int lineNumber, const char* pszFormat, va_list argptr);
 
-
+AZAC_API_(void) diagnostics_set_log_level(const char * logger, const char * level);

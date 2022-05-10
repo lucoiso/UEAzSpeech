@@ -37,7 +37,7 @@ public:
         synthesizer_bookmark_event_get_values(hevent, &m_audioOffset);
         AudioOffset = m_audioOffset;
 
-        m_text = Utils::ToSPXString(Utils::CopyAndFreePropertyString(synthesizer_bookmark_event_get_text(hevent)));
+        m_text = Utils::ToSPXString(Utils::CopyAndFreePropertyString(synthesizer_event_get_text(hevent)));
     };
 
     /// <inheritdoc/>

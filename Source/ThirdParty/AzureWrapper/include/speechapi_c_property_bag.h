@@ -102,6 +102,8 @@ enum  PropertyId
     AudioConfig_PlaybackBufferLengthInMs = 8006,
 
     Speech_LogFilename = 9001,
+    Speech_SegmentationSilenceTimeoutMs = 9002,
+
     Conversation_ApplicationId = 10000,
     Conversation_DialogType = 10001,
     Conversation_Initial_Silence_Timeout = 10002,

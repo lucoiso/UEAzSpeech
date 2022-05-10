@@ -7,6 +7,7 @@
 
 #pragma once
 #include <string>
+#include <chrono>
 #include <speechapi_cxx_common.h>
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_enums.h>
@@ -66,6 +67,7 @@ public:
         m_properties(hresult),
         ResultId(m_resultId),
         Reason(m_reason),
+        AudioDuration(m_audioDuration),
         Properties(m_properties)
     {
         SPX_DBG_TRACE_SCOPE(__FUNCTION__, __FUNCTION__);
@@ -81,7 +83,9 @@ public:
         m_reason = static_cast<ResultReason>(resultReason);
 
         uint32_t audioLength = 0;
-        SPX_THROW_ON_FAIL(synth_result_get_audio_length(m_hresult, &audioLength));
+        uint64_t audioDuration = 0;
+        SPX_THROW_ON_FAIL(synth_result_get_audio_length_duration(m_hresult, &audioLength, &audioDuration));
+        m_audioDuration = std::chrono::milliseconds(audioDuration);
 
         m_audioData = std::make_shared<std::vector<uint8_t>>(audioLength);
 
@@ -93,7 +97,7 @@ public:
     }
 
     /// <summary>
-    /// Gets the length of synthesized audio in bytes.
+    /// Gets the size of synthesized audio in bytes.
     /// </summary>
     /// <returns>Length of synthesized audio</returns>
     uint32_t GetAudioLength()
@@ -136,10 +140,25 @@ public:
     const ResultReason& Reason;
 
     /// <summary>
+    /// Time duration of the synthesized audio, only valid for completed synthsis.
+    /// Added in version 1.21.0
+    /// </summary>
+    const std::chrono::milliseconds& AudioDuration;
+
+    /// <summary>
     /// Collection of additional SpeechSynthesisResult properties.
     /// </summary>
     const PropertyCollection& Properties;
 
+#ifdef SWIG
+    /// <summary>
+    /// Audio duration in milliseconds.
+    /// </summary>
+    int64_t GetAudioDurationMilliseconds()
+    {
+        return m_audioDuration.count();
+    }
+#endif
 private:
 
     DISABLE_DEFAULT_CTORS(SpeechSynthesisResult);
@@ -158,6 +177,11 @@ private:
     /// Internal member variable that holds the audio data
     /// </summary>
     std::shared_ptr<std::vector<uint8_t>> m_audioData;
+
+    /// <summary>
+    /// Internal member variable that holds the audio duration
+    // </summary>
+    std::chrono::milliseconds m_audioDuration;
 };
 
 

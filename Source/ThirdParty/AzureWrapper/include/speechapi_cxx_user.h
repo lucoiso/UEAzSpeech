@@ -25,7 +25,7 @@ class User
 public:
 
     /// <summary>
-    /// Create a user using his user id
+    /// Create a user with identification string.
     /// </summary>
     /// <param name="userId">A user id.</param>
     /// <returns>A user object</returns>

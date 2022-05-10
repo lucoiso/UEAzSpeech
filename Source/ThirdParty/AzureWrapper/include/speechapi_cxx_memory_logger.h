@@ -11,6 +11,7 @@
 #include <vector>
 #include <azac_api_c_diagnostics.h>
 #include <azac_api_cxx_common.h>
+#include <speechapi_cxx_log_level.h>
 
 namespace Microsoft {
 namespace CognitiveServices {
@@ -37,7 +38,7 @@ namespace Logging {
 /// </summary>
 /// <remarks>Memory logging is a process wide construct. That means that if (for example)
 /// you have multiple speech recognizer objects running in parallel, there will be one
-/// memory buffer containing interleaved logs from all recognizers. You cannot get a 
+/// memory buffer containing interleaved logs from all recognizers. You cannot get a
 /// separate logs for each recognizer.</remarks>
 class MemoryLogger
 {
@@ -131,6 +132,16 @@ public:
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Sets the level of the messages to be captured by the logger
+    /// </summary>
+    /// <param name="level">Maximum level of detail to be captured by the logger.</param>
+    static void SetLevel(Level level)
+    {
+        const auto levelStr = Details::LevelToString(level);
+        diagnostics_set_log_level("memory", levelStr);
     }
 
 private:

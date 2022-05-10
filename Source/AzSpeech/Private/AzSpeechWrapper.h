@@ -66,8 +66,7 @@ namespace FAzSpeechWrapper
 				SpeechConfig);
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
-				SpeechSynthesisResult->Reason ==
-				Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+				SpeechSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 			{
 				return true;
 			}
@@ -86,8 +85,8 @@ namespace FAzSpeechWrapper
 				return false;
 			}
 
-			const auto& SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
-				APIAccessKey, RegionID);
+			const auto& SpeechConfig =
+				Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(APIAccessKey, RegionID);
 
 			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
 			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
@@ -109,14 +108,13 @@ namespace FAzSpeechWrapper
 				return LocalPath + LocalName;
 			};
 
-			const auto& AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(
-				QualifiedFileInfo());
-			const auto& SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(
-				SpeechConfig, AudioConfig);
+			const auto& AudioConfig =
+				Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(QualifiedFileInfo());
+			const auto& SpeechSynthesizer =
+				Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, AudioConfig);
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
-				SpeechSynthesisResult->Reason ==
-				Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+				SpeechSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 			{
 				return true;
 			}
@@ -134,8 +132,8 @@ namespace FAzSpeechWrapper
 				return "Invalid parameters";
 			}
 
-			const auto& SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
-				APIAccessKey, RegionID);
+			const auto& SpeechConfig =
+				Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(APIAccessKey, RegionID);
 
 			SpeechConfig->SetSpeechRecognitionLanguage(LanguageID);
 			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
@@ -158,10 +156,11 @@ namespace FAzSpeechWrapper
 				return LocalPath + LocalName;
 			};
 
-			const auto& AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(
-				QualifiedFileInfo());
-			const auto& SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(
-				SpeechConfig, AudioConfig);
+			const auto& AudioConfig =
+				Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(QualifiedFileInfo());
+			const auto& SpeechRecognizer =
+				Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, AudioConfig);
+			
 			const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
 
 			std::string RecognizedString = "not recognized";
@@ -184,20 +183,19 @@ namespace FAzSpeechWrapper
 				return std::vector<uint8_t>();
 			}
 
-			const auto& SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(
-				APIAccessKey, RegionID);
+			const auto& SpeechConfig =
+				Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(APIAccessKey, RegionID);
 
 			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
 			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
 
-			const auto& SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(
-				SpeechConfig,
+			const auto& SpeechSynthesizer =
+				Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig,
 				Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(
 					Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream()));
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
-				SpeechSynthesisResult->Reason ==
-				Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+				SpeechSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 			{
 				return *SpeechSynthesisResult->GetAudioData().get();
 			}

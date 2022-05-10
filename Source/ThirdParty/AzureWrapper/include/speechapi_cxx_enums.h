@@ -365,6 +365,24 @@ enum class PropertyId
     SpeechServiceResponse_TranslationRequestStablePartialResult = 4100,
 
     /// <summary>
+    /// A boolean value specifying whether to request WordBoundary events.
+    /// Added in version 1.21.0.
+    /// </summary>
+    SpeechServiceResponse_RequestWordBoundary = 4200,
+
+    /// <summary>
+    /// A boolean value specifying whether to request punctuation boundary in WordBoundary Events. Default is true.
+    /// Added in version 1.21.0.
+    /// </summary>
+    SpeechServiceResponse_RequestPunctuationBoundary = 4201,
+
+    /// <summary>
+    /// A boolean value specifying whether to request sentence boundary in WordBoundary Events. Default is false.
+    /// Added in version 1.21.0.
+    /// </summary>
+    SpeechServiceResponse_RequestSentenceBoundary = 4202,
+
+    /// <summary>
     /// The Cognitive Services Speech Service response output (in JSON format). This property is available on recognition result objects only.
     /// </summary>
     SpeechServiceResponse_JsonResult = 5000,
@@ -486,6 +504,19 @@ enum class PropertyId
     /// Added in version 1.4.0.
     /// </summary>
     Speech_LogFilename = 9001,
+
+    /// <summary>
+    /// A duration of detected silence, measured in milliseconds, after which speech-to-text will determine a spoken
+    /// phrase has ended and generate a final Recognized result. Configuring this timeout may be helpful in situations
+    /// where spoken input is significantly faster or slower than usual and default segmentation behavior consistently
+    /// yields results that are too long or too short. Segmentation timeout values that are inappropriately high or low
+    /// can negatively affect speech-to-text accuracy; this property should be carefully configured and the resulting
+    /// behavior should be thoroughly validated as intended.
+    ///
+    /// For more information about timeout configuration that includes discussion of default behaviors, please visit
+    /// https://aka.ms/csspeech/timeouts.
+    /// </summary>
+    Speech_SegmentationSilenceTimeoutMs = 9002,
 
     /// <summary>
     /// Identifier used to connect to the backend service.
@@ -1392,6 +1423,28 @@ enum class SynthesisVoiceGender
     /// Male voice
     /// </summary>
     Male
+};
+
+/// <summary>
+/// Defines the boundary type of speech synthesis boundary event
+/// Added in version 1.21.0
+/// </summary>
+enum class SpeechSynthesisBoundaryType
+{
+    /// <summary>
+    /// Word boundary
+    /// </summary>
+    Word,
+
+    /// <summary>
+    /// Punctuation boundary
+    /// </summary>
+    Punctuation,
+
+    /// <summary>
+    /// Sentence boundary
+    /// </summary>
+    Sentence
 };
 
 } } } // Microsoft::CognitiveServices::Speech

@@ -10,6 +10,8 @@
 #include <locale>
 #include <wchar.h>
 #include <vector>
+
+#include <azac_api_c_pal.h>
 #include <speechapi_cxx_common.h>
 #include <speechapi_c_error.h>
 #include <speechapi_c_property_bag.h>
@@ -27,11 +29,29 @@ namespace CognitiveServices {
 namespace Speech {
 namespace Utils {
 
+namespace Details {
+
+    inline std::string to_string(const std::wstring& value)
+    {
+        const auto size = pal_wstring_to_string(nullptr, value.c_str(), 0);
+        auto buffer = std::make_unique<std::string::value_type[]>(size);
+        pal_wstring_to_string(buffer.get(), value.c_str(), size);
+        return std::string{ buffer.get() };
+    }
+
+    inline std::wstring to_string(const std::string& value)
+    {
+        const auto size = pal_string_to_wstring(nullptr, value.c_str(), 0);
+        auto buffer = std::make_unique<std::wstring::value_type[]>(size);
+        pal_string_to_wstring(buffer.get(), value.c_str(), size);
+        return std::wstring{ buffer.get() };
+    }
+}
+
 #if defined(SWIG) && defined(SPX_UWP)
 inline std::wstring ToSPXString(const std::string& value)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    return converter.from_bytes(value);
+    return Details::to_string(value);
 }
 
 inline std::wstring ToSPXString(const char* value)
@@ -54,8 +74,7 @@ inline std::string ToSPXString(const std::string& value)
 
 inline std::string ToUTF8(const std::wstring& value)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    return converter.to_bytes(value);
+    return Details::to_string(value);
 }
 
 inline std::string ToUTF8(const wchar_t* value)
