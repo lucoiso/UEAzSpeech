@@ -6,28 +6,6 @@
 #include "Sound/SoundWave.h"
 #include "Misc/FileHelper.h"
 
-USoundWave* CreateNewSoundWave()
-{
-	const FString ObjectName = "Transient_AzSpeechSoundWave";
-
-	if (USoundWave* SoundWave = FindObject<USoundWave>(GetTransientPackage(), *ObjectName);
-		IsValid(SoundWave))	
-	{
-		SoundWave->FreeResources();
-		SoundWave->RemoveAudioResource();
-		SoundWave->MarkAsGarbage();
-		
-		if (SoundWave->RawData.IsLocked())
-		{
-			SoundWave->RawData.Unlock();
-		}
-
-		SoundWave->RawData.RemoveBulkData();
-	}
-	
-	return NewObject<USoundWave>(GetTransientPackage(), *ObjectName, RF_Transient);
-}
-
 USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString FilePath, const FString FileName)
 {
 	if (!FilePath.IsEmpty() && !FileName.IsEmpty())
@@ -66,7 +44,7 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawDat
 	if (RawData.Num() != 0)
 #endif
 	{
-		USoundWave* SoundWave = CreateNewSoundWave();
+		USoundWave* SoundWave = NewObject<USoundWave>();
 
 		SoundWave->RawData.Lock(LOCK_READ_WRITE);
 		void* RawDataPtr = SoundWave->RawData.Realloc(RawData.Num());
