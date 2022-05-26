@@ -27,6 +27,6 @@ private:
 	void* SilkDLL = nullptr;
 	void* CodecDLL = nullptr;
 
-	void FreeDependency(void*& Handle);
-	void LoadDependency(const FString& Path, void*& Handle);
+	static void FreeDependency(void*& Handle);
+	static void LoadDependency(const FString& Path, void*& Handle);
 };

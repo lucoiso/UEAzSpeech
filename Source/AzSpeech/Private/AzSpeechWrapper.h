@@ -66,7 +66,8 @@ namespace FAzSpeechWrapper
 				SpeechConfig);
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
-				SpeechSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+				SpeechSynthesisResult->Reason ==
+				Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 			{
 				return true;
 			}
@@ -114,7 +115,8 @@ namespace FAzSpeechWrapper
 				Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, AudioConfig);
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
-				SpeechSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+				SpeechSynthesisResult->Reason ==
+				Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 			{
 				return true;
 			}
@@ -160,7 +162,7 @@ namespace FAzSpeechWrapper
 				Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(QualifiedFileInfo());
 			const auto& SpeechRecognizer =
 				Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, AudioConfig);
-			
+
 			const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
 
 			std::string RecognizedString = "not recognized";
@@ -191,11 +193,12 @@ namespace FAzSpeechWrapper
 
 			const auto& SpeechSynthesizer =
 				Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig,
-				Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(
-					Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream()));
+					Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(
+						Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream()));
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
-				SpeechSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+				SpeechSynthesisResult->Reason ==
+				Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 			{
 				return *SpeechSynthesisResult->GetAudioData().get();
 			}

@@ -15,7 +15,6 @@
 
 void FAzSpeechModule::StartupModule()
 {
-#if PLATFORM_WINDOWS && defined _WIN64
 	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
 	                                       TEXT("Source/ThirdParty/AzureWrapper/lib/"));
 
@@ -26,9 +25,6 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasDLL);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkDLL);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecDLL);
-#else
-	FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("AzSpeechError", "Failed to load AzSpeech - Currently supports only Win64 builds"));
-#endif
 }
 
 void FAzSpeechModule::ShutdownModule()
@@ -58,9 +54,6 @@ void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 	if (Handle == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load required library %s. Plug-in will not be functional."), *Path);
-
-		// const FText MsgInfo = ("AzSpeechError", FText::FromString(FString("Failed to load AzSpeech library: ") + Path));
-		// FMessageDialog::Open(EAppMsgType::Ok, MsgInfo);
 	}
 }
 
