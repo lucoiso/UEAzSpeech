@@ -23,10 +23,10 @@ public:
 	FTextToVoiceDelegate TaskCompleted;
 
 	/* Creates a Text-To-Voice task that will convert your text into speech */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"),
-		Category = "AzSpeech")
-	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject, const FString TextToConvert,
-	                                           const FString VoiceName, const FAzSpeechData Parameters);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject, const FString& TextToConvert,
+	                                           const FString& VoiceName, const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 

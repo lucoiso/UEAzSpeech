@@ -4,13 +4,13 @@
 
 #pragma once
 
-#if ENGINE_MAJOR_VERSION < 5
-#include "Modules/ModuleManager.h"
-#endif
+#include "Modules/ModuleInterface.h"
 
 /**
  *
  */
+
+DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech, Display, Verbose);
 
 class FAzSpeechModule : public IModuleInterface
 {

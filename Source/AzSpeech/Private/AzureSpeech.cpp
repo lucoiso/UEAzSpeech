@@ -13,10 +13,12 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
+DEFINE_LOG_CATEGORY(LogAzSpeech);
+
 void FAzSpeechModule::StartupModule()
 {
-	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
-	                                       TEXT("Source/ThirdParty/AzureWrapper/lib/"));
+	const FString PreDir = FPaths::Combine(
+		*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/lib/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreDLL);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioDLL);
