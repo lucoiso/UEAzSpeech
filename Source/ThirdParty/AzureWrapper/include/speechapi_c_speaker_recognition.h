@@ -22,7 +22,7 @@ SPXAPI voice_profile_release_handle(SPXVOICEPROFILEHANDLE hVoiceProfile);
 SPXAPI voice_profile_get_property_bag(SPXVOICEPROFILEHANDLE voiceprofilehandle, SPXPROPERTYBAGHANDLE* pProperties);
 SPXAPI delete_voice_profile(SPXVOICEPROFILECLIENTHANDLE hclient, SPXVOICEPROFILEHANDLE hProfileHandle, SPXRESULTHANDLE* phresult);
 SPXAPI reset_voice_profile(SPXVOICEPROFILECLIENTHANDLE hVoiceProfileClient, SPXVOICEPROFILEHANDLE hProfileHandle, SPXRESULTHANDLE* phresult);
-SPXAPI__(const char*) get_profiles_json(SPXVOICEPROFILECLIENTHANDLE hVoiceProfileClient, int type);
+SPXAPI get_profiles_json(SPXVOICEPROFILECLIENTHANDLE hVoiceProfileClient, int type, char** ppsz, size_t* pcch);
 SPXAPI retrieve_enrollment_result(SPXVOICEPROFILECLIENTHANDLE hVoiceProfileClient, const char* pId, int type, SPXVOICEPROFILEHANDLE* phVoiceProfile);
 SPXAPI get_activation_phrases(SPXVOICEPROFILECLIENTHANDLE hVoiceProfileClient, const char* pLocale, int type, SPXRESULTHANDLE* phresult);
 SPXAPI recognizer_create_speaker_recognizer_from_config(SPXSPEAKERIDHANDLE* phspeakerid, SPXSPEECHCONFIGHANDLE hspeechconfig, SPXAUDIOCONFIGHANDLE haudioInput);

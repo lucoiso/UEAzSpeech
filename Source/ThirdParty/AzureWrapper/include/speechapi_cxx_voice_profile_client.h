@@ -166,7 +166,7 @@ public:
         auto future = std::async(std::launch::async, [voiceProfileId, voiceProfileType, this, keepAlive]() -> std::shared_ptr<VoiceProfileEnrollmentResult> {
             SPXRESULTHANDLE hResultHandle;
             SPX_THROW_ON_FAIL(::retrieve_enrollment_result(m_hVoiceProfileClient, Utils::ToUTF8(voiceProfileId).c_str(), static_cast<int>(voiceProfileType), &hResultHandle));
-            return std::shared_ptr<VoiceProfileEnrollmentResult> { new VoiceProfileEnrollmentResult(hResultHandle) };
+            return std::make_shared<VoiceProfileEnrollmentResult>(hResultHandle);
             });
         return future;
     }
@@ -189,15 +189,26 @@ public:
     std::future<std::vector<std::shared_ptr<VoiceProfile>>> GetAllProfilesAsync(VoiceProfileType voiceProfileType)
     {
         auto keepAlive = this->shared_from_this();
-        auto future = std::async(std::launch::async, [voiceProfileType, this, keepAlive]() -> std::vector<std::shared_ptr<VoiceProfile>> {
+        auto future = std::async(std::launch::async, [voiceProfileType, this, keepAlive]() -> std::vector<std::shared_ptr<VoiceProfile>>
+        {
             std::vector<std::shared_ptr<VoiceProfile>> list;
-            auto profileList = Utils::Split(Utils::CopyAndFreePropertyString(get_profiles_json(m_hVoiceProfileClient, static_cast<int>(voiceProfileType))), '|');
+
+            size_t numChars = 0;
+            char* json = nullptr;
+            auto deleteJsonOnEixt = Utils::MakeScopeGuard([&json]() {
+                ::property_bag_free_string(json);
+            });
+
+            SPX_THROW_ON_FAIL(::get_profiles_json(m_hVoiceProfileClient, static_cast<int>(voiceProfileType), &json, &numChars));
+
+            auto profileList = Utils::Split(json, numChars, '|');
             for (auto& profile: profileList)
             {
-                list.push_back(std::shared_ptr<VoiceProfile> { VoiceProfile::FromId(profile, voiceProfileType) });
+                list.push_back(VoiceProfile::FromId(Utils::ToSPXString(profile), voiceProfileType));
             }
+
             return list;
-            });
+        });
         return future;
     }
 

@@ -1169,7 +1169,35 @@ enum class SpeechSynthesisOutputFormat
     /// Audio compressed by OPUS codec without container, with bitrate of 24kbps.
     /// (Added in 1.20.0)
     /// </summary>
-    Audio24Khz16Bit24KbpsMonoOpus = 33
+    Audio24Khz16Bit24KbpsMonoOpus = 33,
+
+    /// <summary>
+    /// raw-22050hz-16bit-mono-pcm
+    /// Raw PCM audio at 22050Hz sampling rate and 16-bit depth.
+    /// (Added in 1.22.0)
+    /// </summary>
+    Raw22050Hz16BitMonoPcm = 34,
+
+    /// <summary>
+    /// riff-22050hz-16bit-mono-pcm
+    /// PCM audio at 22050Hz sampling rate and 16-bit depth, with RIFF header.
+    /// (Added in 1.22.0)
+    /// </summary>
+    Riff22050Hz16BitMonoPcm = 35,
+
+    /// <summary>
+    /// raw-44100hz-16bit-mono-pcm
+    /// Raw PCM audio at 44100Hz sampling rate and 16-bit depth.
+    /// (Added in 1.22.0)
+    /// </summary>
+    Raw44100Hz16BitMonoPcm = 36,
+
+    /// <summary>
+    /// riff-44100hz-16bit-mono-pcm
+    /// PCM audio at 44100Hz sampling rate and 16-bit depth, with RIFF header.
+    /// (Added in 1.22.0)
+    /// </summary>
+    Riff44100Hz16BitMonoPcm = 37
 };
 
 /// <summary>

@@ -10,6 +10,7 @@
 #include <locale>
 #include <wchar.h>
 #include <vector>
+#include <limits>
 
 #include <azac_api_c_pal.h>
 #include <speechapi_cxx_common.h>
@@ -101,26 +102,55 @@ inline static std::string CopyAndFreePropertyString(const char* value)
     return copy;
 }
 
-inline static std::vector<SPXSTRING> Split(const std::string& str, const char delim)
+template<typename TCHAR>
+inline static size_t Find(const TCHAR* pStr, const size_t numChars, const TCHAR find, size_t startAt = 0)
 {
-    std::vector<SPXSTRING> result;
+    for (size_t i = startAt; i < numChars; i++)
+    {
+        TCHAR c = pStr[i];
+        if (c == '\0')
+        {
+            break;
+        }
+        else if (c == find)
+        {
+            return i;
+        }
+    }
 
-    if (str.empty())
+    return (std::numeric_limits<size_t>::max)(); // weird syntax to avoid Windows min/max macros
+}
+
+template<typename TCHAR>
+static std::vector<std::basic_string<TCHAR>> Split(const TCHAR* pStr, const size_t numChars, const TCHAR delim)
+{
+    std::vector<std::basic_string<TCHAR>> result;
+    if (pStr == nullptr)
     {
         return result;
     }
 
     size_t start = 0;
-    size_t end = str.find(delim);
-    while (end != std::string::npos)
+    size_t end = Find(pStr, numChars, delim, 0);
+    while (end != (std::numeric_limits<size_t>::max)())
     {
-        result.push_back(str.substr(start, end - start));
+        result.push_back(std::basic_string<TCHAR>(pStr + start, end - start));
         start = end + 1;
-        end = str.find(delim, start);
+        end = Find(pStr, numChars, delim, start);
     }
-    result.push_back(ToSPXString(str.substr(start)));
+
+    if (start < numChars)
+    {
+        result.push_back(std::basic_string<TCHAR>(pStr + start, numChars - start));
+    }
 
     return result;
+}
+
+template<typename TCHAR>
+inline static std::vector<std::basic_string<TCHAR>> Split(const std::basic_string<TCHAR>& str, const TCHAR delim)
+{
+    return Split(str.c_str(), str.size(), delim);
 }
 
 }}}}
