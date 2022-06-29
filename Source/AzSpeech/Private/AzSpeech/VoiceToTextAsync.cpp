@@ -7,6 +7,10 @@
 #include "Async/Async.h"
 #include "AzSpeech/AzSpeechHelper.h"
 
+#if PLATFORM_ANDROID
+#include "AndroidPermissionFunctionLibrary.h"
+#endif
+
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx.h>
 THIRD_PARTY_INCLUDES_END
@@ -101,5 +105,12 @@ UVoiceToTextAsync* UVoiceToTextAsync::VoiceToTextAsync(const UObject* WorldConte
 
 void UVoiceToTextAsync::Activate()
 {
+#if PLATFORM_ANDROID
+	if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.RECORD_AUDIO")))
+	{
+		UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ ("android.permission.RECORD_AUDIO") });
+	}
+#endif
+
 	AzSpeechWrapper::Unreal_Cpp::AsyncVoiceToText(Parameters, TaskCompleted);
 }

@@ -12,6 +12,10 @@ THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx.h>
 THIRD_PARTY_INCLUDES_END
 
+#if PLATFORM_ANDROID
+#include "AndroidPermissionFunctionLibrary.h"
+#endif
+
 using namespace Microsoft::CognitiveServices::Speech;
 using namespace Microsoft::CognitiveServices::Speech::Audio;
 
@@ -119,5 +123,12 @@ UWavToTextAsync* UWavToTextAsync::WavToTextAsync(const UObject* WorldContextObje
 
 void UWavToTextAsync::Activate()
 {
+#if PLATFORM_ANDROID
+	if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.READ_EXTERNAL_STORAGE")))
+	{
+		UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ ("android.permission.READ_EXTERNAL_STORAGE") });
+	}
+#endif
+
 	AzSpeechWrapper::Unreal_Cpp::AsyncWavToText(FilePath, FileName, Parameters, TaskCompleted);
 }

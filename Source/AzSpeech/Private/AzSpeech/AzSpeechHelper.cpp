@@ -8,6 +8,10 @@
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFileManager.h"
 
+#if PLATFORM_ANDROID
+#include "AndroidPermissionFunctionLibrary.h"
+#endif
+
 bool UAzSpeechHelper::IsAzSpeechDataEmpty(const FAzSpeechData Data)
 {
 	return Data.LanguageID.IsEmpty() || Data.RegionID.IsEmpty() || Data.APIAccessKey.IsEmpty();
@@ -37,6 +41,16 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 		if (const FString& Full_FileName = QualifyWAVFileName(FilePath, FileName);
 			FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 		{
+#if PLATFORM_ANDROID
+			if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.READ_EXTERNAL_STORAGE")))
+			{
+				UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ FString("android.permission.READ_EXTERNAL_STORAGE") });
+			}
+			if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.READ_MEDIA_AUDIO")))
+			{
+				UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ FString("android.permission.READ_MEDIA_AUDIO") });
+			}
+#endif
 			if (TArray<uint8> RawData;
 				FFileHelper::LoadFileToArray(RawData, *QualifyWAVFileName(FilePath, FileName), FILEREAD_NoFail))
 			{
@@ -64,11 +78,6 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawDat
 	{
 		if (USoundWave* SoundWave = NewObject<USoundWave>())
 		{
-			SoundWave->RawData.Lock(LOCK_READ_WRITE);
-			void* RawDataPtr = SoundWave->RawData.Realloc(RawData.Num());
-			FMemory::Memcpy(RawDataPtr, RawData.GetData(), RawData.Num());
-			SoundWave->RawData.Unlock();
-
 			FWaveModInfo WaveInfo;
 			WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
 
@@ -82,6 +91,10 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawDat
 			SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
 			SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
 			SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
+
+			SoundWave->RawPCMDataSize = WaveInfo.SampleDataSize;
+			SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
+			FMemory::Memcpy(SoundWave->RawPCMData, WaveInfo.SampleDataStart, WaveInfo.SampleDataSize);
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));
 			return SoundWave;

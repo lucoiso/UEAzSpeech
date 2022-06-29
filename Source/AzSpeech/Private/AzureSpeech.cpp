@@ -18,7 +18,8 @@ DEFINE_LOG_CATEGORY(LogAzSpeech);
 void FAzSpeechModule::StartupModule()
 {
 	const FString PreDir = FPaths::Combine(
-		*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Runtime/"));
+		*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
+		TEXT("Source/ThirdParty/AzureWrapper/libs/Runtime/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
