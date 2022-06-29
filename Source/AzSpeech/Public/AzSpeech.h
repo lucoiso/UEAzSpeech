@@ -19,13 +19,13 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
-	void* CoreDLL = nullptr;
-	void* AudioDLL = nullptr;
-	void* KwsDLL = nullptr;
-	void* LuDLL = nullptr;
-	void* MasDLL = nullptr;
-	void* SilkDLL = nullptr;
-	void* CodecDLL = nullptr;
+	void* CoreRuntimeLib = nullptr;
+	void* AudioRuntimeLib = nullptr;
+	void* KwsRuntimeLib = nullptr;
+	void* LuRuntimeLib = nullptr;
+	void* MasRuntimeLib = nullptr;
+	void* SilkRuntimeLib = nullptr;
+	void* CodecRuntimeLib = nullptr;
 
 	static void FreeDependency(void*& Handle);
 	static void LoadDependency(const FString& Path, void*& Handle);

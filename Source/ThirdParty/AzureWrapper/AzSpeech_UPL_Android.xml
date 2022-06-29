@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+    <resourceCopies>
+        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.core.so" 
+                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.core.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so" 
+                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.kws.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.kws.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.lu.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.lu.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so" />
+    </resourceCopies>
+    
+    <soLoadLibrary>        
+        <loadLibrary name="libMicrosoft.CognitiveServices.Speech.core"                     
+                     failmsg="libMicrosoft.CognitiveServices.Speech.core library not loaded and may be required for AzSpeech." />
+        <loadLibrary name="libMicrosoft.CognitiveServices.Speech.extension.audio.sys"
+                     failmsg="libMicrosoft.CognitiveServices.Speech.extension.audio.sys library not loaded and may be required for AzSpeech." />
+        <loadLibrary name="libMicrosoft.CognitiveServices.Speech.extension.kws"
+                     failmsg="libMicrosoft.CognitiveServices.Speech.core library not loaded and may be required for AzSpeech." />
+        <loadLibrary name="libMicrosoft.CognitiveServices.Speech.extension.lu"
+                     failmsg="libMicrosoft.CognitiveServices.Speech.extension.lu library not loaded and may be required for AzSpeech." />
+        <loadLibrary name="libMicrosoft.CognitiveServices.Speech.extension.silk_codec"
+                     failmsg="libMicrosoft.CognitiveServices.Speech.extension.silk_codec library not loaded and may be required for AzSpeech." />
+    </soLoadLibrary>
+</root>
