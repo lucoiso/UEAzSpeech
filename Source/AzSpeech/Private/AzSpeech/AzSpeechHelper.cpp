@@ -20,7 +20,7 @@ bool UAzSpeechHelper::IsAzSpeechDataEmpty(const FAzSpeechData Data)
 FString UAzSpeechHelper::QualifyWAVFileName(const FString& Path, const FString& Name)
 {
 	FString LocalPath = Path;
-	
+
 	if (*Path.end() != '/')
 	{
 		LocalPath += '/';
@@ -34,7 +34,7 @@ FString UAzSpeechHelper::QualifyWAVFileName(const FString& Path, const FString& 
 
 	const FString QualifiedName = LocalPath + LocalName;
 	UE_LOG(LogAzSpeech, Log, TEXT("AzSpeech - %s: Qualified WAV file name: %s"), *FString(__func__), *QualifiedName);
-	
+
 	return QualifiedName;
 }
 
@@ -107,6 +107,6 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawDat
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: RawData is empty"), *FString(__func__));
 	}
-	
+
 	return nullptr;
 }
