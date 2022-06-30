@@ -75,7 +75,11 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 
 USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawData)
 {
-	if (!RawData.IsEmpty())
+	#if ENGINE_MAJOR_VERSION >= 5
+    	if (!RawData.IsEmpty())
+    #else
+    	if (RawData.Num() != 0)
+    #endif
 	{
 		if (USoundWave* SoundWave = NewObject<USoundWave>())
 		{
@@ -91,7 +95,10 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawDat
 			SoundWave->NumChannels = ChannelCount;
 			SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
 			SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
+
+#if ENGINE_MAJOR_VERSION >= 5
 			SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
+#endif
 
 			SoundWave->RawPCMDataSize = WaveInfo.SampleDataSize;
 			SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
