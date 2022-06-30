@@ -46,10 +46,6 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 			{
 				UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ FString("android.permission.READ_EXTERNAL_STORAGE") });
 			}
-			if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.READ_MEDIA_AUDIO")))
-			{
-				UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ FString("android.permission.READ_MEDIA_AUDIO") });
-			}
 #endif
 			if (TArray<uint8> RawData;
 				FFileHelper::LoadFileToArray(RawData, *QualifyWAVFileName(FilePath, FileName), FILEREAD_NoFail))
