@@ -59,8 +59,9 @@ public:
         return (AZAC_HANDLE)(*access);
     }
 
-    static std::shared_ptr<T> FromHandle(AZAC_HANDLE handle) {
-        return T::FromHandle(handle);
+    template<typename... Args>
+    static std::shared_ptr<T> FromHandle(AZAC_HANDLE handle, Args... extras) {
+        return T::FromHandle(handle, extras...);
     }
 
     template<typename... Args>

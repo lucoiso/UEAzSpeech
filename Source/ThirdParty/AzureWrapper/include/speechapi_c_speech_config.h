@@ -93,27 +93,43 @@ typedef enum
     // raw-24khz-16bit-mono-truesilk
     SpeechSynthesisOutputFormat_Raw24Khz16BitMonoTrueSilk = 27,
 
-    /// raw-8khz-8bit-mono-alaw
+    // raw-8khz-8bit-mono-alaw
     SpeechSynthesisOutputFormat_Raw8Khz8BitMonoALaw = 28,
 
-    /// riff-8khz-8bit-mono-alaw
+    // riff-8khz-8bit-mono-alaw
     SpeechSynthesisOutputFormat_Riff8Khz8BitMonoALaw = 29,
 
-    /// webm-24khz-16bit-24kbps-mono-opus
-    /// Audio compressed by OPUS codec in a WebM container, with bitrate of 24kbps, optimized for IoT scenario.
+    // webm-24khz-16bit-24kbps-mono-opus
+    // Audio compressed by OPUS codec in a WebM container, with bitrate of 24kbps, optimized for IoT scenario.
     SpeechSynthesisOutputFormat_Webm24Khz16Bit24KbpsMonoOpus = 30,
 
-    /// audio-16khz-16bit-32kbps-mono-opus
-    /// Audio compressed by OPUS codec without container, with bitrate of 32kbps.
+    // audio-16khz-16bit-32kbps-mono-opus
+    // Audio compressed by OPUS codec without container, with bitrate of 32kbps.
     SpeechSynthesisOutputFormat_Audio16Khz16Bit32KbpsMonoOpus = 31,
 
-    /// audio-24khz-48bit-mono-opus
-    /// Audio compressed by OPUS codec without container, with bitrate of 48kbps.
+    // audio-24khz-48bit-mono-opus
+    // Audio compressed by OPUS codec without container, with bitrate of 48kbps.
     SpeechSynthesisOutputFormat_Audio24Khz16Bit48KbpsMonoOpus = 32,
 
-    /// audio-24khz-24bit-mono-opus
-    /// Audio compressed by OPUS codec without container, with bitrate of 24kbps.
+    // audio-24khz-24bit-mono-opus
+    // Audio compressed by OPUS codec without container, with bitrate of 24kbps.
     SpeechSynthesisOutputFormat_Audio24Khz16Bit24KbpsMonoOpus = 33,
+
+    // raw-22050hz-16bit-mono-pcm
+    // Raw PCM audio at 22050Hz sampling rate and 16-bit depth.
+    SpeechSynthesisOutputFormat_Raw22050Hz16BitMonoPcm = 34,
+
+    // riff-22050hz-16bit-mono-pcm
+    // PCM audio at 22050Hz sampling rate and 16-bit depth, with RIFF header.
+    SpeechSynthesisOutputFormat_Riff22050Hz16BitMonoPcm = 35,
+
+    // raw-44100hz-16bit-mono-pcm
+    // Raw PCM audio at 44100Hz sampling rate and 16-bit depth.
+    SpeechSynthesisOutputFormat_Raw44100Hz16BitMonoPcm = 36,
+
+    // riff-44100hz-16bit-mono-pcm
+    // PCM audio at 44100Hz sampling rate and 16-bit depth, with RIFF header.
+    SpeechSynthesisOutputFormat_Riff44100Hz16BitMonoPcm = 37
 } Speech_Synthesis_Output_Format;
 
 typedef enum
