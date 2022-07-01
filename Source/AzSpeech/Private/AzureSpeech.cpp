@@ -20,7 +20,7 @@ void FAzSpeechModule::StartupModule()
 #if PLATFORM_WINDOWS
 	const FString PreDir = FPaths::Combine(
 		*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
-		TEXT("Source/ThirdParty/AzureWrapper/libs/Runtime/"));
+		TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
