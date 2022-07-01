@@ -17,6 +17,7 @@ DEFINE_LOG_CATEGORY(LogAzSpeech);
 
 void FAzSpeechModule::StartupModule()
 {
+#if PLATFORM_WINDOWS
 	const FString PreDir = FPaths::Combine(
 		*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
 		TEXT("Source/ThirdParty/AzureWrapper/libs/Runtime/"));
@@ -28,6 +29,7 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
+#endif
 }
 
 void FAzSpeechModule::ShutdownModule()
@@ -56,7 +58,9 @@ void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 
 	if (Handle == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to load required library %s. Plug-in will not be functional."), *Path);
+		UE_LOG(LogAzSpeech, Warning,
+			TEXT("AzSpeech - %s: Failed to load required library %s. Plug-in will not be functional."),
+			*FString(__func__), *Path);
 	}
 }
 
