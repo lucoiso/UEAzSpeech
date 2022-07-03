@@ -64,7 +64,7 @@ public class AzureWrapper : ModuleRules
 				"libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so"));
 		}
 		
-		PublicDependencyModuleNames.AddRange(new[] 
+		PrivateDependencyModuleNames.AddRange(new[] 
 			{
 				"AndroidPermission"
 			});

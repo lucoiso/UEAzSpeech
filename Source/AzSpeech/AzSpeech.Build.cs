@@ -21,8 +21,14 @@ public class AzSpeech : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new[]
 			{
+				"Core"
+			}
+		);
+		
+		PrivateDependencyModuleNames.AddRange(
+			new[]
+			{
 				"Engine",
-				"Core",
 				"CoreUObject",
 				"Projects",
 				"AzureWrapper"
