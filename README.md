@@ -1,12 +1,13 @@
-# Plugin: AzSpeech
-## About the project
+# Unreal Engine Plugin: AzSpeech
+## About
+![image](https://user-images.githubusercontent.com/77353979/166697446-6a842789-e543-4eec-b5c1-134b22480e7e.png)  
 
 A plugin integrating Azure Speech Cognitive Services to Unreal Engine with simple functions which can do these asynchronous tasks: 
-  1. Voice-To-Text (Convert a speech into a string)
-  2. Text-To-Voice (Convert a string into a speech)
-  3. Text-To-Wav (Convert a string into a .wav audio file)
-  4. Wav-To-Text (Convert a .wav audio file into a string)
-  5. Text-To-Stream (Convert a string into a audio data stream)
+* Voice-To-Text (Convert a speech into a string)
+* Text-To-Voice (Convert a string into a speech)
+* Text-To-Wav (Convert a string into a .wav audio file)
+* Wav-To-Text (Convert a .wav audio file into a string)
+* Text-To-Stream (Convert a string into a audio data stream)
 
 And helper functions:
 * Runtime USoundWave importer via Audio File
@@ -14,33 +15,29 @@ And helper functions:
 
 ## Links
 
-**Marketplace:** [AzSpeech - Text and Voice
-](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)  
-**Forum:** [[FREE] AzSpeech plugin: Async Text-to-Voice and Voice-to-Text with Microsoft Azure](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)  
-**Microsoft Documentation:** [Speech Service Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
+* [UE Marketplace](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)  
+* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)  
+* [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 
 # Documentation
-## Installation
+##Installation
 Just clone this repository or download the .zip file in the latest version and drop the files inside the 'Plugins/' folder of your project folder.
 Note that if your project doesn't have a 'Plugins' folder, you can create one.
 
 ## Blueprint Usage
-
-![image](https://user-images.githubusercontent.com/77353979/166697446-6a842789-e543-4eec-b5c1-134b22480e7e.png)  
-You have these asynchronous functions to manage all the workaround:
-
+> ## Voice to Text
 > ![image](https://user-images.githubusercontent.com/77353979/157915810-15434664-5681-4538-89c2-801df6934749.png)  
 >  1. **Voice to Text Async**: Will convert your speech to string. Not that this function will get the speech by your default sound input device.  
 >  1.1. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
-
+> ## Text to Voice
 > ![image](https://user-images.githubusercontent.com/77353979/157915746-b6681afa-6bce-447e-acc9-1bcb6824db51.png)  
 >  2. **Text to Voice Async**: Will convert the specified text to a sound that will be played by the default sound output device.  
 >  2.1. **Text to Convert**: The text that will be converted to audio;  
 >  2.2. **Voice Name**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
 >  2.3. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
-
+> ## Text to WAV
 > ![image](https://user-images.githubusercontent.com/77353979/157916050-6a691103-d143-4296-a561-21471dbf9e57.png)  
 >  3. **Text to WAV Async**: Will convert the specified text to a .wav file.  
 >  3.1. **Text to Convert**: The text that will be converted to audio;  
@@ -49,35 +46,39 @@ You have these asynchronous functions to manage all the workaround:
 >  3.4. **Voice Name**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
 >  3.5. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
+> ## WAV to Text
 > ![image](https://user-images.githubusercontent.com/77353979/164303053-4a08911c-0e67-4e74-b825-d8e6eabccc8d.png)  
 >  4. **WAV to Text Async**: Will convert the specified .wav file into a string.  
 >  4.1. **File Path**: Input path of the audio file;  
 >  4.2. **File Name**: Input file name;  
 >  4.3. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
+> ## Text to Stream
 > ![image](https://user-images.githubusercontent.com/77353979/164303195-186a9b3c-9d10-45a6-bc13-86b6bb7fe0fd.png)  
 >  5. **Text to Stream Async**: Will convert the specified text to a data stream.  
 >  5.1. **Text to Convert**: The text that will be converted to stream;  
 >  5.2. **Voice Name**: Voice code that will represent the type of voice that will "read" the converted text. You can see all names here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech;  
 >  5.3. **Parameters**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
 
+> ## Make AzSpeechData
 >![image](https://user-images.githubusercontent.com/77353979/157916110-9e6a89f6-da94-46ef-bc78-287830bc3e7f.png)  
 > 6. **AzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 6.1. **API Access Key**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 6.2. **Region ID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
 > 6.3. **Language ID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 
+> ## Convert File To Sound Wave
 > ![image](https://user-images.githubusercontent.com/77353979/166697585-4ec0e9b2-447d-42b5-a745-812b3fbcd086.png)  
 > 7. **Convert File To Sound Wave**: Will load a specified audio file and transform into a transient USoundWave.  
 >  7.1. **File Path**: Input path of the audio file;  
 >  7.2. **File Name**: Input file name;  
  
+> ## Convert Stream To Sound Wav
 > ![image](https://user-images.githubusercontent.com/77353979/166697554-55ba6118-8a20-4a7b-9dd9-0f85e0961ee1.png)  
 > 8. **Convert Stream To Sound Wave**: Will convert the specified data stream into a transient USoundWave.  
 > 8.1 **Raw Data**: Data stream of a specified audio.
 
 ## C++ Usage
-
 **You need to include the module "AzSpeech" inside your .Build.cs class to be allowed to call AzSpeech functions from C++.**
 ![image](https://user-images.githubusercontent.com/77353979/157924008-6ce0c137-3c21-4c82-b0b9-de1a0ab3ac9f.png)
 
@@ -264,8 +265,8 @@ You have these asynchronous functions to manage all the workaround:
 > The **TextToStreamAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
 
-# More informations:
-## How to get the Speech Service API Access Key and Region ID:
+# More information
+## How to get the Speech Service API Access Key and Region ID
 ![image](https://user-images.githubusercontent.com/77353979/157915218-c636d31c-7f7d-4d89-8842-708a6bfbe9c5.png)
 
 See the official Microsoft documentation for Azure Cognitive Services: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/
