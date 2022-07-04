@@ -20,7 +20,7 @@ And helper functions:
 * [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 
 # Documentation
-##Installation
+## Installation
 Just clone this repository or download the .zip file in the latest version and drop the files inside the 'Plugins/' folder of your project folder.
 Note that if your project doesn't have a 'Plugins' folder, you can create one.
 
