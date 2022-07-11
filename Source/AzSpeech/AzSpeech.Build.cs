@@ -24,7 +24,7 @@ public class AzSpeech : ModuleRules
 				"Core"
 			}
 		);
-		
+
 		PrivateDependencyModuleNames.AddRange(
 			new[]
 			{

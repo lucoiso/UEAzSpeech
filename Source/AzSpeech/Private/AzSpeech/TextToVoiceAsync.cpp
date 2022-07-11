@@ -40,7 +40,7 @@ namespace AzSpeechWrapper
 				return true;
 			}
 
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task"), *FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task failed"), *FString(__func__));
 			return false;
 		}
 	}
