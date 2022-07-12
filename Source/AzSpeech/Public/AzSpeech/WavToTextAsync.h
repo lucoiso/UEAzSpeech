@@ -24,9 +24,12 @@ public:
 
 	/* Creates a Wav-To-Text task that will convert your Wav file into string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+		meta = (BlueprintInternalUseOnly = "true",
+			WorldContext = "WorldContextObject", DisplayName = "WAV To Text Async"))
 	static UWavToTextAsync* WavToTextAsync(const UObject* WorldContextObject,
-	                                       const FString& FilePath, const FString& FileName, FAzSpeechData Parameters);
+	                                       const FString& FilePath,
+	                                       const FString& FileName,
+	                                       FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 

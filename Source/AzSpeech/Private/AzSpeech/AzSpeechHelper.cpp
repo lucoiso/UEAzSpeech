@@ -17,23 +17,37 @@ bool UAzSpeechHelper::IsAzSpeechDataEmpty(const FAzSpeechData Data)
 	return Data.LanguageID.IsEmpty() || Data.RegionID.IsEmpty() || Data.APIAccessKey.IsEmpty();
 }
 
-FString UAzSpeechHelper::QualifyWAVFileName(const FString& Path, const FString& Name)
+FString UAzSpeechHelper::QualifyPath(const FString Path)
 {
-	FString LocalPath = Path;
-
+	FString Output = Path;
 	if (*Path.end() != '/')
 	{
-		LocalPath += '/';
+		Output += '/';
 	}
 
-	FString LocalName = Name;
-	if (Name.Right(Name.Len() - 4) != ".wav")
+	return Output;
+}
+
+FString UAzSpeechHelper::QualifyFileExtension(const FString Path, const FString Name, const FString Extension)
+{
+	if (Path.IsEmpty() || Name.IsEmpty() || Extension.IsEmpty())
 	{
-		LocalName += ".wav";
+		return FString();
+	}
+
+	const FString& LocalPath = QualifyPath(Path);
+	const FString& LocalExtension = Extension.Contains(".") ? Extension : "." + Extension;
+
+	FString LocalName = Name;
+	if (Name.Right(Name.Len() - LocalExtension.Len()) != LocalExtension)
+	{
+		LocalName += LocalExtension;
 	}
 
 	const FString QualifiedName = LocalPath + LocalName;
-	UE_LOG(LogAzSpeech, Log, TEXT("AzSpeech - %s: Qualified WAV file name: %s"), *FString(__func__), *QualifiedName);
+
+	UE_LOG(LogAzSpeech, Log, TEXT("AzSpeech - %s: Qualified %s file path: %s"),
+	       *FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
 
 	return QualifiedName;
 }
@@ -73,7 +87,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawData)
+USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawData)
 {
 #if ENGINE_MAJOR_VERSION >= 5
 	if (!RawData.IsEmpty())
@@ -116,4 +130,19 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8> RawDat
 	}
 
 	return nullptr;
+}
+
+FString UAzSpeechHelper::LoadXMLToString(const FString FilePath, const FString FileName)
+{
+	FString OutputStr;
+	if (!FilePath.IsEmpty() && !FileName.IsEmpty())
+	{
+		if (const FString& Full_FileName = QualifyXMLFileName(FilePath, FileName);
+			FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
+		{
+			FFileHelper::LoadFileToString(OutputStr, *Full_FileName);
+		}
+	}
+
+	return OutputStr;
 }

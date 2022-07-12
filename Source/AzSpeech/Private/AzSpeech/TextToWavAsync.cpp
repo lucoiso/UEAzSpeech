@@ -72,21 +72,20 @@ namespace AzSpeechWrapper
 			if (!FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*FilePath))
 			{
 				UE_LOG(LogAzSpeech, Warning,
-				       TEXT(
-					       "AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"
-				       ), *FString(__func__));
+				       TEXT("AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"),
+				       *FString(__func__));
 
 				if (FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*FilePath))
 				{
 					UE_LOG(LogAzSpeech, Display,
-					       TEXT("AzSpeech - %s: Folder created with the specified path"), *FString(__func__));
+					       TEXT("AzSpeech - %s: Folder created with the specified path"),
+					       *FString(__func__));
 				}
 				else
 				{
 					UE_LOG(LogAzSpeech, Error,
-					       TEXT(
-						       "AzSpeech - %s: Failed to create folder with the specified path"
-					       ), *FString(__func__));
+					       TEXT("AzSpeech - %s: Failed to create folder with the specified path"),
+					       *FString(__func__));
 
 					return;
 				}
@@ -97,7 +96,7 @@ namespace AzSpeechWrapper
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
 			          [Parameters, TextToConvert, Delegate, VoiceName, FilePath, FileName]
 			          {
-				          const TFuture<bool> TextToVoiceAsyncWork =
+				          const TFuture<bool>& TextToVoiceAsyncWork =
 					          Async(EAsyncExecution::Thread,
 					                [Parameters, TextToConvert, VoiceName, FilePath, FileName]() -> bool
 					                {
@@ -115,7 +114,7 @@ namespace AzSpeechWrapper
 					                });
 
 				          TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				          const bool bOutputValue = TextToVoiceAsyncWork.Get();
+				          const bool& bOutputValue = TextToVoiceAsyncWork.Get();
 
 				          AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
 				          {
@@ -135,9 +134,12 @@ namespace AzSpeechWrapper
 	}
 }
 
-UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObject, const FString& TextToConvert,
-                                                 const FString& FilePath, const FString& FileName,
-                                                 const FString& VoiceName, const FAzSpeechData Parameters)
+UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObject,
+                                                 const FString& TextToConvert,
+                                                 const FString& FilePath,
+                                                 const FString& FileName,
+                                                 const FString& VoiceName,
+                                                 const FAzSpeechData Parameters)
 {
 	UTextToWavAsync* TextToWavAsync = NewObject<UTextToWavAsync>();
 	TextToWavAsync->WorldContextObject = WorldContextObject;
@@ -159,6 +161,10 @@ void UTextToWavAsync::Activate()
 	}
 #endif
 
-	AzSpeechWrapper::Unreal_Cpp::AsyncTextToWav(TextToConvert, VoiceName, FilePath,
-	                                            FileName, Parameters, TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncTextToWav(TextToConvert,
+	                                            VoiceName,
+	                                            FilePath,
+	                                            FileName,
+	                                            Parameters,
+	                                            TaskCompleted);
 }

@@ -7,28 +7,28 @@
 #include "CoreMinimal.h"
 #include "AzSpeechData.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
-#include "SSMLToVoiceAsync.generated.h"
+#include "SSMLToStreamAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API USSMLToVoiceAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API USSMLToStreamAsync final : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FSSMLToVoiceDelegate TaskCompleted;
+	FSSMLToStreamDelegate TaskCompleted;
 
-	/* Creates a SSML-To-Voice task that will convert your SSML file into speech */
+	/* Creates a SSML-To-Stream task that will convert your SSML file into a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true",
-			WorldContext = "WorldContextObject", DisplayName = "SSML To Voice Async"))
-	static USSMLToVoiceAsync* SSMLToVoiceAsync(const UObject* WorldContextObject,
-	                                           const FString& SSMLString,
-	                                           const FAzSpeechData Parameters);
+			WorldContext = "WorldContextObject", DisplayName = "SSML To Stream Async"))
+	static USSMLToStreamAsync* SSMLToStreamAsync(const UObject* WorldContextObject,
+	                                             const FString& SSMLString,
+	                                             const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 

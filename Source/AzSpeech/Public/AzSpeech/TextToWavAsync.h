@@ -24,10 +24,14 @@ public:
 
 	/* Creates a Text-To-Wav task that will convert your string into a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToWavAsync* TextToWavAsync(const UObject* WorldContextObject, const FString& TextToConvert,
-	                                       const FString& FilePath, const FString& FileName,
-	                                       const FString& VoiceName, const FAzSpeechData Parameters);
+		meta = (BlueprintInternalUseOnly = "true",
+			WorldContext = "WorldContextObject", DisplayName = "Text To WAV Async"))
+	static UTextToWavAsync* TextToWavAsync(const UObject* WorldContextObject,
+	                                       const FString& TextToConvert,
+	                                       const FString& FilePath,
+	                                       const FString& FileName,
+	                                       const FString& VoiceName,
+	                                       const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 

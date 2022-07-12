@@ -57,7 +57,7 @@ namespace AzSpeechWrapper
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
 			          [Parameters, SSMLToConvert, Delegate]
 			          {
-				          const TFuture<bool> SSMLToVoiceAsyncWork =
+				          const TFuture<bool>& SSMLToVoiceAsyncWork =
 					          Async(EAsyncExecution::Thread,
 					                [Parameters, SSMLToConvert]() -> bool
 					                {
@@ -65,12 +65,11 @@ namespace AzSpeechWrapper
 						                const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
 						                const std::string& SSMLStr = TCHAR_TO_UTF8(*SSMLToConvert);
 
-						                return Standard_Cpp::DoSSMLToVoiceWork(
-							                SSMLStr, APIAccessKeyStr, RegionIDStr);
+						                return Standard_Cpp::DoSSMLToVoiceWork(SSMLStr, APIAccessKeyStr, RegionIDStr);
 					                });
 
 				          SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				          const bool bOutputValue = SSMLToVoiceAsyncWork.Get();
+				          const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
 
 				          AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
 				          {

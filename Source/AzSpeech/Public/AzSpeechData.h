@@ -22,6 +22,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>&, RecognizedStream);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToStreamDelegate, const TArray<uint8>&, RecognizedStream);
+
 /**
  *
  */
