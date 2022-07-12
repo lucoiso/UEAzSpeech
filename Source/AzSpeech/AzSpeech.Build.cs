@@ -31,7 +31,9 @@ public class AzSpeech : ModuleRules
 			{
 				"Engine",
 				"CoreUObject",
-				"Projects"
+        "Projects",
+				"AzureWrapper",
+				"AndroidPermission"
 			}
 		);
 	}

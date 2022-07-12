@@ -7,34 +7,33 @@
 #include "CoreMinimal.h"
 #include "AzSpeechData.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
-#include "TextToVoiceAsync.generated.h"
+#include "SSMLToVoiceAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToVoiceAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API USSMLToVoiceAsync final : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FTextToVoiceDelegate TaskCompleted;
+	FSSMLToVoiceDelegate TaskCompleted;
 
-	/* Creates a Text-To-Voice task that will convert your text to speech */
+	/* Creates a SSML-To-Voice task that will convert your SSML file to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject,
-	                                           const FString& TextToConvert,
-	                                           const FString& VoiceName,
+		meta = (BlueprintInternalUseOnly = "true",
+			WorldContext = "WorldContextObject", DisplayName = "SSML To Voice Async"))
+	static USSMLToVoiceAsync* SSMLToVoiceAsync(const UObject* WorldContextObject,
+	                                           const FString& SSMLString,
 	                                           const FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 
 private:
 	const UObject* WorldContextObject;
-	FString TextToConvert;
-	FString VoiceName;
+	FString SSMLString;
 	FAzSpeechData Parameters;
 };

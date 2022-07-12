@@ -2,7 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/TextToWavAsync.h"
+#include "AzSpeech/SSMLToWavAsync.h"
 #include "AzSpeech.h"
 #include "Async/Async.h"
 #include "HAL/PlatformFileManager.h"
@@ -23,22 +23,17 @@ namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static bool DoTextToWavWork(const std::string& TextToConvert,
+		static bool DoSSMLToWavWork(const std::string& SSMLString,
 		                            const std::string& APIAccessKey,
 		                            const std::string& RegionID,
-		                            const std::string& LanguageID,
-		                            const std::string& VoiceName,
 		                            const std::string& FilePath)
 		{
 			const auto& SpeechConfig = SpeechConfig::FromSubscription(APIAccessKey, RegionID);
 
-			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
-			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
-
 			const auto& AudioConfig = AudioConfig::FromWavFileOutput(FilePath);
 			const auto& SpeechSynthesizer = SpeechSynthesizer::FromConfig(SpeechConfig, AudioConfig);
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
+			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(SSMLString).get();
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
 			{
 				UE_LOG(LogAzSpeech, Display,
@@ -54,14 +49,13 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncTextToWav(const FString& TextToConvert,
-		                           const FString& VoiceName,
+		static void AsyncSSMLToWav(const FString& SSMLString,
 		                           const FString& FilePath,
 		                           const FString& FileName,
 		                           const FAzSpeechData Parameters,
-		                           FTextToWavDelegate Delegate)
+		                           FSSMLToWavDelegate Delegate)
 		{
-			if (TextToConvert.IsEmpty() || VoiceName.IsEmpty()
+			if (SSMLString.IsEmpty()
 				|| FilePath.IsEmpty() || FileName.IsEmpty()
 				|| UAzSpeechHelper::IsAzSpeechDataEmpty(Parameters))
 			{
@@ -94,22 +88,21 @@ namespace AzSpeechWrapper
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
-			          [Parameters, TextToConvert, Delegate, VoiceName, FilePath, FileName]
+			          [Parameters, SSMLString, Delegate, FilePath, FileName]
 			          {
 				          const TFuture<bool>& TextToVoiceAsyncWork =
 					          Async(EAsyncExecution::Thread,
-					                [Parameters, TextToConvert, VoiceName, FilePath, FileName]() -> bool
+					                [Parameters, SSMLString, FilePath, FileName]() -> bool
 					                {
 						                const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
 						                const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
-						                const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
-						                const std::string& NameIDStr = TCHAR_TO_UTF8(*VoiceName);
-						                const std::string& ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
+						                const std::string& ToConvertStr = TCHAR_TO_UTF8(*SSMLString);
 						                const std::string& FilePathStr =
 							                TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
 
-						                return Standard_Cpp::DoTextToWavWork(ToConvertStr, APIAccessKeyStr,
-						                                                     RegionIDStr, LanguageIDStr, NameIDStr,
+						                return Standard_Cpp::DoSSMLToWavWork(ToConvertStr,
+						                                                     APIAccessKeyStr,
+						                                                     RegionIDStr,
 						                                                     FilePathStr);
 					                });
 
@@ -134,17 +127,15 @@ namespace AzSpeechWrapper
 	}
 }
 
-UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObject,
-                                                 const FString& TextToConvert,
+USSMLToWavAsync* USSMLToWavAsync::SSMLToWavAsync(const UObject* WorldContextObject,
+                                                 const FString& SSMLString,
                                                  const FString& FilePath,
                                                  const FString& FileName,
-                                                 const FString& VoiceName,
                                                  const FAzSpeechData Parameters)
 {
-	UTextToWavAsync* TextToWavAsync = NewObject<UTextToWavAsync>();
+	USSMLToWavAsync* TextToWavAsync = NewObject<USSMLToWavAsync>();
 	TextToWavAsync->WorldContextObject = WorldContextObject;
-	TextToWavAsync->TextToConvert = TextToConvert;
-	TextToWavAsync->VoiceName = VoiceName;
+	TextToWavAsync->SSMLString = SSMLString;
 	TextToWavAsync->FilePath = FilePath;
 	TextToWavAsync->FileName = FileName;
 	TextToWavAsync->Parameters = Parameters;
@@ -152,7 +143,7 @@ UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObje
 	return TextToWavAsync;
 }
 
-void UTextToWavAsync::Activate()
+void USSMLToWavAsync::Activate()
 {
 #if PLATFORM_ANDROID
 	if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.WRITE_EXTERNAL_STORAGE")))
@@ -161,8 +152,7 @@ void UTextToWavAsync::Activate()
 	}
 #endif
 
-	AzSpeechWrapper::Unreal_Cpp::AsyncTextToWav(TextToConvert,
-	                                            VoiceName,
+	AzSpeechWrapper::Unreal_Cpp::AsyncSSMLToWav(SSMLString,
 	                                            FilePath,
 	                                            FileName,
 	                                            Parameters,

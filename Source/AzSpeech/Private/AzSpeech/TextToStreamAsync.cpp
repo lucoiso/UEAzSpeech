@@ -33,7 +33,8 @@ namespace AzSpeechWrapper
 				SpeechSynthesizer::FromConfig(SpeechConfig,
 				                              AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream()));
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
+			if (const auto& SpeechSynthesisResult =
+					SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
 			{
 				UE_LOG(LogAzSpeech, Display,
@@ -65,23 +66,27 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, TextToConvert, Delegate, VoiceName]
 			{
-				const TFuture<std::vector<uint8_t>> TextToVoiceAsyncWork =
-					Async(EAsyncExecution::Thread, [Parameters, TextToConvert, VoiceName]() -> std::vector<uint8_t>
-					{
-						const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
-						const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
-						const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
-						const std::string& NameIDStr = TCHAR_TO_UTF8(*VoiceName);
-						const std::string& ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
+				const TFuture<std::vector<uint8_t>>& TextToVoiceAsyncWork =
+					Async(EAsyncExecution::Thread,
+					      [Parameters, TextToConvert, VoiceName]() -> std::vector<uint8_t>
+					      {
+						      const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
+						      const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
+						      const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
+						      const std::string& NameIDStr = TCHAR_TO_UTF8(*VoiceName);
+						      const std::string& ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
 
-						return Standard_Cpp::DoTextToStreamWork(ToConvertStr, APIAccessKeyStr, RegionIDStr,
-						                                        LanguageIDStr, NameIDStr);
-					});
+						      return Standard_Cpp::DoTextToStreamWork(ToConvertStr,
+						                                              APIAccessKeyStr,
+						                                              RegionIDStr,
+						                                              LanguageIDStr,
+						                                              NameIDStr);
+					      });
 
 				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
 
-				const std::vector<uint8_t> Result = TextToVoiceAsyncWork.Get();
-				const bool bOutputValue = !Result.empty();
+				const std::vector<uint8_t>& Result = TextToVoiceAsyncWork.Get();
+				const bool& bOutputValue = !Result.empty();
 
 				TArray<uint8> OutputArr;
 
@@ -109,7 +114,8 @@ namespace AzSpeechWrapper
 }
 
 UTextToStreamAsync* UTextToStreamAsync::TextToStreamAsync(const UObject* WorldContextObject,
-                                                          const FString& TextToConvert, const FString& VoiceName,
+                                                          const FString& TextToConvert,
+                                                          const FString& VoiceName,
                                                           const FAzSpeechData Parameters)
 {
 	UTextToStreamAsync* NewAsyncTask = NewObject<UTextToStreamAsync>();

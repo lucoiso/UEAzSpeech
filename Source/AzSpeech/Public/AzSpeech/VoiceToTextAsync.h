@@ -22,10 +22,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVoiceToTextDelegate TaskCompleted;
 
-	/* Creates a Voice-To-Text task that will convert your speech into string */
+	/* Creates a Voice-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, FAzSpeechData Parameters);
+	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject,
+	                                           FAzSpeechData Parameters);
 
 	virtual void Activate() override;
 

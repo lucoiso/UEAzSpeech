@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 3,
-	"VersionName": "3.0.7",
+	"Version": 4,
+	"VersionName": "4.0.0",
 	"EngineVersion": "5.0.0",
 	"FriendlyName": "AzSpeech",
 	"Description": "Integrates Microsoft Azure Cognition Services: Speech",
@@ -24,6 +24,13 @@
 				"Win64",
 				"Android"
 			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "AndroidPermission",
+			"Enabled": true,
+			"Optional": true
 		}
 	]
 }

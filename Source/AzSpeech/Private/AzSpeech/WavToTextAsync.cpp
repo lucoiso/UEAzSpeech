@@ -75,42 +75,47 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, Delegate, QualifiedPath]
-			{
-				const TFuture<std::string> WavToTextAsyncWork =
-					Async(EAsyncExecution::Thread, [Parameters, QualifiedPath]() -> std::string
-					{
-						const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
-						const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
-						const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
-						const std::string& FilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
+			          [Parameters, Delegate, QualifiedPath]
+			          {
+				          const TFuture<std::string>& WavToTextAsyncWork =
+					          Async(EAsyncExecution::Thread,
+					                [Parameters, QualifiedPath]() -> std::string
+					                {
+						                const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
+						                const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
+						                const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
+						                const std::string& FilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
 
-						return Standard_Cpp::DoWavToTextWork(FilePathStr, APIAccessKeyStr, RegionIDStr, LanguageIDStr);
-					});
+						                return Standard_Cpp::DoWavToTextWork(
+							                FilePathStr, APIAccessKeyStr, RegionIDStr, LanguageIDStr);
+					                });
 
-				WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				const FString& OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
+				          WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				          const FString& OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
 
-				AsyncTask(ENamedThreads::GameThread, [OutputValue, Delegate]
-				{
-					Delegate.Broadcast(OutputValue);
-				});
+				          AsyncTask(ENamedThreads::GameThread, [OutputValue, Delegate]
+				          {
+					          Delegate.Broadcast(OutputValue);
+				          });
 
-				if (!OutputValue.IsEmpty())
-				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncWavToText: Result: %s"), *OutputValue);
-				}
-				else
-				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncWavToText: Result: Error"));
-				}
-			});
+				          if (!OutputValue.IsEmpty())
+				          {
+					          UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncWavToText: Result: %s"), *OutputValue);
+				          }
+				          else
+				          {
+					          UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncWavToText: Result: Error"));
+				          }
+			          });
 		}
 	}
 }
 
-UWavToTextAsync* UWavToTextAsync::WavToTextAsync(const UObject* WorldContextObject, const FString& FilePath,
-                                                 const FString& FileName, const FAzSpeechData Parameters)
+UWavToTextAsync* UWavToTextAsync::WavToTextAsync(const UObject* WorldContextObject,
+                                                 const FString& FilePath,
+                                                 const FString& FileName,
+                                                 const FAzSpeechData Parameters)
 {
 	UWavToTextAsync* WavToTextAsync = NewObject<UWavToTextAsync>();
 	WavToTextAsync->WorldContextObject = WorldContextObject;
