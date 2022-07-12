@@ -29,8 +29,8 @@ public class AzureWrapper : ModuleRules
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
 			
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
 				"Microsoft.CognitiveServices.Speech.core.dll"));
@@ -43,9 +43,9 @@ public class AzureWrapper : ModuleRules
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
 				"Microsoft.CognitiveServices.Speech.extension.mas.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
-				"Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
 				"Microsoft.CognitiveServices.Speech.extension.codec.dll"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
+				"Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
@@ -63,8 +63,9 @@ public class AzureWrapper : ModuleRules
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android",
 				"libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so"));
 		}
-		
-		PrivateDependencyModuleNames.AddRange(new[] 
+
+		PublicDependencyModuleNames.AddRange(
+			new[]
 			{
 				"AndroidPermission"
 			});
