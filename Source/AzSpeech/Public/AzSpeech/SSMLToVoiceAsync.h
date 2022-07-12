@@ -22,7 +22,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FSSMLToVoiceDelegate TaskCompleted;
 
-	/* Creates a SSML-To-Voice task that will convert your SSML file into speech */
+	/* Creates a SSML-To-Voice task that will convert your SSML file to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true",
 			WorldContext = "WorldContextObject", DisplayName = "SSML To Voice Async"))

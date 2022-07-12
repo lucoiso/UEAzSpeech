@@ -65,7 +65,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 6. **AzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 6.1. **API Access Key**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 6.2. **Region ID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-> 6.3. **Language ID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 6.3. **Language ID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 
 > ## Convert File To Sound Wave
 > ![image](https://user-images.githubusercontent.com/77353979/166697585-4ec0e9b2-447d-42b5-a745-812b3fbcd086.png)  

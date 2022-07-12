@@ -22,7 +22,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FTextToStreamDelegate TaskCompleted;
 
-	/* Creates a Text-To-Stream task that will convert your text into a audio data stream */
+	/* Creates a Text-To-Stream task that will convert your text to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
 	static UTextToStreamAsync* TextToStreamAsync(const UObject* WorldContextObject,

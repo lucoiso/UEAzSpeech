@@ -21,7 +21,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static bool IsAzSpeechDataEmpty(const FAzSpeechData Data);
 
-	/* Helper function to qualify a path string into a single string like Full/File/Path/ */
+	/* Helper function to qualify a path string to a single string like Full/File/Path/ */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify Path"))
 	static FString QualifyPath(const FString Path);
 
@@ -29,14 +29,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify WAV File Path"))
 	static FString QualifyFileExtension(const FString Path, const FString Name, const FString Extension);
 
-	/* Helper function to qualify a WAV file path + name into a single string like Full/File/Path/Filename.wav */
+	/* Helper function to qualify a WAV file path + name to a single string like Full/File/Path/Filename.wav */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify WAV File Path"))
 	static FString QualifyWAVFileName(const FString Path, const FString Name)
 	{
 		return QualifyFileExtension(Path, Name, "wav");
 	}
 
-	/* Helper function to qualify a XML file path + name into a single string like Full/File/Path/Filename.xml */
+	/* Helper function to qualify a XML file path + name to a single string like Full/File/Path/Filename.xml */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify XML File Path"))
 	static FString QualifyXMLFileName(const FString Path, const FString Name)
 	{
@@ -51,6 +51,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static USoundWave* ConvertStreamToSoundWave(const TArray<uint8>& RawData);
 
+	/* Load a given .xml file and return the content as string */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Load XML to String"))
 	static FString LoadXMLToString(const FString FilePath, const FString FileName);
 };

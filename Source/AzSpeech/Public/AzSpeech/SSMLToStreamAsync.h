@@ -22,7 +22,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FSSMLToStreamDelegate TaskCompleted;
 
-	/* Creates a SSML-To-Stream task that will convert your SSML file into a audio data stream */
+	/* Creates a SSML-To-Stream task that will convert your SSML file to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true",
 			WorldContext = "WorldContextObject", DisplayName = "SSML To Stream Async"))
