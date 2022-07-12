@@ -29,9 +29,9 @@ public class AzureWrapper : ModuleRules
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
+      PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
-
+      
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
 				"Microsoft.CognitiveServices.Speech.core.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime",
