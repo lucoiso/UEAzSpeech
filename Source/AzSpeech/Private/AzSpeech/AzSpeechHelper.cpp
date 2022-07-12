@@ -39,7 +39,7 @@ FString UAzSpeechHelper::QualifyFileExtension(const FString Path, const FString 
 	const FString& LocalExtension = Extension.Contains(".") ? Extension : "." + Extension;
 
 	FString LocalName = Name;
-	if (Name.Right(Name.Len() - LocalExtension.Len()) != LocalExtension)
+	if (!Name.Right(Name.Len() - LocalExtension.Len()).Contains(LocalExtension))
 	{
 		LocalName += LocalExtension;
 	}
@@ -134,15 +134,22 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawDa
 
 FString UAzSpeechHelper::LoadXMLToString(const FString FilePath, const FString FileName)
 {
-	FString OutputStr;
 	if (!FilePath.IsEmpty() && !FileName.IsEmpty())
 	{
 		if (const FString& Full_FileName = QualifyXMLFileName(FilePath, FileName);
 			FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 		{
-			FFileHelper::LoadFileToString(OutputStr, *Full_FileName);
+			if (FString OutputStr;
+				FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
+			{
+				UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s loaded"),
+				       *FString(__func__), *Full_FileName);
+
+				return OutputStr;
+			}
 		}
 	}
 
-	return OutputStr;
+	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to load file"), *FString(__func__));
+	return FString();
 }

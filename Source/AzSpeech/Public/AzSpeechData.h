@@ -14,15 +14,17 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVoiceToTextDelegate, const FString&
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, OutputValue);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToVoiceDelegate, const bool, OutputValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>&, RecognizedStream);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, OutputValue);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, RecognizedString);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>&, RecognizedStream);
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToStreamDelegate, const TArray<uint8>&, RecognizedStream);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToVoiceDelegate, const bool, OutputValue);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToWavDelegate, const bool, OutputValue);
 
 /**
  *
