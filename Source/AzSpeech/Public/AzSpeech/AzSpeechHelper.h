@@ -18,7 +18,7 @@ class AZSPEECH_API UAzSpeechHelper final : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Is AzSpeechData Empty"))
 	static bool IsAzSpeechDataEmpty(const FAzSpeechData Data);
 
 	/* Helper function to qualify a path string to a single string like Full/File/Path/ */
