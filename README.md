@@ -1,4 +1,42 @@
 # Unreal Engine Plugin: AzSpeech
+
+## Table of Contents
+> 1. [About](#about)  
+> 2. [Links](#links)  
+> 3. [Documentation](#documentation)  
+> 3.1. [Installation](#installation)  
+> 3.2. [Blueprint: Usage](#blueprint-usage)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.1. [Blueprint: Voice to Text](#voice-to-text)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.2. [Blueprint: Text to Voice](#text-to-voice)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.3. [Blueprint: Text to WAV](#text-to-wav)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.4. [Blueprint: WAV to Text](#wav-to-text)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.5. [Blueprint: Text to Stream](#text-to-stream)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.6. [Blueprint: SSML to Voice](#ssml-to-voice)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.7. [Blueprint: SSML to WAV](#ssml-to-wav)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.8. [Blueprint: SSML to Stream](#ssml-to-stream)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.9. [Blueprint: Make AzSpeechData](#make-azspeechdata)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.10. [Blueprint: Convert File to Sound Wave](#convert-file-to-sound-wave)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.11. [Blueprint: Convert Stream to Sound Wave](#convert-stream-to-sound-wav)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.12. [Blueprint: Is AzSpeechData Empty](#is-azspeechdata-empty)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.13. [Blueprint: Qualify Path](#qualify-path)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.14. [Blueprint: Qualify WAV File Path](#qualify-wav-file-path)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.15. [Blueprint: Qualify XML File Path](#qualify-xml-file-path)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.16. [Blueprint: Load XML to String](#load-xml-to-string)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.16. [Blueprint: Load XML to String](#load-xml-to-string)  
+> 3.3 [C++: Usage](#c-usage)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.1 [C++: Setup](#setup)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.2. [C++: Voice to Text](#voice-to-text-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.3. [C++: Text to Voice](#text-to-voice-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.4. [C++: Text to WAV](#text-to-wav-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.5. [C++: WAV to Text](#wav-to-text-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.6. [C++: Text to Stream](#text-to-stream-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.7. [C++: SSML to Voice](#ssml-to-voice-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.8. [C++: SSML to WAV](#ssml-to-wav-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.9. [C++: SSML to Stream](#ssml-to-stream-1)  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.10. [C++: Helper Functions](#helper-functions)  
+> 4. [More Information](#more-information)  
+> 4.1. [How to get the Speech Service API Access Key and Region ID](#how-to-get-the-speech-service-api-access-key-and-region-id)  
+
 ## About
 ![image](https://user-images.githubusercontent.com/77353979/178588725-fc2b951d-64a1-4ec0-8f29-11fe50e26773.png)
 
@@ -135,6 +173,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > **File Name**: The file name to load  
 
 ## C++ Usage
+## Setup
 **You need to include the module "AzSpeech" inside your .Build.cs class to be allowed to call AzSpeech functions from C++.**
 ![image](https://user-images.githubusercontent.com/77353979/157924008-6ce0c137-3c21-4c82-b0b9-de1a0ab3ac9f.png)
 
@@ -429,6 +468,9 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 
 > The **SSMLToStreamAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
+> ## Helper Functions
+> All helper functions are commented and declared inside the *"AzSpeech/AzSpeechHelper.h"* file.
+ 
 # More information
 ## How to get the Speech Service API Access Key and Region ID
 ![image](https://user-images.githubusercontent.com/77353979/157915218-c636d31c-7f7d-4d89-8842-708a6bfbe9c5.png)
