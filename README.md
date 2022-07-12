@@ -170,7 +170,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 >
 > The **TextToVoiceAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
@@ -204,7 +204,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 > 
 > The **VoiceToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
@@ -233,7 +233,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > }
 >```
 > 
->  1. **Text to WAV Async**: Will convert the specified text to a .wav file.  
+>  1. **UTextToWavAsync::TextToWavAsync(WorldContextObject, TextToConvert, FilePath, FileName, FAzSpeechData)**: Will convert the specified text to a .wav file.  
 > 1.1. **WorldContextObject**: Task Owner.  
 > 1.2. **TextToConvert**: The text that will be converted to audio;  
 > 1.3. **FilePath**: Output path to save the audio file;  
@@ -244,7 +244,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 >
 > The **TextToWavAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
@@ -280,7 +280,7 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 > 
 > The **WavToTextAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
@@ -316,10 +316,118 @@ Note that if your project doesn't have a 'Plugins' folder, you can create one.
 > 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
 > 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
 > 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
-> 2.3. **LanguageID**: Language to apply lozalization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
 > 
 > The **TextToStreamAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
+> ## SSML-to-Voice
+>```
+> #include "AzSpeech/SSMLToVoiceAsync.h"
+> 
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   USSMLToVoiceAsync* MyTask = USSMLToVoiceAsync::SSMLToVoiceAsync(this, "SSMLString", MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const bool TaskResult)
+> {
+> }
+>```
+>
+> 1. **UTextToStreamAsync::TextToStreamAsync(WorldContextObject, TextToConvert, VoiceName, FAzSpeechData)**: Will convert the specified text file into a audio data stream.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **SSMLString**: The SSML content that will be converted to speech;  
+> 1.3. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+> 
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 
+> The **SSMLToVoiceAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
+ 
+> ## SSML-to-WAV
+>```
+> #include "AzSpeech/SSMLToWavAsync.h"
+>
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   USSMLToWavAsync* MyTask = USSMLToWavAsync::SSMLToWavAsync(this, "SSMLString",
+>		                                                          "File Path", "File Name",
+>		                                                          MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const bool TaskResult)
+> {
+> }
+>```
+> 
+>  1. **USSMLToWavAsync::SSMLToWavAsync(WorldContextObject, SSMLString, FilePath, FileName, FAzSpeechData)**: Will convert the specified SSML content to a .wav file.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **SSMLString**: The SSML content that will be converted to audio;  
+> 1.3. **FilePath**: Output path to save the audio file;  
+> 1.4. **FileName**: Output file name;  
+> 1.5. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+>
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+>
+> The **SSMLToWavAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
+ 
+> ## SSML-to-Stream
+>```
+> #include "AzSpeech/SSMLToStreamAsync.h"
+> 
+> void AMyExampleActor::Example()
+> {
+>   FAzSpeechData MyNewData;
+>   MyNewData.LanguageID = "LanguageID";
+>   MyNewData.RegionID = "RegionID";
+>   MyNewData.APIAccessKey = "APIAccessKey";
+>
+>   USSMLToStreamAsync* MyTask = USSMLToStreamAsync::TextToStreamAsync(this, "SSMLString", MyNewData);
+>
+>   MyTask->TaskCompleted.AddDynamic(this, &AMyExampleActor::ExampleCallback);
+>
+>   MyTask->Activate();
+> }
+>
+> void AMyExampleActor::ExampleCallback(const TArray<uint8>& TaskResult)
+> {
+> }
+>```
+>
+> 1. **USSMLToStreamAsync::SSMLToStreamAsync(WorldContextObject, SSMLString, FAzSpeechData)**: Will convert the specified SSML content into a audio data stream.  
+> 1.1. **WorldContextObject**: Task Owner.  
+> 1.2. **SSMLString**: The SSML content that will be converted to data stream;  
+> 1.3. **FAzSpeechData**: Microsoft Azure parameters to connect to the service and perform the tasks. The structure **AzSpeechData** represents this input;  
+> 
+> 2. **FAzSpeechData**: Represents Microsoft Azure parameters to connect to the service and perform the tasks;  
+> 2.1. **APIAccessKey**: It's your Speech Service API Access Key from your Microsoft Azure Portal - Speech Service Panel;  
+> 2.2. **RegionID**: Speech Service Region from your Microsoft Azure Portal. You can see all regions here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/regions;  
+> 2.3. **LanguageID**: Language to apply localization settings. You can see all IDs here: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#speech-to-text; 
+> 
+> The **SSMLToStreamAsync** function return a delegate to manage task status which allow you to bind a function to it's delegate to handle task's completion call.
 
 # More information
 ## How to get the Speech Service API Access Key and Region ID
