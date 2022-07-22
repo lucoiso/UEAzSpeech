@@ -30,7 +30,7 @@ private:
 	void* KwsRuntimeLib = nullptr;
 	void* LuRuntimeLib = nullptr;
 	void* MasRuntimeLib = nullptr;
-	void* SilkRuntimeLib = nullptr;
+	void* SilkCodecRuntimeLib = nullptr;
 	void* CodecRuntimeLib = nullptr;
 
 	static void FreeDependency(void*& Handle);
