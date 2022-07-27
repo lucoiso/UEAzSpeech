@@ -156,11 +156,11 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 
 		if (bCreateParents)
 		{
-			bOutput = FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);
+			bOutput = FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path);
 		}
 		else
 		{
-			bOutput = FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path);
+			bOutput = FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);
 		}
 	}
 
