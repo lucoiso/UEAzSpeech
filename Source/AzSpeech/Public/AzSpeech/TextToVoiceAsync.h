@@ -24,11 +24,25 @@ public:
 
 	/* Creates a Text-To-Voice task that will convert your text to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
+			DeprecatedFunction, DeprecationMessage =
+			"Use 'Text To Voice' instead - AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"
+		))
 	static UTextToVoiceAsync* TextToVoiceAsync(const UObject* WorldContextObject,
 	                                           const FString& TextToConvert,
 	                                           const FString& VoiceName,
-	                                           const FAzSpeechData Parameters);
+	                                           const FAzSpeechData Parameters)
+	{
+		return TextToVoice(WorldContextObject, TextToConvert, VoiceName, Parameters.LanguageID);
+	}
+
+	/* Creates a Text-To-Voice task that will convert your text to speech */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+	static UTextToVoiceAsync* TextToVoice(const UObject* WorldContextObject,
+	                                      const FString& TextToConvert,
+	                                      const FString& VoiceName = "Default",
+	                                      const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
 
@@ -36,5 +50,5 @@ private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;
-	FAzSpeechData Parameters;
+	FString LanguageId;
 };

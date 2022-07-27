@@ -6,39 +6,21 @@
 #include "AzSpeech.h"
 #include "Async/Async.h"
 #include "AzSpeech/AzSpeechHelper.h"
-
-#if PLATFORM_ANDROID
-#include "AndroidPermissionFunctionLibrary.h"
-#endif
-
-THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
-THIRD_PARTY_INCLUDES_END
-
-using namespace Microsoft::CognitiveServices::Speech;
-using namespace Microsoft::CognitiveServices::Speech::Audio;
+#include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static std::string DoVoiceToTextWork(const std::string& APIAccessKey,
-		                                     const std::string& RegionID,
-		                                     const std::string& LanguageID)
+		static std::string DoVoiceToTextWork(const std::string& InLanguageID)
 		{
-			const auto& Config = SpeechConfig::FromSubscription(APIAccessKey, RegionID);
-
-			Config->SetSpeechRecognitionLanguage(LanguageID);
-			Config->SetSpeechSynthesisLanguage(LanguageID);
-			Config->SetProfanity(ProfanityOption::Raw);
-
-			const auto& SpeechRecognizer = SpeechRecognizer::FromConfig(Config);
+			const auto& SpeechRecognizer = AzSpeech::Internal::GetAzureRecognizer(nullptr, InLanguageID);
 
 			if (const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
 				SpeechRecognitionResult->Reason == ResultReason::RecognizedSpeech)
 			{
 				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Recognition task completed"), *FString(__func__));
+					   TEXT("AzSpeech - %s: Speech Recognition task completed"), *FString(__func__));
 
 				return SpeechRecognitionResult->Text;
 			}
@@ -50,10 +32,9 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncVoiceToText(const FAzSpeechData Parameters,
-		                             FVoiceToTextDelegate Delegate)
+		static void AsyncVoiceToText(const FString& InLanguageId, FVoiceToTextDelegate InDelegate)
 		{
-			if (UAzSpeechHelper::IsAzSpeechDataEmpty(Parameters))
+			if (InLanguageId.IsEmpty())
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
 				return;
@@ -61,24 +42,22 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, Delegate]
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InLanguageId, InDelegate]
 			{
 				const TFuture<std::string>& VoiceToTextAsyncWork =
-					Async(EAsyncExecution::Thread, [Parameters]() -> std::string
+					Async(EAsyncExecution::Thread, [InLanguageId]() -> std::string
 					{
-						const std::string& APIAccessKey = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
-						const std::string& RegionID = TCHAR_TO_UTF8(*Parameters.RegionID);
-						const std::string& LanguageID = TCHAR_TO_UTF8(*Parameters.LanguageID);
+						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageId);
 
-						return Standard_Cpp::DoVoiceToTextWork(APIAccessKey, RegionID, LanguageID);
+						return Standard_Cpp::DoVoiceToTextWork(InLanguageIDStr);
 					});
 
 				VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
 				const FString& OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
 
-				AsyncTask(ENamedThreads::GameThread, [OutputValue, Delegate]
+				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]
 				{
-					Delegate.Broadcast(OutputValue);
+					InDelegate.Broadcast(OutputValue);
 				});
 
 				if (!OutputValue.IsEmpty())
@@ -94,23 +73,20 @@ namespace AzSpeechWrapper
 	}
 }
 
-UVoiceToTextAsync* UVoiceToTextAsync::VoiceToTextAsync(const UObject* WorldContextObject,
-                                                       const FAzSpeechData Parameters)
+UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId)
 {
 	UVoiceToTextAsync* VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;
-	VoiceToTextAsync->Parameters = Parameters;
+	VoiceToTextAsync->LanguageId = AzSpeech::Internal::GetLanguageId(LanguageId);
+
 	return VoiceToTextAsync;
 }
 
 void UVoiceToTextAsync::Activate()
 {
 #if PLATFORM_ANDROID
-	if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.RECORD_AUDIO")))
-	{
-		UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ ("android.permission.RECORD_AUDIO") });
-	}
+	UAzSpeechHelper::CheckAndroidPermission("android.permission.RECORD_AUDIO");
 #endif
 
-	AzSpeechWrapper::Unreal_Cpp::AsyncVoiceToText(Parameters, TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncVoiceToText(LanguageId, TaskCompleted);
 }

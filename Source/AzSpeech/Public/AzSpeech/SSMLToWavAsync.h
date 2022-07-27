@@ -24,13 +24,25 @@ public:
 
 	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true",
-			WorldContext = "WorldContextObject", DisplayName = "SSML To WAV Async"))
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
+			DisplayName = "SSML To WAV Async", DeprecatedFunction, DeprecationMessage =
+			"Use 'SSML To WAV' instead: AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
 	static USSMLToWavAsync* SSMLToWavAsync(const UObject* WorldContextObject,
 	                                       const FString& SSMLString,
 	                                       const FString& FilePath,
 	                                       const FString& FileName,
-	                                       const FAzSpeechData Parameters);
+	                                       const FAzSpeechData Parameters)
+	{
+		return SSMLToWav(WorldContextObject, SSMLString, FilePath, FileName);
+	}
+
+	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To WAV"))
+	static USSMLToWavAsync* SSMLToWav(const UObject* WorldContextObject,
+	                                  const FString& SSMLString,
+	                                  const FString& FilePath,
+	                                  const FString& FileName);
 
 	virtual void Activate() override;
 
@@ -39,5 +51,4 @@ private:
 	FString SSMLString;
 	FString FilePath;
 	FString FileName;
-	FAzSpeechData Parameters;
 };

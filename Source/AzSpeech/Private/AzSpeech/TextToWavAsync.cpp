@@ -5,44 +5,26 @@
 #include "AzSpeech/TextToWavAsync.h"
 #include "AzSpeech.h"
 #include "Async/Async.h"
-#include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"
-
-THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
-THIRD_PARTY_INCLUDES_END
-
-#if PLATFORM_ANDROID
-#include "AndroidPermissionFunctionLibrary.h"
-#endif
-
-using namespace Microsoft::CognitiveServices::Speech;
-using namespace Microsoft::CognitiveServices::Speech::Audio;
+#include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static bool DoTextToWavWork(const std::string& TextToConvert,
-		                            const std::string& APIAccessKey,
-		                            const std::string& RegionID,
-		                            const std::string& LanguageID,
-		                            const std::string& VoiceName,
-		                            const std::string& FilePath)
+		static bool DoTextToWavWork(const std::string& InStr,
+									const std::string& InLanguageID,
+									const std::string& InVoiceName,
+									const std::string& InFilePath)
 		{
-			const auto& SpeechConfig = SpeechConfig::FromSubscription(APIAccessKey, RegionID);
+			const auto& AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
+			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
 
-			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
-			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
-
-			const auto& AudioConfig = AudioConfig::FromWavFileOutput(FilePath);
-			const auto& SpeechSynthesizer = SpeechSynthesizer::FromConfig(SpeechConfig, AudioConfig);
-
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
+			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
 			{
 				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+					   TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
 
 				return true;
 			}
@@ -54,100 +36,83 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncTextToWav(const FString& TextToConvert,
-		                           const FString& VoiceName,
-		                           const FString& FilePath,
-		                           const FString& FileName,
-		                           const FAzSpeechData Parameters,
-		                           FTextToWavDelegate Delegate)
+		static void AsyncTextToWav(const FString& InStr,
+								   const FString& InVoiceName,
+								   const FString& InFilePath,
+								   const FString& InFileName,
+								   const FString& InLanguageId,
+								   FTextToWavDelegate InDelegate)
 		{
-			if (TextToConvert.IsEmpty() || VoiceName.IsEmpty()
-				|| FilePath.IsEmpty() || FileName.IsEmpty()
-				|| UAzSpeechHelper::IsAzSpeechDataEmpty(Parameters))
+			if (InStr.IsEmpty() || InVoiceName.IsEmpty()
+				|| InFilePath.IsEmpty() || InFileName.IsEmpty()
+				|| InLanguageId.IsEmpty())
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
 				return;
 			}
 
-			if (!FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*FilePath))
+			if (!UAzSpeechHelper::CreateNewDirectory(InFilePath))
 			{
-				UE_LOG(LogAzSpeech, Warning,
-				       TEXT("AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"),
-				       *FString(__func__));
-
-				if (FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*FilePath))
-				{
-					UE_LOG(LogAzSpeech, Display,
-					       TEXT("AzSpeech - %s: Folder created with the specified path"),
-					       *FString(__func__));
-				}
-				else
-				{
-					UE_LOG(LogAzSpeech, Error,
-					       TEXT("AzSpeech - %s: Failed to create folder with the specified path"),
-					       *FString(__func__));
-
-					return;
-				}
+				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to create directory"), *FString(__func__));
+				return;
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
-			          [Parameters, TextToConvert, Delegate, VoiceName, FilePath, FileName]
-			          {
-				          const TFuture<bool>& TextToVoiceAsyncWork =
-					          Async(EAsyncExecution::Thread,
-					                [Parameters, TextToConvert, VoiceName, FilePath, FileName]() -> bool
-					                {
-						                const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
-						                const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
-						                const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
-						                const std::string& NameIDStr = TCHAR_TO_UTF8(*VoiceName);
-						                const std::string& ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
-						                const std::string& FilePathStr =
-							                TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
+					  [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageId]
+					  {
+						  const TFuture<bool>& TextToVoiceAsyncWork =
+							  Async(EAsyncExecution::Thread,
+									[InStr, InVoiceName, InFilePath, InFileName, InLanguageId]() -> bool
+									{
+										const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageId);
+										const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
+										const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
+										const std::string& InFilePathStr =
+											TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName));
 
-						                return Standard_Cpp::DoTextToWavWork(ToConvertStr, APIAccessKeyStr,
-						                                                     RegionIDStr, LanguageIDStr, NameIDStr,
-						                                                     FilePathStr);
-					                });
+										return Standard_Cpp::DoTextToWavWork(InConvertStr,
+																			 InLanguageIDStr,
+																			 InNameIDStr,
+																			 InFilePathStr);
+									});
 
-				          TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				          const bool& bOutputValue = TextToVoiceAsyncWork.Get();
+						  TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+						  const bool& bOutputValue = TextToVoiceAsyncWork.Get();
 
-				          AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
-				          {
-					          Delegate.Broadcast(bOutputValue);
-				          });
+						  AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
+						  {
+							  InDelegate.Broadcast(bOutputValue);
+						  });
 
-				          if (bOutputValue)
-				          {
-					          UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToWav: Result: Success"));
-				          }
-				          else
-				          {
-					          UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToWav: Result: Error"));
-				          }
-			          });
+						  if (bOutputValue)
+						  {
+							  UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToWav: Result: Success"));
+						  }
+						  else
+						  {
+							  UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToWav: Result: Error"));
+						  }
+					  });
 		}
 	}
 }
 
-UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObject,
-                                                 const FString& TextToConvert,
-                                                 const FString& FilePath,
-                                                 const FString& FileName,
-                                                 const FString& VoiceName,
-                                                 const FAzSpeechData Parameters)
+UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject,
+                                            const FString& TextToConvert,
+                                            const FString& FilePath,
+                                            const FString& FileName,
+                                            const FString& VoiceName,
+                                            const FString& LanguageId)
 {
 	UTextToWavAsync* TextToWavAsync = NewObject<UTextToWavAsync>();
 	TextToWavAsync->WorldContextObject = WorldContextObject;
 	TextToWavAsync->TextToConvert = TextToConvert;
-	TextToWavAsync->VoiceName = VoiceName;
 	TextToWavAsync->FilePath = FilePath;
 	TextToWavAsync->FileName = FileName;
-	TextToWavAsync->Parameters = Parameters;
+	TextToWavAsync->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
+	TextToWavAsync->LanguageId = AzSpeech::Internal::GetLanguageId(LanguageId);
 
 	return TextToWavAsync;
 }
@@ -155,16 +120,13 @@ UTextToWavAsync* UTextToWavAsync::TextToWavAsync(const UObject* WorldContextObje
 void UTextToWavAsync::Activate()
 {
 #if PLATFORM_ANDROID
-	if (!UAndroidPermissionFunctionLibrary::CheckPermission(FString("android.permission.WRITE_EXTERNAL_STORAGE")))
-	{
-		UAndroidPermissionFunctionLibrary::AcquirePermissions(TArray<FString>{ ("android.permission.WRITE_EXTERNAL_STORAGE") });
-	}
+	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
 #endif
 
 	AzSpeechWrapper::Unreal_Cpp::AsyncTextToWav(TextToConvert,
 	                                            VoiceName,
 	                                            FilePath,
 	                                            FileName,
-	                                            Parameters,
+	                                            LanguageId,
 	                                            TaskCompleted);
 }
