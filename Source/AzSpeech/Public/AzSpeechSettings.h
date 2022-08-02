@@ -28,7 +28,7 @@ public:
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech",
 		Meta = (DisplayName = "Azure Speech SDK Default Language ID: To use if no value is specified"))
-	FString LanguageId;
+	FString LanguageID;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech",
 		Meta = (DisplayName = "Azure Speech SDK Default Voice Name: To use if no value is specified"))

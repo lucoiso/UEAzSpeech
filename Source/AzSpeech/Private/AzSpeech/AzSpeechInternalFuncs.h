@@ -28,13 +28,13 @@ namespace AzSpeech::Internal
 
 		UpdateSettingsMap(0, Settings->APIAccessKey);
 		UpdateSettingsMap(1, Settings->RegionID);
-		UpdateSettingsMap(2, Settings->LanguageId);
+		UpdateSettingsMap(2, Settings->LanguageID);
 		UpdateSettingsMap(3, Settings->VoiceName);
 
 		return Output;
 	}
 	
-	static FString GetLanguageId(const FString InTestId = "")
+	static FString GetLanguageID(const FString InTestId = "")
 	{
 		const auto& Settings = GetAzSpeechKeys();
 		if (InTestId.IsEmpty() || InTestId == "Default")

@@ -50,5 +50,5 @@ private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;
-	FString LanguageId;
+	FString LanguageID;
 };

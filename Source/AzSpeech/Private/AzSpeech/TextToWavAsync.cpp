@@ -40,12 +40,12 @@ namespace AzSpeechWrapper
 								   const FString& InVoiceName,
 								   const FString& InFilePath,
 								   const FString& InFileName,
-								   const FString& InLanguageId,
+								   const FString& InLanguageID,
 								   FTextToWavDelegate InDelegate)
 		{
 			if (InStr.IsEmpty() || InVoiceName.IsEmpty()
 				|| InFilePath.IsEmpty() || InFileName.IsEmpty()
-				|| InLanguageId.IsEmpty())
+				|| InLanguageID.IsEmpty())
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
 				return;
@@ -60,13 +60,13 @@ namespace AzSpeechWrapper
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
-					  [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageId]
+					  [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageID]
 					  {
 						  const TFuture<bool>& TextToVoiceAsyncWork =
 							  Async(EAsyncExecution::Thread,
-									[InStr, InVoiceName, InFilePath, InFileName, InLanguageId]() -> bool
+									[InStr, InVoiceName, InFilePath, InFileName, InLanguageID]() -> bool
 									{
-										const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageId);
+										const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
 										const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
 										const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
 										const std::string& InFilePathStr =
@@ -112,7 +112,7 @@ UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject,
 	TextToWavAsync->FilePath = FilePath;
 	TextToWavAsync->FileName = FileName;
 	TextToWavAsync->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	TextToWavAsync->LanguageId = AzSpeech::Internal::GetLanguageId(LanguageId);
+	TextToWavAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
 
 	return TextToWavAsync;
 }
@@ -127,6 +127,6 @@ void UTextToWavAsync::Activate()
 	                                            VoiceName,
 	                                            FilePath,
 	                                            FileName,
-	                                            LanguageId,
+	                                            LanguageID,
 	                                            TaskCompleted);
 }

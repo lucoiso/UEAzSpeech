@@ -37,10 +37,10 @@ namespace AzSpeechWrapper
 	{
 		static void AsyncTextToStream(const FString& InStr,
 									  const FString& InVoiceName,
-									  const FString& InLanguageId,
+									  const FString& InLanguageID,
 									  FTextToStreamDelegate InDelegate)
 		{
-			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InLanguageId.IsEmpty())
+			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InLanguageID.IsEmpty())
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
 				return;
@@ -48,12 +48,12 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InStr, InVoiceName, InLanguageId, InDelegate]
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InStr, InVoiceName, InLanguageID, InDelegate]
 			{
 				const TFuture<std::vector<uint8_t>>& TextToVoiceAsyncWork =
-					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageId]() -> std::vector<uint8_t>
+					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> std::vector<uint8_t>
 						  {
-							  const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageId);
+							  const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
 							  const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
 							  const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
 
@@ -98,12 +98,12 @@ UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContext
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->TextToConvert = TextToConvert;
 	NewAsyncTask->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	NewAsyncTask->LanguageId = AzSpeech::Internal::GetLanguageId(LanguageId);
+	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
 
 	return NewAsyncTask;
 }
 
 void UTextToStreamAsync::Activate()
 {
-	AzSpeechWrapper::Unreal_Cpp::AsyncTextToStream(TextToConvert, VoiceName, LanguageId, TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncTextToStream(TextToConvert, VoiceName, LanguageID, TaskCompleted);
 }

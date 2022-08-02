@@ -41,5 +41,5 @@ public:
 
 private:
 	const UObject* WorldContextObject;
-	FString LanguageId;
+	FString LanguageID;
 };

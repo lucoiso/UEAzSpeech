@@ -36,10 +36,10 @@ namespace AzSpeechWrapper
 	{
 		static void AsyncWavToText(const FString& InFilePath,
 								   const FString& InFileName,
-								   const FString& InLanguageId,
+								   const FString& InLanguageID,
 								   FWavToTextDelegate InDelegate)
 		{
-			if (InFilePath.IsEmpty() || InFileName.IsEmpty() || InLanguageId.IsEmpty())
+			if (InFilePath.IsEmpty() || InFileName.IsEmpty() || InLanguageID.IsEmpty())
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
 				return;
@@ -54,12 +54,12 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [QualifiedPath, InLanguageId, InDelegate]
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [QualifiedPath, InLanguageID, InDelegate]
 					  {
 						  const TFuture<std::string>& WavToTextAsyncWork =
-							  Async(EAsyncExecution::Thread, [QualifiedPath, InLanguageId]() -> std::string
+							  Async(EAsyncExecution::Thread, [QualifiedPath, InLanguageID]() -> std::string
 									{
-										const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageId);
+										const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
 										const std::string& InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
 
 										return Standard_Cpp::DoWavToTextWork(InFilePathStr, InLanguageIDStr);
@@ -95,7 +95,7 @@ UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject,
 	WavToTextAsync->WorldContextObject = WorldContextObject;
 	WavToTextAsync->FilePath = FilePath;
 	WavToTextAsync->FileName = FileName;
-	WavToTextAsync->LanguageId = AzSpeech::Internal::GetLanguageId(LanguageId);
+	WavToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
 
 	return WavToTextAsync;
 }
@@ -106,5 +106,5 @@ void UWavToTextAsync::Activate()
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
 #endif
 
-	AzSpeechWrapper::Unreal_Cpp::AsyncWavToText(FilePath, FileName, LanguageId, TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncWavToText(FilePath, FileName, LanguageID, TaskCompleted);
 }

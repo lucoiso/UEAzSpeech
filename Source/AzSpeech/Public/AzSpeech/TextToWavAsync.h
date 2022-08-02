@@ -55,5 +55,5 @@ private:
 	FString VoiceName;
 	FString FilePath;
 	FString FileName;
-	FString LanguageId;
+	FString LanguageID;
 };
