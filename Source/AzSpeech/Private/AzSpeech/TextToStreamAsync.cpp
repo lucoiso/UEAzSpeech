@@ -98,7 +98,7 @@ UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContext
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->TextToConvert = TextToConvert;
 	NewAsyncTask->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
+	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	return NewAsyncTask;
 }

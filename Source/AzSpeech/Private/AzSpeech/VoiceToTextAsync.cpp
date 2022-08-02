@@ -77,7 +77,7 @@ UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObj
 {
 	UVoiceToTextAsync* VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;
-	VoiceToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
+	VoiceToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	return VoiceToTextAsync;
 }

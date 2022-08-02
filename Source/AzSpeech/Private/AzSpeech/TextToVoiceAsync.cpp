@@ -90,7 +90,7 @@ UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObj
 	TextToVoiceAsync->WorldContextObject = WorldContextObject;
 	TextToVoiceAsync->TextToConvert = TextToConvert;
 	TextToVoiceAsync->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	TextToVoiceAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
+	TextToVoiceAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	return TextToVoiceAsync;
 }

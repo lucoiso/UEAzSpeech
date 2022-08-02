@@ -95,7 +95,7 @@ UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject,
 	WavToTextAsync->WorldContextObject = WorldContextObject;
 	WavToTextAsync->FilePath = FilePath;
 	WavToTextAsync->FileName = FileName;
-	WavToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
+	WavToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	return WavToTextAsync;
 }

@@ -112,7 +112,7 @@ UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject,
 	TextToWavAsync->FilePath = FilePath;
 	TextToWavAsync->FileName = FileName;
 	TextToWavAsync->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	TextToWavAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageID);
+	TextToWavAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	return TextToWavAsync;
 }
