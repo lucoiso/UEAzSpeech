@@ -25,7 +25,7 @@ public:
 	/* Creates a Voice-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DeprecatedFunction, DeprecationMessage =
+			DeprecatedFunction = "true", DeprecationMessage =
 			"Use 'Voice To Text' instead - FAzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
 	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, const FAzSpeechData Parameters)
 	{

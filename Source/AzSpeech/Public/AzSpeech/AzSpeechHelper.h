@@ -18,7 +18,9 @@ class AZSPEECH_API UAzSpeechHelper final : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Is AzSpeechData Empty"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", 
+		meta = (DisplayName = "Is AzSpeechData Empty", DeprecatedFunction = "true",
+			DeprecationMessage = "AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
 	static bool IsAzSpeechDataEmpty(const FAzSpeechData Data);
 
 	/* Helper function to qualify a path string to a single string like Full/File/Path/ */
@@ -26,7 +28,7 @@ public:
 	static FString QualifyPath(const FString Path);
 
 	/* Helper function to qualify the extension of a given file */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify WAV File Path"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify File Extension"))
 	static FString QualifyFileExtension(const FString Path, const FString Name, const FString Extension);
 
 	/* Helper function to qualify a WAV file path + name to a single string like Full/File/Path/Filename.wav */

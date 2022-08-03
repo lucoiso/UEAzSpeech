@@ -25,7 +25,7 @@ public:
 	/* Creates a Text-To-Stream task that will convert your text to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DeprecatedFunction, DeprecationMessage =
+			DeprecatedFunction = "true", DeprecationMessage =
 			"Use 'Text To Stream' instead - AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"
 		))
 	static UTextToStreamAsync* TextToStreamAsync(const UObject* WorldContextObject,

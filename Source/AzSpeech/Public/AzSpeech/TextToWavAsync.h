@@ -25,7 +25,7 @@ public:
 	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DisplayName = "Text To WAV Async", DeprecatedFunction, DeprecationMessage =
+			DisplayName = "Text To WAV Async", DeprecatedFunction = "true", DeprecationMessage =
 			"Use 'Text To WAV' instead - AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
 	static UTextToWavAsync* TextToWavAsync(const UObject* WorldContextObject,
 	                                       const FString& TextToConvert,

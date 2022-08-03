@@ -25,7 +25,7 @@ public:
 	/* Creates a SSML-To-Voice task that will convert your SSML file to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DisplayName = "SSML To Voice Async", DeprecatedFunction, DeprecationMessage =
+			DisplayName = "SSML To Voice Async", DeprecatedFunction = "true", DeprecationMessage =
 			"Use 'SSML To Voice' instead: AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
 	static USSMLToVoiceAsync* SSMLToVoiceAsync(const UObject* WorldContextObject,
 	                                           const FString& SSMLString,
