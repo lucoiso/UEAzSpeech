@@ -6,30 +6,21 @@
 #include "AzSpeech.h"
 #include "Async/Async.h"
 #include "AzSpeech/AzSpeechHelper.h"
-
-THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
-THIRD_PARTY_INCLUDES_END
-
-using namespace Microsoft::CognitiveServices::Speech;
-using namespace Microsoft::CognitiveServices::Speech::Audio;
+#include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static bool DoSSMLToVoiceWork(const std::string& SSMLToConvert,
-		                              const std::string& APIAccessKey,
-		                              const std::string& RegionID)
+		static bool DoSSMLToVoiceWork(const std::string& InSSML)
 		{
-			const auto& SpeechConfig = SpeechConfig::FromSubscription(APIAccessKey, RegionID);
-			const auto& SpeechSynthesizer = SpeechSynthesizer::FromConfig(SpeechConfig);
+			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer();
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(SSMLToConvert).get();
+			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
 			{
 				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+					   TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
 
 				return true;
 			}
@@ -41,67 +32,57 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncSSMLToVoice(const FString& SSMLToConvert,
-		                             const FAzSpeechData Parameters,
-		                             FSSMLToVoiceDelegate Delegate)
+		static void AsyncSSMLToVoice(const FString& InSSML, FSSMLToVoiceDelegate Delegate)
 		{
-			if (SSMLToConvert.IsEmpty()
-				|| UAzSpeechHelper::IsAzSpeechDataEmpty(Parameters))
+			if (InSSML.IsEmpty())
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: SSML is empty"), *FString(__func__));
 				return;
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
-			          [Parameters, SSMLToConvert, Delegate]
-			          {
-				          const TFuture<bool>& SSMLToVoiceAsyncWork =
-					          Async(EAsyncExecution::Thread,
-					                [Parameters, SSMLToConvert]() -> bool
-					                {
-						                const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
-						                const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
-						                const std::string& SSMLStr = TCHAR_TO_UTF8(*SSMLToConvert);
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, Delegate]
+					  {
+						  const TFuture<bool>& SSMLToVoiceAsyncWork =
+							  Async(EAsyncExecution::Thread, [InSSML]() -> bool
+									{
+										const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
 
-						                return Standard_Cpp::DoSSMLToVoiceWork(SSMLStr, APIAccessKeyStr, RegionIDStr);
-					                });
+										return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
+									});
 
-				          SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				          const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
+						  SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+						  const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
 
-				          AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
-				          {
-					          Delegate.Broadcast(bOutputValue);
-				          });
+						  AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
+						  {
+							  Delegate.Broadcast(bOutputValue);
+						  });
 
-				          if (bOutputValue)
-				          {
-					          UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Success"));
-				          }
-				          else
-				          {
-					          UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Error"));
-				          }
-			          });
+						  if (bOutputValue)
+						  {
+							  UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Success"));
+						  }
+						  else
+						  {
+							  UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Error"));
+						  }
+					  });
 		}
 	}
 }
 
-USSMLToVoiceAsync* USSMLToVoiceAsync::SSMLToVoiceAsync(const UObject* WorldContextObject,
-                                                       const FString& SSMLString,
-                                                       const FAzSpeechData Parameters)
+USSMLToVoiceAsync* USSMLToVoiceAsync::SSMLToVoice(const UObject* WorldContextObject, const FString& SSMLString)
 {
 	USSMLToVoiceAsync* SSMLToVoiceAsync = NewObject<USSMLToVoiceAsync>();
 	SSMLToVoiceAsync->WorldContextObject = WorldContextObject;
 	SSMLToVoiceAsync->SSMLString = SSMLString;
-	SSMLToVoiceAsync->Parameters = Parameters;
 
 	return SSMLToVoiceAsync;
 }
 
 void USSMLToVoiceAsync::Activate()
 {
-	AzSpeechWrapper::Unreal_Cpp::AsyncSSMLToVoice(SSMLString, Parameters, TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncSSMLToVoice(SSMLString, TaskCompleted);
 }

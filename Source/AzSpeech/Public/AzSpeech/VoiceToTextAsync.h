@@ -24,13 +24,22 @@ public:
 
 	/* Creates a Voice-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
+			DeprecatedFunction, DeprecationMessage =
+			"Use 'Voice To Text' instead - FAzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
+	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, const FAzSpeechData Parameters)
+	{
+		return VoiceToText(WorldContextObject, Parameters.LanguageID);
+	}
+
+	/* Creates a Voice-To-Text task that will convert your speech to string */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject,
-	                                           FAzSpeechData Parameters);
+	static UVoiceToTextAsync* VoiceToText(const UObject* WorldContextObject, const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
 
 private:
 	const UObject* WorldContextObject;
-	FAzSpeechData Parameters;
+	FString LanguageID;
 };

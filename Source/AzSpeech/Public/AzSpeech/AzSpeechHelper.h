@@ -54,4 +54,12 @@ public:
 	/* Load a given .xml file and return the content as string */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Load XML to String"))
 	static FString LoadXMLToString(const FString FilePath, const FString FileName);
+
+	/* Create a new directory in the specified location */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
+	static bool CreateNewDirectory(const FString& Path, const bool bCreateParents = true);
+
+#if PLATFORM_ANDROID
+	static void CheckAndroidPermission(const FString& InPermissionStr);
+#endif
 };

@@ -24,16 +24,24 @@ public:
 
 	/* Creates a SSML-To-Stream task that will convert your SSML file to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true",
-			WorldContext = "WorldContextObject", DisplayName = "SSML To Stream Async"))
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
+			DisplayName = "SSML To Stream Async", DeprecatedFunction, DeprecationMessage =
+			"Use 'SSML To Stream' instead: AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
 	static USSMLToStreamAsync* SSMLToStreamAsync(const UObject* WorldContextObject,
 	                                             const FString& SSMLString,
-	                                             const FAzSpeechData Parameters);
+	                                             const FAzSpeechData Parameters)
+	{
+		return SSMLToStream(WorldContextObject, SSMLString);
+	};
+
+	/* Creates a SSML-To-Stream task that will convert your SSML file to a audio data stream */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Stream"))
+	static USSMLToStreamAsync* SSMLToStream(const UObject* WorldContextObject, const FString& SSMLString);
 
 	virtual void Activate() override;
 
 private:
 	const UObject* WorldContextObject;
 	FString SSMLString;
-	FAzSpeechData Parameters;
 };

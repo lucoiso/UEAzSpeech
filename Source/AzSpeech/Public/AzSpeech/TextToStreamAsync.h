@@ -24,11 +24,25 @@ public:
 
 	/* Creates a Text-To-Stream task that will convert your text to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
+			DeprecatedFunction, DeprecationMessage =
+			"Use 'Text To Stream' instead - AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"
+		))
 	static UTextToStreamAsync* TextToStreamAsync(const UObject* WorldContextObject,
 	                                             const FString& TextToConvert,
 	                                             const FString& VoiceName,
-	                                             const FAzSpeechData Parameters);
+	                                             const FAzSpeechData Parameters)
+	{
+		return TextToStream(WorldContextObject, TextToConvert, VoiceName, Parameters.LanguageID);
+	}
+
+	/* Creates a Text-To-Stream task that will convert your text to a audio data stream */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
+		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+	static UTextToStreamAsync* TextToStream(const UObject* WorldContextObject,
+	                                        const FString& TextToConvert,
+	                                        const FString& VoiceName = "Default",
+	                                        const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
 
@@ -36,5 +50,5 @@ private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;
-	FAzSpeechData Parameters;
+	FString LanguageID;
 };
