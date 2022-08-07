@@ -25,13 +25,7 @@ And helper functions:
 
 ## Links
 
-* [Documentation](https://github.com/lucoiso/UEAzSpeech/wiki)  
-* [UE Marketplace](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)  
-* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)  
-* [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
- 
-# More information
-## How to get the Speech Service API Access Key and Region ID
-![image](https://user-images.githubusercontent.com/77353979/157915218-c636d31c-7f7d-4d89-8842-708a6bfbe9c5.png)
-
-See the official Microsoft documentation for Azure Cognitive Services: https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/
+* [Documentation](https://github.com/lucoiso/UEAzSpeech/wiki)
+* [UE Marketplace](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)
+* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)
+* [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)
