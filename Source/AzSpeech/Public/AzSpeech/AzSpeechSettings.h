@@ -35,7 +35,7 @@ public:
 	FString VoiceName;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech",
-		Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used in recognitions when LanguageID is set to Auto"))
+		Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
 	TArray<FString> AutoLanguageCandidates;
 
 private:
