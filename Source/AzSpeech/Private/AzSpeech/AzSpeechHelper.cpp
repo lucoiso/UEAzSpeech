@@ -176,6 +176,7 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 FString UAzSpeechHelper::OpenDesktopFolderPicker()
 {
 	FString OutputPath;
+
 #if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX
 	if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
 	{
@@ -188,13 +189,16 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to open a folder picker"),
+			UE_LOG(LogAzSpeech, Error,
+			       TEXT("AzSpeech - %s: Result: Failed to open a folder picker or the user cancelled the operation"),
 			       *FString(__func__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to get Desktop Platform"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error,
+		       TEXT("AzSpeech - %s: Result: Failed to get Desktop Platform"),
+		       *FString(__func__));
 	}
 #else
 	UE_LOG(LogAzSpeech, Error,
