@@ -55,7 +55,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static bool CreateNewDirectory(const FString& Path, const bool bCreateParents = true);
 
-#if PLATFORM_ANDROID
+	/* Opens the desktop folder picker and return the selected folder path as string */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
+	static FString OpenDesktopFolderPicker();
+
+	/* Check if the android platform already has permission and add if not */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Check and Add Android Permission"))
 	static void CheckAndroidPermission(const FString& InPermissionStr);
-#endif
 };

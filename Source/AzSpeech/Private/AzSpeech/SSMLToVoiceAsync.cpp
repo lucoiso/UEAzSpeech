@@ -15,17 +15,9 @@ namespace AzSpeechWrapper
 		{
 			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer();
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
-				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
-			{
-				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
 
-				return true;
-			}
-
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task failed"), *FString(__func__));
-			return false;
+			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
 		}
 	}
 

@@ -18,20 +18,12 @@ namespace AzSpeechWrapper
 		                            const std::string& InFilePath)
 		{
 			const auto& AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
-			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer(
-				AudioConfig, InLanguageID, InVoiceName);
+			const auto& SpeechSynthesizer =
+				AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
-				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
-			{
-				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
 
-				return true;
-			}
-
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task failed"), *FString(__func__));
-			return false;
+			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
 		}
 	}
 

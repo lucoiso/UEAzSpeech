@@ -18,16 +18,12 @@ namespace AzSpeechWrapper
 				AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
 			if (const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
-				SpeechRecognitionResult->Reason == ResultReason::RecognizedSpeech)
+				AzSpeech::Internal::ProcessAzSpeechResult(SpeechRecognitionResult->Reason))
 			{
-				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Recognition task completed"), *FString(__func__));
-
 				return SpeechRecognitionResult->Text;
 			}
 
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Recognition task failed"), *FString(__func__));
-			return "";
+			return std::string();
 		}
 	}
 

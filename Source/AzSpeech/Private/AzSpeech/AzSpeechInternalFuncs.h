@@ -85,11 +85,13 @@ namespace AzSpeech::Internal
 		{
 			SpeechConfig->SetSpeechSynthesisVoiceName(InVoiceName);
 		}
-		
+
 		if (InLanguage == "auto" || InLanguage == "Auto")
 		{
-			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");			
-			return SpeechSynthesizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
+			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");
+			return SpeechSynthesizer::FromConfig(SpeechConfig,
+			                                     AutoDetectSourceLanguageConfig::FromOpenRange(),
+			                                     InAudioConfig);
 		}
 
 		return SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
@@ -106,9 +108,11 @@ namespace AzSpeech::Internal
 		if (InLanguage == "auto" || InLanguage == "Auto")
 		{
 			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");
-			
+
 			const auto& Candidates = GetCandidateLanguages();
-			return SpeechRecognizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromLanguages(Candidates), InAudioConfig);
+			return SpeechRecognizer::FromConfig(SpeechConfig,
+			                                    AutoDetectSourceLanguageConfig::FromLanguages(Candidates),
+			                                    InAudioConfig);
 		}
 
 		if (!InLanguage.empty())
@@ -118,5 +122,41 @@ namespace AzSpeech::Internal
 		}
 
 		return SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
+	}
+
+	static bool ProcessAzSpeechResult(const ResultReason Result)
+	{
+		switch (Result)
+		{
+		case ResultReason::Canceled:
+			UE_LOG(LogAzSpeech, Error,
+			       TEXT("AzSpeech - %s: Task failed: Canceled"),
+			       *FString(__func__));
+			return false;
+
+		case ResultReason::NoMatch:
+			UE_LOG(LogAzSpeech, Error,
+			       TEXT("AzSpeech - %s: Task failed: NoMatch"),
+			       *FString(__func__));
+			return false;
+
+		case ResultReason::SynthesizingAudioCompleted:
+			UE_LOG(LogAzSpeech, Display,
+			       TEXT("AzSpeech - %s: Task completed: SynthesizingAudioCompleted"),
+			       *FString(__func__));
+			return true;
+
+		case ResultReason::RecognizedSpeech:
+			UE_LOG(LogAzSpeech, Display,
+			       TEXT("AzSpeech - %s: Task completed: RecognizedSpeech"),
+			       *FString(__func__));
+			return true;
+
+		default:
+			UE_LOG(LogAzSpeech, Warning,
+			       TEXT("AzSpeech - %s: Undefined result"),
+			       *FString(__func__));
+			return false;
+		}
 	}
 }

@@ -7,6 +7,8 @@
 #include "Sound/SoundWave.h"
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFileManager.h"
+#include "DesktopPlatformModule.h"
+#include "Kismet/GameplayStatics.h"
 
 #if PLATFORM_ANDROID
 #include "AndroidPermissionFunctionLibrary.h"
@@ -171,12 +173,48 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 	return bOutput;
 }
 
-#if PLATFORM_ANDROID
-void UAzSpeechHelper::CheckAndroidPermission(const FString& InPermissionStr)
+FString UAzSpeechHelper::OpenDesktopFolderPicker()
 {
+	FString OutputPath;
+#if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX
+	if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
+	{
+		if (DesktopPlatform->OpenDirectoryDialog(nullptr,
+		                                         TEXT("Select a folder"),
+		                                         TEXT(""),
+		                                         OutputPath))
+		{
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));
+		}
+		else
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to open a folder picker"),
+			       *FString(__func__));
+		}
+	}
+	else
+	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to get Desktop Platform"), *FString(__func__));
+	}
+#else
+	UE_LOG(LogAzSpeech, Error,
+		TEXT("AzSpeech - %s: Platform %s is not supported"),
+		*FString(__func__), *UGameplayStatics::GetPlatformName());
+#endif
+
+	return OutputPath;
+}
+
+void UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InPermissionStr)
+{
+#if PLATFORM_ANDROID
 	if (!UAndroidPermissionFunctionLibrary::CheckPermission(InPermissionStr))
 	{
 		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermissionStr });
 	}
-}
+#else
+	UE_LOG(LogAzSpeech, Error,
+	       TEXT("AzSpeech - %s: Platform %s is not supported"),
+	       *FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
+}

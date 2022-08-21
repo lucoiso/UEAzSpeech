@@ -17,15 +17,11 @@ namespace AzSpeechWrapper
 			const auto& Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
 
 			if (const auto& SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
-				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
+				AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason))
 			{
-				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
-
 				return *SpeechSynthesisResult->GetAudioData().get();
 			}
 
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task failed"), *FString(__func__));
 			return std::vector<uint8_t>();
 		}
 	}

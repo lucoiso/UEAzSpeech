@@ -16,19 +16,15 @@ namespace AzSpeechWrapper
 		                                               const std::string& InVoiceName)
 		{
 			const auto& AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
-			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer(
-				AudioConfig, InLanguageID, InVoiceName);
+			const auto& SpeechSynthesizer =
+				AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
-				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
+				AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason))
 			{
-				UE_LOG(LogAzSpeech, Display,
-				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
-
 				return *SpeechSynthesisResult->GetAudioData().get();
 			}
 
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task failed"), *FString(__func__));
 			return std::vector<uint8_t>();
 		}
 	}
