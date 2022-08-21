@@ -5,9 +5,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeechData.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "WavToTextAsync.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, RecognizedString);
 
 /**
  *
@@ -21,19 +22,6 @@ public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FWavToTextDelegate TaskCompleted;
-
-	/* Creates a Wav-To-Text task that will convert your Wav file to string */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DisplayName = "WAV To Text Async", DeprecatedFunction = "true", DeprecationMessage =
-			"Use 'WAV To Text' instead - AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
-	static UWavToTextAsync* WavToTextAsync(const UObject* WorldContextObject,
-	                                       const FString& FilePath,
-	                                       const FString& FileName,
-	                                       const FAzSpeechData Parameters)
-	{
-		return WavToText(WorldContextObject, FilePath, FileName, Parameters.LanguageID);
-	}
 
 	/* Creates a Wav-To-Text task that will convert your Wav file to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",

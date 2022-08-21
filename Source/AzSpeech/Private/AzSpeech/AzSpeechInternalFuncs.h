@@ -4,7 +4,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "AzSpeechSettings.h"
+#include "AzSpeech/AzSpeechSettings.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx.h>
@@ -14,7 +14,7 @@ using namespace Microsoft::CognitiveServices::Speech;
 using namespace Microsoft::CognitiveServices::Speech::Audio;
 
 namespace AzSpeech::Internal
-{	
+{
 	static std::map<int, std::string> GetAzSpeechKeys()
 	{
 		std::map<int, std::string> Output;
@@ -33,7 +33,20 @@ namespace AzSpeech::Internal
 
 		return Output;
 	}
-	
+
+	static std::vector<std::string> GetCandidateLanguages()
+	{
+		std::vector<std::string> Output;
+
+		const UAzSpeechSettings* Settings = GetDefault<UAzSpeechSettings>();
+		for (const auto& Iterator : Settings->AutoLanguageCandidates)
+		{
+			Output.push_back(TCHAR_TO_UTF8(*Iterator));
+		}
+
+		return Output;
+	}
+
 	static FString GetLanguageID(const FString InTestId = "")
 	{
 		const auto& Settings = GetAzSpeechKeys();
@@ -44,7 +57,7 @@ namespace AzSpeech::Internal
 
 		return InTestId;
 	}
-	
+
 	static FString GetVoiceName(const FString InTestId = "")
 	{
 		const auto& Settings = GetAzSpeechKeys();
@@ -56,10 +69,10 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
-	static std::shared_ptr<SpeechSynthesizer> GetAzureSynthesizer(const std::shared_ptr<AudioConfig>& InAudioConfig =
-		                                                              AudioConfig::FromDefaultSpeakerOutput(),
-	                                                              const std::string& InLanguage = "",
-	                                                              const std::string& InVoiceName = "")
+	static std::shared_ptr<SpeechSynthesizer> GetAzureSynthesizer(
+		const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultSpeakerOutput(),
+		const std::string& InLanguage = "",
+		const std::string& InVoiceName = "")
 	{
 		const auto& Settings = GetAzSpeechKeys();
 		const auto& SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
@@ -72,22 +85,37 @@ namespace AzSpeech::Internal
 		{
 			SpeechConfig->SetSpeechSynthesisVoiceName(InVoiceName);
 		}
+		
+		if (InLanguage == "auto" || InLanguage == "Auto")
+		{
+			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");			
+			return SpeechSynthesizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
+		}
 
 		return SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
-	static std::shared_ptr<SpeechRecognizer> GetAzureRecognizer(const std::shared_ptr<AudioConfig>& InAudioConfig = nullptr,
-	                                                            const std::string& InLanguage = "")
+	static std::shared_ptr<SpeechRecognizer> GetAzureRecognizer(
+		const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultMicrophoneInput(),
+		const std::string& InLanguage = "")
 	{
 		const auto& Settings = GetAzSpeechKeys();
 		const auto& SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
+		SpeechConfig->SetProfanity(ProfanityOption::Raw);
+
+		if (InLanguage == "auto" || InLanguage == "Auto")
+		{
+			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");
+			
+			const auto& Candidates = GetCandidateLanguages();
+			return SpeechRecognizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromLanguages(Candidates), InAudioConfig);
+		}
 
 		if (!InLanguage.empty())
 		{
 			SpeechConfig->SetSpeechRecognitionLanguage(InLanguage);
 			SpeechConfig->SetSpeechSynthesisLanguage(InLanguage);
 		}
-		SpeechConfig->SetProfanity(ProfanityOption::Raw);
 
 		return SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
 	}

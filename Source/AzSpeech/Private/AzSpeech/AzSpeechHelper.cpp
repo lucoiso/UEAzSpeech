@@ -12,11 +12,6 @@
 #include "AndroidPermissionFunctionLibrary.h"
 #endif
 
-bool UAzSpeechHelper::IsAzSpeechDataEmpty(const FAzSpeechData Data)
-{
-	return Data.LanguageID.IsEmpty() || Data.RegionID.IsEmpty() || Data.APIAccessKey.IsEmpty();
-}
-
 FString UAzSpeechHelper::QualifyPath(const FString Path)
 {
 	FString Output = Path;

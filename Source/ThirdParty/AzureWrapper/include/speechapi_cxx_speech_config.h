@@ -19,6 +19,7 @@ namespace Speech {
 
 namespace Dialog { class DialogServiceConfig; }
 class EmbeddedSpeechConfig;
+class HybridSpeechConfig;
 
 /// <summary>
 /// Class that defines configurations for speech / intent recognition, or speech synthesis.
@@ -28,6 +29,7 @@ class SpeechConfig
 public:
     friend Dialog::DialogServiceConfig;
     friend EmbeddedSpeechConfig;
+    friend HybridSpeechConfig;
 
     /// <summary>
     /// Internal operator used to get underlying handle value.

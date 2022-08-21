@@ -5,7 +5,6 @@
 #include "AzSpeech/SSMLToStreamAsync.h"
 #include "AzSpeech.h"
 #include "Async/Async.h"
-#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
@@ -21,7 +20,7 @@ namespace AzSpeechWrapper
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
 			{
 				UE_LOG(LogAzSpeech, Display,
-					   TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
 
 				return *SpeechSynthesisResult->GetAudioData().get();
 			}

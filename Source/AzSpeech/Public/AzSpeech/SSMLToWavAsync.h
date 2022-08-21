@@ -5,9 +5,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeechData.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "SSMLToWavAsync.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToWavDelegate, const bool, OutputValue);
 
 /**
  *
@@ -21,20 +22,6 @@ public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FSSMLToWavDelegate TaskCompleted;
-
-	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DisplayName = "SSML To WAV Async", DeprecatedFunction = "true", DeprecationMessage =
-			"Use 'SSML To WAV' instead: AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
-	static USSMLToWavAsync* SSMLToWavAsync(const UObject* WorldContextObject,
-	                                       const FString& SSMLString,
-	                                       const FString& FilePath,
-	                                       const FString& FileName,
-	                                       const FAzSpeechData Parameters)
-	{
-		return SSMLToWav(WorldContextObject, SSMLString, FilePath, FileName);
-	}
 
 	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",

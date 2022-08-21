@@ -393,6 +393,60 @@ typedef uintptr_t AZACHR;
 #define AZAC_ERR_MEDIA_DEVICE_CREATION_FAILED __AZAC_ERRCODE_FAILED(0x065)
 
 /// <summary>
+/// No devices of the selected category are available.
+/// Added in version 1.18.0.
+/// </summary>
+#define AZAC_ERR_MEDIA_NO_DEVICE_AVAILABLE __AZAC_ERRCODE_FAILED(0x066)
+
+/// <summary>
+/// Enabled Voice Activity Detection while using keyword recognition is not allowed.
+/// </summary>
+#define AZAC_ERR_VAD_COULD_NOT_USE_WITH_KEYWORD_RECOGNIZER __AZAC_ERRCODE_FAILED(0x067)
+
+/// <summary>
 /// The specified RecoEngineAdapter could not be created.
 /// </summary>
 #define AZAC_ERR_COULD_NOT_CREATE_ENGINE_ADAPTER __AZAC_ERRCODE_FAILED(0x070)
+
+/// <summary>
+/// The input media file is missing a file name extension (e.g. my-file.jpg)
+/// </summary>
+#define AZAC_ERR_MISSING_INPUT_FILE_NAME_EXTENSION __AZAC_ERRCODE_FAILED(0x071)
+
+/// <summary>
+/// The input media file extension indicates an unsupported format.
+/// This is the list of supported file extensions:
+/// {"mp4", "bmp", "jpg", "jpeg", "png", "gif", "webp", "ico", "tif", "tiff", "mpo", "heif", "heic"}
+/// </summary>
+#define AZAC_ERR_UNSUPPORTED_INPUT_FILE_NAME_EXTENSION __AZAC_ERRCODE_FAILED(0x072)
+
+/// <summary>
+/// Cannot open the input media file for reading. Does it exist?
+/// </summary>
+#define AZAC_ERR_FAILED_TO_OPEN_INPUT_FILE_FOR_READING __AZAC_ERRCODE_FAILED(0x073)
+
+/// <summary>
+/// Failed to read from the input media file.
+/// </summary>
+#define AZAC_ERR_FAILED_TO_READ_FROM_INPUT_FILE __AZAC_ERRCODE_FAILED(0x074)
+
+/// <summary>
+/// Input media file is too large.
+/// </summary>
+#define AZAC_ERR_INPUT_FILE_TOO_LARGE __AZAC_ERRCODE_FAILED(0x075)
+
+/// <summary>
+/// The input URL is unsupported. It should start with `http://`, `https://` or `rtsp://`.
+/// </summary>
+#define AZAC_ERR_UNSUPPORTED_URL_PROTOCOL __AZAC_ERRCODE_FAILED(0x076)
+
+/// <summary>
+/// The Nullable value is empty. Check HasValue() before getting the value.
+/// </summary>
+#define AZAC_ERR_EMPTY_NULLABLE __AZAC_ERRCODE_FAILED(0x077)
+
+/// <summary>
+/// The given model version string is not in the expected format. The format
+/// is specified by the regular expression `^(latest|\d{4}-\d{2}-\d{2})(-preview)?$`.
+/// </summary>
+#define AZAC_ERR_INVALID_MODEL_VERSION_FORMAT __AZAC_ERRCODE_FAILED(0x078)

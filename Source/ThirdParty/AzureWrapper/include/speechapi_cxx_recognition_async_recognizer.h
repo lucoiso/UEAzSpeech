@@ -52,7 +52,6 @@ public:
     /// <summary>
     /// Asynchronously initiates keyword recognition operation.
     /// </summary>
-    /// Note: Keyword spotting (KWS) functionality might work with any microphone type, official KWS support, however, is currently limited to the microphone arrays found in the Azure Kinect DK hardware or the Speech Devices SDK.
     /// <param name="model">The keyword recognition model that specifies the keyword to be recognized.</param>
     /// <returns>An asynchronous operation that starts the keyword recognition.</returns>
     virtual std::future<void> StartKeywordRecognitionAsync(std::shared_ptr<KeywordRecognitionModel> model) = 0;
@@ -60,7 +59,6 @@ public:
     /// <summary>
     /// Asynchronously terminates ongoing keyword recognition operation.
     /// </summary>
-    /// Note: Keyword spotting (KWS) functionality might work with any microphone type, official KWS support, however, is currently limited to the microphone arrays found in the Azure Kinect DK hardware or the Speech Devices SDK.
     /// <returns>An empty future.</returns>
     virtual std::future<void> StopKeywordRecognitionAsync() = 0;
 

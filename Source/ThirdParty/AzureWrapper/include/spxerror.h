@@ -433,12 +433,14 @@
 /// No devices of the selected category are available.
 /// Added in version 1.18.0.
 /// </summary>
-#define SPXERR_MEDIA_NO_DEVICE_AVAILABLE __SPX_ERRCODE_FAILED(0x066)
+#define SPXERR_MEDIA_NO_DEVICE_AVAILABLE \
+    AZAC_ERR_MEDIA_NO_DEVICE_AVAILABLE
 
 /// <summary>
 /// Enabled Voice Activity Detection while using keyword recognition is not allowed.
 /// </summary>
-#define SPXERR_VAD_COULD_NOT_USE_WITH_KEYWORD_RECOGNIZER __SPX_ERRCODE_FAILED(0x067)
+#define SPXERR_VAD_COULD_NOT_USE_WITH_KEYWORD_RECOGNIZER \
+    AZAC_ERR_VAD_COULD_NOT_USE_WITH_KEYWORD_RECOGNIZER
 
 /// <summary>
 /// The specified RecoEngineAdapter could not be created.

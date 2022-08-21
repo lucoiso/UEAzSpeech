@@ -5,7 +5,6 @@
 #include "AzSpeech/TextToStreamAsync.h"
 #include "AzSpeech.h"
 #include "Async/Async.h"
-#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
@@ -13,17 +12,18 @@ namespace AzSpeechWrapper
 	namespace Standard_Cpp
 	{
 		static std::vector<uint8_t> DoTextToStreamWork(const std::string& InStr,
-													   const std::string& InLanguageID,
-													   const std::string& InVoiceName)
+		                                               const std::string& InLanguageID,
+		                                               const std::string& InVoiceName)
 		{
 			const auto& AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
-			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
+			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer(
+				AudioConfig, InLanguageID, InVoiceName);
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
 			{
 				UE_LOG(LogAzSpeech, Display,
-					   TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+				       TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
 
 				return *SpeechSynthesisResult->GetAudioData().get();
 			}
@@ -36,9 +36,9 @@ namespace AzSpeechWrapper
 	namespace Unreal_Cpp
 	{
 		static void AsyncTextToStream(const FString& InStr,
-									  const FString& InVoiceName,
-									  const FString& InLanguageID,
-									  FTextToStreamDelegate InDelegate)
+		                              const FString& InVoiceName,
+		                              const FString& InLanguageID,
+		                              FTextToStreamDelegate InDelegate)
 		{
 			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InLanguageID.IsEmpty())
 			{
@@ -52,13 +52,13 @@ namespace AzSpeechWrapper
 			{
 				const TFuture<std::vector<uint8_t>>& TextToVoiceAsyncWork =
 					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> std::vector<uint8_t>
-						  {
-							  const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-							  const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
-							  const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
+					{
+						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+						const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
+						const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
 
-							  return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
-						  });
+						return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
+					});
 
 				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
 

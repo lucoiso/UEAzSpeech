@@ -16,6 +16,7 @@
 #include <speechapi_cxx_audio_stream.h>
 #include <speechapi_cxx_speech_config.h>
 #include <speechapi_cxx_embedded_speech_config.h>
+#include <speechapi_cxx_hybrid_speech_config.h>
 #include <speechapi_cxx_audio_config.h>
 #include <speechapi_cxx_audio_processing_options.h>
 

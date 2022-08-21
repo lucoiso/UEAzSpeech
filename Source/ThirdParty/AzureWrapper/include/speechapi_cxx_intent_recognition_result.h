@@ -100,18 +100,14 @@ private:
         {
             auto itemInt = ai_core_json_item_at(parserHandle, root, i, nullptr);
             auto nameInt = ai_core_json_item_name(parserHandle, itemInt);
-            size_t nameSize;
-            auto name = ai_core_json_value_as_string_ptr(parserHandle, nameInt, &nameSize);
 
-            size_t valueSize;
-            auto value = ai_core_json_value_as_string_ptr(parserHandle, itemInt, &valueSize);
+            // Need to use string copy here to force the ajv json parser to convert back to utf8.
+            auto name = ai_core_json_value_as_string_copy(parserHandle, nameInt, "");
+            auto value = ai_core_json_value_as_string_copy(parserHandle, itemInt, "");
             if (value != nullptr && name != nullptr)
             {
-                auto valueStr = std::string(value, valueSize);
-                auto nameStr = std::string(name, nameSize);
-                m_entities[nameStr] = valueStr;
+                m_entities[name] = value;
             }
-
         }
          
     }
