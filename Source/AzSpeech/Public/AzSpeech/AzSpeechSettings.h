@@ -43,7 +43,5 @@ private:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
-	FString PreviousLanguage;
 #endif // WITH_EDITOR
 };

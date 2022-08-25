@@ -4,6 +4,10 @@
 
 #include "AzSpeech/AzSpeechSettings.h"
 
+#if WITH_EDITOR
+#include "Misc/MessageDialog.h"
+#endif // WITH_EDITOR
+
 UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -11,10 +15,6 @@ UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer
 	{
 		AutoLanguageCandidates.Add(LanguageID);
 	}
-
-#if WITH_EDITOR
-	PreviousLanguage = LanguageID;
-#endif // WITH_EDITOR
 }
 
 #if WITH_EDITOR
@@ -24,21 +24,32 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 
 	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
-		AutoLanguageCandidates.Remove(PreviousLanguage);
+		AutoLanguageCandidates.Remove(LanguageID);
 	}
 }
 
 void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-
+	
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates)
 		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
 		if (!AutoLanguageCandidates.Contains(LanguageID))
 		{
-			AutoLanguageCandidates.Add(LanguageID);
-			PreviousLanguage = LanguageID;
+			AutoLanguageCandidates.Insert(LanguageID, 0);
+		}
+	}
+	
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates))
+	{
+		if (AutoLanguageCandidates.Num() > 4)
+		{
+			FMessageDialog::Open(EAppMsgType::Ok,
+				FText::FromString("You can only include up to 4 languages for at-start LID "
+					"and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
+
+			AutoLanguageCandidates.RemoveAtSwap(4, AutoLanguageCandidates.Num() - 4, true);
 		}
 	}
 }
