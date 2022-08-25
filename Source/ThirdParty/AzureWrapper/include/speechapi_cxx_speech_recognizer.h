@@ -70,6 +70,21 @@ public:
     }
 
     /// <summary>
+    /// Create a speech recognizer from a hybrid speech config.
+    /// </summary>
+    /// <param name="speechConfig">Hybrid speech configuration.</param>
+    /// <returns>A smart pointer wrapped speech recognizer pointer.</returns>
+    static std::shared_ptr<SpeechRecognizer> FromConfig(std::shared_ptr<HybridSpeechConfig> speechConfig, std::nullptr_t)
+    {
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_speech_recognizer_from_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(nullptr)));
+        return std::make_shared<SpeechRecognizer>(hreco);
+    }
+
+    /// <summary>
     /// Create a speech recognizer from a speech config and audio config.
     /// </summary>
     /// <param name="speechconfig">Speech configuration.</param>
@@ -98,6 +113,22 @@ public:
         SPX_THROW_ON_FAIL(::recognizer_create_speech_recognizer_from_config(
             &hreco,
             HandleOrInvalid<SPXSPEECHCONFIGHANDLE, EmbeddedSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioConfig)));
+        return std::make_shared<SpeechRecognizer>(hreco);
+    }
+
+    /// <summary>
+    /// Create a speech recognizer from a hybrid speech config and audio config.
+    /// </summary>
+    /// <param name="speechConfig">Hybrid speech configuration.</param>
+    /// <param name="audioConfig">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped speech recognizer pointer.</returns>
+    static std::shared_ptr<SpeechRecognizer> FromConfig(std::shared_ptr<HybridSpeechConfig> speechConfig, std::shared_ptr<Audio::AudioConfig> audioConfig = nullptr)
+    {
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_speech_recognizer_from_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechConfig),
             HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioConfig)));
         return std::make_shared<SpeechRecognizer>(hreco);
     }
@@ -141,6 +172,27 @@ public:
         SPX_THROW_ON_FAIL(::recognizer_create_speech_recognizer_from_auto_detect_source_lang_config(
             &hreco,
             HandleOrInvalid<SPXSPEECHCONFIGHANDLE, EmbeddedSpeechConfig>(speechconfig),
+            HandleOrInvalid<SPXAUTODETECTSOURCELANGCONFIGHANDLE, AutoDetectSourceLanguageConfig>(autoDetectSourceLangConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
+        return std::make_shared<SpeechRecognizer>(hreco);
+    }
+
+    /// <summary>
+    /// Create a speech recognizer from a hybrid speech config, auto detection source language config and audio config
+    /// </summary>
+    /// <param name="speechconfig">Hybrid speech configuration.</param>
+    /// <param name="autoDetectSourceLangConfig">Auto detection source language config.</param>
+    /// <param name="audioInput">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped speech recognizer pointer.</returns>
+    static std::shared_ptr<SpeechRecognizer> FromConfig(
+        std::shared_ptr<HybridSpeechConfig> speechconfig,
+        std::shared_ptr<AutoDetectSourceLanguageConfig> autoDetectSourceLangConfig,
+        std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
+    {
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_speech_recognizer_from_auto_detect_source_lang_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechconfig),
             HandleOrInvalid<SPXAUTODETECTSOURCELANGCONFIGHANDLE, AutoDetectSourceLanguageConfig>(autoDetectSourceLangConfig),
             HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
         return std::make_shared<SpeechRecognizer>(hreco);
@@ -239,7 +291,6 @@ public:
     /// <summary>
     /// Asynchronously initiates keyword recognition operation.
     /// </summary>
-    /// Note: Keyword spotting (KWS) functionality might work with any microphone type, official KWS support, however, is currently limited to the microphone arrays found in the Azure Kinect DK hardware or the Speech Devices SDK.
     /// <param name="model">Specifies the keyword model to be used.</param>
     /// <returns>An empty future.</returns>
     std::future<void> StartKeywordRecognitionAsync(std::shared_ptr<KeywordRecognitionModel> model) override
@@ -250,7 +301,6 @@ public:
     /// <summary>
     /// Asynchronously terminates keyword recognition operation.
     /// </summary>
-    /// Note: Keyword spotting (KWS) functionality might work with any microphone type, official KWS support, however, is currently limited to the microphone arrays found in the Azure Kinect DK hardware or the Speech Devices SDK.
     /// <returns>An empty future.</returns>
     std::future<void> StopKeywordRecognitionAsync() override
     {

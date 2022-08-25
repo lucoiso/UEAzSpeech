@@ -5,7 +5,6 @@
 #include "AzSpeech/SSMLToVoiceAsync.h"
 #include "AzSpeech.h"
 #include "Async/Async.h"
-#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
@@ -16,17 +15,9 @@ namespace AzSpeechWrapper
 		{
 			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer();
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
-				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
-			{
-				UE_LOG(LogAzSpeech, Display,
-					   TEXT("AzSpeech - %s: Speech Synthesis task completed"), *FString(__func__));
+			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
 
-				return true;
-			}
-
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Synthesis task failed"), *FString(__func__));
-			return false;
+			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
 		}
 	}
 
@@ -43,32 +34,31 @@ namespace AzSpeechWrapper
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, Delegate]
-					  {
-						  const TFuture<bool>& SSMLToVoiceAsyncWork =
-							  Async(EAsyncExecution::Thread, [InSSML]() -> bool
-									{
-										const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
+			{
+				const TFuture<bool>& SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [InSSML]() -> bool
+				{
+					const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
 
-										return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
-									});
+					return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
+				});
 
-						  SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-						  const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
+				SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
 
-						  AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
-						  {
-							  Delegate.Broadcast(bOutputValue);
-						  });
+				AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
+				{
+					Delegate.Broadcast(bOutputValue);
+				});
 
-						  if (bOutputValue)
-						  {
-							  UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Success"));
-						  }
-						  else
-						  {
-							  UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Error"));
-						  }
-					  });
+				if (bOutputValue)
+				{
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Success"));
+				}
+				else
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Error"));
+				}
+			});
 		}
 	}
 }

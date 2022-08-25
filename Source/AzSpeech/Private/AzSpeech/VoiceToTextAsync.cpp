@@ -5,7 +5,6 @@
 #include "AzSpeech/VoiceToTextAsync.h"
 #include "AzSpeech.h"
 #include "Async/Async.h"
-#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 
 namespace AzSpeechWrapper
@@ -14,19 +13,17 @@ namespace AzSpeechWrapper
 	{
 		static std::string DoVoiceToTextWork(const std::string& InLanguageID)
 		{
-			const auto& SpeechRecognizer = AzSpeech::Internal::GetAzureRecognizer(nullptr, InLanguageID);
+			const auto& AudioConfig = AudioConfig::FromDefaultMicrophoneInput();
+			const auto& SpeechRecognizer =
+				AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
 			if (const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
-				SpeechRecognitionResult->Reason == ResultReason::RecognizedSpeech)
+				AzSpeech::Internal::ProcessAzSpeechResult(SpeechRecognitionResult->Reason))
 			{
-				UE_LOG(LogAzSpeech, Display,
-					   TEXT("AzSpeech - %s: Speech Recognition task completed"), *FString(__func__));
-
 				return SpeechRecognitionResult->Text;
 			}
 
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Speech Recognition task failed"), *FString(__func__));
-			return "";
+			return std::string();
 		}
 	}
 
@@ -73,7 +70,8 @@ namespace AzSpeechWrapper
 	}
 }
 
-UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId)
+UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject,
+                                                  const FString& LanguageId)
 {
 	UVoiceToTextAsync* VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;

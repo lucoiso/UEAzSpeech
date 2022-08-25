@@ -5,7 +5,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeechData.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AzSpeechHelper.generated.h"
 
@@ -18,11 +17,6 @@ class AZSPEECH_API UAzSpeechHelper final : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", 
-		meta = (DisplayName = "Is AzSpeechData Empty", DeprecatedFunction = "true",
-			DeprecationMessage = "AzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
-	static bool IsAzSpeechDataEmpty(const FAzSpeechData Data);
-
 	/* Helper function to qualify a path string to a single string like Full/File/Path/ */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify Path"))
 	static FString QualifyPath(const FString Path);
@@ -61,7 +55,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static bool CreateNewDirectory(const FString& Path, const bool bCreateParents = true);
 
-#if PLATFORM_ANDROID
+	/* Opens the desktop folder picker and return the selected folder path as string */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
+	static FString OpenDesktopFolderPicker();
+
+	/* Check if the android platform already has permission and add if not */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Check and Add Android Permission"))
 	static void CheckAndroidPermission(const FString& InPermissionStr);
-#endif
 };

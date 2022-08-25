@@ -5,9 +5,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeechData.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "VoiceToTextAsync.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVoiceToTextDelegate, const FString&, RecognizedString);
 
 /**
  *
@@ -24,18 +25,9 @@ public:
 
 	/* Creates a Voice-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject",
-			DeprecatedFunction = "true", DeprecationMessage =
-			"Use 'Voice To Text' instead - FAzSpeechData will be replaced by AzSpeech Settings (Project Settings)"))
-	static UVoiceToTextAsync* VoiceToTextAsync(const UObject* WorldContextObject, const FAzSpeechData Parameters)
-	{
-		return VoiceToText(WorldContextObject, Parameters.LanguageID);
-	}
-
-	/* Creates a Voice-To-Text task that will convert your speech to string */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UVoiceToTextAsync* VoiceToText(const UObject* WorldContextObject, const FString& LanguageId = "Default");
+	static UVoiceToTextAsync* VoiceToText(const UObject* WorldContextObject,
+	                                      const FString& LanguageId = "Auto");
 
 	virtual void Activate() override;
 

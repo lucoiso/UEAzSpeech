@@ -103,6 +103,22 @@ public:
     }
 
     /// <summary>
+    /// Create a speech synthesizer from a hybrid speech config.
+    /// </summary>
+    /// <param name="speechconfig">Hybrid speech configuration.</param>
+    /// <returns>A smart pointer wrapped speech synthesizer pointer.</returns>
+    static std::shared_ptr<SpeechSynthesizer> FromConfig(std::shared_ptr<HybridSpeechConfig> speechconfig, std::nullptr_t)
+    {
+        SPXSYNTHHANDLE hsynth = SPXHANDLE_INVALID;
+        SPX_THROW_ON_FAIL(::synthesizer_create_speech_synthesizer_from_config(
+            &hsynth,
+            Utils::HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechconfig),
+            SPXHANDLE_INVALID));
+        auto ptr = new SpeechSynthesizer(hsynth);
+        return std::shared_ptr<SpeechSynthesizer>(ptr);
+    }
+
+    /// <summary>
     /// Create a speech synthesizer from a speech config and audio config.
     /// </summary>
     /// <param name="speechconfig">Speech configuration.</param>
@@ -140,6 +156,27 @@ public:
         SPX_THROW_ON_FAIL(::synthesizer_create_speech_synthesizer_from_config(
             &hsynth,
             Utils::HandleOrInvalid<SPXSPEECHCONFIGHANDLE, EmbeddedSpeechConfig>(speechconfig),
+            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioconfig)));
+        auto ptr = new SpeechSynthesizer(hsynth);
+        auto synthesizer = std::shared_ptr<SpeechSynthesizer>(ptr);
+        synthesizer->m_audioConfig = audioconfig;
+        return synthesizer;
+    }
+
+    /// <summary>
+    /// Create a speech synthesizer from a hybrid speech config and audio config.
+    /// </summary>
+    /// <param name="speechconfig">Hybrid speech configuration.</param>
+    /// <param name="audioconfig">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped speech synthesizer pointer.</returns>
+    static std::shared_ptr<SpeechSynthesizer> FromConfig(
+        std::shared_ptr<HybridSpeechConfig> speechconfig,
+        std::shared_ptr<Audio::AudioConfig> audioconfig = Audio::AudioConfig::FromDefaultSpeakerOutput())
+    {
+        SPXSYNTHHANDLE hsynth = SPXHANDLE_INVALID;
+        SPX_THROW_ON_FAIL(::synthesizer_create_speech_synthesizer_from_config(
+            &hsynth,
+            Utils::HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechconfig),
             Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioconfig)));
         auto ptr = new SpeechSynthesizer(hsynth);
         auto synthesizer = std::shared_ptr<SpeechSynthesizer>(ptr);

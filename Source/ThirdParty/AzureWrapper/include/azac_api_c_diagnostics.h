@@ -7,10 +7,10 @@
 
 // TODO: TFS#3671215 - Vision: C/C++ azac_api* files are in shared include directory, speech and vision share
 
-#ifndef AZAC_SUPRESS_COMMON_INCLUDE_FROM_DIAGNOSTICS
-#define AZAC_SUPRESS_DIAGNOSTICS_INCLUDE_FROM_COMMON
+#ifndef AZAC_SUPPRESS_COMMON_INCLUDE_FROM_DIAGNOSTICS
+#define AZAC_SUPPRESS_DIAGNOSTICS_INCLUDE_FROM_COMMON
 #include <azac_api_c_common.h>
-#undef AZAC_SUPRESS_DIAGNOSTICS_INCLUDE_FROM_COMMON
+#undef AZAC_SUPPRESS_DIAGNOSTICS_INCLUDE_FROM_COMMON
 #endif
 
 #include <stdarg.h>
@@ -63,3 +63,4 @@ AZAC_API_(void) diagnostics_log_trace_message(int level, const char* pszTitle, c
 AZAC_API_(void) diagnostics_log_trace_message2(int level, const char* pszTitle, const char* fileName, const int lineNumber, const char* pszFormat, va_list argptr);
 
 AZAC_API_(void) diagnostics_set_log_level(const char * logger, const char * level);
+AZAC_API_(bool) diagnostics_is_log_level_enabled(int level);

@@ -368,6 +368,20 @@ inline void __azac_do_trace_message(int level, const char* pszTitle, const char*
 #define __AZAC_THROW_HR(hr) __AZAC_THROW_HR_IMPL(hr)
 #endif
 
+#ifndef __AZAC_LOG_HR_IMPL
+#define __AZAC_LOG_HR_IMPL(hr) __azac_log_only(hr)
+#endif
+#ifndef __AZAC_LOG_HR
+#define __AZAC_LOG_HR(hr) __AZAC_LOG_HR_IMPL(hr)
+#endif
+
+#define __AZAC_T_LOG_ON_FAIL(title, fileName, lineNumber, hr)                   \
+    do {                                                                        \
+        AZACHR x = hr;                                                          \
+        if (AZAC_FAILED(x)) {                                                   \
+            __AZAC_TRACE_HR(title, fileName, lineNumber, hr, x);                \
+            __AZAC_LOG_HR(x);                                                   \
+    } } while (0)
 #define __AZAC_T_THROW_ON_FAIL(title, fileName, lineNumber, hr)                 \
     do {                                                                        \
         AZACHR x = hr;                                                          \
@@ -398,6 +412,13 @@ inline void __azac_do_trace_message(int level, const char* pszTitle, const char*
         __AZAC_THROW_HR(x);                                                     \
     } while (0)
 
+
+#define __AZAC_LOG_ON_FAIL(hr)                                  \
+    do {                                                        \
+        AZACHR x = hr;                                          \
+        if (AZAC_FAILED(x)) {                                   \
+            __AZAC_LOG_HR(x);                                   \
+    } } while (0)
 #define __AZAC_THROW_ON_FAIL(hr)                                \
     do {                                                        \
         AZACHR x = hr;                                          \
@@ -620,10 +641,10 @@ inline void __azac_do_trace_message(int level, const char* pszTitle, const char*
     } } while (0)
 
 // handle circular dependency
-#ifndef AZAC_SUPRESS_COMMON_INCLUDE_FROM_DEBUG
-#define AZAC_SUPRESS_DEBUG_INCLUDE_FROM_COMMON
+#ifndef AZAC_SUPPRESS_COMMON_INCLUDE_FROM_DEBUG
+#define AZAC_SUPPRESS_DEBUG_INCLUDE_FROM_COMMON
 #include <azac_api_c_common.h>
-#undef AZAC_SUPRESS_DEBUG_INCLUDE_FROM_COMMON
+#undef AZAC_SUPPRESS_DEBUG_INCLUDE_FROM_COMMON
 #endif
 
 #ifdef __cplusplus
@@ -643,11 +664,13 @@ inline void __azac_do_trace_message(int level, const char* pszTitle, const char*
 #ifdef AZAC_CONFIG_TRACE_THROW_ON_FAIL
 #define AZAC_THROW_ON_FAIL(hr)                      __AZAC_T_THROW_ON_FAIL("AZAC_THROW_ON_FAIL: ", __FILE__, __LINE__, hr)
 #define AZAC_THROW_ON_FAIL_IF_NOT(hr, hrNot)        __AZAC_T_THROW_ON_FAIL_IF_NOT("AZAC_THROW_ON_FAIL: ", __FILE__, __LINE__, hr, hrNot)
+#define AZAC_LOG_ON_FAIL(hr)                        __AZAC_T_LOG_ON_FAIL("AZAC_LOG_ON_FAIL: ", __FILE__, __LINE__, hr)
 #define AZAC_THROW_HR_IF(hr, cond)                  __AZAC_T_THROW_HR_IF("AZAC_THROW_HR_IF: ", __FILE__, __LINE__, hr, cond)
 #define AZAC_THROW_HR(hr)                           __AZAC_T_THROW_HR("AZAC_THROW_HR: ", __FILE__, __LINE__, hr)
 #else
 #define AZAC_THROW_ON_FAIL(hr)                      __AZAC_THROW_ON_FAIL(hr)
 #define AZAC_THROW_ON_FAIL_IF_NOT(hr, hrNot)        __AZAC_THROW_ON_FAIL_IF_NOT(hr, hrNot)
+#define AZAC_LOG_ON_FAIL(hr)                        __AZAC_LOG_ON_FAIL(hr)
 #define AZAC_THROW_HR_IF(hr, cond)                  __AZAC_THROW_HR_IF(hr, cond)
 #define AZAC_THROW_HR(hr)                           __AZAC_THROW_HR(hr)
 #endif
@@ -662,26 +685,45 @@ inline void __azac_do_trace_message(int level, const char* pszTitle, const char*
 #include <stdexcept>
 #include <string>
 
-inline void __azac_rethrow(AZACHR hr)
+inline void __azac_handle_native_ex(AZACHR hr, bool throwException)
 {
-    AZAC_TRACE_SCOPE("__azac_rethrow", "__azac_rethrow");
+    AZAC_TRACE_SCOPE(__FUNCTION__, __FUNCTION__);
 
     auto handle = reinterpret_cast<AZAC_HANDLE>(hr);
     auto error = error_get_error_code(handle);
     if (error == AZAC_ERR_NONE)
     {
-        throw hr;
+        if (throwException)
+        {
+            throw hr;
+        }
+        else
+        {
+            // do nothing. This is already logged by the macros that call this function
+            return;
+        }
     }
 
-    auto callstack = error_get_call_stack(handle);
-    auto what = error_get_message(handle);
-
-    std::runtime_error er("");
+    std::string errorMsg;
     try
     {
-        er = std::runtime_error(
-            (what == nullptr ? "Exception with error code: " + std::to_string(error) : std::string(what)) +
-            (callstack == nullptr ? "" : std::string(callstack)));
+        auto callstack = error_get_call_stack(handle);
+        auto what = error_get_message(handle);
+
+        if (what)
+        {
+            errorMsg += what;
+        }
+        else
+        {
+            errorMsg += "Exception with error code: ";
+            errorMsg += std::to_string(error);
+        }
+
+        if (callstack)
+        {
+            errorMsg += callstack;
+        }
     }
     catch (...)
     {
@@ -690,13 +732,31 @@ inline void __azac_rethrow(AZACHR hr)
     }
 
     error_release(handle);
-    throw er;
+    if (throwException)
+    {
+        throw std::runtime_error(errorMsg);
+    }
+    else
+    {
+        AZAC_TRACE_ERROR("Error details: %s", errorMsg.c_str());
+    }
+}
+
+inline void __azac_log_only(AZACHR hr)
+{
+    __azac_handle_native_ex(hr, false);
+}
+
+inline void __azac_rethrow(AZACHR hr)
+{
+    __azac_handle_native_ex(hr, true);
 }
 
 #else // __cplusplus
 
 #define AZAC_TRACE_SCOPE(x, y)                      static_assert(false)
 #define AZAC_DBG_TRACE_SCOPE(x, y)                  static_assert(false)
+#define AZAC_LOG_ON_FAIL(hr)                        static_assert(false)
 #define AZAC_THROW_ON_FAIL(hr)                      static_assert(false)
 #define AZAC_THROW_ON_FAIL_IF_NOT(hr, hrNot)        static_assert(false)
 #define AZAC_THROW_HR_IF(hr, cond)                  static_assert(false)

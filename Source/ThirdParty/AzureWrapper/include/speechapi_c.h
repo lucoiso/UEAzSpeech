@@ -25,6 +25,7 @@
 #include <speechapi_c_audio_processing_options.h>
 #include <speechapi_c_speech_config.h>
 #include <speechapi_c_embedded_speech_config.h>
+#include <speechapi_c_hybrid_speech_config.h>
 #include <speechapi_c_speech_translation_config.h>
 #include <speechapi_c_factory.h>
 #include <speechapi_c_recognizer.h>

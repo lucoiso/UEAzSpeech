@@ -1,7 +1,7 @@
 # Unreal Engine Plugin: AzSpeech
 
 ## About
-![image](https://user-images.githubusercontent.com/77353979/182722300-9a85d697-53d0-46d3-a511-1503bd3a0511.png)
+![image](https://user-images.githubusercontent.com/77353979/186728526-4c090961-0266-40c2-835a-6c7ad9e2203a.png)
 
 A plugin integrating Azure Speech Cognitive Services to Unreal Engine with simple functions which can do these asynchronous tasks: 
 * Voice-To-Text (Convert a speech to a string)
@@ -22,6 +22,8 @@ And helper functions:
 * Qualify WAV File Path: Check if the filepath ends with the correct extension ".wav"
 * Qualify File Extension: Check if the file ends with the correct extension
 * Create New Directory: A helper function to create a new folder
+* Open Desktop Folder Picker: Open the default folder picker (Desktop only)
+* Check and Add Android Permission: Check if the app has a specified permission and add if not (Android only)
 
 ## Links
 
@@ -29,3 +31,4 @@ And helper functions:
 * [UE Marketplace](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)
 * [Unreal Engine Forum](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)
 * [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)
+* [Email](mailto:contatolukevboas@gmail.com)  

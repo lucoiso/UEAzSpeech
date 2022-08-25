@@ -7,10 +7,10 @@
 
 // TODO: TFS#3671215 - Vision: C/C++ azac_api* files are in shared include directory, speech and vision share
 
-#ifndef AZAC_SUPRESS_COMMON_INCLUDE_FROM_ERROR
-#define AZAC_SUPRESS_ERROR_INCLUDE_FROM_COMMON
+#ifndef AZAC_SUPPRESS_COMMON_INCLUDE_FROM_ERROR
+#define AZAC_SUPPRESS_ERROR_INCLUDE_FROM_COMMON
 #include <azac_api_c_common.h>
-#undef AZAC_SUPRESS_ERROR_INCLUDE_FROM_COMMON
+#undef AZAC_SUPPRESS_ERROR_INCLUDE_FROM_COMMON
 #endif
 
 typedef const char * const_char_ptr;

@@ -62,27 +62,32 @@ private:
     {
         SPX_INIT_HR(hr);
 
-        size_t bufLen = 0;
-        std::shared_ptr<Result_TranslationTextBufferHeader> phraseBuffer;
-        // retrieve the required buffer size first.
-        hr = translation_text_result_get_translation_text_buffer_header(resultHandle, nullptr, &bufLen);
-        if (hr == SPXERR_BUFFER_TOO_SMALL)
-        {
-            char *ptr = new char[bufLen];
-            phraseBuffer = std::shared_ptr<Result_TranslationTextBufferHeader>((Result_TranslationTextBufferHeader*)ptr,
-                [](void *to_delete) { delete[] ((char*)to_delete); });
-            hr = translation_text_result_get_translation_text_buffer_header(resultHandle, phraseBuffer.get(), &bufLen);
-        }
+        size_t count = 0;
+        hr = translation_text_result_get_translation_count(resultHandle, &count);
         SPX_THROW_ON_FAIL(hr);
 
-        if (phraseBuffer->bufferSize > bufLen)
+        size_t maxLanguageSize = 0;
+        size_t maxTextSize = 0;
+
+        for (size_t i = 0; i < count; i++)
         {
-            SPX_THROW_HR(SPXERR_RUNTIME_ERROR);
+            size_t languageSize = 0;
+            size_t textSize = 0;
+
+            hr = translation_text_result_get_translation(resultHandle, i, nullptr, nullptr, &languageSize, &textSize);
+            SPX_THROW_ON_FAIL(hr);
+
+            maxLanguageSize = (std::max)(maxLanguageSize, languageSize);
+            maxTextSize = (std::max)(maxTextSize, textSize);
         }
 
-        for (size_t i = 0; i < phraseBuffer->numberEntries; i++)
+        auto targetLanguage = std::make_unique<char[]>(maxLanguageSize);
+        auto translationText = std::make_unique<char[]>(maxTextSize);
+        for (size_t i = 0; i < count; i++)
         {
-            m_translations[Utils::ToSPXString(phraseBuffer->targetLanguages[i])] = Utils::ToSPXString(phraseBuffer->translationTexts[i]);
+            hr = translation_text_result_get_translation(resultHandle, i, targetLanguage.get(), translationText.get(), &maxLanguageSize, &maxTextSize);
+            SPX_THROW_ON_FAIL(hr);
+            m_translations[Utils::ToSPXString(targetLanguage.get())] = Utils::ToSPXString(translationText.get());
         }
 
         SPX_DBG_TRACE_VERBOSE("Translation phrases: numberentries: %d", (int)m_translations.size());

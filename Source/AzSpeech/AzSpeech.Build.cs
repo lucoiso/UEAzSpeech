@@ -36,5 +36,7 @@ public class AzSpeech : ModuleRules
 				"DeveloperSettings"
 			}
 		);
+
+		PrivateIncludePathModuleNames.Add("DesktopPlatform");
 	}
 }
