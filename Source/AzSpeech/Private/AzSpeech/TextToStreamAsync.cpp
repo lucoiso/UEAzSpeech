@@ -49,9 +49,9 @@ namespace AzSpeechWrapper
 				const TFuture<std::vector<uint8_t>>& TextToVoiceAsyncWork =
 					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> std::vector<uint8_t>
 					{
+						const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
 						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
 						const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
-						const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
 
 						return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
 					});

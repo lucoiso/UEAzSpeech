@@ -62,6 +62,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 #if PLATFORM_ANDROID
 		CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
 #endif
+		
 		if (TArray<uint8> RawData;
 			FFileHelper::LoadFileToArray(RawData, *Full_FileName, FILEREAD_NoFail))
 		{
@@ -107,9 +108,10 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawDa
 
 		SoundWave->RawPCMDataSize = WaveInfo.SampleDataSize;
 		SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
+		
 		FMemory::Memcpy(SoundWave->RawPCMData, WaveInfo.SampleDataStart, WaveInfo.SampleDataSize);
 
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));		
 		return SoundWave;
 	}
 	// else
@@ -131,9 +133,7 @@ FString UAzSpeechHelper::LoadXMLToString(const FString FilePath, const FString F
 		if (FString OutputStr;
 			FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s loaded"),
-			       *FString(__func__), *Full_FileName);
-
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s loaded"), *FString(__func__), *Full_FileName);
 			return OutputStr;
 		}
 	}
@@ -196,13 +196,10 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech, Error,
-		       TEXT("AzSpeech - %s: Result: Failed to get Desktop Platform"),
-		       *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to get Desktop Platform"), *FString(__func__));
 	}
 #else
-	UE_LOG(LogAzSpeech, Error,
-		TEXT("AzSpeech - %s: Platform %s is not supported"),
+	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Platform %s is not supported"),
 		*FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
 
@@ -217,8 +214,7 @@ void UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InP
 		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermissionStr });
 	}
 #else
-	UE_LOG(LogAzSpeech, Error,
-	       TEXT("AzSpeech - %s: Platform %s is not supported"),
+	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Platform %s is not supported"),
 	       *FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
 }

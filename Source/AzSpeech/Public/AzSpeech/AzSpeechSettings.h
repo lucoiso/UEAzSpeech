@@ -23,7 +23,8 @@ public:
 		Meta = (DisplayName = "Azure Speech SDK API Access Key"))
 	FString APIAccessKey;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Region ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech",
+		Meta = (DisplayName = "Azure Speech SDK Region ID"))
 	FString RegionID;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech",

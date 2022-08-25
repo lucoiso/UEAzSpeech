@@ -56,37 +56,36 @@ namespace AzSpeechWrapper
 			          [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageID]
 			          {
 				          const TFuture<bool>& TextToVoiceAsyncWork =
-					          Async(EAsyncExecution::Thread,
-					                [InStr, InVoiceName, InFilePath, InFileName, InLanguageID]() -> bool
-					                {
-						                const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-						                const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
-						                const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
-						                const std::string& InFilePathStr =
-							                TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName));
+							  Async(EAsyncExecution::Thread, [InStr, InVoiceName, InFilePath, InFileName, InLanguageID]() -> bool
+							  {
+								  const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
+								  const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+								  const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
+								  const std::string& InFilePathStr =
+									  TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName));
 
-						                return Standard_Cpp::DoTextToWavWork(InConvertStr,
-						                                                     InLanguageIDStr,
-						                                                     InNameIDStr,
-						                                                     InFilePathStr);
-					                });
+								  return Standard_Cpp::DoTextToWavWork(InConvertStr,
+																	   InLanguageIDStr,
+																	   InNameIDStr,
+																	   InFilePathStr);
+							  });
 
-				          TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				          const bool& bOutputValue = TextToVoiceAsyncWork.Get();
+						  TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+						  const bool& bOutputValue = TextToVoiceAsyncWork.Get();
 
-				          AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
-				          {
-					          InDelegate.Broadcast(bOutputValue);
-				          });
+						  AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
+						  {
+							  InDelegate.Broadcast(bOutputValue);
+						  });
 
-				          if (bOutputValue)
-				          {
-					          UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToWav: Result: Success"));
-				          }
-				          else
-				          {
-					          UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToWav: Result: Error"));
-				          }
+						  if (bOutputValue)
+						  {
+							  UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToWav: Result: Success"));
+						  }
+						  else
+						  {
+							  UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToWav: Result: Error"));
+						  }
 			          });
 		}
 	}

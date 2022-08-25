@@ -35,13 +35,12 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, Delegate]
 			{
-				const TFuture<bool>& SSMLToVoiceAsyncWork =
-					Async(EAsyncExecution::Thread, [InSSML]() -> bool
-					{
-						const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
+				const TFuture<bool>& SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [InSSML]() -> bool
+				{
+					const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
 
-						return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
-					});
+					return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
+				});
 
 				SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
 				const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
