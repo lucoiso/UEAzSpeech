@@ -11,7 +11,11 @@
 UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+#if ENGINE_MAJOR_VERSION >= 5
 	if (AutoLanguageCandidates.IsEmpty())
+#else
+	if (AutoLanguageCandidates.Num() == 0)
+#endif
 	{
 		AutoLanguageCandidates.Add(LanguageID);
 	}
