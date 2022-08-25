@@ -33,9 +33,10 @@ public class AzSpeech : ModuleRules
 				"CoreUObject",
 				"Projects",
 				"AndroidPermission",
-				"DeveloperSettings",
-				"DesktopPlatform"
+				"DeveloperSettings"
 			}
 		);
+
+		PrivateIncludePathModuleNames.Add("DesktopPlatform");
 	}
 }
