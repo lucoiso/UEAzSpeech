@@ -17,13 +17,17 @@ namespace AzSpeechWrapper
 		                            const std::string& InVoiceName,
 		                            const std::string& InFilePath)
 		{
-			const auto& AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
-			const auto& SpeechSynthesizer =
-				AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
+			const auto AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
+			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
 
-			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
+			if (Synthesizer == nullptr)
+			{
+				return false;
+			}
 
-			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
+			const auto SynthesisResult = Synthesizer->SpeakTextAsync(InStr).get();
+
+			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
 		}
 	}
 
@@ -55,7 +59,7 @@ namespace AzSpeechWrapper
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
 			          [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageID]
 			          {
-				          const TFuture<bool>& TextToVoiceAsyncWork =
+				          const TFuture<bool>& TextToWavAsyncWork =
 							  Async(EAsyncExecution::Thread, [InStr, InVoiceName, InFilePath, InFileName, InLanguageID]() -> bool
 							  {
 								  const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
@@ -70,8 +74,13 @@ namespace AzSpeechWrapper
 																	   InFilePathStr);
 							  });
 
-						  TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-						  const bool& bOutputValue = TextToVoiceAsyncWork.Get();
+						  if (!TextToWavAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+						  {
+							  UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToWav: Task timed out"));
+							  return;
+						  }
+						
+						  const bool& bOutputValue = TextToWavAsyncWork.Get();
 
 						  AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
 						  {

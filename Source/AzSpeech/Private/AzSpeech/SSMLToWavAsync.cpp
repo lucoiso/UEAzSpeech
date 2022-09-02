@@ -14,12 +14,17 @@ namespace AzSpeechWrapper
 	{
 		static bool DoSSMLToWavWork(const std::string& InSSML, const std::string& InFilePath)
 		{
-			const auto& AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
-			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
+			const auto AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
+			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
 
-			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
+			if (Synthesizer == nullptr)
+			{
+				return false;
+			}
 
-			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
+			const auto SynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
+
+			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
 		}
 	}
 
@@ -46,7 +51,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, InFilePath, InFileName, InDelegate]
 			{
-				const TFuture<bool>& TextToVoiceAsyncWork =
+				const TFuture<bool>& SSMLToWavAsyncWork =
 					Async(EAsyncExecution::Thread, [InSSML, InFilePath, InFileName]() -> bool
 					{
 						const std::string& InConvertStr = TCHAR_TO_UTF8(*InSSML);
@@ -56,8 +61,13 @@ namespace AzSpeechWrapper
 						return Standard_Cpp::DoSSMLToWavWork(InConvertStr, InFilePathStr);
 					});
 
-				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				const bool& bOutputValue = TextToVoiceAsyncWork.Get();
+				if (!SSMLToWavAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToWav: Task timed out"));
+					return;
+				}
+				
+				const bool& bOutputValue = SSMLToWavAsyncWork.Get();
 
 				AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
 				{
@@ -66,11 +76,11 @@ namespace AzSpeechWrapper
 
 				if (bOutputValue)
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToWav: Result: Success"));
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToWav: Result: Success"));
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToWav: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToWav: Result: Error"));
 				}
 			});
 		}

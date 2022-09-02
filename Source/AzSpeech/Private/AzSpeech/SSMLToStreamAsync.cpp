@@ -13,10 +13,15 @@ namespace AzSpeechWrapper
 	{
 		static std::vector<uint8_t> DoSSMLToStreamWork(const std::string& InSSML)
 		{
-			const auto& AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
-			const auto& Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
+			const auto AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
+			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
 
-			if (const auto& SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
+			if (Synthesizer == nullptr)
+			{
+				return std::vector<uint8_t>();
+			}
+
+			if (const auto SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
 				AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason))
 			{
 				return *SpeechSynthesisResult->GetAudioData().get();
@@ -40,7 +45,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, InDelegate]
 			{
-				const TFuture<std::vector<uint8_t>>& TextToVoiceAsyncWork =
+				const TFuture<std::vector<uint8_t>>& SSMLToStreamAsyncWork =
 					Async(EAsyncExecution::Thread, [InSSML, InDelegate]() -> std::vector<uint8_t>
 					{
 						const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
@@ -48,9 +53,13 @@ namespace AzSpeechWrapper
 						return Standard_Cpp::DoSSMLToStreamWork(InSSMLStr);
 					});
 
-				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				if (!SSMLToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToStream: Task timed out"));
+					return;
+				}
 
-				const std::vector<uint8_t>& Result = TextToVoiceAsyncWork.Get();
+				const std::vector<uint8_t>& Result = SSMLToStreamAsyncWork.Get();
 				const bool& bOutputValue = !Result.empty();
 
 				TArray<uint8> OutputArr;
@@ -66,11 +75,11 @@ namespace AzSpeechWrapper
 
 				if (bOutputValue)
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToStream: Result: Success"));
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToStream: Result: Success"));
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToStream: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToStream: Result: Error"));
 				}
 			});
 		}

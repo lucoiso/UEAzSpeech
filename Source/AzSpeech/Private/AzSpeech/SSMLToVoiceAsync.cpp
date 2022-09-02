@@ -13,11 +13,16 @@ namespace AzSpeechWrapper
 	{
 		static bool DoSSMLToVoiceWork(const std::string& InSSML)
 		{
-			const auto& SpeechSynthesizer = AzSpeech::Internal::GetAzureSynthesizer();
+			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer();
 
-			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakSsmlAsync(InSSML).get();
-
-			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
+			if (Synthesizer == nullptr)
+			{
+				return false;
+			}
+			
+			const auto SynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
+			
+			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
 		}
 	}
 
@@ -42,7 +47,12 @@ namespace AzSpeechWrapper
 					return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
 				});
 
-				SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				if (!SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Task timed out"));
+					return;
+				}
+				
 				const bool& bOutputValue = SSMLToVoiceAsyncWork.Get();
 
 				AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]

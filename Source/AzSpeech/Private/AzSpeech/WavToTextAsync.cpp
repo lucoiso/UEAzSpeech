@@ -15,14 +15,18 @@ namespace AzSpeechWrapper
 	{
 		static std::string DoWavToTextWork(const std::string& InFilePath, const std::string& InLanguageID)
 		{
-			const auto& AudioConfig = AudioConfig::FromWavFileInput(InFilePath);
-			const auto& SpeechRecognizer =
-				AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
+			const auto AudioConfig = AudioConfig::FromWavFileInput(InFilePath);
+			const auto Recognizer = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
-			if (const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
-				AzSpeech::Internal::ProcessAzSpeechResult(SpeechRecognitionResult->Reason))
+			if (Recognizer == nullptr)
 			{
-				return SpeechRecognitionResult->Text;
+				return std::string();
+			}
+
+			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
+				AzSpeech::Internal::ProcessAzSpeechResult(RecognitionResult->Reason))
+			{
+				return RecognitionResult->Text;
 			}
 
 			return std::string();
@@ -62,7 +66,12 @@ namespace AzSpeechWrapper
 						return Standard_Cpp::DoWavToTextWork(InFilePathStr, InLanguageIDStr);
 					});
 
-				WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				if (!WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncWavToText: Task timed out"));
+					return;
+				}
+
 				const FString& OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
 
 				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]
