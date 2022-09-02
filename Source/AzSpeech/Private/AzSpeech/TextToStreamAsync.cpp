@@ -15,14 +15,18 @@ namespace AzSpeechWrapper
 		                                               const std::string& InLanguageID,
 		                                               const std::string& InVoiceName)
 		{
-			const auto& AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
-			const auto& SpeechSynthesizer =
-				AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
+			const auto AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
+			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
 
-			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
-				AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason))
+			if (Synthesizer == nullptr)
 			{
-				return *SpeechSynthesisResult->GetAudioData().get();
+				return std::vector<uint8_t>();
+			}
+
+			if (const auto SynthesisResult = Synthesizer->SpeakTextAsync(InStr).get();
+				AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason))
+			{
+				return *SynthesisResult->GetAudioData().get();
 			}
 
 			return std::vector<uint8_t>();
@@ -46,7 +50,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InStr, InVoiceName, InLanguageID, InDelegate]
 			{
-				const TFuture<std::vector<uint8_t>>& TextToVoiceAsyncWork =
+				const TFuture<std::vector<uint8_t>>& TextToStreamAsyncWork =
 					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> std::vector<uint8_t>
 					{
 						const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
@@ -56,9 +60,13 @@ namespace AzSpeechWrapper
 						return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
 					});
 
-				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				if (!TextToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToStream: Task timed out"));
+					return;
+				}
 
-				const std::vector<uint8_t>& Result = TextToVoiceAsyncWork.Get();
+				const std::vector<uint8_t>& Result = TextToStreamAsyncWork.Get();
 				const bool& bOutputValue = !Result.empty();
 
 				TArray<uint8> OutputArr;

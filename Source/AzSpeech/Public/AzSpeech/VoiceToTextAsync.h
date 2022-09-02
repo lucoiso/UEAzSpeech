@@ -27,7 +27,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
 		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
 	static UVoiceToTextAsync* VoiceToText(const UObject* WorldContextObject,
-	                                      const FString& LanguageId = "Auto");
+	                                      const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
 

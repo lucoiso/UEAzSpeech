@@ -15,13 +15,17 @@ namespace AzSpeechWrapper
 		                              const std::string& InLanguageID,
 		                              const std::string& InVoiceName)
 		{
-			const auto& AudioConfig = AudioConfig::FromDefaultSpeakerOutput();
-			const auto& SpeechSynthesizer =
-				AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
+			const auto AudioConfig = AudioConfig::FromDefaultSpeakerOutput();
+			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
 
-			const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(InStr).get();
+			if (Synthesizer == nullptr)
+			{
+				return false;
+			}
 
-			return AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason);
+			const auto SynthesisResult = Synthesizer->SpeakTextAsync(InStr).get();
+
+			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
 		}
 	}
 
@@ -52,7 +56,12 @@ namespace AzSpeechWrapper
 						return Standard_Cpp::DoTextToVoiceWork(InConvertStr, InLanguageIDStr, InVoiceNameStr);
 					});
 
-				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				if (!TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToVoice: Task timed out"));
+					return;
+				}
+				
 				const bool& bOutputValue = TextToVoiceAsyncWork.Get();
 
 				AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]

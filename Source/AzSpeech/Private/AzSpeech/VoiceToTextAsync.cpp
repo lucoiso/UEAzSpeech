@@ -13,14 +13,18 @@ namespace AzSpeechWrapper
 	{
 		static std::string DoVoiceToTextWork(const std::string& InLanguageID)
 		{
-			const auto& AudioConfig = AudioConfig::FromDefaultMicrophoneInput();
-			const auto& SpeechRecognizer =
-				AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
+			const auto AudioConfig = AudioConfig::FromDefaultMicrophoneInput();
+			const auto Recognizer = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
-			if (const auto& SpeechRecognitionResult = SpeechRecognizer->RecognizeOnceAsync().get();
-				AzSpeech::Internal::ProcessAzSpeechResult(SpeechRecognitionResult->Reason))
+			if (Recognizer == nullptr)
 			{
-				return SpeechRecognitionResult->Text;
+				return std::string();
+			}
+
+			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
+				AzSpeech::Internal::ProcessAzSpeechResult(RecognitionResult->Reason))
+			{
+				return RecognitionResult->Text;
 			}
 
 			return std::string();
@@ -49,7 +53,12 @@ namespace AzSpeechWrapper
 						return Standard_Cpp::DoVoiceToTextWork(InLanguageIDStr);
 					});
 
-				VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				if (!VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncVoiceToText: Task timed out"));
+					return;
+				}
+				
 				const FString& OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
 
 				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]

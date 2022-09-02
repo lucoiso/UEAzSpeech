@@ -14,7 +14,7 @@
 #include "AndroidPermissionFunctionLibrary.h"
 #endif
 
-FString UAzSpeechHelper::QualifyPath(const FString Path)
+FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
 	if (*Path.end() != '/')
@@ -25,15 +25,15 @@ FString UAzSpeechHelper::QualifyPath(const FString Path)
 	return Output;
 }
 
-FString UAzSpeechHelper::QualifyFileExtension(const FString Path, const FString Name, const FString Extension)
+FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString& Name, const FString& Extension)
 {
 	if (Path.IsEmpty() || Name.IsEmpty() || Extension.IsEmpty())
 	{
 		return FString();
 	}
 
-	const FString& LocalPath = QualifyPath(Path);
-	const FString& LocalExtension = Extension.Contains(".") ? Extension : "." + Extension;
+	const FString LocalPath = QualifyPath(Path);
+	const FString LocalExtension = Extension.Contains(".") ? Extension : "." + Extension;
 
 	FString LocalName = Name;
 	if (!Name.Right(Name.Len() - LocalExtension.Len()).Contains(LocalExtension))
@@ -56,7 +56,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: FilePath or FileName is empty"), *FString(__func__));
 	}
 
-	else if (const FString& Full_FileName = QualifyWAVFileName(FilePath, FileName);
+	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName);
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
 #if PLATFORM_ANDROID
@@ -120,14 +120,14 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawDa
 	return nullptr;
 }
 
-FString UAzSpeechHelper::LoadXMLToString(const FString FilePath, const FString FileName)
+FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString& FileName)
 {
 	if (FilePath.IsEmpty() || FileName.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: FilePath or FileName is empty"), *FString(__func__));
 	}
 
-	else if (const FString& Full_FileName = QualifyXMLFileName(FilePath, FileName);
+	else if (const FString Full_FileName = QualifyXMLFileName(FilePath, FileName);
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
 		if (FString OutputStr;
