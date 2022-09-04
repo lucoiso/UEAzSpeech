@@ -51,7 +51,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, InFilePath, InFileName, InDelegate]
 			{
-				const TFuture<bool>& SSMLToWavAsyncWork =
+				const TFuture<bool> SSMLToWavAsyncWork =
 					Async(EAsyncExecution::Thread, [InSSML, InFilePath, InFileName]() -> bool
 					{
 						const std::string& InConvertStr = TCHAR_TO_UTF8(*InSSML);

@@ -57,7 +57,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [QualifiedPath, InLanguageID, InDelegate]
 			{
-				const TFuture<std::string>& WavToTextAsyncWork =
+				const TFuture<std::string> WavToTextAsyncWork =
 					Async(EAsyncExecution::Thread, [QualifiedPath, InLanguageID]() -> std::string
 					{
 						const std::string& InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);

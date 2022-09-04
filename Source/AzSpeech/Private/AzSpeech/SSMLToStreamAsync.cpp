@@ -45,7 +45,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, InDelegate]
 			{
-				const TFuture<std::vector<uint8_t>>& SSMLToStreamAsyncWork =
+				const TFuture<std::vector<uint8_t>> SSMLToStreamAsyncWork =
 					Async(EAsyncExecution::Thread, [InSSML, InDelegate]() -> std::vector<uint8_t>
 					{
 						const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);

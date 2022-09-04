@@ -20,7 +20,7 @@ namespace AzSpeech::Internal
 		std::map<int, std::string> Output;
 		const UAzSpeechSettings* Settings = GetDefault<UAzSpeechSettings>();
 
-		const auto& UpdateSettingsMap = [&Output](const int& InId, const FString& InString)
+		const auto UpdateSettingsMap = [&Output](const int& InId, const FString& InString)
 		{
 			const std::string InStr = TCHAR_TO_UTF8(*InString);
 			Output.insert(std::make_pair(InId, InStr));
@@ -39,7 +39,7 @@ namespace AzSpeech::Internal
 		std::vector<std::string> Output;
 
 		const UAzSpeechSettings* Settings = GetDefault<UAzSpeechSettings>();
-		for (const auto& Iterator : Settings->AutoLanguageCandidates)
+		for (const FString& Iterator : Settings->AutoLanguageCandidates)
 		{
 			if (Iterator.IsEmpty())
 			{
@@ -129,7 +129,7 @@ namespace AzSpeech::Internal
 		{
 			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");
 
-			const auto Candidates = GetCandidateLanguages();
+			const std::vector<std::string> Candidates = GetCandidateLanguages();
 			
 			if (Candidates.empty())
 			{
@@ -141,7 +141,7 @@ namespace AzSpeech::Internal
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing language auto detection"), *FString(__func__));
-			for (const auto& Iterator : Candidates)
+			for (const std::string& Iterator : Candidates)
 			{
 				UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Candidate: %s"), 
 					*FString(__func__), *FString(UTF8_TO_TCHAR(Iterator.c_str())));

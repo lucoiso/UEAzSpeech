@@ -59,7 +59,7 @@ namespace AzSpeechWrapper
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
 			          [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageID]
 			          {
-				          const TFuture<bool>& TextToWavAsyncWork =
+				          const TFuture<bool> TextToWavAsyncWork =
 							  Async(EAsyncExecution::Thread, [InStr, InVoiceName, InFilePath, InFileName, InLanguageID]() -> bool
 							  {
 								  const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);

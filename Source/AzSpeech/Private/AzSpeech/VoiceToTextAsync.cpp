@@ -45,7 +45,7 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InLanguageID, InDelegate]
 			{
-				const TFuture<std::string>& VoiceToTextAsyncWork =
+				const TFuture<std::string> VoiceToTextAsyncWork =
 					Async(EAsyncExecution::Thread, [InLanguageID]() -> std::string
 					{
 						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
