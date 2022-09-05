@@ -33,7 +33,7 @@ namespace AzSpeechWrapper
 		static void AsyncSSMLToWav(const FString& InSSML,
 		                           const FString& InFilePath,
 		                           const FString& InFileName,
-		                           FSSMLToWavDelegate InDelegate)
+		                           const FSSMLToWavDelegate& InDelegate)
 		{
 			if (InSSML.IsEmpty() || InFilePath.IsEmpty() || InFileName.IsEmpty())
 			{
@@ -51,12 +51,12 @@ namespace AzSpeechWrapper
 
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, InFilePath, InFileName, InDelegate]
 			{
-				const TFuture<bool>& SSMLToWavAsyncWork =
+				const TFuture<bool> SSMLToWavAsyncWork =
 					Async(EAsyncExecution::Thread, [InSSML, InFilePath, InFileName]() -> bool
 					{
-						const std::string& InConvertStr = TCHAR_TO_UTF8(*InSSML);
-						const std::string& InFilePathStr =
-							TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName));
+						const std::string InConvertStr = TCHAR_TO_UTF8(*InSSML);
+						const std::string InFilePathStr = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, 
+																											 InFileName));
 
 						return Standard_Cpp::DoSSMLToWavWork(InConvertStr, InFilePathStr);
 					});
@@ -67,7 +67,7 @@ namespace AzSpeechWrapper
 					return;
 				}
 				
-				const bool& bOutputValue = SSMLToWavAsyncWork.Get();
+				const bool bOutputValue = SSMLToWavAsyncWork.Get();
 
 				AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
 				{

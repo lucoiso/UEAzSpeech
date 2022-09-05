@@ -38,7 +38,7 @@ namespace AzSpeechWrapper
 		                           const FString& InFilePath,
 		                           const FString& InFileName,
 		                           const FString& InLanguageID,
-		                           FTextToWavDelegate InDelegate)
+		                           const FTextToWavDelegate& InDelegate)
 		{
 			if (InStr.IsEmpty() || InVoiceName.IsEmpty()
 				|| InFilePath.IsEmpty() || InFileName.IsEmpty()
@@ -59,14 +59,14 @@ namespace AzSpeechWrapper
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
 			          [InStr, InDelegate, InVoiceName, InFilePath, InFileName, InLanguageID]
 			          {
-				          const TFuture<bool>& TextToWavAsyncWork =
+				          const TFuture<bool> TextToWavAsyncWork =
 							  Async(EAsyncExecution::Thread, [InStr, InVoiceName, InFilePath, InFileName, InLanguageID]() -> bool
 							  {
-								  const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
-								  const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-								  const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
-								  const std::string& InFilePathStr =
-									  TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName));
+								  const std::string InConvertStr = TCHAR_TO_UTF8(*InStr);
+								  const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+								  const std::string InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
+								  const std::string InFilePathStr = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, 
+																													   InFileName));
 
 								  return Standard_Cpp::DoTextToWavWork(InConvertStr,
 																	   InLanguageIDStr,
@@ -80,7 +80,7 @@ namespace AzSpeechWrapper
 							  return;
 						  }
 						
-						  const bool& bOutputValue = TextToWavAsyncWork.Get();
+						  const bool bOutputValue = TextToWavAsyncWork.Get();
 
 						  AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
 						  {
