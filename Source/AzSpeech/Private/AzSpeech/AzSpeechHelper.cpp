@@ -175,9 +175,9 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
 	{
 		if (DesktopPlatform->OpenDirectoryDialog(nullptr,
-			TEXT("Select a folder"),
-			TEXT(""),
-			OutputPath))
+												 TEXT("Select a folder"),
+												 TEXT(""),
+												 OutputPath))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));
 		}
