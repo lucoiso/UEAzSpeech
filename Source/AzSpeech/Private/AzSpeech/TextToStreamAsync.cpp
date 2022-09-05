@@ -38,7 +38,7 @@ namespace AzSpeechWrapper
 		static void AsyncTextToStream(const FString& InStr,
 		                              const FString& InVoiceName,
 		                              const FString& InLanguageID,
-		                              FTextToStreamDelegate InDelegate)
+		                              const FTextToStreamDelegate& InDelegate)
 		{
 			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InLanguageID.IsEmpty())
 			{
@@ -53,9 +53,9 @@ namespace AzSpeechWrapper
 				const TFuture<std::vector<uint8_t>> TextToStreamAsyncWork =
 					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> std::vector<uint8_t>
 					{
-						const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
-						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-						const std::string& InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
+						const std::string InConvertStr = TCHAR_TO_UTF8(*InStr);
+						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+						const std::string InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
 
 						return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
 					});
@@ -66,11 +66,11 @@ namespace AzSpeechWrapper
 					return;
 				}
 
-				const std::vector<uint8_t>& Result = TextToStreamAsyncWork.Get();
-				const bool& bOutputValue = !Result.empty();
+				const std::vector<uint8_t> Result = TextToStreamAsyncWork.Get();
+				const bool bOutputValue = !Result.empty();
 
 				TArray<uint8> OutputArr;
-				for (const uint8_t i : Result)
+				for (const uint8_t& i : Result)
 				{
 					OutputArr.Add(static_cast<uint8>(i));
 				}

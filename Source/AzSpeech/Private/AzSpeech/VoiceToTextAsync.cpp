@@ -33,7 +33,7 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncVoiceToText(const FString& InLanguageID, FVoiceToTextDelegate InDelegate)
+		static void AsyncVoiceToText(const FString& InLanguageID, const FVoiceToTextDelegate& InDelegate)
 		{
 			if (InLanguageID.IsEmpty())
 			{
@@ -48,7 +48,7 @@ namespace AzSpeechWrapper
 				const TFuture<std::string> VoiceToTextAsyncWork =
 					Async(EAsyncExecution::Thread, [InLanguageID]() -> std::string
 					{
-						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
 
 						return Standard_Cpp::DoVoiceToTextWork(InLanguageIDStr);
 					});
@@ -59,7 +59,7 @@ namespace AzSpeechWrapper
 					return;
 				}
 				
-				const FString& OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
+				const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
 
 				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]
 				{

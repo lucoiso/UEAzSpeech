@@ -86,7 +86,7 @@ namespace AzSpeech::Internal
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing language auto detection"), *FString(__func__));
 
 			UE_LOG(LogAzSpeech, Warning, 
-				TEXT("AzSpeech - %s: Synthesizers currently only support language detection from open range"), 
+				TEXT("AzSpeech - %s: Note: Synthesizers currently only support language detection from open range"), 
 				*FString(__func__));
 
 			SpeechConfig->SetProperty(PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");

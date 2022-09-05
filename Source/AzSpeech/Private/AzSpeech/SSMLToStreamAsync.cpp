@@ -33,7 +33,7 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncSSMLToStream(const FString& InSSML, FSSMLToStreamDelegate InDelegate)
+		static void AsyncSSMLToStream(const FString& InSSML, const FSSMLToStreamDelegate& InDelegate)
 		{
 			if (InSSML.IsEmpty())
 			{
@@ -48,7 +48,7 @@ namespace AzSpeechWrapper
 				const TFuture<std::vector<uint8_t>> SSMLToStreamAsyncWork =
 					Async(EAsyncExecution::Thread, [InSSML, InDelegate]() -> std::vector<uint8_t>
 					{
-						const std::string& InSSMLStr = TCHAR_TO_UTF8(*InSSML);
+						const std::string InSSMLStr = TCHAR_TO_UTF8(*InSSML);
 
 						return Standard_Cpp::DoSSMLToStreamWork(InSSMLStr);
 					});
@@ -59,8 +59,8 @@ namespace AzSpeechWrapper
 					return;
 				}
 
-				const std::vector<uint8_t>& Result = SSMLToStreamAsyncWork.Get();
-				const bool& bOutputValue = !Result.empty();
+				const std::vector<uint8_t> Result = SSMLToStreamAsyncWork.Get();
+				const bool bOutputValue = !Result.empty();
 
 				TArray<uint8> OutputArr;
 				for (const uint8_t& i : Result)

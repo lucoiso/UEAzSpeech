@@ -38,7 +38,7 @@ namespace AzSpeechWrapper
 		static void AsyncWavToText(const FString& InFilePath,
 								   const FString& InFileName,
 								   const FString& InLanguageID,
-								   FWavToTextDelegate InDelegate)
+								   const FWavToTextDelegate& InDelegate)
 		{
 			if (InFilePath.IsEmpty() || InFileName.IsEmpty() || InLanguageID.IsEmpty())
 			{
@@ -60,8 +60,8 @@ namespace AzSpeechWrapper
 				const TFuture<std::string> WavToTextAsyncWork =
 					Async(EAsyncExecution::Thread, [QualifiedPath, InLanguageID]() -> std::string
 					{
-						const std::string& InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
-						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+						const std::string InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
+						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
 
 						return Standard_Cpp::DoWavToTextWork(InFilePathStr, InLanguageIDStr);
 					});
@@ -72,7 +72,7 @@ namespace AzSpeechWrapper
 					return;
 				}
 
-				const FString& OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
+				const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
 
 				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]
 				{

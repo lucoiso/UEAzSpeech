@@ -34,7 +34,7 @@ namespace AzSpeechWrapper
 		static void AsyncTextToVoice(const FString& InStr,
 		                             const FString& InVoiceName,
 		                             const FString& InLanguageID,
-		                             FTextToVoiceDelegate InDelegate)
+		                             const FTextToVoiceDelegate& InDelegate)
 		{
 			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InLanguageID.IsEmpty())
 			{
@@ -49,9 +49,9 @@ namespace AzSpeechWrapper
 				const TFuture<bool> TextToVoiceAsyncWork =
 					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> bool
 					{
-						const std::string& InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-						const std::string& InVoiceNameStr = TCHAR_TO_UTF8(*InVoiceName);
-						const std::string& InConvertStr = TCHAR_TO_UTF8(*InStr);
+						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+						const std::string InVoiceNameStr = TCHAR_TO_UTF8(*InVoiceName);
+						const std::string InConvertStr = TCHAR_TO_UTF8(*InStr);
 
 						return Standard_Cpp::DoTextToVoiceWork(InConvertStr, InLanguageIDStr, InVoiceNameStr);
 					});
@@ -62,7 +62,7 @@ namespace AzSpeechWrapper
 					return;
 				}
 				
-				const bool& bOutputValue = TextToVoiceAsyncWork.Get();
+				const bool bOutputValue = TextToVoiceAsyncWork.Get();
 
 				AsyncTask(ENamedThreads::GameThread, [bOutputValue, InDelegate]
 				{
