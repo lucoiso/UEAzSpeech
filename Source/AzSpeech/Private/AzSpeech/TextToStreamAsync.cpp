@@ -47,22 +47,21 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InStr, InVoiceName, InLanguageID, InDelegate]
+						
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InStr, InVoiceName, InLanguageID, InDelegate]
 			{
-				const TFuture<std::vector<uint8_t>> TextToStreamAsyncWork =
-					Async(EAsyncExecution::Thread, [InStr, InVoiceName, InLanguageID]() -> std::vector<uint8_t>
-					{
-						const std::string InConvertStr = TCHAR_TO_UTF8(*InStr);
-						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-						const std::string InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
-
-						return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
-					});
-
-				if (!TextToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				const TFuture<std::vector<uint8_t>> TextToStreamAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::vector<uint8_t>
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToStream: Task timed out"));
+					const std::string InConvertStr = TCHAR_TO_UTF8(*InStr);
+					const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+					const std::string InNameIDStr = TCHAR_TO_UTF8(*InVoiceName);
+
+					return Standard_Cpp::DoTextToStreamWork(InConvertStr, InLanguageIDStr, InNameIDStr);
+				});
+
+				if (!TextToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
 
@@ -75,18 +74,15 @@ namespace AzSpeechWrapper
 					OutputArr.Add(static_cast<uint8>(i));
 				}
 
-				AsyncTask(ENamedThreads::GameThread, [OutputArr, InDelegate]
-				{
-					InDelegate.Broadcast(OutputArr);
-				});
+				InDelegate.Broadcast(OutputArr);
 
 				if (bOutputValue)
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToStream: Result: Success"));
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToStream: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Error"), *FString(FuncName));
 				}
 			});
 		}
@@ -98,7 +94,7 @@ UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContext
                                                      const FString& VoiceName,
                                                      const FString& LanguageId)
 {
-	UTextToStreamAsync* NewAsyncTask = NewObject<UTextToStreamAsync>();
+	UTextToStreamAsync* const NewAsyncTask = NewObject<UTextToStreamAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->TextToConvert = TextToConvert;
 	NewAsyncTask->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);

@@ -87,7 +87,7 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawDa
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: RawData is empty"), *FString(__func__));
 	}
-	else if (USoundWave* SoundWave = NewObject<USoundWave>())
+	else if (USoundWave* const SoundWave = NewObject<USoundWave>())
 	{
 		FWaveModInfo WaveInfo;
 		WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
@@ -172,7 +172,7 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	FString OutputPath;
 
 #if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX
-	if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
+	if (IDesktopPlatform* const DesktopPlatform = FDesktopPlatformModule::Get())
 	{
 		if (DesktopPlatform->OpenDirectoryDialog(nullptr,
 												 TEXT("Select a folder"),

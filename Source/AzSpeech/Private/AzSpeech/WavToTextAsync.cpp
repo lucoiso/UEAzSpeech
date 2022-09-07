@@ -46,7 +46,7 @@ namespace AzSpeechWrapper
 				return;
 			}
 
-			const FString& QualifiedPath = UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName);
+			const FString QualifiedPath = UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName);
 			if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*QualifiedPath))
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: File not found"), *FString(__func__));
@@ -54,38 +54,34 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [QualifiedPath, InLanguageID, InDelegate]
+						
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, QualifiedPath, InLanguageID, InDelegate]
 			{
-				const TFuture<std::string> WavToTextAsyncWork =
-					Async(EAsyncExecution::Thread, [QualifiedPath, InLanguageID]() -> std::string
-					{
-						const std::string InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
-						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-
-						return Standard_Cpp::DoWavToTextWork(InFilePathStr, InLanguageIDStr);
-					});
-
-				if (!WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				const TFuture<std::string> WavToTextAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::string
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncWavToText: Task timed out"));
+					const std::string InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
+					const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+
+					return Standard_Cpp::DoWavToTextWork(InFilePathStr, InLanguageIDStr);
+				});
+
+				if (!WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
 
 				const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
 
-				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]
-				{
-					InDelegate.Broadcast(OutputValue);
-				});
+				InDelegate.Broadcast(OutputValue);
 
 				if (!OutputValue.IsEmpty())
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncWavToText: Result: %s"), *OutputValue);
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s"), *FString(FuncName), *OutputValue);
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncWavToText: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Error"), *FString(FuncName));
 				}
 			});
 		}
@@ -97,7 +93,7 @@ UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject,
                                             const FString& FileName,
                                             const FString& LanguageId)
 {
-	UWavToTextAsync* WavToTextAsync = NewObject<UWavToTextAsync>();
+	UWavToTextAsync* const WavToTextAsync = NewObject<UWavToTextAsync>();
 	WavToTextAsync->WorldContextObject = WorldContextObject;
 	WavToTextAsync->FilePath = FilePath;
 	WavToTextAsync->FileName = FileName;

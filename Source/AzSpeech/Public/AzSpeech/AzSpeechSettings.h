@@ -39,6 +39,10 @@ public:
 		Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
 	TArray<FString> AutoLanguageCandidates;
 
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech",
+		Meta = (DisplayName = "Time limit in seconds to wait for tasks"))
+	float TimeOutInSeconds;
+
 private:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

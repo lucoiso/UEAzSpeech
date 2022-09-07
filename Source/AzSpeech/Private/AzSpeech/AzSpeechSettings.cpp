@@ -9,7 +9,8 @@
 #endif // WITH_EDITOR
 
 UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer),
+	TimeOutInSeconds(15.f)
 {
 #if ENGINE_MAJOR_VERSION >= 5
 	if (AutoLanguageCandidates.IsEmpty())

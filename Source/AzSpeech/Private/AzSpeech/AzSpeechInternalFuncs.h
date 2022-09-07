@@ -18,7 +18,7 @@ namespace AzSpeech::Internal
 	static std::map<int, std::string> GetAzSpeechKeys()
 	{
 		std::map<int, std::string> Output;
-		const UAzSpeechSettings* Settings = GetDefault<UAzSpeechSettings>();
+		const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>();
 
 		const auto UpdateSettingsMap = [&Output](const int& InId, const FString& InString)
 		{
@@ -38,7 +38,7 @@ namespace AzSpeech::Internal
 	{
 		std::vector<std::string> Output;
 
-		const UAzSpeechSettings* Settings = GetDefault<UAzSpeechSettings>();
+		const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>();
 		for (const FString& Iterator : Settings->AutoLanguageCandidates)
 		{
 			if (Iterator.IsEmpty())
@@ -50,6 +50,16 @@ namespace AzSpeech::Internal
 		}
 
 		return Output;
+	}
+	
+	static float GetTimeout()
+	{
+		if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
+		{
+			return Settings->TimeOutInSeconds;
+		}
+
+		return 15.f;
 	}
 
 	static FString GetLanguageID(const FString& InTestId = "Default")

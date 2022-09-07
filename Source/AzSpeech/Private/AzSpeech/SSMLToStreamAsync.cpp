@@ -42,20 +42,19 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, InDelegate]
+					
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, InDelegate]
 			{
-				const TFuture<std::vector<uint8_t>> SSMLToStreamAsyncWork =
-					Async(EAsyncExecution::Thread, [InSSML, InDelegate]() -> std::vector<uint8_t>
-					{
-						const std::string InSSMLStr = TCHAR_TO_UTF8(*InSSML);
-
-						return Standard_Cpp::DoSSMLToStreamWork(InSSMLStr);
-					});
-
-				if (!SSMLToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				const TFuture<std::vector<uint8_t>> SSMLToStreamAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::vector<uint8_t>
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToStream: Task timed out"));
+					const std::string InSSMLStr = TCHAR_TO_UTF8(*InSSML);
+
+					return Standard_Cpp::DoSSMLToStreamWork(InSSMLStr);
+				});
+
+				if (!SSMLToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
 
@@ -68,18 +67,15 @@ namespace AzSpeechWrapper
 					OutputArr.Add(static_cast<uint8>(i));
 				}
 
-				AsyncTask(ENamedThreads::GameThread, [OutputArr, InDelegate]
-				{
-					InDelegate.Broadcast(OutputArr);
-				});
+				InDelegate.Broadcast(OutputArr);
 
 				if (bOutputValue)
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToStream: Result: Success"));
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToStream: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Error"), *FString(FuncName));
 				}
 			});
 		}
@@ -88,7 +84,7 @@ namespace AzSpeechWrapper
 
 USSMLToStreamAsync* USSMLToStreamAsync::SSMLToStream(const UObject* WorldContextObject, const FString& SSMLString)
 {
-	USSMLToStreamAsync* NewAsyncTask = NewObject<USSMLToStreamAsync>();
+	USSMLToStreamAsync* const NewAsyncTask = NewObject<USSMLToStreamAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SSMLString = SSMLString;
 
