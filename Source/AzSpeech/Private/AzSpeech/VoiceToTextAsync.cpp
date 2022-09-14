@@ -7,6 +7,10 @@
 #include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
 
+#if PLATFORM_ANDROID
+#include "AzSpeech/AzSpeechHelper.h"
+#endif
+
 namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
