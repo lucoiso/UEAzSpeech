@@ -19,9 +19,9 @@ namespace AzSpeechWrapper
 			{
 				return false;
 			}
-			
+
 			const auto SynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
-			
+
 			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
 		}
 	}
@@ -37,8 +37,8 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-					
-			
+
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, &Delegate]
 			{
 				const TFuture<bool> SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
@@ -53,7 +53,7 @@ namespace AzSpeechWrapper
 					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
-				
+
 				const bool bOutputValue = SSMLToVoiceAsyncWork.Get();
 
 				Delegate.Broadcast(bOutputValue);

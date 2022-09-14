@@ -21,7 +21,7 @@ namespace AzSpeechWrapper
 				return std::vector<uint8_t>();
 			}
 
-			if (const auto SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
+			if (const auto SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get(); 
 				AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason))
 			{
 				return *SpeechSynthesisResult->GetAudioData().get();
@@ -42,7 +42,7 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-					
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, InDelegate]
 			{
 				const TFuture<std::vector<uint8_t>> SSMLToStreamAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::vector<uint8_t>

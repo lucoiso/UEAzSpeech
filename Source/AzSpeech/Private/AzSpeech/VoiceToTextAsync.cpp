@@ -8,6 +8,7 @@
 #include "AzSpeechInternalFuncs.h"
 
 #if PLATFORM_ANDROID
+// Only used to check android permission
 #include "AzSpeech/AzSpeechHelper.h"
 #endif
 
@@ -25,7 +26,7 @@ namespace AzSpeechWrapper
 				return std::string();
 			}
 
-			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
+			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get(); 
 				AzSpeech::Internal::ProcessAzSpeechResult(RecognitionResult->Reason))
 			{
 				return RecognitionResult->Text;
@@ -46,7 +47,7 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-						
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InLanguageID, InDelegate]
 			{
 				const TFuture<std::string> VoiceToTextAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::string
@@ -61,7 +62,7 @@ namespace AzSpeechWrapper
 					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
-				
+
 				const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
 
 				InDelegate.Broadcast(OutputValue);
@@ -79,8 +80,7 @@ namespace AzSpeechWrapper
 	}
 }
 
-UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject,
-                                                  const FString& LanguageId)
+UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId)
 {
 	UVoiceToTextAsync* const VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;

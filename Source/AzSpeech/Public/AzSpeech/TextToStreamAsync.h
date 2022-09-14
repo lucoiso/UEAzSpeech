@@ -24,12 +24,8 @@ public:
 	FTextToStreamDelegate TaskCompleted;
 
 	/* Creates a Text-To-Stream task that will convert your text to a audio data stream */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToStreamAsync* TextToStream(const UObject* WorldContextObject,
-	                                        const FString& TextToConvert,
-	                                        const FString& VoiceName = "Default",
-	                                        const FString& LanguageId = "Default");
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+	static UTextToStreamAsync* TextToStream(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
 

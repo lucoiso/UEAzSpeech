@@ -24,14 +24,8 @@ public:
 	FTextToWavDelegate TaskCompleted;
 
 	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To WAV"))
-	static UTextToWavAsync* TextToWav(const UObject* WorldContextObject,
-	                                  const FString& TextToConvert,
-	                                  const FString& FilePath,
-	                                  const FString& FileName,
-	                                  const FString& VoiceName = "Default",
-	                                  const FString& LanguageId = "Default");
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To WAV"))
+	static UTextToWavAsync* TextToWav(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
 

@@ -30,10 +30,7 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncSSMLToWav(const FString& InSSML,
-		                           const FString& InFilePath,
-		                           const FString& InFileName,
-		                           const FSSMLToWavDelegate& InDelegate)
+		static void AsyncSSMLToWav(const FString& InSSML, const FString& InFilePath, const FString& InFileName, const FSSMLToWavDelegate& InDelegate)
 		{
 			if (InSSML.IsEmpty() || InFilePath.IsEmpty() || InFileName.IsEmpty())
 			{
@@ -48,14 +45,13 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-						
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, InFilePath, InFileName, InDelegate]
 			{
 				const TFuture<bool> SSMLToWavAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
 				{
 					const std::string InConvertStr = TCHAR_TO_UTF8(*InSSML);
-					const std::string InFilePathStr = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, 
-																										 InFileName));
+					const std::string InFilePathStr = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(InFilePath, InFileName));
 
 					return Standard_Cpp::DoSSMLToWavWork(InConvertStr, InFilePathStr);
 				});
@@ -65,7 +61,7 @@ namespace AzSpeechWrapper
 					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
-				
+
 				const bool bOutputValue = SSMLToWavAsyncWork.Get();
 
 				InDelegate.Broadcast(bOutputValue);
@@ -83,10 +79,7 @@ namespace AzSpeechWrapper
 	}
 }
 
-USSMLToWavAsync* USSMLToWavAsync::SSMLToWav(const UObject* WorldContextObject,
-                                            const FString& SSMLString,
-                                            const FString& FilePath,
-                                            const FString& FileName)
+USSMLToWavAsync* USSMLToWavAsync::SSMLToWav(const UObject* WorldContextObject, const FString& SSMLString, const FString& FilePath, const FString& FileName)
 {
 	USSMLToWavAsync* const TextToWavAsync = NewObject<USSMLToWavAsync>();
 	TextToWavAsync->WorldContextObject = WorldContextObject;

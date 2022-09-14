@@ -12,10 +12,7 @@ namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static bool DoTextToWavWork(const std::string& InStr,
-			const std::string& InLanguageID,
-			const std::string& InVoiceName,
-			const std::string& InFilePath)
+		static bool DoTextToWavWork(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName, const std::string& InFilePath)
 		{
 			const auto AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
 			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
@@ -33,16 +30,9 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncTextToWav(const FString& InStr,
-			const FString& InVoiceName,
-			const FString& InFilePath,
-			const FString& InFileName,
-			const FString& InLanguageID,
-			const FTextToWavDelegate& InDelegate)
+		static void AsyncTextToWav(const FString& InStr, const FString& InVoiceName, const FString& InFilePath, const FString& InFileName, const FString& InLanguageID, const FTextToWavDelegate& InDelegate)
 		{
-			if (InStr.IsEmpty() || InVoiceName.IsEmpty()
-				|| InFilePath.IsEmpty() || InFileName.IsEmpty()
-				|| InLanguageID.IsEmpty())
+			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InFilePath.IsEmpty() || InFileName.IsEmpty() || InLanguageID.IsEmpty())
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
 				return;
@@ -55,7 +45,7 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-						
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InStr, InVoiceName, InFilePath, InFileName, InLanguageID, InDelegate]
 			{
 				const TFuture<bool> TextToWavAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
@@ -91,12 +81,7 @@ namespace AzSpeechWrapper
 	}
 }
 
-UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject,
-	const FString& TextToConvert,
-	const FString& FilePath,
-	const FString& FileName,
-	const FString& VoiceName,
-	const FString& LanguageId)
+UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageId)
 {
 	UTextToWavAsync* const TextToWavAsync = NewObject<UTextToWavAsync>();
 	TextToWavAsync->WorldContextObject = WorldContextObject;
@@ -115,10 +100,5 @@ void UTextToWavAsync::Activate()
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
 #endif
 
-	AzSpeechWrapper::Unreal_Cpp::AsyncTextToWav(TextToConvert,
-		VoiceName,
-		FilePath,
-		FileName,
-		LanguageID,
-		TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncTextToWav(TextToConvert, VoiceName, FilePath, FileName, LanguageID, TaskCompleted);
 }

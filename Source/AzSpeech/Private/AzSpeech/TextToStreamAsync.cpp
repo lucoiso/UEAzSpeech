@@ -11,9 +11,7 @@ namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
 	{
-		static std::vector<uint8_t> DoTextToStreamWork(const std::string& InStr,
-		                                               const std::string& InLanguageID,
-		                                               const std::string& InVoiceName)
+		static std::vector<uint8_t> DoTextToStreamWork(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName)
 		{
 			const auto AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
 			const auto Synthesizer = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
@@ -23,7 +21,7 @@ namespace AzSpeechWrapper
 				return std::vector<uint8_t>();
 			}
 
-			if (const auto SynthesisResult = Synthesizer->SpeakTextAsync(InStr).get();
+			if (const auto SynthesisResult = Synthesizer->SpeakTextAsync(InStr).get(); 
 				AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason))
 			{
 				return *SynthesisResult->GetAudioData().get();
@@ -35,10 +33,7 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncTextToStream(const FString& InStr,
-		                              const FString& InVoiceName,
-		                              const FString& InLanguageID,
-		                              const FTextToStreamDelegate& InDelegate)
+		static void AsyncTextToStream(const FString& InStr, const FString& InVoiceName, const FString& InLanguageID, const FTextToStreamDelegate& InDelegate)
 		{
 			if (InStr.IsEmpty() || InVoiceName.IsEmpty() || InLanguageID.IsEmpty())
 			{
@@ -47,7 +42,7 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-						
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InStr, InVoiceName, InLanguageID, InDelegate]
 			{
 				const TFuture<std::vector<uint8_t>> TextToStreamAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::vector<uint8_t>
@@ -89,10 +84,7 @@ namespace AzSpeechWrapper
 	}
 }
 
-UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContextObject,
-                                                     const FString& TextToConvert,
-                                                     const FString& VoiceName,
-                                                     const FString& LanguageId)
+UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
 	UTextToStreamAsync* const NewAsyncTask = NewObject<UTextToStreamAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

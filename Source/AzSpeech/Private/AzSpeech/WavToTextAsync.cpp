@@ -23,7 +23,7 @@ namespace AzSpeechWrapper
 				return std::string();
 			}
 
-			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
+			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get(); 
 				AzSpeech::Internal::ProcessAzSpeechResult(RecognitionResult->Reason))
 			{
 				return RecognitionResult->Text;
@@ -35,10 +35,7 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncWavToText(const FString& InFilePath,
-								   const FString& InFileName,
-								   const FString& InLanguageID,
-								   const FWavToTextDelegate& InDelegate)
+		static void AsyncWavToText(const FString& InFilePath, const FString& InFileName, const FString& InLanguageID, const FWavToTextDelegate& InDelegate)
 		{
 			if (InFilePath.IsEmpty() || InFileName.IsEmpty() || InLanguageID.IsEmpty())
 			{
@@ -54,7 +51,7 @@ namespace AzSpeechWrapper
 			}
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
-						
+
 			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, QualifiedPath, InLanguageID, InDelegate]
 			{
 				const TFuture<std::string> WavToTextAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::string
@@ -88,10 +85,7 @@ namespace AzSpeechWrapper
 	}
 }
 
-UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject,
-                                            const FString& FilePath,
-                                            const FString& FileName,
-                                            const FString& LanguageId)
+UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId)
 {
 	UWavToTextAsync* const WavToTextAsync = NewObject<UWavToTextAsync>();
 	WavToTextAsync->WorldContextObject = WorldContextObject;
