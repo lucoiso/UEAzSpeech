@@ -43,8 +43,7 @@ FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString
 
 	const FString QualifiedName = LocalPath + LocalName;
 
-	UE_LOG(LogAzSpeech, Log, TEXT("AzSpeech - %s: Qualified %s file path: %s"),
-		*FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
+	UE_LOG(LogAzSpeech, Log, TEXT("AzSpeech - %s: Qualified %s file path: %s"), *FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
 
 	return QualifiedName;
 }
@@ -87,7 +86,7 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawDa
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: RawData is empty"), *FString(__func__));
 	}
-	else if (USoundWave* SoundWave = NewObject<USoundWave>())
+	else if (USoundWave* const SoundWave = NewObject<USoundWave>())
 	{
 		FWaveModInfo WaveInfo;
 		WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
@@ -143,16 +142,14 @@ FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString&
 bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreateParents)
 {
 	bool bOutput = FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*Path);
-	
+
 	if (!bOutput)
 	{
-		UE_LOG(LogAzSpeech, Warning,
-			TEXT("AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"),
-			*FString(__func__));
+		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
 
 		bOutput = bCreateParents
-					? bOutput = FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path)
-					: bOutput = FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);		
+			          ? FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path)
+			          : FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);
 	}
 
 	if (bOutput)
@@ -172,20 +169,15 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	FString OutputPath;
 
 #if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX
-	if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
+	if (IDesktopPlatform* const DesktopPlatform = FDesktopPlatformModule::Get())
 	{
-		if (DesktopPlatform->OpenDirectoryDialog(nullptr,
-												 TEXT("Select a folder"),
-												 TEXT(""),
-												 OutputPath))
+		if (DesktopPlatform->OpenDirectoryDialog(nullptr, TEXT("Select a folder"), TEXT(""), OutputPath))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error,
-				TEXT("AzSpeech - %s: Result: Failed to open a folder picker or the user cancelled the operation"),
-				*FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to open a folder picker or the user cancelled the operation"), *FString(__func__));
 		}
 	}
 	else
@@ -193,8 +185,7 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed to get Desktop Platform"), *FString(__func__));
 	}
 #else
-	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Platform %s is not supported"), 
-		*FString(__func__), *UGameplayStatics::GetPlatformName());
+	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
 
 	return OutputPath;
@@ -208,7 +199,6 @@ void UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InP
 		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermissionStr });
 	}
 #else
-	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Platform %s is not supported"), 
-		*FString(__func__), *UGameplayStatics::GetPlatformName());
+	UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
 }

@@ -7,6 +7,11 @@
 #include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
 
+#if PLATFORM_ANDROID
+// Only used to check android permission
+#include "AzSpeech/AzSpeechHelper.h"
+#endif
+
 namespace AzSpeechWrapper
 {
 	namespace Standard_Cpp
@@ -43,46 +48,41 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InLanguageID, InDelegate]
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InLanguageID, InDelegate]
 			{
-				const TFuture<std::string> VoiceToTextAsyncWork =
-					Async(EAsyncExecution::Thread, [InLanguageID]() -> std::string
-					{
-						const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
-
-						return Standard_Cpp::DoVoiceToTextWork(InLanguageIDStr);
-					});
-
-				if (!VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				const TFuture<std::string> VoiceToTextAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::string
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncVoiceToText: Task timed out"));
+					const std::string InLanguageIDStr = TCHAR_TO_UTF8(*InLanguageID);
+
+					return Standard_Cpp::DoVoiceToTextWork(InLanguageIDStr);
+				});
+
+				if (!VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
-				
+
 				const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
 
-				AsyncTask(ENamedThreads::GameThread, [OutputValue, InDelegate]
-				{
-					InDelegate.Broadcast(OutputValue);
-				});
+				InDelegate.Broadcast(OutputValue);
 
 				if (!OutputValue.IsEmpty())
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncVoiceToText: Result: %s"), *OutputValue);
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s"), *FString(FuncName), *OutputValue);
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncVoiceToText: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Error"), *FString(FuncName));
 				}
 			});
 		}
 	}
 }
 
-UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject,
-                                                  const FString& LanguageId)
+UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId)
 {
-	UVoiceToTextAsync* VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
+	UVoiceToTextAsync* const VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;
 	VoiceToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 

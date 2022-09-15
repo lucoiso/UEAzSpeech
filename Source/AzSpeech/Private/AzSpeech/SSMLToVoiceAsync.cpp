@@ -19,9 +19,9 @@ namespace AzSpeechWrapper
 			{
 				return false;
 			}
-			
+
 			const auto SynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
-			
+
 			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
 		}
 	}
@@ -38,35 +38,33 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [InSSML, Delegate]
+
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, &Delegate]
 			{
-				const TFuture<bool> SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [InSSML]() -> bool
+				const TFuture<bool> SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
 				{
 					const std::string InSSMLStr = TCHAR_TO_UTF8(*InSSML);
 
 					return Standard_Cpp::DoSSMLToVoiceWork(InSSMLStr);
 				});
 
-				if (!SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(15)))
+				if (!SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Task timed out"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
 					return;
 				}
-				
+
 				const bool bOutputValue = SSMLToVoiceAsyncWork.Get();
 
-				AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
-				{
-					Delegate.Broadcast(bOutputValue);
-				});
+				Delegate.Broadcast(bOutputValue);
 
 				if (bOutputValue)
 				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Success"));
+					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
 				}
 				else
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncSSMLToVoice: Result: Error"));
+					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Error"), *FString(FuncName));
 				}
 			});
 		}
@@ -75,7 +73,7 @@ namespace AzSpeechWrapper
 
 USSMLToVoiceAsync* USSMLToVoiceAsync::SSMLToVoice(const UObject* WorldContextObject, const FString& SSMLString)
 {
-	USSMLToVoiceAsync* SSMLToVoiceAsync = NewObject<USSMLToVoiceAsync>();
+	USSMLToVoiceAsync* const SSMLToVoiceAsync = NewObject<USSMLToVoiceAsync>();
 	SSMLToVoiceAsync->WorldContextObject = WorldContextObject;
 	SSMLToVoiceAsync->SSMLString = SSMLString;
 

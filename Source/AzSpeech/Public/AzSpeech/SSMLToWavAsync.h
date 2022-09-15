@@ -24,12 +24,8 @@ public:
 	FSSMLToWavDelegate TaskCompleted;
 
 	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To WAV"))
-	static USSMLToWavAsync* SSMLToWav(const UObject* WorldContextObject,
-	                                  const FString& SSMLString,
-	                                  const FString& FilePath,
-	                                  const FString& FileName);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To WAV"))
+	static USSMLToWavAsync* SSMLToWav(const UObject* WorldContextObject, const FString& SSMLString, const FString& FilePath, const FString& FileName);
 
 	virtual void Activate() override;
 

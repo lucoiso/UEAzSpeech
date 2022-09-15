@@ -24,8 +24,7 @@ public:
 	FSSMLToStreamDelegate TaskCompleted;
 
 	/* Creates a SSML-To-Stream task that will convert your SSML file to a audio data stream */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Stream"))
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Stream"))
 	static USSMLToStreamAsync* SSMLToStream(const UObject* WorldContextObject, const FString& SSMLString);
 
 	virtual void Activate() override;

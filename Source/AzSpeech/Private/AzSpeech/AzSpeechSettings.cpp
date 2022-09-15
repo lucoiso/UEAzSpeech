@@ -8,8 +8,7 @@
 #include "Misc/MessageDialog.h"
 #endif // WITH_EDITOR
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(15.f)
 {
 #if ENGINE_MAJOR_VERSION >= 5
 	if (AutoLanguageCandidates.IsEmpty())
@@ -35,7 +34,7 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	
+
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates)
 		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
@@ -44,14 +43,12 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 			AutoLanguageCandidates.Insert(LanguageID, 0);
 		}
 	}
-	
+
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates))
 	{
 		if (AutoLanguageCandidates.Num() > 4)
 		{
-			FMessageDialog::Open(EAppMsgType::Ok,
-				FText::FromString("You can only include up to 4 languages for at-start LID "
-					"and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
 
 			AutoLanguageCandidates.RemoveAtSwap(4, AutoLanguageCandidates.Num() - 4, true);
 		}

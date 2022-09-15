@@ -24,8 +24,7 @@ public:
 	FSSMLToVoiceDelegate TaskCompleted;
 
 	/* Creates a SSML-To-Voice task that will convert your SSML file to speech */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech",
-		meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Voice"))
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Voice"))
 	static USSMLToVoiceAsync* SSMLToVoice(const UObject* WorldContextObject, const FString& SSMLString);
 
 	virtual void Activate() override;
