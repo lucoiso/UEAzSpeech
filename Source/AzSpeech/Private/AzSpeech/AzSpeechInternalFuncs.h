@@ -159,25 +159,25 @@ namespace AzSpeech::Internal
 	{
 		switch (Result)
 		{
-			case ResultReason::Canceled: 
-				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
-				return false;
+		case ResultReason::Canceled:
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
+			return false;
 
-			case ResultReason::NoMatch: 
-				UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: NoMatch"), *FString(__func__));
-				return false;
+		case ResultReason::NoMatch:
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: NoMatch"), *FString(__func__));
+			return false;
 
-			case ResultReason::SynthesizingAudioCompleted: 
-				UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: SynthesizingAudioCompleted"), *FString(__func__));
-				return true;
+		case ResultReason::SynthesizingAudioCompleted:
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: SynthesizingAudioCompleted"), *FString(__func__));
+			return true;
 
-			case ResultReason::RecognizedSpeech: 
-				UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: RecognizedSpeech"), *FString(__func__));
-				return true;
+		case ResultReason::RecognizedSpeech:
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: RecognizedSpeech"), *FString(__func__));
+			return true;
 
-			default: 
-				UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
-				return false;
+		default:
+			UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+			return false;
 		}
 	}
 }

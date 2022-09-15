@@ -21,7 +21,7 @@ namespace AzSpeechWrapper
 				return std::vector<uint8_t>();
 			}
 
-			if (const auto SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get(); 
+			if (const auto SpeechSynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
 				AzSpeech::Internal::ProcessAzSpeechResult(SpeechSynthesisResult->Reason))
 			{
 				return *SpeechSynthesisResult->GetAudioData().get();

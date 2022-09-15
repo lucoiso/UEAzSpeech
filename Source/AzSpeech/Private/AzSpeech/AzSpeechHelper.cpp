@@ -55,14 +55,14 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: FilePath or FileName is empty"), *FString(__func__));
 	}
 
-	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName); 
+	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName);
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
 #if PLATFORM_ANDROID
 		CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
 #endif
 
-		if (TArray<uint8> RawData; 
+		if (TArray<uint8> RawData;
 			FFileHelper::LoadFileToArray(RawData, *Full_FileName, FILEREAD_NoFail))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(__func__));
@@ -124,10 +124,10 @@ FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString&
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: FilePath or FileName is empty"), *FString(__func__));
 	}
-	else if (const FString Full_FileName = QualifyXMLFileName(FilePath, FileName); 
+	else if (const FString Full_FileName = QualifyXMLFileName(FilePath, FileName);
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
-		if (FString OutputStr; 
+		if (FString OutputStr;
 			FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s loaded"), *FString(__func__), *Full_FileName);
@@ -147,8 +147,9 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 	{
 		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
 
-		bOutput = bCreateParents ? FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path)
-								 : FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);
+		bOutput = bCreateParents
+			          ? FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path)
+			          : FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);
 	}
 
 	if (bOutput)

@@ -26,7 +26,7 @@ namespace AzSpeechWrapper
 				return std::string();
 			}
 
-			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get(); 
+			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
 				AzSpeech::Internal::ProcessAzSpeechResult(RecognitionResult->Reason))
 			{
 				return RecognitionResult->Text;
