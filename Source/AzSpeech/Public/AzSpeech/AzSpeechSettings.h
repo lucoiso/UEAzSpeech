@@ -34,7 +34,7 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
 	TArray<FString> AutoLanguageCandidates;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Time limit in seconds to wait for tasks"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Time limit in seconds to wait for related asynchronous tasks to complete"))
 	float TimeOutInSeconds;
 
 private:

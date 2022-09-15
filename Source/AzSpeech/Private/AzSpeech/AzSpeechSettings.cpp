@@ -48,8 +48,7 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	{
 		if (AutoLanguageCandidates.Num() > 4)
 		{
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID "
-				                     "and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
 
 			AutoLanguageCandidates.RemoveAtSwap(4, AutoLanguageCandidates.Num() - 4, true);
 		}
