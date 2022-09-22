@@ -63,8 +63,7 @@ namespace AzSpeechWrapper
 				}
 
 				const bool bOutputValue = SSMLToWavAsyncWork.Get();
-
-				InDelegate.Broadcast(bOutputValue);
+				AsyncTask(ENamedThreads::GameThread, [=] () { InDelegate.Broadcast(bOutputValue); });
 
 				if (bOutputValue)
 				{

@@ -57,8 +57,7 @@ namespace AzSpeechWrapper
 				}
 
 				const bool bOutputValue = TextToVoiceAsyncWork.Get();
-
-				InDelegate.Broadcast(bOutputValue);
+				AsyncTask(ENamedThreads::GameThread, [=] () { InDelegate.Broadcast(bOutputValue); });
 
 				if (bOutputValue)
 				{

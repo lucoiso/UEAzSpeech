@@ -63,10 +63,9 @@ namespace AzSpeechWrapper
 					return;
 				}
 
-				const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
-
-				InDelegate.Broadcast(OutputValue);
-
+				const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());								
+				AsyncTask(ENamedThreads::GameThread, [=] () { InDelegate.Broadcast(OutputValue); });
+				
 				if (!OutputValue.IsEmpty())
 				{
 					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s"), *FString(FuncName), *OutputValue);

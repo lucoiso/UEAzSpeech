@@ -28,7 +28,7 @@ namespace AzSpeechWrapper
 
 	namespace Unreal_Cpp
 	{
-		static void AsyncSSMLToVoice(const FString& InSSML, const FSSMLToVoiceDelegate& Delegate)
+		static void AsyncSSMLToVoice(const FString& InSSML, const FSSMLToVoiceDelegate& InDelegate)
 		{
 			if (InSSML.IsEmpty())
 			{
@@ -39,7 +39,7 @@ namespace AzSpeechWrapper
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, &Delegate]
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, InSSML, &InDelegate]
 			{
 				const TFuture<bool> SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
 				{
@@ -55,8 +55,7 @@ namespace AzSpeechWrapper
 				}
 
 				const bool bOutputValue = SSMLToVoiceAsyncWork.Get();
-
-				Delegate.Broadcast(bOutputValue);
+				AsyncTask(ENamedThreads::GameThread, [=]() { InDelegate.Broadcast(bOutputValue); });
 
 				if (bOutputValue)
 				{

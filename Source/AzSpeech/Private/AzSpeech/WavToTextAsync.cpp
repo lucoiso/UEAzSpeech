@@ -69,8 +69,7 @@ namespace AzSpeechWrapper
 				}
 
 				const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
-
-				InDelegate.Broadcast(OutputValue);
+				AsyncTask(ENamedThreads::GameThread, [=] () { InDelegate.Broadcast(OutputValue); });
 
 				if (!OutputValue.IsEmpty())
 				{

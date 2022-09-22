@@ -67,7 +67,7 @@ namespace AzSpeechWrapper
 					OutputArr.Add(static_cast<uint8>(i));
 				}
 
-				InDelegate.Broadcast(OutputArr);
+				AsyncTask(ENamedThreads::GameThread, [=] () { InDelegate.Broadcast(OutputArr); });
 
 				if (bOutputValue)
 				{
