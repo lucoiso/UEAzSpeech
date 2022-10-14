@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "AzSpeech/AzSpeechTaskBase.h"
 #include "VoiceToTextAsync.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVoiceToTextDelegate, const FString&, RecognizedString);
@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVoiceToTextDelegate, const FString&
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UVoiceToTextAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API UVoiceToTextAsync final : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
@@ -32,4 +32,7 @@ public:
 private:
 	const UObject* WorldContextObject;
 	FString LanguageID;
+
+	void StartAzureTaskWork_Internal();
+	std::string DoAzureTaskWork_Internal(const std::string& InLanguageID);
 };

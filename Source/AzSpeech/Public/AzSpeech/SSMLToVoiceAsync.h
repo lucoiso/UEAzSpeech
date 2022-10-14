@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "SSMLToVoiceAsync.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToVoiceDelegate, const bool, OutputValue);
@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToVoiceDelegate, const bool, Ou
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API USSMLToVoiceAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API USSMLToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
@@ -32,4 +32,7 @@ public:
 private:
 	const UObject* WorldContextObject;
 	FString SSMLString;
+
+	void StartAzureTaskWork_Internal();
+	bool DoAzureTaskWork_Internal(const std::string& InSSML);
 };
