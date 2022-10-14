@@ -26,7 +26,6 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkCodecRuntimeLib);
 #endif
 }
 
@@ -38,7 +37,6 @@ void FAzSpeechModule::ShutdownModule()
 	FreeDependency(LuRuntimeLib);
 	FreeDependency(MasRuntimeLib);
 	FreeDependency(CodecRuntimeLib);
-	FreeDependency(SilkCodecRuntimeLib);
 }
 
 void FAzSpeechModule::FreeDependency(void*& Handle)

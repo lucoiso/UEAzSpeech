@@ -9,6 +9,7 @@
 #include <speechapi_cxx_common.h>
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_c.h>
+#include "speechapi_c_json.h"
 #include <speechapi_cxx_recognizer.h>
 #include <speechapi_cxx_intent_recognition_result.h>
 #include <speechapi_cxx_intent_recognition_eventargs.h>
@@ -304,73 +305,7 @@ public:
                 break;
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::PatternMatchingModel:
             {
-                auto simpleModel = static_cast<const PatternMatchingModel*>(model.get());
-                std::string jsonBuild;
-                jsonBuild.append("{");
-                jsonBuild.append("\"modelId\":");
-                jsonBuild.append("\"");
-                jsonBuild.append(model->GetModelId());
-                jsonBuild.append("\"");
-                jsonBuild.append(",\"intents\": [");
-                unsigned int index = 0;
-                for (auto& intent : simpleModel->Intents)
-                {
-                    jsonBuild.append("{\"id\":\"");
-                    jsonBuild.append(intent.Id);
-                    jsonBuild.append("\",\"priority\":\"");
-                    jsonBuild.append("0");
-                    jsonBuild.append("\",\"phrases\":[");
-                    unsigned int phraseIndex = 0;
-                    for (auto& phrase : intent.Phrases)
-                    {
-                        jsonBuild.append("\"");
-                        jsonBuild.append(phrase);
-                        jsonBuild.append("\"");
-                        phraseIndex++;
-                        if (phraseIndex != intent.Phrases.size())
-                        {
-                            jsonBuild.append(",");
-                        }
-                    }
-                    jsonBuild.append("]}");
-                    index++;
-                    if (index != simpleModel->Intents.size())
-                    {
-                        jsonBuild.append(",");
-                    }
-                }
-                jsonBuild.append("],");
-                index = 0;
-                jsonBuild.append("\"entities\":[");
-                for (auto& entity : simpleModel->Entities)
-                {
-                    jsonBuild.append("{\"id\":\"");
-                    jsonBuild.append(entity.Id);
-                    jsonBuild.append("\",\"type\":");
-                    jsonBuild.append(std::to_string((unsigned int)entity.Type));
-                    jsonBuild.append(",\"mode\":");
-                    jsonBuild.append(std::to_string((unsigned int)entity.Mode));
-                    jsonBuild.append(",\"phrases\":[");
-                    unsigned int phraseIndex = 0;
-                    for (auto& phrase : entity.Phrases)
-                    {
-                        jsonBuild.append("\"");
-                        jsonBuild.append(phrase);
-                        jsonBuild.append("\"");
-                        phraseIndex++;
-                        if (phraseIndex != entity.Phrases.size())
-                        {
-                            jsonBuild.append(",");
-                        }
-                    }
-                    index++;
-                    jsonBuild.append("]}");
-                    if (index != simpleModel->Entities.size())
-                    {
-                        jsonBuild.append(",");
-                    }
-                }
-                jsonBuild.append("]}");
+                auto jsonBuild = BuildModelJson(model);
                 intent_recognizer_import_pattern_matching_model(m_hreco, jsonBuild.c_str());
                 break;
             }
@@ -383,6 +318,71 @@ public:
     }
 
 private:
+
+    std::string BuildModelJson(std::shared_ptr<LanguageUnderstandingModel> model)
+    {
+        SPXHANDLE builder = SPXHANDLE_INVALID;
+        auto root = ai_core_json_builder_create(&builder, "", 0);
+        auto simpleModel = static_cast<const PatternMatchingModel*>(model.get());
+
+        auto modelIdItem = ai_core_json_builder_item_add(builder, root, 0, "modelId");
+        auto modelIdString = model->GetModelId();
+        SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, modelIdItem, nullptr, 0, 34, modelIdString.c_str(), modelIdString.length(), false, 0, 0));
+        
+        auto intentsArrayRootItem = ai_core_json_builder_item_add(builder, root, 0, "intents");
+        SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, intentsArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
+
+        unsigned int index = 0;
+        for (auto& intent : simpleModel->Intents)
+        {
+            auto intentsArrayItem = ai_core_json_builder_item_add(builder, intentsArrayRootItem, index, nullptr);
+            auto intentItem = ai_core_json_builder_item_add(builder, intentsArrayItem, 0, "id");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, intentItem, nullptr, 0, 34, intent.Id.c_str(), intent.Id.length(), false, 0, 0));
+            intentItem = ai_core_json_builder_item_add(builder, intentsArrayItem, 0, "priority");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, intentItem, nullptr, 0, 49, nullptr, 0, false, 0, 0));
+
+            unsigned int phraseIndex = 0;
+            auto phrasesArrayRootItem = ai_core_json_builder_item_add(builder, intentsArrayItem, 0, "phrases");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
+            for (auto& phrase : intent.Phrases)
+            {
+                auto phrasesArrayItem = ai_core_json_builder_item_add(builder, phrasesArrayRootItem, phraseIndex, nullptr);
+                SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayItem, nullptr, 0, 34, phrase.c_str(), phrase.length(), false, 0, 0));
+                phraseIndex++;
+            }
+            index++;
+        }
+
+        index = 0;
+        auto entitiesArrayRootItem = ai_core_json_builder_item_add(builder, root, 0, "entities");
+        SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitiesArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
+        for (auto& entity : simpleModel->Entities)
+        {
+            auto entitiesArrayItem = ai_core_json_builder_item_add(builder, entitiesArrayRootItem, index, nullptr);
+            auto entitityItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "id");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitityItem, nullptr, 0, 34, entity.Id.c_str(), entity.Id.length(), false, 0, 0));
+
+            entitityItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "type");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitityItem, nullptr, 0, 49, nullptr, 0, false, (unsigned int)entity.Type, 0));
+
+            entitityItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "mode");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitityItem, nullptr, 0, 49, nullptr, 0, false, (unsigned int)entity.Mode, 0));
+
+            unsigned int phraseIndex = 0;
+            auto phrasesArrayRootItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "phrases");
+            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
+            for (auto& phrase : entity.Phrases)
+            {
+                auto phrasesArrayItem = ai_core_json_builder_item_add(builder, phrasesArrayRootItem, phraseIndex, nullptr);
+                SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayItem, nullptr, 0, 34, phrase.c_str(), phrase.length(), false, 0, 0));
+                phraseIndex++;
+            }
+            index++;
+        }
+        auto jsonCharString = ai_core_json_value_as_json_copy(builder, root);
+        ai_core_json_builder_handle_release(builder);
+        return jsonCharString;
+    }
 
     DISABLE_COPY_AND_MOVE(IntentRecognizer);
 

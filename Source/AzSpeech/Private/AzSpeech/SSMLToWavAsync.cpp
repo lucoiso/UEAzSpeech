@@ -24,7 +24,7 @@ namespace AzSpeechWrapper
 
 			const auto SynthesisResult = Synthesizer->SpeakSsmlAsync(InSSML).get();
 
-			return AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason);
+			return AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult);
 		}
 	}
 

@@ -24,7 +24,7 @@ namespace AzSpeechWrapper
 			}
 
 			if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
-				AzSpeech::Internal::ProcessAzSpeechResult(RecognitionResult->Reason))
+				AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
 			{
 				return RecognitionResult->Text;
 			}

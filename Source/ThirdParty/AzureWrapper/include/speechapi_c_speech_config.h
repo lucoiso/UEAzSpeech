@@ -129,7 +129,12 @@ typedef enum
 
     // riff-44100hz-16bit-mono-pcm
     // PCM audio at 44100Hz sampling rate and 16-bit depth, with RIFF header.
-    SpeechSynthesisOutputFormat_Riff44100Hz16BitMonoPcm = 37
+    SpeechSynthesisOutputFormat_Riff44100Hz16BitMonoPcm = 37,
+
+    /// amr-wb-16000hz
+    /// AMR-WB audio at 16kHz sampling rate.
+    /// (Added in 1.24.0)
+    SpeechSynthesisOutputFormat_AmrWb16000Hz = 38
 } Speech_Synthesis_Output_Format;
 
 typedef enum

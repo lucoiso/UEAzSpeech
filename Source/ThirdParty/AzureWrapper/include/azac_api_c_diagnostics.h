@@ -64,3 +64,10 @@ AZAC_API_(void) diagnostics_log_trace_message2(int level, const char* pszTitle, 
 
 AZAC_API_(void) diagnostics_set_log_level(const char * logger, const char * level);
 AZAC_API_(bool) diagnostics_is_log_level_enabled(int level);
+
+//
+// Memory tracking API's
+//
+AZAC_API_(size_t) diagnostics_get_handle_count();
+AZAC_API__(const char*) diagnostics_get_handle_info();
+AZAC_API diagnostics_free_string(const char* value);

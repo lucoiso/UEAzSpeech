@@ -22,7 +22,7 @@ namespace AzSpeechWrapper
 			}
 
 			if (const auto SynthesisResult = Synthesizer->SpeakTextAsync(InStr).get();
-				AzSpeech::Internal::ProcessAzSpeechResult(SynthesisResult->Reason))
+				AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult))
 			{
 				return *SynthesisResult->GetAudioData().get();
 			}

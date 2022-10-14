@@ -21,8 +21,6 @@ namespace Speech {
 
 /// <summary>
 /// Class that defines embedded (offline) configurations for speech recognition and speech synthesis.
-/// This is currently a preview of the API. The functionality is not available in public releases.
-/// Added in version 1.19.0
 /// </summary>
 class EmbeddedSpeechConfig
 {

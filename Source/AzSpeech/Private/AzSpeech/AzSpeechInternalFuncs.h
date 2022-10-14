@@ -155,29 +155,141 @@ namespace AzSpeech::Internal
 		return SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
-	static bool ProcessAzSpeechResult(const ResultReason& Result)
+	static FString CancellationReasonToString(const CancellationReason& CancellationReason)
 	{
-		switch (Result)
+		switch (CancellationReason)
 		{
-		case ResultReason::Canceled:
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
-			return false;
+			case CancellationReason::Error:
+				return FString("Error");
 
-		case ResultReason::NoMatch:
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: NoMatch"), *FString(__func__));
-			return false;
+			case CancellationReason::EndOfStream:
+				return FString("EndOfStream");
 
-		case ResultReason::SynthesizingAudioCompleted:
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: SynthesizingAudioCompleted"), *FString(__func__));
-			return true;
+			case CancellationReason::CancelledByUser:
+				return FString("CancelledByUser");
 
-		case ResultReason::RecognizedSpeech:
+			default:
+				return FString("Undef");
+		}
+	}
+
+	static void ProcessCancellationError(const CancellationErrorCode& ErrorCode, const std::string& ErrorDetails)
+	{
+		FString ErrorCodeStr;
+		switch (ErrorCode)
+		{
+			case CancellationErrorCode::NoError:
+				ErrorCodeStr = "Error";
+				break;
+
+			case CancellationErrorCode::AuthenticationFailure:
+				ErrorCodeStr = "EndOfStream";
+				break;
+
+			case CancellationErrorCode::BadRequest:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::TooManyRequests:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::Forbidden:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ConnectionFailure:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceTimeout:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceError:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceUnavailable:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::RuntimeError:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceRedirectTemporary:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceRedirectPermanent:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::EmbeddedModelError:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			default:
+				ErrorCodeStr = "Undef";
+				break;
+		}
+
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error code: %s"), *FString(__func__), *ErrorCodeStr);
+
+		const FString ErrorDetailsStr = UTF8_TO_TCHAR(ErrorDetails.c_str());
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error Details: %s"), *FString(__func__), *ErrorDetailsStr);
+	}
+
+	static bool ProcessRecognitionResult(const std::shared_ptr<SpeechRecognitionResult>& Result)
+	{
+		if (Result->Reason == ResultReason::RecognizedSpeech)
+		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: RecognizedSpeech"), *FString(__func__));
 			return true;
+		}
+		else if (Result->Reason == ResultReason::Canceled)
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
+			const auto CancellationDetails = CancellationDetails::FromResult(Result);
 
-		default:
-			UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Cancellation Reason: %s"), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+
+			if (CancellationDetails->Reason == CancellationReason::Error)
+			{
+				ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
+			}
+
 			return false;
 		}
+
+		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+		return false;
+	}
+
+	static bool ProcessSynthesizResult(const std::shared_ptr<SpeechSynthesisResult>& Result)
+	{
+		if (Result->Reason == ResultReason::SynthesizingAudioCompleted)
+		{
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: SynthesizingAudioCompleted"), *FString(__func__));
+			return true;
+		}
+		else if (Result->Reason == ResultReason::Canceled)
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
+			const auto CancellationDetails = SpeechSynthesisCancellationDetails::FromResult(Result);
+
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Cancellation Reason: %s"), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+
+			if (CancellationDetails->Reason == CancellationReason::Error)
+			{
+				ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
+			}
+
+			return false;
+		}
+
+		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+		return false;
 	}
 }
