@@ -33,3 +33,4 @@ And helper functions:
 * [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 * [Supported languages](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support)  
 * [Email](mailto:contatolukevboas@gmail.com)  
+* [Tests](https://github.com/lucoiso/UEAzSpeech_Tests)  
