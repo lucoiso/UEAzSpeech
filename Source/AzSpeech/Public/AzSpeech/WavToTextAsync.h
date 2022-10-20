@@ -20,6 +20,7 @@ class AZSPEECH_API UWavToTextAsync final : public UAzSpeechTaskBase
 
 	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
 	friend class FWavToTextDefaultTest;
+	friend class FWavToTextAutoTest;
 
 public:
 	/* Task delegate that will be called when completed */
