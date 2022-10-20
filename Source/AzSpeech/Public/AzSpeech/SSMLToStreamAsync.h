@@ -18,6 +18,8 @@ class AZSPEECH_API USSMLToStreamAsync final : public UAzSpeechSynthesizerTaskBas
 {
 	GENERATED_BODY()
 
+	friend class FSSMLToStreamTest;
+
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")

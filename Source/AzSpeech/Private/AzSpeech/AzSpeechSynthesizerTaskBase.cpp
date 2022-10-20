@@ -4,6 +4,7 @@
 
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeechInternalFuncs.h"
+#include "Async/Async.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {

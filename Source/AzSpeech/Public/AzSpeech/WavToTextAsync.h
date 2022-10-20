@@ -18,6 +18,8 @@ class AZSPEECH_API UWavToTextAsync final : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
+	friend class FWavToTextTest;
+
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")

@@ -18,6 +18,8 @@ class AZSPEECH_API UVoiceToTextAsync final : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
+	friend class FVoiceToTextTest;
+
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")

@@ -18,6 +18,8 @@ class AZSPEECH_API USSMLToWavAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
+	friend class FSSMLToWavTest;
+
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
