@@ -19,6 +19,7 @@ class AZSPEECH_API UTextToWavAsync final : public UAzSpeechSynthesizerTaskBase
 	GENERATED_BODY()
 
 	friend class FTextToWavTest;
+	friend class FWavToTextTest;
 
 public:
 	/* Task delegate that will be called when completed */
