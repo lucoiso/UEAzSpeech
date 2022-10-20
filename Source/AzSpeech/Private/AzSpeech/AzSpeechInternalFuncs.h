@@ -84,20 +84,26 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
+	static void EnableLogInConfiguration(const std::shared_ptr<SpeechConfig>& InConfig)
+	{
+		if (FString AzSpeechLogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*AzSpeechLogPath))
+		{
+			AzSpeechLogPath += "/UEAzSpeech " + FDateTime::Now().ToString() + ".log";
+
+			if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
+			{
+				InConfig->SetProperty(PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
+			}
+		}
+	}
+
 	static std::shared_ptr<SpeechSynthesizer> GetAzureSynthesizer(const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultSpeakerOutput(), const std::string& InLanguage = "Default", const std::string& InVoiceName = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 				
-		if (const FString Temp_LogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech"; 
-			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Temp_LogPath))
-		{
-			if (const FString LogFilePath = Temp_LogPath + "/Synthesizer.log";
-				FFileHelper::SaveStringToFile(TEXT("--- AzSpeech Synthesizer Log ---"), *LogFilePath))
-			{
-				SpeechConfig->SetProperty(PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*LogFilePath));
-			}
-		}
+		EnableLogInConfiguration(SpeechConfig);
 		
 		if (FString(UTF8_TO_TCHAR(InLanguage.c_str())).Equals("Auto", ESearchCase::IgnoreCase))
 		{
@@ -144,15 +150,7 @@ namespace AzSpeech::Internal
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 
-		if (const FString Temp_LogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
-			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Temp_LogPath))
-		{
-			if (const FString LogFilePath = Temp_LogPath + "/Recognizer.log";
-				FFileHelper::SaveStringToFile(TEXT("--- AzSpeech Recognizer Log ---"), *LogFilePath))
-			{
-				SpeechConfig->SetProperty(PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*LogFilePath));
-			}
-		}
+		EnableLogInConfiguration(SpeechConfig);
 
 		SpeechConfig->SetProfanity(ProfanityOption::Raw);
 
@@ -283,6 +281,9 @@ namespace AzSpeech::Internal
 
 		const FString ErrorDetailsStr = UTF8_TO_TCHAR(ErrorDetails.c_str());
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error Details: %s"), *FString(__func__), *ErrorDetailsStr);
+
+		const FString Temp_LogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Log generated in directory: %s"), *FString(__func__), *Temp_LogPath);
 	}
 
 	static bool ProcessRecognitionResult(const std::shared_ptr<SpeechRecognitionResult>& Result)
