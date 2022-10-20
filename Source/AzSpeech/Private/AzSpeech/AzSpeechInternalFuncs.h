@@ -88,7 +88,17 @@ namespace AzSpeech::Internal
 	{
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
-
+				
+		if (const FString Temp_LogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech"; 
+			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Temp_LogPath))
+		{
+			if (const FString LogFilePath = Temp_LogPath + "/Synthesizer.log";
+				FFileHelper::SaveStringToFile(TEXT("--- AzSpeech Synthesizer Log ---"), *LogFilePath))
+			{
+				SpeechConfig->SetProperty(PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*LogFilePath));
+			}
+		}
+		
 		if (FString(UTF8_TO_TCHAR(InLanguage.c_str())).Equals("Auto", ESearchCase::IgnoreCase))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing language auto detection..."), *FString(__func__));
@@ -133,6 +143,16 @@ namespace AzSpeech::Internal
 	{
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
+
+		if (const FString Temp_LogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Temp_LogPath))
+		{
+			if (const FString LogFilePath = Temp_LogPath + "/Recognizer.log";
+				FFileHelper::SaveStringToFile(TEXT("--- AzSpeech Recognizer Log ---"), *LogFilePath))
+			{
+				SpeechConfig->SetProperty(PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*LogFilePath));
+			}
+		}
 
 		SpeechConfig->SetProfanity(ProfanityOption::Raw);
 
