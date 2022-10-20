@@ -98,7 +98,23 @@ namespace AzSpeech::Internal
 			return SpeechSynthesizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
 		}
 
-		if (InLanguage.empty() || InVoiceName.empty())
+		std::string UsedLang = InLanguage;
+		if (FString LangStr_UE = UTF8_TO_TCHAR(InLanguage.c_str());
+			LangStr_UE.Equals("Default", ESearchCase::IgnoreCase)
+			|| LangStr_UE.IsEmpty())
+		{
+			UsedLang = TCHAR_TO_UTF8(*GetLanguageID(LangStr_UE));
+		}
+
+		std::string UsedVoice = InVoiceName;
+		if (FString VoiceStr_UE = UTF8_TO_TCHAR(InVoiceName.c_str());
+			VoiceStr_UE.Equals("Default", ESearchCase::IgnoreCase)
+			|| VoiceStr_UE.IsEmpty())
+		{
+			UsedVoice = TCHAR_TO_UTF8(*GetVoiceName(VoiceStr_UE));
+		}
+
+		if (UsedVoice.empty() || UsedVoice.empty())
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Result: Invalid language or voice name"), *FString(__func__));
 			return nullptr;
@@ -107,8 +123,8 @@ namespace AzSpeech::Internal
 		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using language: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(InLanguage.c_str())));
 		SpeechConfig->SetSpeechSynthesisLanguage(InLanguage);
 
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using voice: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(InVoiceName.c_str())));
-		SpeechConfig->SetSpeechSynthesisVoiceName(InVoiceName);
+		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using voice: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedVoice.c_str())));
+		SpeechConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
 		return SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
@@ -141,16 +157,24 @@ namespace AzSpeech::Internal
 			return SpeechRecognizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromLanguages(Candidates), InAudioConfig);
 		}
 
-		if (InLanguage.empty())
+		std::string UsedLang = InLanguage;
+		if (FString LangStr_UE = UTF8_TO_TCHAR(InLanguage.c_str());
+			LangStr_UE.Equals("Default", ESearchCase::IgnoreCase)
+			|| LangStr_UE.IsEmpty())
+		{
+			UsedLang = TCHAR_TO_UTF8(*GetLanguageID(LangStr_UE));
+		}
+
+		if (UsedLang.empty())
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Result: Invalid language"), *FString(__func__));
 			return nullptr;
 		}
 
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using language: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(InLanguage.c_str())));
+		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using language: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedLang.c_str())));
 
-		SpeechConfig->SetSpeechRecognitionLanguage(InLanguage);
-		SpeechConfig->SetSpeechSynthesisLanguage(InLanguage);
+		SpeechConfig->SetSpeechRecognitionLanguage(UsedLang);
+		SpeechConfig->SetSpeechSynthesisLanguage(UsedLang);
 
 		return SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
