@@ -84,9 +84,14 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
+	static FString GetAzSpeechLogsBaseDir()
+	{
+		return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+	}
+
 	static void EnableLogInConfiguration(const std::shared_ptr<SpeechConfig>& InConfig)
 	{
-		if (FString AzSpeechLogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+		if (FString AzSpeechLogPath = GetAzSpeechLogsBaseDir();
 			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*AzSpeechLogPath))
 		{
 			AzSpeechLogPath += "/UEAzSpeech " + FDateTime::Now().ToString() + ".log";
@@ -280,10 +285,8 @@ namespace AzSpeech::Internal
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error code: %s"), *FString(__func__), *ErrorCodeStr);
 
 		const FString ErrorDetailsStr = UTF8_TO_TCHAR(ErrorDetails.c_str());
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error Details: %s"), *FString(__func__), *ErrorDetailsStr);
-
-		const FString Temp_LogPath = FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Log generated in directory: %s"), *FString(__func__), *Temp_LogPath);
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error Details: %s"), *FString(__func__), *ErrorDetailsStr);		
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Log generated in directory: %s"), *FString(__func__), *GetAzSpeechLogsBaseDir());
 	}
 
 	static bool ProcessRecognitionResult(const std::shared_ptr<SpeechRecognitionResult>& Result)

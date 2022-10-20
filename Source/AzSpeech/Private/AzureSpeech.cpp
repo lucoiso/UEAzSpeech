@@ -6,6 +6,7 @@
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 #if ENGINE_MAJOR_VERSION < 5
 #include "GenericPlatform/GenericPlatformProcess.h"
@@ -27,6 +28,11 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
 #endif
+
+	if (FPaths::DirectoryExists(AzSpeech::Internal::GetAzSpeechLogsBaseDir()))
+	{
+		IFileManager::Get().DeleteDirectory(*AzSpeech::Internal::GetAzSpeechLogsBaseDir(), true, true);
+	}
 }
 
 void FAzSpeechModule::ShutdownModule()
