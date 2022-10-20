@@ -18,7 +18,9 @@ class AZSPEECH_API UVoiceToTextAsync final : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
-	friend class FVoiceToTextTest;
+	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
+	friend class FVoiceToTextDefaultTest;
+	friend class FVoiceToTextAutoTest;
 
 public:
 	/* Task delegate that will be called when completed */

@@ -18,7 +18,8 @@ class AZSPEECH_API UWavToTextAsync final : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
-	friend class FWavToTextTest;
+	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
+	friend class FWavToTextDefaultTest;
 
 public:
 	/* Task delegate that will be called when completed */

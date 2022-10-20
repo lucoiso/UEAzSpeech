@@ -18,6 +18,7 @@ class AZSPEECH_API USSMLToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
+	// Class used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
 	friend class FSSMLToVoiceTest;
 
 public:
