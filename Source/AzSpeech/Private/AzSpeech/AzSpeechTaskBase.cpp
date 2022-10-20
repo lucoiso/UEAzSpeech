@@ -6,4 +6,11 @@
 
 void UAzSpeechTaskBase::Activate()
 {
+	Super::Activate();
+	
+	StartAzureTaskWork_Internal();
+}
+
+void UAzSpeechTaskBase::StartAzureTaskWork_Internal()
+{
 }

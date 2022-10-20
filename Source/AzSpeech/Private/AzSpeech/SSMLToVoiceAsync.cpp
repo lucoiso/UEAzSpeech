@@ -18,7 +18,7 @@ USSMLToVoiceAsync* USSMLToVoiceAsync::SSMLToVoice(const UObject* WorldContextObj
 
 void USSMLToVoiceAsync::Activate()
 {
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void USSMLToVoiceAsync::StartAzureTaskWork_Internal()
@@ -66,6 +66,7 @@ bool USSMLToVoiceAsync::DoAzureTaskWork_Internal(const std::string& InSSML)
 
 	if (!SynthesizerObject)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
 

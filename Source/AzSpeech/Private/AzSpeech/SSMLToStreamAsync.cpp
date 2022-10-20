@@ -18,7 +18,7 @@ USSMLToStreamAsync* USSMLToStreamAsync::SSMLToStream(const UObject* WorldContext
 
 void USSMLToStreamAsync::Activate()
 {
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void USSMLToStreamAsync::StartAzureTaskWork_Internal()
@@ -75,6 +75,7 @@ std::vector<uint8_t> USSMLToStreamAsync::DoAzureTaskWork_Internal(const std::str
 
 	if (!SynthesizerObject)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return std::vector<uint8_t>();
 	}
 

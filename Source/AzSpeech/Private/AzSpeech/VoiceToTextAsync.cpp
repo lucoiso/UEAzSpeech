@@ -27,7 +27,7 @@ void UVoiceToTextAsync::Activate()
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.RECORD_AUDIO");
 #endif
 
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void UVoiceToTextAsync::StartAzureTaskWork_Internal()
@@ -72,14 +72,15 @@ void UVoiceToTextAsync::StartAzureTaskWork_Internal()
 std::string UVoiceToTextAsync::DoAzureTaskWork_Internal(const std::string& InLanguageID)
 {
 	const auto AudioConfig = AudioConfig::FromDefaultMicrophoneInput();
-	const auto Recognizer = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
+	const auto RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
-	if (Recognizer == nullptr)
+	if (RecognizerObject == nullptr)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
 		return std::string();
 	}
 
-	if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
+	if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
 		AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
 	{
 		return RecognitionResult->Text;

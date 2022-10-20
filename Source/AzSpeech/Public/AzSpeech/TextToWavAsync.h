@@ -29,6 +29,9 @@ public:
 
 	virtual void Activate() override;
 
+protected:
+	virtual void StartAzureTaskWork_Internal() override;
+
 private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
@@ -36,7 +39,6 @@ private:
 	FString FilePath;
 	FString FileName;
 	FString LanguageID;
-
-	void StartAzureTaskWork_Internal();
+	
 	bool DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName, const std::string& InFilePath);
 };

@@ -26,7 +26,7 @@ void UWavToTextAsync::Activate()
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
 #endif
 
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void UWavToTextAsync::StartAzureTaskWork_Internal()
@@ -79,14 +79,15 @@ void UWavToTextAsync::StartAzureTaskWork_Internal()
 std::string UWavToTextAsync::DoAzureTaskWork_Internal(const std::string& InFilePath, const std::string& InLanguageID)
 {
 	const auto AudioConfig = AudioConfig::FromWavFileInput(InFilePath);
-	const auto Recognizer = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
+	const auto RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
-	if (Recognizer == nullptr)
+	if (RecognizerObject == nullptr)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
 		return std::string();
 	}
 
-	if (const auto RecognitionResult = Recognizer->RecognizeOnceAsync().get();
+	if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
 		AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
 	{
 		return RecognitionResult->Text;

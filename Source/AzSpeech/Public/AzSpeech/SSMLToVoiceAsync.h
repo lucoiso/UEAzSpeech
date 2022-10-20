@@ -29,10 +29,12 @@ public:
 
 	virtual void Activate() override;
 
+protected:
+	virtual void StartAzureTaskWork_Internal() override;
+
 private:
 	const UObject* WorldContextObject;
 	FString SSMLString;
-
-	void StartAzureTaskWork_Internal();
+	
 	bool DoAzureTaskWork_Internal(const std::string& InSSML);
 };

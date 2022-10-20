@@ -27,7 +27,7 @@ void UTextToWavAsync::Activate()
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
 #endif
 
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void UTextToWavAsync::StartAzureTaskWork_Internal()
@@ -85,6 +85,7 @@ bool UTextToWavAsync::DoAzureTaskWork_Internal(const std::string& InStr, const s
 
 	if (!SynthesizerObject)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
 

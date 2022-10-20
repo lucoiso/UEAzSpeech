@@ -28,5 +28,7 @@ public:
 	virtual void StopAzSpeechTask();
 	
 protected:
+	virtual void StartAzureTaskWork_Internal() override;
+	
 	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 };

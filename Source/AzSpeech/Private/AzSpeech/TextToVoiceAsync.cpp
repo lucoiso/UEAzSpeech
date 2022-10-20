@@ -7,25 +7,6 @@
 #include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
 
-namespace AzSpeechWrapper
-{
-	namespace Standard_Cpp
-	{
-		static bool DoTextToVoiceWork(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName)
-		{
-			
-		}
-	}
-
-	namespace Unreal_Cpp
-	{
-		static void AsyncTextToVoice(const FString& InStr, const FString& InVoiceName, const FString& InLanguageID, const FTextToVoiceDelegate& InDelegate)
-		{
-			
-		}
-	}
-}
-
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
 	UTextToVoiceAsync* const TextToVoiceAsync = NewObject<UTextToVoiceAsync>();
@@ -39,7 +20,7 @@ UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObj
 
 void UTextToVoiceAsync::Activate()
 {
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void UTextToVoiceAsync::StartAzureTaskWork_Internal()
@@ -90,6 +71,7 @@ bool UTextToVoiceAsync::DoAzureTaskWork_Internal(const std::string& InStr, const
 
 	if (!SynthesizerObject)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
 

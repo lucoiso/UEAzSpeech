@@ -7,6 +7,7 @@
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
+	Super::Activate();
 }
 
 void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
@@ -26,4 +27,9 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 			AsyncTask(ENamedThreads::GameThread, [this] { SetReadyToDestroy(); });
 		});
 	}
+}
+
+void UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
+{
+	Super::StartAzureTaskWork_Internal();
 }

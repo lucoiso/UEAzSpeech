@@ -18,4 +18,7 @@ class UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 
 public:
 	virtual void Activate() override;
+
+protected:
+	virtual void StartAzureTaskWork_Internal();
 };

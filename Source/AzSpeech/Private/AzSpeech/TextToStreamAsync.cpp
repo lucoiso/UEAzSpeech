@@ -7,25 +7,6 @@
 #include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
 
-namespace AzSpeechWrapper
-{
-	namespace Standard_Cpp
-	{
-		static std::vector<uint8_t> DoTextToStreamWork()
-		{
-			
-		}
-	}
-
-	namespace Unreal_Cpp
-	{
-		static void AsyncTextToStream(const FString& InStr, const FString& InVoiceName, const FString& InLanguageID, const FTextToStreamDelegate& InDelegate)
-		{
-			
-		}
-	}
-}
-
 UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
 	UTextToStreamAsync* const NewAsyncTask = NewObject<UTextToStreamAsync>();
@@ -39,7 +20,7 @@ UTextToStreamAsync* UTextToStreamAsync::TextToStream(const UObject* WorldContext
 
 void UTextToStreamAsync::Activate()
 {
-	StartAzureTaskWork_Internal();
+	Super::Activate();
 }
 
 void UTextToStreamAsync::StartAzureTaskWork_Internal()
@@ -98,6 +79,7 @@ std::vector<uint8_t> UTextToStreamAsync::DoAzureTaskWork_Internal(const std::str
 
 	if (!SynthesizerObject)
 	{
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return std::vector<uint8_t>();
 	}
 

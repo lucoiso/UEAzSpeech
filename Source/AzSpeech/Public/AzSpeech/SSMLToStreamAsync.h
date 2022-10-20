@@ -28,11 +28,13 @@ public:
 	static USSMLToStreamAsync* SSMLToStream(const UObject* WorldContextObject, const FString& SSMLString);
 
 	virtual void Activate() override;
+	
+protected:
+	virtual void StartAzureTaskWork_Internal() override;
 
 private:
 	const UObject* WorldContextObject;
 	FString SSMLString;
-
-	void StartAzureTaskWork_Internal();
+	
 	std::vector<uint8_t> DoAzureTaskWork_Internal(const std::string& InSSML);
 };
