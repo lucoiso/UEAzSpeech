@@ -16,7 +16,7 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
+UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech")
 class UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
