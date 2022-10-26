@@ -36,7 +36,7 @@ public:
 	virtual void Activate() override;
 
 protected:
-	virtual void StartAzureTaskWork_Internal() override;
+	virtual bool StartAzureTaskWork_Internal() override;
 
 private:
 	const UObject* WorldContextObject;

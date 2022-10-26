@@ -23,12 +23,17 @@ void UTextToStreamAsync::Activate()
 	Super::Activate();
 }
 
-void UTextToStreamAsync::StartAzureTaskWork_Internal()
+bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 {
+	if (!Super::StartAzureTaskWork_Internal())
+	{
+		return false;
+	}
+	
 	if (TextToConvert.IsEmpty() || VoiceName.IsEmpty() || LanguageID.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
@@ -70,6 +75,8 @@ void UTextToStreamAsync::StartAzureTaskWork_Internal()
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
 		}
 	});
+
+	return true;
 }
 
 std::vector<uint8_t> UTextToStreamAsync::DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName)

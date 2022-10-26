@@ -34,6 +34,26 @@ namespace AzSpeech::Internal
 		return Output;
 	}
 
+	static bool CheckAzSpeechSettings()
+	{
+		const auto AzSpeechParams = GetAzSpeechKeys();
+		if (AzSpeechParams.empty())
+		{
+			return false;
+		}
+
+		for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
+		{
+			if (AzSpeechParams.at(Iterator).empty())
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s - Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	static std::vector<std::string> GetCandidateLanguages()
 	{
 		std::vector<std::string> Output;
@@ -105,6 +125,11 @@ namespace AzSpeech::Internal
 
 	static std::shared_ptr<SpeechSynthesizer> GetAzureSynthesizer(const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultSpeakerOutput(), const std::string& InLanguage = "Default", const std::string& InVoiceName = "Default")
 	{
+		if (!CheckAzSpeechSettings())
+		{
+			return nullptr;
+		}
+
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 				
@@ -152,6 +177,11 @@ namespace AzSpeech::Internal
 
 	static std::shared_ptr<SpeechRecognizer> GetAzureRecognizer(const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultMicrophoneInput(), const std::string& InLanguage = "Default")
 	{
+		if (!CheckAzSpeechSettings())
+		{
+			return nullptr;
+		}
+		
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 

@@ -20,5 +20,5 @@ public:
 	virtual void Activate() override;
 
 protected:
-	virtual void StartAzureTaskWork_Internal();
+	virtual bool StartAzureTaskWork_Internal();
 };

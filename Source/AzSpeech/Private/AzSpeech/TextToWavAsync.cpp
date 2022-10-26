@@ -30,18 +30,23 @@ void UTextToWavAsync::Activate()
 	Super::Activate();
 }
 
-void UTextToWavAsync::StartAzureTaskWork_Internal()
+bool UTextToWavAsync::StartAzureTaskWork_Internal()
 {
+	if (!Super::StartAzureTaskWork_Internal())
+	{
+		return false;
+	}
+
 	if (TextToConvert.IsEmpty() || VoiceName.IsEmpty() || FilePath.IsEmpty() || FileName.IsEmpty() || LanguageID.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	if (!UAzSpeechHelper::CreateNewDirectory(FilePath))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to create directory"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
@@ -76,6 +81,8 @@ void UTextToWavAsync::StartAzureTaskWork_Internal()
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
 		}
 	});
+
+	return true;
 }
 
 bool UTextToWavAsync::DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName, const std::string& InFilePath)

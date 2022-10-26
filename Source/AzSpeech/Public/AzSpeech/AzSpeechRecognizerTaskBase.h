@@ -11,24 +11,21 @@ THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx.h>
 THIRD_PARTY_INCLUDES_END
 
-#include "AzSpeechSynthesizerTaskBase.generated.h"
+#include "AzSpeechRecognizerTaskBase.generated.h"
 
 /**
  *
  */
 UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
-class UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
+class UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
 public:	
 	virtual void Activate() override;
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
-	virtual void StopAzSpeechTask();
 	
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	
-	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
+	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
 };

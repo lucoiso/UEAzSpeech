@@ -30,12 +30,17 @@ void UVoiceToTextAsync::Activate()
 	Super::Activate();
 }
 
-void UVoiceToTextAsync::StartAzureTaskWork_Internal()
+bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
 {
+	if (!Super::StartAzureTaskWork_Internal())
+	{
+		return false;
+	}
+
 	if (LanguageID.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
@@ -67,12 +72,14 @@ void UVoiceToTextAsync::StartAzureTaskWork_Internal()
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
 		}
 	});
+
+	return true;
 }
 
 std::string UVoiceToTextAsync::DoAzureTaskWork_Internal(const std::string& InLanguageID)
 {
 	const auto AudioConfig = AudioConfig::FromDefaultMicrophoneInput();
-	const auto RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
+	RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
 
 	if (RecognizerObject == nullptr)
 	{

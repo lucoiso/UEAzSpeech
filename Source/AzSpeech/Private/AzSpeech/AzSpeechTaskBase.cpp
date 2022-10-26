@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechTaskBase.h"
+#include "AzSpeechInternalFuncs.h"
 
 void UAzSpeechTaskBase::Activate()
 {
@@ -11,6 +12,7 @@ void UAzSpeechTaskBase::Activate()
 	StartAzureTaskWork_Internal();
 }
 
-void UAzSpeechTaskBase::StartAzureTaskWork_Internal()
+bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
 {
+	return AzSpeech::Internal::CheckAzSpeechSettings();
 }

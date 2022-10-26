@@ -21,12 +21,17 @@ void USSMLToStreamAsync::Activate()
 	Super::Activate();
 }
 
-void USSMLToStreamAsync::StartAzureTaskWork_Internal()
+bool USSMLToStreamAsync::StartAzureTaskWork_Internal()
 {
+	if (!Super::StartAzureTaskWork_Internal())
+	{
+		return false;
+	}
+
 	if (SSMLString.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: SSML is empty"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
@@ -43,7 +48,6 @@ void USSMLToStreamAsync::StartAzureTaskWork_Internal()
 		if (!SSMLToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
-			return;
 		}
 
 		const std::vector<uint8_t> Result = SSMLToStreamAsyncWork.Get();
@@ -66,6 +70,8 @@ void USSMLToStreamAsync::StartAzureTaskWork_Internal()
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
 		}
 	});
+
+	return true;
 }
 
 std::vector<uint8_t> USSMLToStreamAsync::DoAzureTaskWork_Internal(const std::string& InSSML)

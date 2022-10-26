@@ -28,18 +28,23 @@ void USSMLToWavAsync::Activate()
 	Super::Activate();
 }
 
-void USSMLToWavAsync::StartAzureTaskWork_Internal()
+bool USSMLToWavAsync::StartAzureTaskWork_Internal()
 {
+	if (!Super::StartAzureTaskWork_Internal())
+	{
+		return false;
+	}
+
 	if (SSMLString.IsEmpty() || FilePath.IsEmpty() || FileName.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	if (!UAzSpeechHelper::CreateNewDirectory(FilePath))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to create directory"), *FString(__func__));
-		return;
+		return false;
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
@@ -57,7 +62,6 @@ void USSMLToWavAsync::StartAzureTaskWork_Internal()
 		if (!SSMLToWavAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
-			return;
 		}
 
 		const bool bOutputValue = SSMLToWavAsyncWork.Get();
@@ -72,6 +76,8 @@ void USSMLToWavAsync::StartAzureTaskWork_Internal()
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
 		}
 	});
+	
+	return true;
 }
 
 bool USSMLToWavAsync::DoAzureTaskWork_Internal(const std::string& InSSML, const std::string& InFilePath)

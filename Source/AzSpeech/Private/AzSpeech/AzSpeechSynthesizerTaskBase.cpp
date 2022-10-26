@@ -13,6 +13,8 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 
 void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 {
+	UE_LOG(LogAzSpeech, Display, TEXT("%s - Finishing AzSpeech Task"), *FString(__func__)); 
+	
 	if (SynthesizerObject)
 	{
 		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [&]
@@ -30,7 +32,7 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 	}
 }
 
-void UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
+bool UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
 {
-	Super::StartAzureTaskWork_Internal();
+	return Super::StartAzureTaskWork_Internal();
 }

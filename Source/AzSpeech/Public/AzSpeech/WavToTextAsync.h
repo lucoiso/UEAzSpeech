@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/AzSpeechTaskBase.h"
+#include "AzSpeech/AzSpeechRecognizerTaskBase.h"
 #include "WavToTextAsync.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, RecognizedString);
@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, 
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UWavToTextAsync final : public UAzSpeechTaskBase
+class AZSPEECH_API UWavToTextAsync final : public UAzSpeechRecognizerTaskBase
 {
 	GENERATED_BODY()
 
@@ -34,7 +34,7 @@ public:
 	virtual void Activate() override;
 
 protected:
-	virtual void StartAzureTaskWork_Internal() override;
+	virtual bool StartAzureTaskWork_Internal() override;
 
 private:
 	const UObject* WorldContextObject;
