@@ -18,10 +18,6 @@ class AZSPEECH_API UVoiceToTextAsync final : public UAzSpeechRecognizerTaskBase
 {
 	GENERATED_BODY()
 
-	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
-	friend class FVoiceToTextDefaultTest;
-	friend class FVoiceToTextAutoTest;
-
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")

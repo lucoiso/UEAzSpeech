@@ -18,10 +18,6 @@ class AZSPEECH_API UTextToStreamAsync final : public UAzSpeechSynthesizerTaskBas
 {
 	GENERATED_BODY()
 
-	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
-	friend class FTextToStreamDefaultTest;
-	friend class FTextToStreamAutoTest;
-
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")

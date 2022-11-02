@@ -18,12 +18,6 @@ class AZSPEECH_API UTextToWavAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
-	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
-	friend class FTextToWavDefaultTest;
-	friend class FTextToWavAutoTest;
-	friend class FWavToTextDefaultTest;
-	friend class FWavToTextAutoTest;
-
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")

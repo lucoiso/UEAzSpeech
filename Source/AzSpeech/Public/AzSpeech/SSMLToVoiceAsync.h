@@ -18,9 +18,6 @@ class AZSPEECH_API USSMLToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
-	// Class used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
-	friend class FSSMLToVoiceTest;
-
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
