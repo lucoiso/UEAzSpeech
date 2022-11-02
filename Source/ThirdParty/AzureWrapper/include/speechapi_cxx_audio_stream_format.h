@@ -68,6 +68,27 @@ enum class AudioStreamContainerFormat
 };
 
 /// <summary>
+/// Represents the format specified inside WAV container.
+/// </summary>
+enum class AudioStreamWaveFormat
+{
+    /// <summary>
+    /// AudioStreamWaveFormat definition for PCM (pulse-code modulated) data in integer format.
+    /// </summary>
+    PCM = 0x0001,
+
+    /// <summary>
+    /// AudioStreamWaveFormat definition A-law-encoded format.
+    /// </summary>
+    ALAW = 0x0006,
+
+    /// <summary>
+    /// AudioStreamWaveFormat definition for Mu-law-encoded format.
+    /// </summary>
+    MULAW = 0x0007
+};
+
+/// <summary>
 /// Class to represent the audio stream format used for custom audio input configurations.
 /// Updated in version 1.5.0.
 /// </summary>
@@ -103,13 +124,30 @@ public:
     /// Creates an audio stream format object with the specified PCM waveformat characteristics.
     /// </summary>
     /// <param name="samplesPerSecond">Samples per second.</param>
-    /// <param name="bitsPerSample">Bits per second.</param>
-    /// <param name="channels">1.</param>
+    /// <param name="bitsPerSample">Bits per sample.</param>
+    /// <param name="channels">Number of channels in the waveform-audio data.</param>
+    /// <param name="waveFormat">The format specified inside the WAV container.</param>
+    /// <returns>A shared pointer to AudioStreamFormat</returns>
+    static std::shared_ptr<AudioStreamFormat> GetWaveFormat(uint32_t samplesPerSecond, uint8_t bitsPerSample, uint8_t channels, AudioStreamWaveFormat waveFormat)
+    {
+        SPXAUDIOSTREAMFORMATHANDLE hformat = SPXHANDLE_INVALID;
+        SPX_THROW_ON_FAIL(audio_stream_format_create_from_waveformat(&hformat, samplesPerSecond, bitsPerSample, channels, (Audio_Stream_Wave_Format)waveFormat));
+
+        auto format = new AudioStreamFormat(hformat);
+        return std::shared_ptr<AudioStreamFormat>(format);
+    }
+
+    /// <summary>
+    /// Creates an audio stream format object with the specified PCM waveformat characteristics.
+    /// </summary>
+    /// <param name="samplesPerSecond">Samples per second.</param>
+    /// <param name="bitsPerSample">Bits per sample.</param>
+    /// <param name="channels">Number of channels in the waveform-audio data.</param>
     /// <returns>A shared pointer to AudioStreamFormat</returns>
     static std::shared_ptr<AudioStreamFormat> GetWaveFormatPCM(uint32_t samplesPerSecond, uint8_t bitsPerSample = 16, uint8_t channels = 1)
     {
         SPXAUDIOSTREAMFORMATHANDLE hformat = SPXHANDLE_INVALID;
-        SPX_THROW_ON_FAIL(audio_stream_format_create_from_waveformat_pcm(&hformat, samplesPerSecond, bitsPerSample, channels));
+        SPX_THROW_ON_FAIL(audio_stream_format_create_from_waveformat(&hformat, samplesPerSecond, bitsPerSample, channels, Audio_Stream_Wave_Format::StreamWaveFormat_PCM));
 
         auto format = new AudioStreamFormat(hformat);
         return std::shared_ptr<AudioStreamFormat>(format);

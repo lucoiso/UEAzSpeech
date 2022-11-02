@@ -82,6 +82,7 @@ enum  PropertyId
     SpeechServiceResponse_JsonResult = 5000,
     SpeechServiceResponse_JsonErrorDetails = 5001,
     SpeechServiceResponse_RecognitionLatencyMs = 5002,
+    SpeechServiceResponse_RecognitionBackend = 5003,
 
     SpeechServiceResponse_SynthesisFirstByteLatencyMs = 5010,
     SpeechServiceResponse_SynthesisFinishLatencyMs = 5011,

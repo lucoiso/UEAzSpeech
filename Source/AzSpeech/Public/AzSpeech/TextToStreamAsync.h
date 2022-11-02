@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToStreamAsync.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>&, RecognizedStream);
@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToStreamAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API UTextToStreamAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
@@ -29,9 +29,14 @@ public:
 
 	virtual void Activate() override;
 
+protected:
+	virtual bool StartAzureTaskWork_Internal() override;
+
 private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;
 	FString LanguageID;
+	
+	std::vector<uint8_t> DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName);
 };

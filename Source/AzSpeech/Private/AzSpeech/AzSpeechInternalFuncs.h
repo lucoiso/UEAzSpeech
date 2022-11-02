@@ -15,7 +15,7 @@ using namespace Microsoft::CognitiveServices::Speech::Audio;
 
 namespace AzSpeech::Internal
 {
-	static std::map<int, std::string> GetAzSpeechKeys()
+	static const std::map<int, std::string> GetAzSpeechKeys()
 	{
 		std::map<int, std::string> Output;
 		const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>();
@@ -34,7 +34,27 @@ namespace AzSpeech::Internal
 		return Output;
 	}
 
-	static std::vector<std::string> GetCandidateLanguages()
+	static const bool CheckAzSpeechSettings()
+	{
+		const auto AzSpeechParams = GetAzSpeechKeys();
+		if (AzSpeechParams.empty())
+		{
+			return false;
+		}
+
+		for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
+		{
+			if (AzSpeechParams.at(Iterator).empty())
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s - Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	static const std::vector<std::string> GetCandidateLanguages()
 	{
 		std::vector<std::string> Output;
 
@@ -52,7 +72,7 @@ namespace AzSpeech::Internal
 		return Output;
 	}
 
-	static float GetTimeout()
+	static const float GetTimeout()
 	{
 		if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
 		{
@@ -62,7 +82,29 @@ namespace AzSpeech::Internal
 		return 15.f;
 	}
 
-	static FString GetLanguageID(const FString& InTestId = "Default")
+	static const ProfanityOption GetProfanityFilter()
+	{
+		if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
+		{
+			switch (Settings->ProfanityFilter)
+			{
+				case EAzSpeechProfanityFilter::Raw :
+					return ProfanityOption::Raw;
+
+				case EAzSpeechProfanityFilter::Removed:
+					return ProfanityOption::Removed;
+
+				case EAzSpeechProfanityFilter::Masked:
+					return ProfanityOption::Masked;
+					
+				default: break;
+			}
+		}
+
+		return ProfanityOption::Raw;
+	}
+
+	static const FString GetLanguageID(const FString& InTestId = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
 		if (InTestId.IsEmpty() || InTestId.Equals("Default", ESearchCase::IgnoreCase))
@@ -73,7 +115,7 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
-	static FString GetVoiceName(const FString& InTestId = "Default")
+	static const FString GetVoiceName(const FString& InTestId = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
 		if (InTestId.IsEmpty() || InTestId.Equals("Default", ESearchCase::IgnoreCase))
@@ -84,11 +126,39 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
+	static const FString GetAzSpeechLogsBaseDir()
+	{
+		return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+	}
+
+	static void EnableLogInConfiguration(const std::shared_ptr<SpeechConfig>& InConfig)
+	{
+		if (FString AzSpeechLogPath = GetAzSpeechLogsBaseDir();
+			FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*AzSpeechLogPath))
+		{
+			AzSpeechLogPath += "/UEAzSpeech " + FDateTime::Now().ToString() + ".log";
+
+			if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
+			{
+				InConfig->SetProperty(PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
+			}
+		}
+	}
+
 	static std::shared_ptr<SpeechSynthesizer> GetAzureSynthesizer(const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultSpeakerOutput(), const std::string& InLanguage = "Default", const std::string& InVoiceName = "Default")
 	{
+		if (!CheckAzSpeechSettings())
+		{
+			return nullptr;
+		}
+
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
-
+				
+		EnableLogInConfiguration(SpeechConfig);
+		
+		SpeechConfig->SetProfanity(GetProfanityFilter());
+		
 		if (FString(UTF8_TO_TCHAR(InLanguage.c_str())).Equals("Auto", ESearchCase::IgnoreCase))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing language auto detection..."), *FString(__func__));
@@ -98,7 +168,23 @@ namespace AzSpeech::Internal
 			return SpeechSynthesizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
 		}
 
-		if (InLanguage.empty() || InVoiceName.empty())
+		std::string UsedLang = InLanguage;
+		if (FString LangStr_UE = UTF8_TO_TCHAR(InLanguage.c_str());
+			LangStr_UE.Equals("Default", ESearchCase::IgnoreCase)
+			|| LangStr_UE.IsEmpty())
+		{
+			UsedLang = TCHAR_TO_UTF8(*GetLanguageID(LangStr_UE));
+		}
+
+		std::string UsedVoice = InVoiceName;
+		if (FString VoiceStr_UE = UTF8_TO_TCHAR(InVoiceName.c_str());
+			VoiceStr_UE.Equals("Default", ESearchCase::IgnoreCase)
+			|| VoiceStr_UE.IsEmpty())
+		{
+			UsedVoice = TCHAR_TO_UTF8(*GetVoiceName(VoiceStr_UE));
+		}
+
+		if (UsedVoice.empty() || UsedVoice.empty())
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Result: Invalid language or voice name"), *FString(__func__));
 			return nullptr;
@@ -107,18 +193,25 @@ namespace AzSpeech::Internal
 		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using language: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(InLanguage.c_str())));
 		SpeechConfig->SetSpeechSynthesisLanguage(InLanguage);
 
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using voice: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(InVoiceName.c_str())));
-		SpeechConfig->SetSpeechSynthesisVoiceName(InVoiceName);
+		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using voice: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedVoice.c_str())));
+		SpeechConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
 		return SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
 	static std::shared_ptr<SpeechRecognizer> GetAzureRecognizer(const std::shared_ptr<AudioConfig>& InAudioConfig = AudioConfig::FromDefaultMicrophoneInput(), const std::string& InLanguage = "Default")
 	{
+		if (!CheckAzSpeechSettings())
+		{
+			return nullptr;
+		}
+		
 		const auto Settings = GetAzSpeechKeys();
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 
-		SpeechConfig->SetProfanity(ProfanityOption::Raw);
+		EnableLogInConfiguration(SpeechConfig);
+
+		SpeechConfig->SetProfanity(GetProfanityFilter());
 
 		if (FString(UTF8_TO_TCHAR(InLanguage.c_str())).Equals("Auto", ESearchCase::IgnoreCase))
 		{
@@ -141,43 +234,164 @@ namespace AzSpeech::Internal
 			return SpeechRecognizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromLanguages(Candidates), InAudioConfig);
 		}
 
-		if (InLanguage.empty())
+		std::string UsedLang = InLanguage;
+		if (FString LangStr_UE = UTF8_TO_TCHAR(InLanguage.c_str());
+			LangStr_UE.Equals("Default", ESearchCase::IgnoreCase)
+			|| LangStr_UE.IsEmpty())
+		{
+			UsedLang = TCHAR_TO_UTF8(*GetLanguageID(LangStr_UE));
+		}
+
+		if (UsedLang.empty())
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Result: Invalid language"), *FString(__func__));
 			return nullptr;
 		}
 
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using language: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(InLanguage.c_str())));
+		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Using language: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedLang.c_str())));
 
-		SpeechConfig->SetSpeechRecognitionLanguage(InLanguage);
-		SpeechConfig->SetSpeechSynthesisLanguage(InLanguage);
+		SpeechConfig->SetSpeechRecognitionLanguage(UsedLang);
+		SpeechConfig->SetSpeechSynthesisLanguage(UsedLang);
 
 		return SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
-	static bool ProcessAzSpeechResult(const ResultReason& Result)
+	static const FString CancellationReasonToString(const CancellationReason& CancellationReason)
 	{
-		switch (Result)
+		switch (CancellationReason)
 		{
-		case ResultReason::Canceled:
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
-			return false;
+			case CancellationReason::Error:
+				return FString("Error");
 
-		case ResultReason::NoMatch:
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: NoMatch"), *FString(__func__));
-			return false;
+			case CancellationReason::EndOfStream:
+				return FString("EndOfStream");
 
-		case ResultReason::SynthesizingAudioCompleted:
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: SynthesizingAudioCompleted"), *FString(__func__));
-			return true;
+			case CancellationReason::CancelledByUser:
+				return FString("CancelledByUser");
 
-		case ResultReason::RecognizedSpeech:
+			default:
+				return FString("Undef");
+		}
+	}
+
+	static void ProcessCancellationError(const CancellationErrorCode& ErrorCode, const std::string& ErrorDetails)
+	{
+		FString ErrorCodeStr;
+		switch (ErrorCode)
+		{
+			case CancellationErrorCode::NoError:
+				ErrorCodeStr = "Error";
+				break;
+
+			case CancellationErrorCode::AuthenticationFailure:
+				ErrorCodeStr = "EndOfStream";
+				break;
+
+			case CancellationErrorCode::BadRequest:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::TooManyRequests:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::Forbidden:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ConnectionFailure:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceTimeout:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceError:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceUnavailable:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::RuntimeError:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceRedirectTemporary:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::ServiceRedirectPermanent:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			case CancellationErrorCode::EmbeddedModelError:
+				ErrorCodeStr = "CancelledByUser";
+				break;
+
+			default:
+				ErrorCodeStr = "Undef";
+				break;
+		}
+
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error code: %s"), *FString(__func__), *ErrorCodeStr);
+
+		const FString ErrorDetailsStr = UTF8_TO_TCHAR(ErrorDetails.c_str());
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Error Details: %s"), *FString(__func__), *ErrorDetailsStr);		
+		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Log generated in directory: %s"), *FString(__func__), *GetAzSpeechLogsBaseDir());
+	}
+
+	static const bool ProcessRecognitionResult(const std::shared_ptr<SpeechRecognitionResult>& Result)
+	{
+		if (Result->Reason == ResultReason::RecognizedSpeech)
+		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: RecognizedSpeech"), *FString(__func__));
 			return true;
+		}
+		else if (Result->Reason == ResultReason::Canceled)
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
+			const auto CancellationDetails = CancellationDetails::FromResult(Result);
 
-		default:
-			UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Cancellation Reason: %s"), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+
+			if (CancellationDetails->Reason == CancellationReason::Error)
+			{
+				ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
+			}
+
 			return false;
 		}
+
+		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+		return false;
+	}
+
+	static const bool ProcessSynthesizResult(const std::shared_ptr<SpeechSynthesisResult>& Result)
+	{
+		if (Result->Reason == ResultReason::SynthesizingAudioCompleted)
+		{
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: SynthesizingAudioCompleted"), *FString(__func__));
+			return true;
+		}
+		else if (Result->Reason == ResultReason::Canceled)
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));
+			const auto CancellationDetails = SpeechSynthesisCancellationDetails::FromResult(Result);
+
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Cancellation Reason: %s"), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+
+			if (CancellationDetails->Reason == CancellationReason::Error)
+			{
+				ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
+			}
+
+			return false;
+		}
+
+		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Undefined reason"), *FString(__func__));
+		return false;
 	}
 }

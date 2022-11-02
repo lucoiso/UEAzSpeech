@@ -19,7 +19,6 @@ namespace Speech {
 
 /// <summary>
 /// Class that defines hybrid (cloud and embedded) configurations for speech recognition or speech synthesis.
-/// This is currently a preview of the API. The functionality is not available in public releases.
 /// </summary>
 class HybridSpeechConfig
 {

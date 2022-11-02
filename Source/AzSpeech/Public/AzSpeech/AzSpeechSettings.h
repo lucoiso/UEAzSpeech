@@ -8,6 +8,14 @@
 #include "Engine/DeveloperSettings.h"
 #include "AzSpeechSettings.generated.h"
 
+UENUM(BlueprintType, Category = "AzSpeech")
+enum class EAzSpeechProfanityFilter : uint8
+{
+	Raw,
+	Masked,
+	Removed
+};
+
 /**
  * 
  */
@@ -30,6 +38,9 @@ public:
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Default Voice Name: To use if no value is specified"))
 	FString VoiceName;
+
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
+	EAzSpeechProfanityFilter ProfanityFilter;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
 	TArray<FString> AutoLanguageCandidates;

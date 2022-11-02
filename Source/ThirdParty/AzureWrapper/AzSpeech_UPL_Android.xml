@@ -19,9 +19,6 @@
         
         <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.lu.so"
                   dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.lu.so" />
-        
-        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so"
-                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so" />
     </resourceCopies>
     
     <soLoadLibrary>        
@@ -36,8 +33,5 @@
         
         <loadLibrary name="libMicrosoft.CognitiveServices.Speech.extension.lu"
                      failmsg="libMicrosoft.CognitiveServices.Speech.extension.lu library not loaded and may be required for AzSpeech." />
-        
-        <loadLibrary name="libMicrosoft.CognitiveServices.Speech.extension.silk_codec"
-                     failmsg="libMicrosoft.CognitiveServices.Speech.extension.silk_codec library not loaded and may be required for AzSpeech." />
     </soLoadLibrary>
 </root>
