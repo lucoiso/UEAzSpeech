@@ -15,7 +15,7 @@ using namespace Microsoft::CognitiveServices::Speech::Audio;
 
 namespace AzSpeech::Internal
 {
-	static std::map<int, std::string> GetAzSpeechKeys()
+	static const std::map<int, std::string> GetAzSpeechKeys()
 	{
 		std::map<int, std::string> Output;
 		const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>();
@@ -34,7 +34,7 @@ namespace AzSpeech::Internal
 		return Output;
 	}
 
-	static bool CheckAzSpeechSettings()
+	static const bool CheckAzSpeechSettings()
 	{
 		const auto AzSpeechParams = GetAzSpeechKeys();
 		if (AzSpeechParams.empty())
@@ -54,7 +54,7 @@ namespace AzSpeech::Internal
 		return true;
 	}
 
-	static std::vector<std::string> GetCandidateLanguages()
+	static const std::vector<std::string> GetCandidateLanguages()
 	{
 		std::vector<std::string> Output;
 
@@ -72,7 +72,7 @@ namespace AzSpeech::Internal
 		return Output;
 	}
 
-	static float GetTimeout()
+	static const float GetTimeout()
 	{
 		if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
 		{
@@ -82,7 +82,29 @@ namespace AzSpeech::Internal
 		return 15.f;
 	}
 
-	static FString GetLanguageID(const FString& InTestId = "Default")
+	static const ProfanityOption GetProfanityFilter()
+	{
+		if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
+		{
+			switch (Settings->ProfanityFilter)
+			{
+				case EAzSpeechProfanityFilter::Raw :
+					return ProfanityOption::Raw;
+
+				case EAzSpeechProfanityFilter::Removed:
+					return ProfanityOption::Removed;
+
+				case EAzSpeechProfanityFilter::Masked:
+					return ProfanityOption::Masked;
+					
+				default: break;
+			}
+		}
+
+		return ProfanityOption::Raw;
+	}
+
+	static const FString GetLanguageID(const FString& InTestId = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
 		if (InTestId.IsEmpty() || InTestId.Equals("Default", ESearchCase::IgnoreCase))
@@ -93,7 +115,7 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
-	static FString GetVoiceName(const FString& InTestId = "Default")
+	static const FString GetVoiceName(const FString& InTestId = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
 		if (InTestId.IsEmpty() || InTestId.Equals("Default", ESearchCase::IgnoreCase))
@@ -104,7 +126,7 @@ namespace AzSpeech::Internal
 		return InTestId;
 	}
 
-	static FString GetAzSpeechLogsBaseDir()
+	static const FString GetAzSpeechLogsBaseDir()
 	{
 		return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
 	}
@@ -134,6 +156,8 @@ namespace AzSpeech::Internal
 		const auto SpeechConfig = SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 				
 		EnableLogInConfiguration(SpeechConfig);
+		
+		SpeechConfig->SetProfanity(GetProfanityFilter());
 		
 		if (FString(UTF8_TO_TCHAR(InLanguage.c_str())).Equals("Auto", ESearchCase::IgnoreCase))
 		{
@@ -187,7 +211,7 @@ namespace AzSpeech::Internal
 
 		EnableLogInConfiguration(SpeechConfig);
 
-		SpeechConfig->SetProfanity(ProfanityOption::Raw);
+		SpeechConfig->SetProfanity(GetProfanityFilter());
 
 		if (FString(UTF8_TO_TCHAR(InLanguage.c_str())).Equals("Auto", ESearchCase::IgnoreCase))
 		{
@@ -232,7 +256,7 @@ namespace AzSpeech::Internal
 		return SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
-	static FString CancellationReasonToString(const CancellationReason& CancellationReason)
+	static const FString CancellationReasonToString(const CancellationReason& CancellationReason)
 	{
 		switch (CancellationReason)
 		{
@@ -319,7 +343,7 @@ namespace AzSpeech::Internal
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Log generated in directory: %s"), *FString(__func__), *GetAzSpeechLogsBaseDir());
 	}
 
-	static bool ProcessRecognitionResult(const std::shared_ptr<SpeechRecognitionResult>& Result)
+	static const bool ProcessRecognitionResult(const std::shared_ptr<SpeechRecognitionResult>& Result)
 	{
 		if (Result->Reason == ResultReason::RecognizedSpeech)
 		{
@@ -345,7 +369,7 @@ namespace AzSpeech::Internal
 		return false;
 	}
 
-	static bool ProcessSynthesizResult(const std::shared_ptr<SpeechSynthesisResult>& Result)
+	static const bool ProcessSynthesizResult(const std::shared_ptr<SpeechSynthesisResult>& Result)
 	{
 		if (Result->Reason == ResultReason::SynthesizingAudioCompleted)
 		{
