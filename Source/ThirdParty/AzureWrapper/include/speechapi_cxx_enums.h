@@ -403,6 +403,12 @@ enum class PropertyId
     SpeechServiceResponse_RecognitionLatencyMs = 5002,
 
     /// <summary>
+    /// The recognition backend. Read-only, available on speech recognition results.
+    /// This indicates whether cloud (online) or embedded (offline) recognition was used to produce the result.
+    /// </summary>
+    SpeechServiceResponse_RecognitionBackend = 5003,
+
+    /// <summary>
     /// The speech synthesis first byte latency in milliseconds. Read-only, available on final speech synthesis results.
     /// This measures the latency between when the synthesis is started to be processed, and the moment the first byte audio is available.
     /// Added in version 1.17.0.
@@ -1197,7 +1203,14 @@ enum class SpeechSynthesisOutputFormat
     /// PCM audio at 44100Hz sampling rate and 16-bit depth, with RIFF header.
     /// (Added in 1.22.0)
     /// </summary>
-    Riff44100Hz16BitMonoPcm = 37
+    Riff44100Hz16BitMonoPcm = 37,
+
+    /// <summary>
+    /// amr-wb-16000hz
+    /// AMR-WB audio at 16kHz sampling rate.
+    /// (Added in 1.24.0)
+    /// </summary>
+    AmrWb16000Hz = 38
 };
 
 /// <summary>
@@ -1260,18 +1273,18 @@ namespace Transcription
         /// <summary>
         /// Participant has joined the conversation
         /// </summary>
-        JoinedConversation,
+        JoinedConversation = 0,
 
         /// <summary>
         /// Participant has left the conversation. This could be voluntary, or involuntary
         /// (e.g. they are experiencing networking issues)
         /// </summary>
-        LeftConversation,
+        LeftConversation = 1,
 
         /// <summary>
         /// The participants' state has changed (e.g. they became muted, changed their nickname)
         /// </summary>
-        Updated
+        Updated = 2
     };
 }
 
@@ -1440,17 +1453,17 @@ enum class SynthesisVoiceGender
     /// <summary>
     /// Gender unknown.
     /// </summary>
-    Unknown,
+    Unknown = 0,
 
     /// <summary>
     /// Female voice
     /// </summary>
-    Female,
+    Female = 1,
 
     /// <summary>
     /// Male voice
     /// </summary>
-    Male
+    Male = 2
 };
 
 /// <summary>
@@ -1462,17 +1475,17 @@ enum class SpeechSynthesisBoundaryType
     /// <summary>
     /// Word boundary
     /// </summary>
-    Word,
+    Word = 0,
 
     /// <summary>
     /// Punctuation boundary
     /// </summary>
-    Punctuation,
+    Punctuation = 1,
 
     /// <summary>
     /// Sentence boundary
     /// </summary>
-    Sentence
+    Sentence = 2
 };
 
 } } } // Microsoft::CognitiveServices::Speech

@@ -6,6 +6,7 @@
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 #if ENGINE_MAJOR_VERSION < 5
 #include "GenericPlatform/GenericPlatformProcess.h"
@@ -26,8 +27,12 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkCodecRuntimeLib);
 #endif
+
+	if (FPaths::DirectoryExists(AzSpeech::Internal::GetAzSpeechLogsBaseDir()))
+	{
+		IFileManager::Get().DeleteDirectory(*AzSpeech::Internal::GetAzSpeechLogsBaseDir(), true, true);
+	}
 }
 
 void FAzSpeechModule::ShutdownModule()
@@ -38,7 +43,6 @@ void FAzSpeechModule::ShutdownModule()
 	FreeDependency(LuRuntimeLib);
 	FreeDependency(MasRuntimeLib);
 	FreeDependency(CodecRuntimeLib);
-	FreeDependency(SilkCodecRuntimeLib);
 }
 
 void FAzSpeechModule::FreeDependency(void*& Handle)

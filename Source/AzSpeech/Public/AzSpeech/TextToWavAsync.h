@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToWavAsync.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, OutputValue);
@@ -14,9 +14,15 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, Outp
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToWavAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API UTextToWavAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
+
+	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
+	friend class FTextToWavDefaultTest;
+	friend class FTextToWavAutoTest;
+	friend class FWavToTextDefaultTest;
+	friend class FWavToTextAutoTest;
 
 public:
 	/* Task delegate that will be called when completed */
@@ -29,6 +35,9 @@ public:
 
 	virtual void Activate() override;
 
+protected:
+	virtual bool StartAzureTaskWork_Internal() override;
+
 private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
@@ -36,4 +45,6 @@ private:
 	FString FilePath;
 	FString FileName;
 	FString LanguageID;
+	
+	bool DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName, const std::string& InFilePath);
 };

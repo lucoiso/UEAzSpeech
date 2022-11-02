@@ -36,7 +36,7 @@ public:
     /// <summary>
     /// Set value of a property.
     /// </summary>
-    /// <param name="propertyID">The id of property. See <see cref="PropertyId"/></param>
+    /// <param name="propertyID">The id of the property. See <see cref="PropertyId"/></param>
     /// <param name="value">value to set</param>
     void SetProperty(PropertyId propertyID, const SPXSTRING& value)
     {
@@ -57,7 +57,7 @@ public:
     /// Returns value of a property.
     /// If the property value is not defined, the specified default value is returned.
     /// </summary>
-    /// <param name="propertyID">The id of property. See <see cref="PropertyId"/></param>
+    /// <param name="propertyID">The id of the property. See <see cref="PropertyId"/></param>
     /// <param name="defaultValue">The default value which is returned if no value is defined for the property (empty string by default).</param>
     /// <returns>value of the property.</returns>
     SPXSTRING GetProperty(PropertyId propertyID, const SPXSTRING& defaultValue = SPXSTRING()) const
@@ -70,7 +70,7 @@ public:
     /// Returns value of a property.
     /// If the property value is not defined, the specified default value is returned.
     /// </summary>
-    /// <param name="propertyName">The name of property.</param>
+    /// <param name="propertyName">The name of the property.</param>
     /// <param name="defaultValue">The default value which is returned if no value is defined for the property (empty string by default).</param>
     /// <returns>value of the property.</returns>
     SPXSTRING GetProperty(const SPXSTRING& propertyName, const SPXSTRING& defaultValue = SPXSTRING()) const

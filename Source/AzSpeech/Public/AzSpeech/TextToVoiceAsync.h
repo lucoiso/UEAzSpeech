@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToVoiceAsync.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, OutputValue);
@@ -14,9 +14,13 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, Ou
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToVoiceAsync final : public UBlueprintAsyncActionBase
+class AZSPEECH_API UTextToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
+
+	// Classes used for testing: https://github.com/lucoiso/UEAzSpeech_Tests
+	friend class FTextToVoiceDefaultTest;
+	friend class FTextToVoiceAutoTest;
 
 public:
 	/* Task delegate that will be called when completed */
@@ -29,9 +33,14 @@ public:
 
 	virtual void Activate() override;
 
+protected:
+	virtual bool StartAzureTaskWork_Internal() override;
+
 private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;
 	FString LanguageID;
+	
+	bool DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName);
 };
