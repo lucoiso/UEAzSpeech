@@ -19,7 +19,7 @@ enum class EAzSpeechProfanityFilter : uint8
 /**
  * 
  */
-UCLASS(Config=Game, DefaultConfig, meta = (DisplayName="AzSpeech Settings"))
+UCLASS(Config=Game, DefaultConfig, meta = (DisplayName="AzSpeech"))
 class AZSPEECH_API UAzSpeechSettings final : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -27,25 +27,25 @@ class AZSPEECH_API UAzSpeechSettings final : public UDeveloperSettings
 public:
 	explicit UAzSpeechSettings(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK API Access Key"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK API Access Key"))
 	FString APIAccessKey;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Region ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Region ID"))
 	FString RegionID;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Default Language ID: To use if no value is specified"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Default Language ID: To use if no value is specified"))
 	FString LanguageID;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Default Voice Name: To use if no value is specified"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Default Voice Name: To use if no value is specified"))
 	FString VoiceName;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
 	EAzSpeechProfanityFilter ProfanityFilter;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
 	TArray<FString> AutoLanguageCandidates;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Time limit in seconds to wait for related asynchronous tasks to complete"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Time limit in seconds to wait for related asynchronous tasks to complete"))
 	float TimeOutInSeconds;
 
 private:

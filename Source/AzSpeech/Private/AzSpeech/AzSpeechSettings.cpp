@@ -10,6 +10,8 @@
 
 UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(15.f)
 {
+	CategoryName = TEXT("Plugins");
+
 #if ENGINE_MAJOR_VERSION >= 5
 	if (AutoLanguageCandidates.IsEmpty())
 #else

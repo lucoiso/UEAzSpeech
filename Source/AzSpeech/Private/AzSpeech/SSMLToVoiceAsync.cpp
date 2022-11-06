@@ -51,7 +51,7 @@ bool USSMLToVoiceAsync::StartAzureTaskWork_Internal()
 		}
 
 		const bool bOutputValue = SSMLToVoiceAsyncWork.Get();
-		AsyncTask(ENamedThreads::GameThread, [=]() { TaskCompleted.Broadcast(bOutputValue); });
+		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(bOutputValue); } });
 
 		if (bOutputValue)
 		{
@@ -75,6 +75,8 @@ bool USSMLToVoiceAsync::DoAzureTaskWork_Internal(const std::string& InSSML)
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
+
+	CheckAndAddViseme();
 
 	const auto SynthesisResult = SynthesizerObject->SpeakSsmlAsync(InSSML).get();
 

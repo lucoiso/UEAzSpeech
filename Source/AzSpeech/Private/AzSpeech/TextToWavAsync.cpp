@@ -70,7 +70,7 @@ bool UTextToWavAsync::StartAzureTaskWork_Internal()
 		}
 
 		const bool bOutputValue = TextToWavAsyncWork.Get();
-		AsyncTask(ENamedThreads::GameThread, [=]() { TaskCompleted.Broadcast(bOutputValue); });
+		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(bOutputValue); } });
 
 		if (bOutputValue)
 		{
@@ -95,6 +95,8 @@ bool UTextToWavAsync::DoAzureTaskWork_Internal(const std::string& InStr, const s
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
+
+	CheckAndAddViseme();
 
 	const auto SynthesisResult = SynthesizerObject->SpeakTextAsync(InStr).get();
 

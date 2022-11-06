@@ -68,7 +68,7 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 		}
 
 		const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
-		AsyncTask(ENamedThreads::GameThread, [=]() { TaskCompleted.Broadcast(OutputValue); });
+		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputValue); } });
 
 		if (!OutputValue.IsEmpty())
 		{

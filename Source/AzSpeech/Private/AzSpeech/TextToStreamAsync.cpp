@@ -64,7 +64,7 @@ bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 			OutputArr.Add(static_cast<uint8>(i));
 		}
 
-		AsyncTask(ENamedThreads::GameThread, [=]() { TaskCompleted.Broadcast(OutputArr); });
+		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputArr); } });
 
 		if (bOutputValue)
 		{
@@ -89,6 +89,8 @@ std::vector<uint8_t> UTextToStreamAsync::DoAzureTaskWork_Internal(const std::str
 		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return std::vector<uint8_t>();
 	}
+
+	CheckAndAddViseme();
 
 	if (const auto SynthesisResult = SynthesizerObject->SpeakTextAsync(InStr).get();
 		AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult))

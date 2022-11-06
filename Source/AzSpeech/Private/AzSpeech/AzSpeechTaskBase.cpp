@@ -16,3 +16,8 @@ bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
 {
 	return AzSpeech::Internal::CheckAzSpeechSettings();
 }
+
+bool UAzSpeechTaskBase::CanBroadcast() const
+{
+	return IsValid(this) && IsValid(GetWorld());
+}

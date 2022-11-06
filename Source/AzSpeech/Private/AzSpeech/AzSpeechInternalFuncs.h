@@ -18,7 +18,7 @@ namespace AzSpeech::Internal
 	static const std::map<int, std::string> GetAzSpeechKeys()
 	{
 		std::map<int, std::string> Output;
-		const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>();
+		static const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>();
 
 		const auto UpdateSettingsMap = [&Output](const int& InId, const FString& InString)
 		{

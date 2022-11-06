@@ -21,4 +21,6 @@ public:
 
 protected:
 	virtual bool StartAzureTaskWork_Internal();
+
+	virtual bool CanBroadcast() const;
 };
