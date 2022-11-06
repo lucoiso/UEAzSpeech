@@ -51,9 +51,7 @@ class UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
 
 public:	
 	virtual void Activate() override;
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
-	virtual void StopAzSpeechTask();
+	virtual void StopAzSpeechTask() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;
@@ -73,9 +71,5 @@ protected:
 	void OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs);
 
 private:
-#if WITH_EDITOR
-	void OnEndPIE(const bool bIsSimulating);
-#endif
-
 	FAzSpeechVisemeData LastVisemeData;
 };

@@ -8,7 +8,7 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "SSMLToWavAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToWavDelegate, const bool, OutputValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToWavDelegate, const bool, Success);
 
 /**
  *

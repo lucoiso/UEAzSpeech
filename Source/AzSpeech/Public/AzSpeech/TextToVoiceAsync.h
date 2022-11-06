@@ -8,7 +8,7 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToVoiceAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, OutputValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, Success);
 
 /**
  *

@@ -12,11 +12,12 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #endif
 
-UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId)
+UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId, const bool bContinuosRecognition)
 {
 	UVoiceToTextAsync* const VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
 	VoiceToTextAsync->WorldContextObject = WorldContextObject;
 	VoiceToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	VoiceToTextAsync->bContinuousRecognition = bContinuosRecognition;
 
 	return VoiceToTextAsync;
 }
@@ -61,7 +62,11 @@ bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
 		}
 
 		const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputValue); } });
+
+		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION"))
+		{
+			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputValue); } });
+		}
 
 		if (!OutputValue.IsEmpty())
 		{
@@ -87,10 +92,17 @@ std::string UVoiceToTextAsync::DoAzureTaskWork_Internal(const std::string& InLan
 		return std::string();
 	}
 
-	if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
-		AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
+	if (!bContinuousRecognition)
 	{
-		return RecognitionResult->Text;
+		if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
+			AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
+		{
+			return RecognitionResult->Text;
+		}
+	}
+	else
+	{			
+		return StartContinuousRecognition();
 	}
 
 	return std::string();

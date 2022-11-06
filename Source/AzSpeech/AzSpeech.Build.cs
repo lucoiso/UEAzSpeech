@@ -34,14 +34,14 @@ public class AzSpeech : ModuleRules
 				"Projects",
 				"AndroidPermission",
 				"DeveloperSettings"
-            }
+			}
 		);
 
 		if (Target.Type == TargetType.Editor)
-        {
+		{
 			PrivateDependencyModuleNames.Add("UnrealEd");
 		}
 
-        PrivateIncludePathModuleNames.Add("DesktopPlatform");
-    }
+		PrivateIncludePathModuleNames.Add("DesktopPlatform");
+	}
 }

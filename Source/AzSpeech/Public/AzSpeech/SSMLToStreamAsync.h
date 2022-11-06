@@ -8,7 +8,7 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "SSMLToStreamAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToStreamDelegate, const TArray<uint8>&, RecognizedStream);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSSMLToStreamDelegate, const TArray<uint8>, RecognizedStream);
 
 /**
  *

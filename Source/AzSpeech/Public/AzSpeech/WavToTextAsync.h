@@ -8,8 +8,6 @@
 #include "AzSpeech/AzSpeechRecognizerTaskBase.h"
 #include "WavToTextAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, RecognizedString);
-
 /**
  *
  */
@@ -19,13 +17,9 @@ class AZSPEECH_API UWavToTextAsync final : public UAzSpeechRecognizerTaskBase
 	GENERATED_BODY()
 
 public:
-	/* Task delegate that will be called when completed */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FWavToTextDelegate TaskCompleted;
-
 	/* Creates a Wav-To-Text task that will convert your Wav file to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "WAV To Text"))
-	static UWavToTextAsync* WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId = "Default");
+	static UWavToTextAsync* WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId = "Default", const bool bContinuosRecognition = false);
 
 	virtual void Activate() override;
 

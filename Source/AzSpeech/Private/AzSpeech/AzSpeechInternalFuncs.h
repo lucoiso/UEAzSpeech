@@ -350,6 +350,11 @@ namespace AzSpeech::Internal
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task completed. Reason: RecognizedSpeech"), *FString(__func__));
 			return true;
 		}
+		else if (Result->Reason == ResultReason::RecognizingSpeech)
+		{
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Task running. Reason: RecognizingSpeech"), *FString(__func__));
+			return true;
+		}
 		else if (Result->Reason == ResultReason::Canceled)
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task failed. Reason: Canceled"), *FString(__func__));

@@ -8,7 +8,7 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToStreamAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>&, RecognizedStream);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>, RecognizedStream);
 
 /**
  *

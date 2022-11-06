@@ -9,13 +9,14 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 
-UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId)
+UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
 {
 	UWavToTextAsync* const WavToTextAsync = NewObject<UWavToTextAsync>();
 	WavToTextAsync->WorldContextObject = WorldContextObject;
 	WavToTextAsync->FilePath = FilePath;
 	WavToTextAsync->FileName = FileName;
 	WavToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	WavToTextAsync->bContinuousRecognition = bContinuosRecognition;
 
 	return WavToTextAsync;
 }
@@ -68,7 +69,11 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 		}
 
 		const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputValue); } });
+
+		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION"))
+		{
+			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputValue); } });
+		}
 
 		if (!OutputValue.IsEmpty())
 		{

@@ -8,7 +8,7 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToWavAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, OutputValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, Success);
 
 /**
  *

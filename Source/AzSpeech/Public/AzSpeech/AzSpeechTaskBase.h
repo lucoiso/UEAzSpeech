@@ -19,8 +19,16 @@ class UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 public:
 	virtual void Activate() override;
 
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
+	virtual void StopAzSpeechTask();
+
 protected:
 	virtual bool StartAzureTaskWork_Internal();
 
 	virtual bool CanBroadcast() const;
+
+private:
+#if WITH_EDITOR
+	void OnEndPIE(const bool bIsSimulating);
+#endif
 };

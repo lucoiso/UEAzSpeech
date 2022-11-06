@@ -6,26 +6,14 @@
 #include "AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
-#if WITH_EDITOR
-#include "Editor.h"
-#endif
-
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
 	Super::Activate();
-
-#if WITH_EDITOR
-	FEditorDelegates::EndPIE.AddUObject(this, &UAzSpeechSynthesizerTaskBase::OnEndPIE);
-#endif
 }
 
 void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
-{
-#if WITH_EDITOR
-	FEditorDelegates::EndPIE.RemoveAll(this);
-#endif
-
-	UE_LOG(LogAzSpeech, Display, TEXT("%s - Finishing AzSpeech Task"), *FString(__func__));
+{	
+	Super::StopAzSpeechTask();
 
 	if (!SynthesizerObject)
 	{
@@ -37,6 +25,8 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 	{
 		const TFuture<void> StopTaskWork = Async(EAsyncExecution::Thread, [=]() -> void
 		{
+			VisemeReceived.RemoveAll(this);
+	
 			return SynthesizerObject->StopSpeakingAsync().get();
 		});
 
@@ -44,7 +34,7 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 
 		if (IsValid(this))
 		{
-			AsyncTask(ENamedThreads::GameThread, [this] {  SetReadyToDestroy(); });
+			AsyncTask(ENamedThreads::GameThread, [this] { SetReadyToDestroy(); });
 		}
 	});
 }
@@ -82,6 +72,11 @@ void UAzSpeechSynthesizerTaskBase::CheckAndAddViseme()
 
 void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 {
+	if (!CanBroadcast())
+	{
+		return;
+	}
+	
 	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Id: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
 	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Audio Offset: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.AudioOffset));
 
@@ -91,10 +86,3 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveSe
 	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, VisemeEventArgs.AudioOffset, VisemeAnimation_UEStr);
 	VisemeReceived.Broadcast(LastVisemeData);
 }
-
-#if WITH_EDITOR
-void UAzSpeechSynthesizerTaskBase::OnEndPIE([[maybe_unused]] const bool bIsSimulating)
-{
-	StopAzSpeechTask();
-}
-#endif
