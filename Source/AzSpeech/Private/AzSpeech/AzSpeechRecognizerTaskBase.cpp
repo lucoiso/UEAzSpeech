@@ -25,8 +25,8 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 	{
 		const TFuture<void> StopTaskWork = Async(EAsyncExecution::Thread, [=]() -> void
 		{
-			TaskCompleted.RemoveAll(this);
-			ContinuousRecognitionUpdated.RemoveAll(this);
+			RecognitionCompleted.RemoveAll(this);
+			RecognitionUpdated.RemoveAll(this);
 			
 			return RecognizerObject->StopContinuousRecognitionAsync().get();
 		});
@@ -90,7 +90,7 @@ bool UAzSpeechRecognizerTaskBase::StartAzureTaskWork_Internal()
 
 std::string UAzSpeechRecognizerTaskBase::StartContinuousRecognition()
 {
-	if (ContinuousRecognitionUpdated.IsBound() || TaskCompleted.IsBound())
+	if (RecognitionUpdated.IsBound() || RecognitionCompleted.IsBound())
 	{
 		RecognizerObject->Recognizing.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 		{
@@ -118,12 +118,12 @@ void UAzSpeechRecognizerTaskBase::OnContinuousRecognitionUpdated(const Microsoft
 		if (RecognitionResult->Reason == ResultReason::RecognizingSpeech)
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - Continuous Recognition Updated: Recognized String: %s"), *GetLastRecognizedString());
-			ContinuousRecognitionUpdated.Broadcast(GetLastRecognizedString());		
+			RecognitionUpdated.Broadcast(GetLastRecognizedString());		
 		}
 		else if (RecognitionResult->Reason == ResultReason::RecognizedSpeech)
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - Continuous Recognition Completed: Recognized String: %s"), *GetLastRecognizedString());
-			TaskCompleted.Broadcast(GetLastRecognizedString());			
+			RecognitionCompleted.Broadcast(GetLastRecognizedString());
 		}
 	}
 	else

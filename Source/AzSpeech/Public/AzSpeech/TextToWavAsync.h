@@ -8,8 +8,6 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToWavAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, Success);
-
 /**
  *
  */
@@ -21,7 +19,7 @@ class AZSPEECH_API UTextToWavAsync final : public UAzSpeechSynthesizerTaskBase
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FTextToWavDelegate TaskCompleted;
+	FBooleanSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To WAV"))

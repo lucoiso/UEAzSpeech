@@ -8,8 +8,6 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToVoiceAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, Success);
-
 /**
  *
  */
@@ -21,7 +19,7 @@ class AZSPEECH_API UTextToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FTextToVoiceDelegate TaskCompleted;
+	FBooleanSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a Text-To-Voice task that will convert your text to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))

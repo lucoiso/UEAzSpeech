@@ -8,8 +8,6 @@
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
 #include "TextToStreamAsync.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>, RecognizedStream);
-
 /**
  *
  */
@@ -21,7 +19,7 @@ class AZSPEECH_API UTextToStreamAsync final : public UAzSpeechSynthesizerTaskBas
 public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FTextToStreamDelegate TaskCompleted;
+	FStreamSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a Text-To-Stream task that will convert your text to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))

@@ -56,7 +56,7 @@ bool UTextToVoiceAsync::StartAzureTaskWork_Internal()
 		}
 
 		const bool bOutputValue = TextToVoiceAsyncWork.Get();
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(bOutputValue); } });
+		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { SynthesisCompleted.Broadcast(bOutputValue); } });
 
 		if (bOutputValue)
 		{

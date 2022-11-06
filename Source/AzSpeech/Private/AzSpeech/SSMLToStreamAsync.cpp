@@ -59,7 +59,7 @@ bool USSMLToStreamAsync::StartAzureTaskWork_Internal()
 			OutputArr.Add(static_cast<uint8>(i));
 		}
 
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputArr); } });
+		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { SynthesisCompleted.Broadcast(OutputArr); } });
 
 		if (bOutputValue)
 		{

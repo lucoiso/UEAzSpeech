@@ -72,7 +72,7 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 
 		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION"))
 		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { TaskCompleted.Broadcast(OutputValue); } });
+			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionCompleted.Broadcast(OutputValue); } });
 		}
 
 		if (!OutputValue.IsEmpty())

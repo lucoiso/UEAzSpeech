@@ -40,6 +40,8 @@ struct FAzSpeechVisemeData
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVisemeReceived, const FAzSpeechVisemeData, VisemeData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStreamSynthesisDelegate, const TArray<uint8>, RecognizedStream);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBooleanSynthesisDelegate, const bool, Success);
 
 /**
  *
