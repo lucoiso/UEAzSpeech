@@ -38,7 +38,7 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 			{
 				UE_LOG(LogAzSpeech, Display, TEXT("%s - Trying to stop current recognizer task..."), *FString(FuncName));
 				
-				switch (RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::duration<float>(AzSpeech::Internal::GetTimeout())))
+				switch (RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout())))
 				{
 					case std::future_status::ready :
 						UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Ready"), *FString(FuncName));

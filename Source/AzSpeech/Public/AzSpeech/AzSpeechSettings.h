@@ -46,7 +46,7 @@ public:
 	TArray<FString> AutoLanguageCandidates;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Time limit in seconds to wait for related asynchronous tasks to complete"))
-	float TimeOutInSeconds;
+	int32 TimeOutInSeconds;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))

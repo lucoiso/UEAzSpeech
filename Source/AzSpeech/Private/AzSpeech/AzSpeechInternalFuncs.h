@@ -78,7 +78,7 @@ namespace AzSpeech::Internal
 		return Output;
 	}
 
-	const float GetTimeout()
+	const int32 GetTimeout()
 	{
 		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
 		{
