@@ -11,14 +11,14 @@
 
 UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
 {
-	UWavToTextAsync* const WavToTextAsync = NewObject<UWavToTextAsync>();
-	WavToTextAsync->WorldContextObject = WorldContextObject;
-	WavToTextAsync->FilePath = FilePath;
-	WavToTextAsync->FileName = FileName;
-	WavToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
-	WavToTextAsync->bContinuousRecognition = bContinuosRecognition;
+	UWavToTextAsync* const NewAsyncTask = NewObject<UWavToTextAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->FilePath = FilePath;
+	NewAsyncTask->FileName = FileName;
+	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
 
-	return WavToTextAsync;
+	return NewAsyncTask;
 }
 
 void UWavToTextAsync::Activate()
@@ -39,18 +39,18 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 
 	if (FilePath.IsEmpty() || FileName.IsEmpty() || LanguageID.IsEmpty())
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
 	const FString QualifiedPath = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*QualifiedPath))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: File not found"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: File not found"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, QualifiedPath, this]
 	{
@@ -64,24 +64,23 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 
 		if (!WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
 			return;
 		}
 
-		const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());
-
-		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION"))
+		const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());		
+		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION") && CanBroadcast())
 		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionCompleted.Broadcast(OutputValue); } });
+			AsyncTask(ENamedThreads::GameThread, [=]() { RecognitionCompleted.Broadcast(OutputValue); });
 		}
 
 		if (!OutputValue.IsEmpty())
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s"), *FString(FuncName), *OutputValue);
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: %s"), *FString(FuncName), *OutputValue);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
 		}
 	});
 
@@ -95,14 +94,21 @@ std::string UWavToTextAsync::DoAzureTaskWork_Internal(const std::string& InFileP
 
 	if (RecognizerObject == nullptr)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
 		return std::string();
 	}
 
-	if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
-		AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
+	if (!bContinuousRecognition)
 	{
-		return RecognitionResult->Text;
+		if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
+			AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
+		{
+			return RecognitionResult->Text;
+		}
+	}
+	else
+	{
+		return StartContinuousRecognition();
 	}
 
 	return std::string();

@@ -66,10 +66,11 @@ public:
 	
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
+	virtual void SetReadyToDestroy() override;
 	
 	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 
-	void CheckAndAddViseme();
+	void EnableVisemeOutput();
 	void OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs);
 
 private:

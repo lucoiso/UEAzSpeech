@@ -14,12 +14,12 @@
 
 UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId, const bool bContinuosRecognition)
 {
-	UVoiceToTextAsync* const VoiceToTextAsync = NewObject<UVoiceToTextAsync>();
-	VoiceToTextAsync->WorldContextObject = WorldContextObject;
-	VoiceToTextAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
-	VoiceToTextAsync->bContinuousRecognition = bContinuosRecognition;
+	UVoiceToTextAsync* const NewAsyncTask = NewObject<UVoiceToTextAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
 
-	return VoiceToTextAsync;
+	return NewAsyncTask;
 }
 
 void UVoiceToTextAsync::Activate()
@@ -40,11 +40,11 @@ bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
 
 	if (LanguageID.IsEmpty())
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
 	{
@@ -57,24 +57,23 @@ bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
 
 		if (!VoiceToTextAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
 			return;
 		}
 
 		const FString OutputValue = UTF8_TO_TCHAR(VoiceToTextAsyncWork.Get().c_str());
-
-		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION"))
+		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION") && CanBroadcast())
 		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionCompleted.Broadcast(OutputValue); } });
+			AsyncTask(ENamedThreads::GameThread, [=]() { RecognitionCompleted.Broadcast(OutputValue); });
 		}
 
 		if (!OutputValue.IsEmpty())
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: %s"), *FString(FuncName), *OutputValue);
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: %s"), *FString(FuncName), *OutputValue);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
 		}
 	});
 
@@ -88,7 +87,7 @@ std::string UVoiceToTextAsync::DoAzureTaskWork_Internal(const std::string& InLan
 
 	if (RecognizerObject == nullptr)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
 		return std::string();
 	}
 

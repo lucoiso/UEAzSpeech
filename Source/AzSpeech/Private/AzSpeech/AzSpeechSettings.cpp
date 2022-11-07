@@ -8,7 +8,7 @@
 #include "Misc/MessageDialog.h"
 #endif // WITH_EDITOR
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(15.f)
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(15.f), bEnableSDKLogs(true), bEnableViseme(true)
 {
 	CategoryName = TEXT("Plugins");
 

@@ -10,13 +10,13 @@
 
 USSMLToWavAsync* USSMLToWavAsync::SSMLToWav(const UObject* WorldContextObject, const FString& SSMLString, const FString& FilePath, const FString& FileName)
 {
-	USSMLToWavAsync* const TextToWavAsync = NewObject<USSMLToWavAsync>();
-	TextToWavAsync->WorldContextObject = WorldContextObject;
-	TextToWavAsync->SSMLString = SSMLString;
-	TextToWavAsync->FilePath = FilePath;
-	TextToWavAsync->FileName = FileName;
+	USSMLToWavAsync* const NewAsyncTask = NewObject<USSMLToWavAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->SSMLString = SSMLString;
+	NewAsyncTask->FilePath = FilePath;
+	NewAsyncTask->FileName = FileName;
 
-	return TextToWavAsync;
+	return NewAsyncTask;
 }
 
 void USSMLToWavAsync::Activate()
@@ -37,17 +37,17 @@ bool USSMLToWavAsync::StartAzureTaskWork_Internal()
 
 	if (SSMLString.IsEmpty() || FilePath.IsEmpty() || FileName.IsEmpty())
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
 	if (!UAzSpeechHelper::CreateNewDirectory(FilePath))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to create directory"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to create directory"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
 	{
@@ -61,19 +61,23 @@ bool USSMLToWavAsync::StartAzureTaskWork_Internal()
 
 		if (!SSMLToWavAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
 		}
 
 		const bool bOutputValue = SSMLToWavAsyncWork.Get();
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { SynthesisCompleted.Broadcast(bOutputValue); } });
+
+		if (CanBroadcast())
+		{
+			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(bOutputValue); });
+		}
 
 		if (bOutputValue)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
 		}
 	});
 	
@@ -87,13 +91,13 @@ bool USSMLToWavAsync::DoAzureTaskWork_Internal(const std::string& InSSML, const 
 
 	if (!SynthesizerObject)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
 	
-	CheckAndAddViseme();
+	EnableVisemeOutput();
 
-	const auto SynthesisResult = SynthesizerObject->SpeakSsmlAsync(InSSML).get();
+	const auto SynthesisResult = SynthesizerObject->StartSpeakingSsmlAsync(InSSML).get();
 
-	return AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult);
+	return AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult);
 }

@@ -32,11 +32,11 @@ bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 	
 	if (TextToConvert.IsEmpty() || VoiceName.IsEmpty() || LanguageID.IsEmpty())
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
 	{
@@ -51,7 +51,7 @@ bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 
 		if (!TextToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
 			return;
 		}
 
@@ -63,16 +63,19 @@ bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 		{
 			OutputArr.Add(static_cast<uint8>(i));
 		}
-
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { SynthesisCompleted.Broadcast(OutputArr); } });
+		
+		if (CanBroadcast())
+		{
+			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(OutputArr); });
+		}
 
 		if (bOutputValue)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
 		}
 	});
 
@@ -86,14 +89,14 @@ std::vector<uint8_t> UTextToStreamAsync::DoAzureTaskWork_Internal(const std::str
 
 	if (!SynthesizerObject)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return std::vector<uint8_t>();
 	}
 
-	CheckAndAddViseme();
+	EnableVisemeOutput();
 
-	if (const auto SynthesisResult = SynthesizerObject->SpeakTextAsync(InStr).get();
-		AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult))
+	if (const auto SynthesisResult = SynthesizerObject->StartSpeakingTextAsync(InStr).get();
+		AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult))
 	{
 		return *SynthesisResult->GetAudioData().get();
 	}

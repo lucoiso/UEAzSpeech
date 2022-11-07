@@ -8,6 +8,8 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "AzSpeechTaskBase.generated.h"
 
+struct FDeviceId;
+
 /**
  *
  */
@@ -26,9 +28,12 @@ protected:
 	virtual bool StartAzureTaskWork_Internal();
 
 	virtual bool CanBroadcast() const;
+	virtual bool CanDestroyTask() const;
+
+	virtual void OnPostWorldCleanUp(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
+	mutable FCriticalSection Mutex;
 
 private:
-#if WITH_EDITOR
-	void OnEndPIE(const bool bIsSimulating);
-#endif
+	bool bIsPendingDestruction = false;
 };

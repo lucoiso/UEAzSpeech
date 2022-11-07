@@ -14,30 +14,56 @@ void UAzSpeechRecognizerTaskBase::Activate()
 void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 {
 	Super::StopAzSpeechTask();
-
-	if (!RecognizerObject)
+	
+	if (RecognitionCompleted.IsBound())
 	{
-		SetReadyToDestroy();
-		return;
+		RecognitionCompleted.RemoveAll(this);
 	}
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [&]
+	if (RecognitionUpdated.IsBound())
 	{
-		const TFuture<void> StopTaskWork = Async(EAsyncExecution::Thread, [=]() -> void
+		RecognitionUpdated.RemoveAll(this);
+	}
+
+	if (RecognizerObject->Recognizing.IsConnected())
+	{
+		RecognizerObject->Recognizing.DisconnectAll();
+	}
+	
+	if (bContinuousRecognition)
+	{
+		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, FuncName = __func__]
 		{
-			RecognitionCompleted.RemoveAll(this);
-			RecognitionUpdated.RemoveAll(this);
-			
-			return RecognizerObject->StopContinuousRecognitionAsync().get();
+			if (RecognizerObject)
+			{
+				UE_LOG(LogAzSpeech, Display, TEXT("%s - Trying to stop current recognizer task..."), *FString(FuncName));
+				
+				switch (RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::duration<float>(AzSpeech::Internal::GetTimeout())))
+				{
+					case std::future_status::ready :
+						UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Ready"), *FString(FuncName));
+						break;
+
+					case std::future_status::deferred:
+						UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Deferred"), *FString(FuncName));
+						break;
+
+					case std::future_status::timeout:
+						UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Time Out"), *FString(FuncName));
+						break;
+
+					default: break;
+				}
+
+				RecognizerObject.reset();
+			}
 		});
+	}
+}
 
-		StopTaskWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout()));
-
-		if (IsValid(this))
-		{
-			AsyncTask(ENamedThreads::GameThread, [this] { SetReadyToDestroy(); });
-		}
-	});
+void UAzSpeechRecognizerTaskBase::SetReadyToDestroy()
+{
+	Super::SetReadyToDestroy();
 }
 
 void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
@@ -112,13 +138,21 @@ void UAzSpeechRecognizerTaskBase::OnContinuousRecognitionUpdated(const Microsoft
 
 		if (RecognitionResult->Reason == ResultReason::RecognizingSpeech)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - Continuous Recognition Updated: Recognized String: %s"), *GetLastRecognizedString());
-			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionUpdated.Broadcast(GetLastRecognizedString()); } });
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Updated String: %s"), *FString(__func__), *GetLastRecognizedString());
+			
+			if (CanBroadcast())
+			{
+				AsyncTask(ENamedThreads::GameThread, [=]() { RecognitionUpdated.Broadcast(GetLastRecognizedString()); });
+			}
 		}
 		else if (RecognitionResult->Reason == ResultReason::RecognizedSpeech)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - Continuous Recognition Completed: Recognized String: %s"), *GetLastRecognizedString());
-			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionCompleted.Broadcast(GetLastRecognizedString()); } });
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Final String: %s"), *FString(__func__), *GetLastRecognizedString());
+
+			if (CanBroadcast())
+			{
+				AsyncTask(ENamedThreads::GameThread, [=]() { RecognitionCompleted.Broadcast(GetLastRecognizedString()); });
+			}
 		}
 	}
 	else

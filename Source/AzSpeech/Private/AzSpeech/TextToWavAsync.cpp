@@ -10,15 +10,15 @@
 
 UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageId)
 {
-	UTextToWavAsync* const TextToWavAsync = NewObject<UTextToWavAsync>();
-	TextToWavAsync->WorldContextObject = WorldContextObject;
-	TextToWavAsync->TextToConvert = TextToConvert;
-	TextToWavAsync->FilePath = FilePath;
-	TextToWavAsync->FileName = FileName;
-	TextToWavAsync->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	TextToWavAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	UTextToWavAsync* const NewAsyncTask = NewObject<UTextToWavAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->TextToConvert = TextToConvert;
+	NewAsyncTask->FilePath = FilePath;
+	NewAsyncTask->FileName = FileName;
+	NewAsyncTask->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
+	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
-	return TextToWavAsync;
+	return NewAsyncTask;
 }
 
 void UTextToWavAsync::Activate()
@@ -39,17 +39,17 @@ bool UTextToWavAsync::StartAzureTaskWork_Internal()
 
 	if (TextToConvert.IsEmpty() || VoiceName.IsEmpty() || FilePath.IsEmpty() || FileName.IsEmpty() || LanguageID.IsEmpty())
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
 	if (!UAzSpeechHelper::CreateNewDirectory(FilePath))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to create directory"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to create directory"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
 	{
@@ -65,20 +65,23 @@ bool UTextToWavAsync::StartAzureTaskWork_Internal()
 
 		if (!TextToWavAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
 			return;
 		}
 
-		const bool bOutputValue = TextToWavAsyncWork.Get();
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { SynthesisCompleted.Broadcast(bOutputValue); } });
+		const bool bOutputValue = TextToWavAsyncWork.Get(); 
+		if (CanBroadcast())
+		{
+			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(bOutputValue); });
+		}
 
 		if (bOutputValue)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
 		}
 	});
 
@@ -92,13 +95,13 @@ bool UTextToWavAsync::DoAzureTaskWork_Internal(const std::string& InStr, const s
 
 	if (!SynthesizerObject)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
 
-	CheckAndAddViseme();
+	EnableVisemeOutput();
 
-	const auto SynthesisResult = SynthesizerObject->SpeakTextAsync(InStr).get();
+	const auto SynthesisResult = SynthesizerObject->StartSpeakingTextAsync(InStr).get();
 
-	return AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult);
+	return AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult);
 }

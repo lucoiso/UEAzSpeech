@@ -5,28 +5,26 @@
 #include "AzSpeech/AzSpeechTaskBase.h"
 #include "AzSpeechInternalFuncs.h"
 
-#if WITH_EDITOR
-#include "Editor.h"
-#endif
-
 void UAzSpeechTaskBase::Activate()
 {
 	Super::Activate();
 	
 	StartAzureTaskWork_Internal();
 	
-#if WITH_EDITOR
-	FEditorDelegates::EndPIE.AddUObject(this, &UAzSpeechTaskBase::OnEndPIE);
-#endif
+	FWorldDelegates::OnPostWorldCleanup.AddUObject(this, &UAzSpeechTaskBase::OnPostWorldCleanUp);
 }
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-#if WITH_EDITOR
-	FEditorDelegates::EndPIE.RemoveAll(this);
-#endif
+	FWorldDelegates::OnPostWorldCleanup.RemoveAll(this);
 
+	bIsPendingDestruction = true;
 	UE_LOG(LogAzSpeech, Display, TEXT("%s - Finishing AzSpeech Task"), *FString(__func__));
+	
+	if (CanDestroyTask())
+	{
+		SetReadyToDestroy();
+	}
 }
 
 bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
@@ -36,12 +34,17 @@ bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
 
 bool UAzSpeechTaskBase::CanBroadcast() const
 {
-	return IsValid(this);
+	return IsValid(this) && !bIsPendingDestruction;
 }
 
-#if WITH_EDITOR
-void UAzSpeechTaskBase::OnEndPIE([[maybe_unused]] const bool bIsSimulating)
+bool UAzSpeechTaskBase::CanDestroyTask() const
 {
+	return IsValid(this) && (!HasAnyFlags(RF_InternalPendingKill) || RegisteredWithGameInstance.IsValid());
+}
+
+void UAzSpeechTaskBase::OnPostWorldCleanUp(UWorld* World, bool bSessionEnded, bool bCleanupResources)
+{
+	UE_LOG(LogAzSpeech, Display, TEXT("%s called."), *FString(__func__));
+	
 	StopAzSpeechTask();
 }
-#endif

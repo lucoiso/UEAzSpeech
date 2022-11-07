@@ -9,13 +9,13 @@
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
-	UTextToVoiceAsync* const TextToVoiceAsync = NewObject<UTextToVoiceAsync>();
-	TextToVoiceAsync->WorldContextObject = WorldContextObject;
-	TextToVoiceAsync->TextToConvert = TextToConvert;
-	TextToVoiceAsync->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	TextToVoiceAsync->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	UTextToVoiceAsync* const NewAsyncTask = NewObject<UTextToVoiceAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->TextToConvert = TextToConvert;
+	NewAsyncTask->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
+	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 
-	return TextToVoiceAsync;
+	return NewAsyncTask;
 }
 
 void UTextToVoiceAsync::Activate()
@@ -32,11 +32,11 @@ bool UTextToVoiceAsync::StartAzureTaskWork_Internal()
 
 	if (TextToConvert.IsEmpty() || VoiceName.IsEmpty() || LanguageID.IsEmpty())
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Missing parameters"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
 	{
@@ -51,20 +51,23 @@ bool UTextToVoiceAsync::StartAzureTaskWork_Internal()
 
 		if (!TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Task timed out"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
 			return;
 		}
 
 		const bool bOutputValue = TextToVoiceAsyncWork.Get();
-		AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { SynthesisCompleted.Broadcast(bOutputValue); } });
+		if (CanBroadcast())
+		{
+			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(bOutputValue); });
+		}
 
 		if (bOutputValue)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Result: Success"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Result: Failed"), *FString(FuncName));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
 		}
 	});
 
@@ -78,13 +81,13 @@ bool UTextToVoiceAsync::DoAzureTaskWork_Internal(const std::string& InStr, const
 
 	if (!SynthesizerObject)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - %s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
 
-	CheckAndAddViseme();
+	EnableVisemeOutput();
 
-	const auto SynthesisResult = SynthesizerObject->SpeakTextAsync(InStr).get();
+	const auto SynthesisResult = SynthesizerObject->StartSpeakingTextAsync(InStr).get();
 
-	return AzSpeech::Internal::ProcessSynthesizResult(SynthesisResult);
+	return AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult);
 }

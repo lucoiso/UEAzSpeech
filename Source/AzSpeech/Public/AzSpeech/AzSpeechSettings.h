@@ -48,6 +48,14 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Time limit in seconds to wait for related asynchronous tasks to complete"))
 	float TimeOutInSeconds;
 
+	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))
+	bool bEnableSDKLogs;
+
+	/* If enabled, synthesizers tasks will generate Viseme data */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Viseme"))
+	bool bEnableViseme;
+
 private:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

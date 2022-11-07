@@ -48,13 +48,14 @@ protected:
 	bool bContinuousRecognition = false;
 	
 	virtual bool StartAzureTaskWork_Internal() override;
+	virtual void SetReadyToDestroy() override;
 
 	virtual std::string StartContinuousRecognition();
 
 	virtual void OnContinuousRecognitionUpdated(const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs);
 	
 	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
-
+	
 private:
 	std::string LastRecognizedString;
 };
