@@ -105,11 +105,6 @@ std::string UAzSpeechRecognizerTaskBase::StartContinuousRecognition()
 
 void UAzSpeechRecognizerTaskBase::OnContinuousRecognitionUpdated(const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 {
-	if (!CanBroadcast())
-	{
-		return;
-	}
-
 	if (const auto RecognitionResult = RecognitionEventArgs.Result;
 		AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
 	{
@@ -118,12 +113,12 @@ void UAzSpeechRecognizerTaskBase::OnContinuousRecognitionUpdated(const Microsoft
 		if (RecognitionResult->Reason == ResultReason::RecognizingSpeech)
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - Continuous Recognition Updated: Recognized String: %s"), *GetLastRecognizedString());
-			RecognitionUpdated.Broadcast(GetLastRecognizedString());		
+			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionUpdated.Broadcast(GetLastRecognizedString()); } });
 		}
 		else if (RecognitionResult->Reason == ResultReason::RecognizedSpeech)
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - Continuous Recognition Completed: Recognized String: %s"), *GetLastRecognizedString());
-			RecognitionCompleted.Broadcast(GetLastRecognizedString());
+			AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { RecognitionCompleted.Broadcast(GetLastRecognizedString()); } });
 		}
 	}
 	else

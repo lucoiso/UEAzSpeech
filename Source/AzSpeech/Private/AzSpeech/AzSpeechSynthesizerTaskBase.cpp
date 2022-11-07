@@ -72,17 +72,14 @@ void UAzSpeechSynthesizerTaskBase::CheckAndAddViseme()
 
 void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 {
-	if (!CanBroadcast())
-	{
-		return;
-	}
-	
 	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Id: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
-	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Audio Offset: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.AudioOffset));
+		
+	const int64 AudioOffsetMs = VisemeEventArgs.AudioOffset / 10000;
+	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Audio Offset: %sms"), *FString(__func__), *FString::FromInt(AudioOffsetMs));
 
 	const FString VisemeAnimation_UEStr = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
 	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Animation: %s"), *FString(__func__), *VisemeAnimation_UEStr);
 	
-	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, VisemeEventArgs.AudioOffset, VisemeAnimation_UEStr);
-	VisemeReceived.Broadcast(LastVisemeData);
+	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, AudioOffsetMs, VisemeAnimation_UEStr);
+	AsyncTask(ENamedThreads::GameThread, [=]() { if (CanBroadcast()) { VisemeReceived.Broadcast(LastVisemeData); } });	
 }
