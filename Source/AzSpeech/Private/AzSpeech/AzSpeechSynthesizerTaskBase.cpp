@@ -37,6 +37,17 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() cons
 	return LastVisemeData;
 }
 
+const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedStream() const
+{
+	TArray<uint8> OutputArr;
+	for (const uint8_t& i : LastSynthesizedBuffer)
+	{
+		OutputArr.Add(static_cast<uint8>(i));
+	}
+
+	return OutputArr;
+}
+
 const bool UAzSpeechSynthesizerTaskBase::IsLastVisemeDataValid() const
 {
 	return LastVisemeData.IsValid();
@@ -59,11 +70,11 @@ void UAzSpeechSynthesizerTaskBase::ClearBindings()
 		return;
 	}
 
-	Disconecter_T(SynthesizerObject->VisemeReceived);
-	Disconecter_T(SynthesizerObject->Synthesizing);
-	Disconecter_T(SynthesizerObject->SynthesisStarted);
-	Disconecter_T(SynthesizerObject->SynthesisCompleted);
-	Disconecter_T(SynthesizerObject->SynthesisCanceled);
+	SignalDisconecter_T(SynthesizerObject->VisemeReceived);
+	SignalDisconecter_T(SynthesizerObject->Synthesizing);
+	SignalDisconecter_T(SynthesizerObject->SynthesisStarted);
+	SignalDisconecter_T(SynthesizerObject->SynthesisCompleted);
+	SignalDisconecter_T(SynthesizerObject->SynthesisCanceled);
 }
 
 void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
@@ -104,27 +115,38 @@ void UAzSpeechSynthesizerTaskBase::ApplyExtraSettings()
 
 void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Id: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
-
 	const int64 AudioOffsetMs = VisemeEventArgs.AudioOffset / 10000;
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Audio Offset: %sms"), *FString(__func__), *FString::FromInt(AudioOffsetMs));
-
 	const FString VisemeAnimation_UEStr = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Animation: %s"), *FString(__func__), *VisemeAnimation_UEStr);
+
+	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
+	{
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Id: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Audio Offset: %sms"), *FString(__func__), *FString::FromInt(AudioOffsetMs));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Animation: %s"), *FString(__func__), *VisemeAnimation_UEStr);
+	}
 
 	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, AudioOffsetMs, VisemeAnimation_UEStr);
-
-	if (UAzSpeechTaskBase::IsTaskStillValid(this))
-	{
-		AsyncTask(ENamedThreads::GameThread, [=]() { VisemeReceived.Broadcast(LastVisemeData); });
-	}
+	VisemeReceived.Broadcast(LastVisemeData);
 }
 
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
 	if (SynthesisEventArgs.Result->Reason != ResultReason::SynthesizingAudio)
 	{
-		AzSpeech::Internal::ProcessSynthesisResult(SynthesisEventArgs.Result);
+		bLastResultIsValid = AzSpeech::Internal::ProcessSynthesisResult(SynthesisEventArgs.Result);
+	}
+
+	LastSynthesizedBuffer.clear();
+	LastSynthesizedBuffer = *SynthesisEventArgs.Result->GetAudioData().get();
+	LastSynthesizedBuffer.shrink_to_fit();
+
+	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
+	{
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current audio duration: %s"), *FString(__func__), *FString::FromInt(SynthesisEventArgs.Result->AudioDuration.count()));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current audio length: %s"), *FString(__func__), *FString::FromInt(SynthesisEventArgs.Result->GetAudioLength()));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current stream size: %s"), *FString(__func__), *FString::FromInt(SynthesisEventArgs.Result->GetAudioData().get()->size()));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current reason code: %s"), *FString(__func__), *FString::FromInt(static_cast<int32>(SynthesisEventArgs.Result->Reason)));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current result id: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(SynthesisEventArgs.Result->ResultId.c_str())));
 	}
 }
 
@@ -142,15 +164,4 @@ void UAzSpeechSynthesizerTaskBase::OutputSynthesisResult(const bool bSuccess) co
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(__func__));
 	}
-}
-
-const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetUnrealStreamResult(const std::vector<uint8_t>& InBuffer)
-{
-	TArray<uint8> OutputArr;
-	for (const uint8_t& i : InBuffer)
-	{
-		OutputArr.Add(static_cast<uint8>(i));
-	}
-
-	return OutputArr;
 }

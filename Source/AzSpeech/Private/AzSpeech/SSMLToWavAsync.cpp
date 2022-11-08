@@ -80,8 +80,8 @@ void USSMLToWavAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Spee
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	if (SynthesisEventArgs.Result->Reason != ResultReason::SynthesizingAudio)
 	{
-		SynthesisCompleted.Broadcast(true);
+		SynthesisCompleted.Broadcast(bLastResultIsValid);
 	}
 }

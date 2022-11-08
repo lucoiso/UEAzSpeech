@@ -70,8 +70,19 @@ void UTextToStreamAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	if (SynthesisEventArgs.Result->Reason != ResultReason::SynthesizingAudio)
 	{
-		SynthesisCompleted.Broadcast(GetUnrealStreamResult(*SynthesisEventArgs.Result->GetAudioData().get()));
+		const TArray<uint8> OutputStream = GetLastSynthesizedStream();
+
+		if (SynthesisEventArgs.Result->Reason != ResultReason::SynthesizingAudioStarted)
+		{
+#if ENGINE_MAJOR_VERSION >= 5
+			OutputSynthesisResult(!OutputStream.IsEmpty());
+#else
+			OutputSynthesisResult(OutputStream.Num() != 0);
+#endif
+		}
+
+		SynthesisCompleted.Broadcast(OutputStream);
 	}
 }

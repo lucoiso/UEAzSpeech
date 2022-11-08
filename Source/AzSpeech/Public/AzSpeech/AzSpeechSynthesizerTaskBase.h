@@ -62,10 +62,15 @@ public:
 	const FAzSpeechVisemeData GetLastVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const TArray<uint8> GetLastSynthesizedStream() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsLastVisemeDataValid() const;
 	
 protected:
 	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
+
+	bool bLastResultIsValid = false;
 
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void ClearBindings() override;
@@ -78,8 +83,7 @@ protected:
 
 	void OutputSynthesisResult(const bool bSuccess) const;
 
-	const TArray<uint8> GetUnrealStreamResult(const std::vector<uint8_t>& InBuffer);
-
 private:
 	FAzSpeechVisemeData LastVisemeData;
+	std::vector<uint8_t> LastSynthesizedBuffer;
 };

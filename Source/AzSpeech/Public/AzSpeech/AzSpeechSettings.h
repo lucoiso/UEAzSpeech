@@ -56,6 +56,10 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Viseme"))
 	bool bEnableViseme;
 
+	/* Will print extra debugging informations on log */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Runtime Debug"))
+	bool bEnableRuntimeDebug;
+
 private:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

@@ -26,7 +26,6 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	
 	if (UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
-		SetReadyToDestroy();
 		ClearBindings();
 	}
 }
@@ -52,8 +51,6 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 {
 	FEditorDelegates::PrePIEEnded.RemoveAll(this);
 
-	UE_LOG(LogAzSpeech, Display, TEXT("%s called."), *FString(__func__));
-	
 	if (UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		StopAzSpeechTask();

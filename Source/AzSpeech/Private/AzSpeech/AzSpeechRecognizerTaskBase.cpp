@@ -45,7 +45,7 @@ void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("%s called"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Enabling continuous recognition"), *FString(__func__));
 	if (RecognizerObject->IsEnabled())
 	{
 		return;
@@ -64,7 +64,7 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("%s called"), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Disabling continuous recognition"), *FString(__func__));
 	if (!RecognizerObject->IsEnabled())
 	{
 		return;
@@ -100,8 +100,8 @@ void UAzSpeechRecognizerTaskBase::ClearBindings()
 		return;
 	}
 
-	Disconecter_T(RecognizerObject->Recognizing);
-	Disconecter_T(RecognizerObject->Recognized);
+	SignalDisconecter_T(RecognizerObject->Recognizing);
+	SignalDisconecter_T(RecognizerObject->Recognized);
 }
 
 void UAzSpeechRecognizerTaskBase::ApplyExtraSettings()
@@ -131,11 +131,23 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const Microsoft::Cognitiv
 		return;
 	}
 
+	LastRecognizedString.clear();
 	LastRecognizedString = RecognitionEventArgs.Result->Text;
+	LastRecognizedString.shrink_to_fit();
+
+	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
+	{
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current recognized text: %s"), *FString(__func__), *GetLastRecognizedString());
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current duration: %s"), *FString(__func__), *FString::FromInt(RecognitionEventArgs.Result->Duration()));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current offset: %s"), *FString(__func__), *FString::FromInt(RecognitionEventArgs.Result->Offset()));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current reason code: %s"), *FString(__func__), *FString::FromInt(static_cast<int32>(RecognitionEventArgs.Result->Reason)));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Current result id: %s"), *FString(__func__), *FString(UTF8_TO_TCHAR(RecognitionEventArgs.Result->ResultId.c_str())));
+	}
 
 	switch (RecognitionEventArgs.Result->Reason)
 	{
 		case ResultReason::RecognizedSpeech:
+			UE_LOG(LogAzSpeech, Display, TEXT("%s: Task finished with result: %s"), *FString(__func__), *GetLastRecognizedString());
 			RecognitionCompleted.Broadcast(GetLastRecognizedString());
 			break;
 

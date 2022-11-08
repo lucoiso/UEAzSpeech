@@ -40,7 +40,7 @@ protected:
 #endif
 
 	template<typename SignalTy>
-	void Disconecter_T(SignalTy& Signal)
+	void SignalDisconecter_T(SignalTy& Signal)
 	{
 		if (Signal.IsConnected())
 		{
