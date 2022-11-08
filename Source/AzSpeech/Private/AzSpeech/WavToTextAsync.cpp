@@ -52,64 +52,31 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, QualifiedPath, this]
+	const std::string InFilePath = TCHAR_TO_UTF8(*QualifiedPath);
+	const std::string InLanguage = TCHAR_TO_UTF8(*LanguageID);
+
+	const auto AudioConfig = AudioConfig::FromWavFileInput(InFilePath);
+	RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguage);
+
+	if (!RecognizerObject)
 	{
-		const TFuture<std::string> WavToTextAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::string
-		{
-			const std::string InFilePathStr = TCHAR_TO_UTF8(*QualifiedPath);
-			const std::string InLanguageIDStr = TCHAR_TO_UTF8(*LanguageID);
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
+		return false;
+	}
 
-			return DoAzureTaskWork_Internal(InFilePathStr, InLanguageIDStr);
-		});
+	ApplyExtraSettings();
 
-		if (!WavToTextAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
+		if (bContinuousRecognition)
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
-			return;
-		}
-
-		const FString OutputValue = UTF8_TO_TCHAR(WavToTextAsyncWork.Get().c_str());		
-		if (!OutputValue.Equals("CONTINUOUS_RECOGNITION") && CanBroadcast())
-		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { RecognitionCompleted.Broadcast(OutputValue); });
-		}
-
-		if (!OutputValue.IsEmpty())
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: %s"), *FString(FuncName), *OutputValue);
+			RecognizerObject->StartContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
+			RecognizerObject->RecognizeOnceAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
 		}
 	});
 
 	return true;
-}
-
-std::string UWavToTextAsync::DoAzureTaskWork_Internal(const std::string& InFilePath, const std::string& InLanguageID)
-{
-	const auto AudioConfig = AudioConfig::FromWavFileInput(InFilePath);
-	RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguageID);
-
-	if (RecognizerObject == nullptr)
-	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
-		return std::string();
-	}
-
-	if (!bContinuousRecognition)
-	{
-		if (const auto RecognitionResult = RecognizerObject->RecognizeOnceAsync().get();
-			AzSpeech::Internal::ProcessRecognitionResult(RecognitionResult))
-		{
-			return RecognitionResult->Text;
-		}
-	}
-	else
-	{
-		return StartContinuousRecognition();
-	}
-
-	return std::string();
 }

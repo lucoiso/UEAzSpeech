@@ -29,6 +29,4 @@ protected:
 private:
 	const UObject* WorldContextObject;
 	FString LanguageID;
-	
-	std::string DoAzureTaskWork_Internal(const std::string& InLanguageID);
 };

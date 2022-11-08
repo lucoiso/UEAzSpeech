@@ -24,16 +24,30 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
 	virtual void StopAzSpeechTask();
 
+	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
+
 protected:
 	virtual bool StartAzureTaskWork_Internal();
+	virtual void SetReadyToDestroy() override;
 
-	virtual bool CanBroadcast() const;
-	virtual bool CanDestroyTask() const;
-
-	virtual void OnPostWorldCleanUp(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+	virtual void ApplyExtraSettings() {};
+	virtual void ClearBindings() {};
 
 	mutable FCriticalSection Mutex;
 
+#if WITH_EDITOR
+	virtual void PrePIEEnded(bool bIsSimulating);
+#endif
+
+	template<typename SignalTy>
+	void Disconecter_T(SignalTy& Signal)
+	{
+		if (Signal.IsConnected())
+		{
+			Signal.DisconnectAll();
+		}
+	};
+
 private:
-	bool bIsPendingDestruction = false;
+	bool bIsReadyToDestroy = false;
 };

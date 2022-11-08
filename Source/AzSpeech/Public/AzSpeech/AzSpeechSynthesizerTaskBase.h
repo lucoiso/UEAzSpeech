@@ -40,7 +40,7 @@ struct FAzSpeechVisemeData
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVisemeReceived, const FAzSpeechVisemeData, VisemeData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStreamSynthesisDelegate, const TArray<uint8>, RecognizedStream);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStreamSynthesisDelegate, const TArray<uint8>&, RecognizedStream);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBooleanSynthesisDelegate, const bool, Success);
 
 /**
@@ -65,13 +65,20 @@ public:
 	const bool IsLastVisemeDataValid() const;
 	
 protected:
-	virtual bool StartAzureTaskWork_Internal() override;
-	virtual void SetReadyToDestroy() override;
-	
 	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 
+	virtual bool StartAzureTaskWork_Internal() override;
+	virtual void ClearBindings() override;
+	
 	void EnableVisemeOutput();
-	void OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs);
+	virtual void ApplyExtraSettings() override;
+
+	virtual void OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs);
+	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs);
+
+	void OutputSynthesisResult(const bool bSuccess) const;
+
+	const TArray<uint8> GetUnrealStreamResult(const std::vector<uint8_t>& InBuffer);
 
 private:
 	FAzSpeechVisemeData LastVisemeData;

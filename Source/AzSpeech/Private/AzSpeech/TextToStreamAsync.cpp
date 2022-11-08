@@ -38,68 +38,40 @@ bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
+	const std::string InText = TCHAR_TO_UTF8(*TextToConvert);
+	const std::string InLanguage = TCHAR_TO_UTF8(*LanguageID);
+	const std::string InVoice = TCHAR_TO_UTF8(*VoiceName);
+
+	const auto AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
+	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguage, InVoice);
+
+	if (!SynthesizerObject)
 	{
-		const TFuture<std::vector<uint8_t>> TextToStreamAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::vector<uint8_t>
-		{
-			const std::string InConvertStr = TCHAR_TO_UTF8(*TextToConvert);
-			const std::string InLanguageIDStr = TCHAR_TO_UTF8(*LanguageID);
-			const std::string InNameIDStr = TCHAR_TO_UTF8(*VoiceName);
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
+		return false;
+	}
 
-			return DoAzureTaskWork_Internal(InConvertStr, InLanguageIDStr, InNameIDStr);
-		});
+	ApplyExtraSettings();
 
-		if (!TextToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
-			return;
-		}
-
-		const std::vector<uint8_t> Result = TextToStreamAsyncWork.Get();
-		const bool bOutputValue = !Result.empty();
-
-		TArray<uint8> OutputArr;
-		for (const uint8_t& i : Result)
-		{
-			OutputArr.Add(static_cast<uint8>(i));
-		}
-		
-		if (CanBroadcast())
-		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(OutputArr); });
-		}
-
-		if (bOutputValue)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
-		}
-		else
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
-		}
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
+		SynthesizerObject->SpeakTextAsync(InText).wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
 	});
 
 	return true;
 }
 
-std::vector<uint8_t> UTextToStreamAsync::DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName)
+void UTextToStreamAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
-	const auto AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
-	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
+	Super::OnSynthesisUpdate(SynthesisEventArgs);
 
-	if (!SynthesizerObject)
+	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
-		return std::vector<uint8_t>();
+		return;
 	}
 
-	EnableVisemeOutput();
-
-	if (const auto SynthesisResult = SynthesizerObject->StartSpeakingTextAsync(InStr).get();
-		AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult))
+	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
 	{
-		return *SynthesisResult->GetAudioData().get();
+		SynthesisCompleted.Broadcast(GetUnrealStreamResult(*SynthesisEventArgs.Result->GetAudioData().get()));
 	}
-
-	return std::vector<uint8_t>();
 }

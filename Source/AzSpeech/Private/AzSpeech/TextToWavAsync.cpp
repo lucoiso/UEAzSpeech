@@ -51,47 +51,13 @@ bool UTextToWavAsync::StartAzureTaskWork_Internal()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
-	{
-		const TFuture<bool> TextToWavAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
-		{
-			const std::string InConvertStr = TCHAR_TO_UTF8(*TextToConvert);
-			const std::string InLanguageIDStr = TCHAR_TO_UTF8(*LanguageID);
-			const std::string InNameIDStr = TCHAR_TO_UTF8(*VoiceName);
-			const std::string InFilePathStr = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
+	const std::string InText = TCHAR_TO_UTF8(*TextToConvert);
+	const std::string InLanguage = TCHAR_TO_UTF8(*LanguageID);
+	const std::string InVoice = TCHAR_TO_UTF8(*VoiceName);
+	const std::string InFilePath = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
 
-			return DoAzureTaskWork_Internal(InConvertStr, InLanguageIDStr, InNameIDStr, InFilePathStr);
-		});
-
-		if (!TextToWavAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
-			return;
-		}
-
-		const bool bOutputValue = TextToWavAsyncWork.Get(); 
-		if (CanBroadcast())
-		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(bOutputValue); });
-		}
-
-		if (bOutputValue)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
-		}
-		else
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
-		}
-	});
-
-	return true;
-}
-
-bool UTextToWavAsync::DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName, const std::string& InFilePath)
-{
 	const auto AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
-	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguageID, InVoiceName);
+	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguage, InVoice);
 
 	if (!SynthesizerObject)
 	{
@@ -99,9 +65,27 @@ bool UTextToWavAsync::DoAzureTaskWork_Internal(const std::string& InStr, const s
 		return false;
 	}
 
-	EnableVisemeOutput();
+	ApplyExtraSettings();
 
-	const auto SynthesisResult = SynthesizerObject->StartSpeakingTextAsync(InStr).get();
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
+		SynthesizerObject->SpeakTextAsync(InText).wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+	});
 
-	return AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult);
+	return true;
+}
+
+void UTextToWavAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+{
+	Super::OnSynthesisUpdate(SynthesisEventArgs);
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	{
+		return;
+	}
+
+	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	{
+		SynthesisCompleted.Broadcast(true);
+	}
 }

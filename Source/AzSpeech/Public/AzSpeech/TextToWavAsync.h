@@ -29,6 +29,7 @@ public:
 
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
+	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
 
 private:
 	const UObject* WorldContextObject;
@@ -37,6 +38,4 @@ private:
 	FString FilePath;
 	FString FileName;
 	FString LanguageID;
-	
-	bool DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName, const std::string& InFilePath);
 };

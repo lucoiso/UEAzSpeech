@@ -14,42 +14,21 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 {	
 	Super::StopAzSpeechTask();
+
+	if (!SynthesizerObject)
+	{
+		return;
+	}
 	
-	if (VisemeReceived.IsBound())
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
 	{
-		VisemeReceived.RemoveAll(this);
-	}
-
-	if (SynthesizerObject->VisemeReceived.IsConnected())
-	{
-		SynthesizerObject->VisemeReceived.DisconnectAll();
-	}
-
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, FuncName = __func__]
-	{
-		if (SynthesizerObject)
+		if (!Mutex.TryLock())
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s - Trying to stop current synthesizer task..."), *FString(FuncName));
-
-			switch (SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout())))
-			{
-				case std::future_status::ready:
-					UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Ready"), *FString(FuncName));
-					break;
-
-				case std::future_status::deferred:
-					UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Deferred"), *FString(FuncName));
-					break;
-
-				case std::future_status::timeout:
-					UE_LOG(LogAzSpeech, Display, TEXT("%s - Stop finished with status: Time Out"), *FString(FuncName));
-					break;
-
-				default: break;
-			}
-
-			SynthesizerObject.reset();
+			return;
 		}
+
+		SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+		SynthesizerObject.reset();
 	});
 }
 
@@ -68,16 +47,11 @@ bool UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
 	return Super::StartAzureTaskWork_Internal();
 }
 
-void UAzSpeechSynthesizerTaskBase::SetReadyToDestroy()
+void UAzSpeechSynthesizerTaskBase::ClearBindings()
 {
-	Super::SetReadyToDestroy();
-}
-
-void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
-{
-	if (!AzSpeech::Internal::GetPluginSettings()->bEnableViseme)
+	if (VisemeReceived.IsBound())
 	{
-		return;
+		VisemeReceived.RemoveAll(this);
 	}
 
 	if (!SynthesizerObject)
@@ -85,6 +59,15 @@ void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
 		return;
 	}
 
+	Disconecter_T(SynthesizerObject->VisemeReceived);
+	Disconecter_T(SynthesizerObject->Synthesizing);
+	Disconecter_T(SynthesizerObject->SynthesisStarted);
+	Disconecter_T(SynthesizerObject->SynthesisCompleted);
+	Disconecter_T(SynthesizerObject->SynthesisCanceled);
+}
+
+void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
+{
 	if (VisemeReceived.IsBound())
 	{
 		SynthesizerObject->VisemeReceived.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeArgs)
@@ -94,20 +77,80 @@ void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
 	}
 }
 
+void UAzSpeechSynthesizerTaskBase::ApplyExtraSettings()
+{
+	Super::ApplyExtraSettings();
+
+	if (!SynthesizerObject)
+	{
+		return;
+	}
+
+	if (AzSpeech::Internal::GetPluginSettings()->bEnableViseme)
+	{
+		EnableVisemeOutput();
+	}
+
+	const auto SynthesisUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+	{
+		OnSynthesisUpdate(SynthesisEventArgs);
+	};
+
+	SynthesizerObject->Synthesizing.Connect(SynthesisUpdate_Lambda);
+	SynthesizerObject->SynthesisStarted.Connect(SynthesisUpdate_Lambda);
+	SynthesizerObject->SynthesisCompleted.Connect(SynthesisUpdate_Lambda);
+	SynthesizerObject->SynthesisCanceled.Connect(SynthesisUpdate_Lambda);
+}
+
 void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Id: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Id: %s"), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
 
 	const int64 AudioOffsetMs = VisemeEventArgs.AudioOffset / 10000;
-	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Audio Offset: %sms"), *FString(__func__), *FString::FromInt(AudioOffsetMs));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Audio Offset: %sms"), *FString(__func__), *FString::FromInt(AudioOffsetMs));
 
 	const FString VisemeAnimation_UEStr = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
-	UE_LOG(LogAzSpeech, Display, TEXT("%s - Viseme Animation: %s"), *FString(__func__), *VisemeAnimation_UEStr);
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Viseme Animation: %s"), *FString(__func__), *VisemeAnimation_UEStr);
 
 	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, AudioOffsetMs, VisemeAnimation_UEStr);
 
-	if (CanBroadcast())
+	if (UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		AsyncTask(ENamedThreads::GameThread, [=]() { VisemeReceived.Broadcast(LastVisemeData); });
 	}
+}
+
+void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+{
+	if (SynthesisEventArgs.Result->Reason != ResultReason::SynthesizingAudio)
+	{
+		AzSpeech::Internal::ProcessSynthesisResult(SynthesisEventArgs.Result);
+	}
+}
+
+void UAzSpeechSynthesizerTaskBase::OutputSynthesisResult(const bool bSuccess) const
+{
+	if (bSuccess)
+	{
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(__func__));
+	}
+	else if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	{
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Canceled"), *FString(__func__));
+	}
+	else
+	{
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(__func__));
+	}
+}
+
+const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetUnrealStreamResult(const std::vector<uint8_t>& InBuffer)
+{
+	TArray<uint8> OutputArr;
+	for (const uint8_t& i : InBuffer)
+	{
+		OutputArr.Add(static_cast<uint8>(i));
+	}
+
+	return OutputArr;
 }

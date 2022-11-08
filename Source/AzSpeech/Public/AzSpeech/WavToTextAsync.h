@@ -31,6 +31,4 @@ private:
 	FString LanguageID;
 	FString FilePath;
 	FString FileName;
-	
-	std::string DoAzureTaskWork_Internal(const std::string& InFilePath, const std::string& InLanguageID);
 };

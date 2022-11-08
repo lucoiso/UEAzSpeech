@@ -49,43 +49,9 @@ bool USSMLToWavAsync::StartAzureTaskWork_Internal()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
-	{
-		const TFuture<bool> SSMLToWavAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
-		{
-			const std::string InConvertStr = TCHAR_TO_UTF8(*SSMLString);
-			const std::string InFilePathStr = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
+	const std::string InSSML = TCHAR_TO_UTF8(*SSMLString);
+	const std::string InFilePath = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
 
-			return DoAzureTaskWork_Internal(InConvertStr, InFilePathStr);
-		});
-
-		if (!SSMLToWavAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
-		}
-
-		const bool bOutputValue = SSMLToWavAsyncWork.Get();
-
-		if (CanBroadcast())
-		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(bOutputValue); });
-		}
-
-		if (bOutputValue)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
-		}
-		else
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
-		}
-	});
-	
-	return true;
-}
-
-bool USSMLToWavAsync::DoAzureTaskWork_Internal(const std::string& InSSML, const std::string& InFilePath)
-{
 	const auto AudioConfig = AudioConfig::FromWavFileOutput(InFilePath);
 	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
 
@@ -94,10 +60,28 @@ bool USSMLToWavAsync::DoAzureTaskWork_Internal(const std::string& InSSML, const 
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
 		return false;
 	}
-	
-	EnableVisemeOutput();
 
-	const auto SynthesisResult = SynthesizerObject->StartSpeakingSsmlAsync(InSSML).get();
+	ApplyExtraSettings();
 
-	return AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult);
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
+		SynthesizerObject->SpeakSsmlAsync(InSSML).wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+	});
+
+	return true;
+}
+
+void USSMLToWavAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+{
+	Super::OnSynthesisUpdate(SynthesisEventArgs);
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	{
+		return;
+	}
+
+	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	{
+		SynthesisCompleted.Broadcast(true);
+	}
 }

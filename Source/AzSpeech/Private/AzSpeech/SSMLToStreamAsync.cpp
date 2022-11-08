@@ -36,65 +36,38 @@ bool USSMLToStreamAsync::StartAzureTaskWork_Internal()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
-	{
-		const TFuture<std::vector<uint8_t>> SSMLToStreamAsyncWork = Async(EAsyncExecution::Thread, [=]() -> std::vector<uint8_t>
-		{
-			const std::string InSSMLStr = TCHAR_TO_UTF8(*SSMLString);
+	const std::string InSSML = TCHAR_TO_UTF8(*SSMLString);
 
-			return DoAzureTaskWork_Internal(InSSMLStr);
-		});
-
-		if (!SSMLToStreamAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
-		}
-
-		const std::vector<uint8_t> Result = SSMLToStreamAsyncWork.Get();
-		const bool bOutputValue = !Result.empty();
-
-		TArray<uint8> OutputArr;
-		for (const uint8_t& i : Result)
-		{
-			OutputArr.Add(static_cast<uint8>(i));
-		}
-
-		if (CanBroadcast())
-		{
-			AsyncTask(ENamedThreads::GameThread, [=]() {SynthesisCompleted.Broadcast(OutputArr); });
-		}
-
-		if (bOutputValue)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
-		}
-		else
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
-		}
-	});
-
-	return true;
-}
-
-std::vector<uint8_t> USSMLToStreamAsync::DoAzureTaskWork_Internal(const std::string& InSSML)
-{
 	const auto AudioConfig = AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream());
 	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig);
 
 	if (!SynthesizerObject)
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
-		return std::vector<uint8_t>();
+		return false;
 	}
 
-	EnableVisemeOutput();
+	ApplyExtraSettings();
 
-	if (const auto SpeechSynthesisResult = SynthesizerObject->StartSpeakingSsmlAsync(InSSML).get();
-		AzSpeech::Internal::ProcessSynthesisResult(SpeechSynthesisResult))
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
 	{
-		return *SpeechSynthesisResult->GetAudioData().get();
+		SynthesizerObject->SpeakSsmlAsync(InSSML).wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+	});
+
+	return true;
+}
+
+void USSMLToStreamAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+{
+	Super::OnSynthesisUpdate(SynthesisEventArgs);
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	{
+		return;
 	}
 
-	return std::vector<uint8_t>();
+	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	{
+		SynthesisCompleted.Broadcast(GetUnrealStreamResult(*SynthesisEventArgs.Result->GetAudioData().get()));
+	}
 }

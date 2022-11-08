@@ -29,12 +29,11 @@ public:
 
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
+	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
 
 private:
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;
 	FString LanguageID;
-	
-	bool DoAzureTaskWork_Internal(const std::string& InStr, const std::string& InLanguageID, const std::string& InVoiceName);
 };

@@ -27,7 +27,7 @@ bool USSMLToVoiceAsync::StartAzureTaskWork_Internal()
 	{
 		return false;
 	}
-	
+
 	if (SSMLString.IsEmpty())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: SSML is empty"), *FString(__func__));
@@ -36,41 +36,8 @@ bool USSMLToVoiceAsync::StartAzureTaskWork_Internal()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [FuncName = __func__, this]
-	{
-		const TFuture<bool> SSMLToVoiceAsyncWork = Async(EAsyncExecution::Thread, [=]() -> bool
-		{
-			const std::string InSSMLStr = TCHAR_TO_UTF8(*SSMLString);
+	const std::string InSSML = TCHAR_TO_UTF8(*SSMLString);
 
-			return DoAzureTaskWork_Internal(InSSMLStr);
-		});
-
-		if (!SSMLToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(AzSpeech::Internal::GetTimeout())))
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task timed out"), *FString(FuncName));
-		}
-
-		const bool bOutputValue = SSMLToVoiceAsyncWork.Get();
-		if (CanBroadcast())
-		{
-			AsyncTask(ENamedThreads::GameThread, [=]() { SynthesisCompleted.Broadcast(bOutputValue); });
-		}		
-
-		if (bOutputValue)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(FuncName));
-		}
-		else
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed"), *FString(FuncName));
-		}
-	});
-
-	return true;
-}
-
-bool USSMLToVoiceAsync::DoAzureTaskWork_Internal(const std::string& InSSML)
-{
 	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer();
 
 	if (!SynthesizerObject)
@@ -79,9 +46,27 @@ bool USSMLToVoiceAsync::DoAzureTaskWork_Internal(const std::string& InSSML)
 		return false;
 	}
 
-	EnableVisemeOutput();
+	ApplyExtraSettings();
 
-	const auto SynthesisResult = SynthesizerObject->StartSpeakingSsmlAsync(InSSML).get();
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
+		SynthesizerObject->SpeakSsmlAsync(InSSML).wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+	});
 
-	return AzSpeech::Internal::ProcessSynthesisResult(SynthesisResult);
+	return true;
+}
+
+void USSMLToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+{
+	Super::OnSynthesisUpdate(SynthesisEventArgs);
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	{
+		return;
+	}
+
+	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	{
+		SynthesisCompleted.Broadcast(true);
+	}
 }

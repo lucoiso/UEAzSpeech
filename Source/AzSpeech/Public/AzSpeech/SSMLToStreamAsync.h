@@ -29,10 +29,9 @@ public:
 	
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
+	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
 
 private:
 	const UObject* WorldContextObject;
 	FString SSMLString;
-	
-	std::vector<uint8_t> DoAzureTaskWork_Internal(const std::string& InSSML);
 };
