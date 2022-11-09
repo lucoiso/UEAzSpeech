@@ -12,7 +12,7 @@
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToWavAsync final : public UAzSpeechSynthesizerTaskBase
+class AZSPEECH_API UTextToWavAsync : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
@@ -30,8 +30,7 @@ public:
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
-
-private:
+	
 	const UObject* WorldContextObject;
 	FString TextToConvert;
 	FString VoiceName;

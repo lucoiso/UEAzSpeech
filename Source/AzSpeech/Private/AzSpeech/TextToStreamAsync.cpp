@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/TextToStreamAsync.h"
-#include "AzSpeech.h"
 #include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
 

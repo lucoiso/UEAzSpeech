@@ -5,35 +5,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
+#include "Components/AudioComponent.h"
+#include "AzSpeech/TextToStreamAsync.h"
 #include "TextToVoiceAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
+class AZSPEECH_API UTextToVoiceAsync : public UTextToStreamAsync
 {
 	GENERATED_BODY()
 
 public:
-	/* Task delegate that will be called when completed */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FBooleanSynthesisDelegate SynthesisCompleted;
-
 	/* Creates a Text-To-Voice task that will convert your text to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
 	static UTextToVoiceAsync* TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
 	virtual void Activate() override;
+	virtual void StopAzSpeechTask() override;
 
 protected:
-	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
-
+	
 private:
-	const UObject* WorldContextObject;
-	FString TextToConvert;
-	FString VoiceName;
-	FString LanguageID;
+	TWeakObjectPtr<UAudioComponent> AudioComponent;
 };

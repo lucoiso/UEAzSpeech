@@ -4,6 +4,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
+#include "AzSpeech.h"
 #include "AzSpeech/AzSpeechSettings.h"
 
 THIRD_PARTY_INCLUDES_START

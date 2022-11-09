@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/WavToTextAsync.h"
-#include "AzSpeech.h"
 #include "Async/Async.h"
 #include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"

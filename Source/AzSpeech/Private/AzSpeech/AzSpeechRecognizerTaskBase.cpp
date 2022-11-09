@@ -30,7 +30,6 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 			}
 
 			RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-			RecognizerObject.reset();
 		});
 	}
 }

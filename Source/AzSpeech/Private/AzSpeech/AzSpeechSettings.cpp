@@ -44,6 +44,9 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 		{
 			AutoLanguageCandidates.Insert(LanguageID, 0);
 		}
+
+		AutoLanguageCandidates.Remove(FString());
+		AutoLanguageCandidates.Shrink();
 	}
 
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates))
@@ -57,3 +60,17 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	}
 }
 #endif // WITH_EDITOR
+
+void UAzSpeechSettings::PostLoad()
+{
+	Super::PostLoad();
+
+	AutoLanguageCandidates.Remove(FString());
+
+	if (!AutoLanguageCandidates.Contains(LanguageID))
+	{
+		AutoLanguageCandidates.Insert(LanguageID, 0);
+	}
+
+	AutoLanguageCandidates.Shrink();
+}

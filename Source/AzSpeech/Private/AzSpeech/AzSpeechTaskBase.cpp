@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechTaskBase.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech.h"
 
 #if WITH_EDITOR
 #include "Editor.h"

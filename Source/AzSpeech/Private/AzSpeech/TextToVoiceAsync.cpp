@@ -3,9 +3,11 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/TextToVoiceAsync.h"
-#include "AzSpeech.h"
-#include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechHelper.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundWave.h"
+#include "Async/Async.h"
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
@@ -23,42 +25,19 @@ void UTextToVoiceAsync::Activate()
 	Super::Activate();
 }
 
-bool UTextToVoiceAsync::StartAzureTaskWork_Internal()
+void UTextToVoiceAsync::StopAzSpeechTask()
 {
-	if (!Super::StartAzureTaskWork_Internal())
+	if (AudioComponent.IsValid())
 	{
-		return false;
+		AsyncTask(ENamedThreads::GameThread, [this]
+		{
+			AudioComponent->Stop();
+			AudioComponent->DestroyComponent();
+			AudioComponent.Reset();
+		});
 	}
 
-	if (TextToConvert.IsEmpty() || VoiceName.IsEmpty() || LanguageID.IsEmpty())
-	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
-		return false;
-	}
-
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
-
-	const std::string InText = TCHAR_TO_UTF8(*TextToConvert);
-	const std::string InLanguage = TCHAR_TO_UTF8(*LanguageID);
-	const std::string InVoice = TCHAR_TO_UTF8(*VoiceName);
-
-	const auto AudioConfig = AudioConfig::FromDefaultSpeakerOutput();
-	SynthesizerObject = AzSpeech::Internal::GetAzureSynthesizer(AudioConfig, InLanguage, InVoice);
-
-	if (!SynthesizerObject)
-	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: SynthesizerObject is null"), *FString(__func__));
-		return false;
-	}
-
-	ApplyExtraSettings();
-
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
-	{
-		SynthesizerObject->SpeakTextAsync(InText).wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-	});
-
-	return true;
+	Super::StopAzSpeechTask();
 }
 
 void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
@@ -70,8 +49,19 @@ void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Sp
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason != ResultReason::SynthesizingAudio)
+	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
 	{
-		SynthesisCompleted.Broadcast(bLastResultIsValid);
+		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
+
+		if (LastBuffer.IsEmpty())
+		{
+			return;
+		}
+
+		AsyncTask(ENamedThreads::GameThread, [this, LastBuffer]
+		{
+			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertStreamToSoundWave(LastBuffer));
+			AudioComponent->Play();
+		});
 	}
 }

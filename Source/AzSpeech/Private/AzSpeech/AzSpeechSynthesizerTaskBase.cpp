@@ -28,7 +28,6 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 		}
 
 		SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		SynthesizerObject.reset();
 	});
 }
 

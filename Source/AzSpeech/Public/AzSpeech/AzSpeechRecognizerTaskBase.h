@@ -8,7 +8,7 @@
 #include "AzSpeechTaskBase.h"
 
 THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
+#include <speechapi_cxx_speech_recognizer.h>
 THIRD_PARTY_INCLUDES_END
 
 #include "AzSpeechRecognizerTaskBase.generated.h"

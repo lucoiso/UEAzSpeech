@@ -60,9 +60,11 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Runtime Debug"))
 	bool bEnableRuntimeDebug;
 
-private:
+protected:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // WITH_EDITOR
+
+	virtual void PostLoad() override;
 };

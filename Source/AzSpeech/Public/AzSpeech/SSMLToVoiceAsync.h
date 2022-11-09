@@ -5,33 +5,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
+#include "Components/AudioComponent.h"
+#include "AzSpeech/SSMLToStreamAsync.h"
 #include "SSMLToVoiceAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API USSMLToVoiceAsync final : public UAzSpeechSynthesizerTaskBase
+class AZSPEECH_API USSMLToVoiceAsync : public USSMLToStreamAsync
 {
 	GENERATED_BODY()
 
 public:
-	/* Task delegate that will be called when completed */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FBooleanSynthesisDelegate SynthesisCompleted;
-
 	/* Creates a SSML-To-Voice task that will convert your SSML file to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Voice"))
 	static USSMLToVoiceAsync* SSMLToVoice(const UObject* WorldContextObject, const FString& SSMLString);
 
 	virtual void Activate() override;
+	virtual void StopAzSpeechTask() override;
 
 protected:
-	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
 
 private:
-	const UObject* WorldContextObject;
-	FString SSMLString;
+	TWeakObjectPtr<UAudioComponent> AudioComponent;	
 };

@@ -12,7 +12,7 @@
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UVoiceToTextAsync final : public UAzSpeechRecognizerTaskBase
+class AZSPEECH_API UVoiceToTextAsync : public UAzSpeechRecognizerTaskBase
 {
 	GENERATED_BODY()
 
@@ -25,8 +25,7 @@ public:
 
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
-
-private:
+	
 	const UObject* WorldContextObject;
 	FString LanguageID;
 };

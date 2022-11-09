@@ -8,8 +8,6 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "AzSpeechTaskBase.generated.h"
 
-struct FDeviceId;
-
 /**
  *
  */

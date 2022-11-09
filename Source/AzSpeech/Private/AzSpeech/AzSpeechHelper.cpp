@@ -17,7 +17,7 @@
 FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
-	if (!Output.EndsWith("/"))
+	if (!Output.EndsWith("/") && !Output.EndsWith("\""))
 	{
 		Output += '/';
 	}
