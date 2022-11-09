@@ -12,6 +12,8 @@ THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_enums.h>
 THIRD_PARTY_INCLUDES_END
 
+#include <map>
+
 namespace AzSpeech::Internal
 {
 	template<typename Ty>
