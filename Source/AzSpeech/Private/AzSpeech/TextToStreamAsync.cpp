@@ -23,7 +23,7 @@ bool UTextToStreamAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (HasEmptyParam(SynthesisText, VoiceName, LanguageId))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, VoiceName, LanguageId))
 	{
 		return false;
 	}
@@ -51,11 +51,7 @@ void UTextToStreamAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 	{
 		const TArray<uint8> OutputStream = GetLastSynthesizedStream();
 
-#if ENGINE_MAJOR_VERSION >= 5
-		OutputSynthesisResult(!OutputStream.IsEmpty());
-#else
-		OutputSynthesisResult(OutputStream.Num() != 0);
-#endif
+		OutputSynthesisResult(!AzSpeech::Internal::HasEmptyParam(OutputStream));
 
 		AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(OutputStream); });
 	}

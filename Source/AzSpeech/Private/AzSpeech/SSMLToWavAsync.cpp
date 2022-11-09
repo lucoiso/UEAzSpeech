@@ -35,7 +35,7 @@ bool USSMLToWavAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (HasEmptyParam(SynthesisText, FilePath, FileName))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, FilePath, FileName))
 	{
 		return false;
 	}

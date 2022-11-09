@@ -58,24 +58,6 @@ protected:
 		}
 	};
 
-	template<typename Ty>
-	const bool HasEmptyParam(const Ty& Arg1) const
-	{
-		return Arg1.IsEmpty();
-	}
-
-	template<typename Ty, typename ...Args>
-	const bool HasEmptyParam(const Ty& Arg1, Args&& ...args) const
-	{
-		const bool bOutput = HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
-		if (bOutput)
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters!"), *FString(__func__));
-		}
-
-		return bOutput;
-	}
-
 	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig);
 	void EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig);
 

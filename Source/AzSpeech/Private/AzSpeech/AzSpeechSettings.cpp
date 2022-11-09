@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeechInternalFuncs.h"
 
 #if WITH_EDITOR
 #include "Misc/MessageDialog.h"
@@ -12,11 +13,7 @@ UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer
 {
 	CategoryName = TEXT("Plugins");
 
-#if ENGINE_MAJOR_VERSION >= 5
-	if (AutoLanguageCandidates.IsEmpty())
-#else
-	if (AutoLanguageCandidates.Num() == 0)
-#endif
+	if (AzSpeech::Internal::HasEmptyParam(AutoLanguageCandidates))
 	{
 		AutoLanguageCandidates.Add(LanguageID);
 	}

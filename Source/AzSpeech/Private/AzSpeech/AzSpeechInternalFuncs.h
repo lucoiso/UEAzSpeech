@@ -13,6 +13,35 @@ THIRD_PARTY_INCLUDES_END
 
 namespace AzSpeech::Internal
 {
+	template<typename Ty>
+	const bool HasEmptyParam(const Ty& Arg1)
+	{
+		if constexpr (std::is_base_of<FString, Ty>())
+		{
+			return Arg1.IsEmpty();
+		}
+		else
+		{
+#if ENGINE_MAJOR_VERSION >= 5
+			return Arg1.IsEmpty();
+#else
+			return Arg1.Num() == 0;
+#endif
+		}
+	}
+
+	template<typename Ty, typename ...Args>
+	const bool HasEmptyParam(const Ty& Arg1, Args&& ...args)
+	{
+		const bool bOutput = HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
+		if (bOutput)
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters!"), *FString(__func__));
+		}
+
+		return bOutput;
+	}
+
 	const UAzSpeechSettings* GetPluginSettings()
 	{
 		static const UAzSpeechSettings* const Instance = GetDefault<UAzSpeechSettings>();
@@ -66,7 +95,7 @@ namespace AzSpeech::Internal
 		const UAzSpeechSettings* const Settings = GetPluginSettings();
 		for (const FString& Iterator : Settings->AutoLanguageCandidates)
 		{
-			if (Iterator.IsEmpty())
+			if (HasEmptyParam(Iterator))
 			{
 				continue;
 			}
@@ -112,7 +141,7 @@ namespace AzSpeech::Internal
 	const FString GetLanguageID(const FString& InTestId = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
-		if (InTestId.IsEmpty() || InTestId.Equals("Default", ESearchCase::IgnoreCase))
+		if (HasEmptyParam(InTestId) || InTestId.Equals("Default", ESearchCase::IgnoreCase))
 		{
 			return UTF8_TO_TCHAR(Settings.at(2).c_str());
 		}
@@ -123,7 +152,7 @@ namespace AzSpeech::Internal
 	const FString GetVoiceName(const FString& InTestId = "Default")
 	{
 		const auto Settings = GetAzSpeechKeys();
-		if (InTestId.IsEmpty() || InTestId.Equals("Default", ESearchCase::IgnoreCase))
+		if (HasEmptyParam(InTestId) || InTestId.Equals("Default", ESearchCase::IgnoreCase))
 		{
 			return UTF8_TO_TCHAR(Settings.at(3).c_str());
 		}

@@ -35,7 +35,7 @@ bool UTextToWavAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (HasEmptyParam(SynthesisText, VoiceName, LanguageId, FilePath, FileName))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, VoiceName, LanguageId, FilePath, FileName))
 	{
 		return false;
 	}

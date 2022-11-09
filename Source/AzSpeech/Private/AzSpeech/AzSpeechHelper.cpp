@@ -9,6 +9,7 @@
 #include "HAL/PlatformFileManager.h"
 #include "DesktopPlatformModule.h"
 #include "Kismet/GameplayStatics.h"
+#include "AzSpeechInternalFuncs.h"
 
 #if PLATFORM_ANDROID
 #include "AndroidPermissionFunctionLibrary.h"
@@ -29,7 +30,7 @@ FString UAzSpeechHelper::QualifyPath(const FString& Path)
 
 FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString& Name, const FString& Extension)
 {
-	if (Path.IsEmpty() || Name.IsEmpty() || Extension.IsEmpty())
+	if (AzSpeech::Internal::HasEmptyParam(Path, Name, Extension))
 	{
 		return FString();
 	}
@@ -52,7 +53,7 @@ FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString
 
 USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, const FString& FileName)
 {
-	if (FilePath.IsEmpty() || FileName.IsEmpty())
+	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: FilePath or FileName is empty"), *FString(__func__));
 	}
@@ -80,11 +81,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 
 USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawData)
 {
-#if ENGINE_MAJOR_VERSION >= 5
-	if (RawData.IsEmpty())
-#else
-	if (RawData.Num() == 0)
-#endif
+	if (AzSpeech::Internal::HasEmptyParam(RawData))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: RawData is empty"), *FString(__func__));
 	}
@@ -122,7 +119,7 @@ USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawDa
 
 FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString& FileName)
 {
-	if (FilePath.IsEmpty() || FileName.IsEmpty())
+	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: FilePath or FileName is empty"), *FString(__func__));
 	}

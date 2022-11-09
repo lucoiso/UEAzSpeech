@@ -36,7 +36,7 @@ bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (HasEmptyParam(LanguageId))
+	if (AzSpeech::Internal::HasEmptyParam(LanguageId))
 	{
 		return false;
 	}

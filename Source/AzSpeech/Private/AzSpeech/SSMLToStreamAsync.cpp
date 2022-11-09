@@ -23,7 +23,7 @@ bool USSMLToStreamAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (HasEmptyParam(SynthesisText))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
 	{
 		return false;
 	}
@@ -51,12 +51,8 @@ void USSMLToStreamAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
 	{
 		const TArray<uint8> OutputStream = GetLastSynthesizedStream();
-
-#if ENGINE_MAJOR_VERSION >= 5
-		OutputSynthesisResult(!OutputStream.IsEmpty());
-#else
-		OutputSynthesisResult(OutputStream.Num() != 0);
-#endif
+		
+		OutputSynthesisResult(!AzSpeech::Internal::HasEmptyParam(OutputStream));
 
 		AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(OutputStream); });
 	}

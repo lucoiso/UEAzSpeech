@@ -8,6 +8,7 @@
 #include "Sound/SoundWave.h"
 #include "Components/AudioComponent.h"
 #include "Async/Async.h"
+#include "AzSpeechInternalFuncs.h"
 
 USSMLToVoiceAsync* USSMLToVoiceAsync::SSMLToVoice(const UObject* WorldContextObject, const FString& SSMLString)
 {
@@ -47,11 +48,7 @@ void USSMLToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Sp
 	{
 		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
 
-#if ENGINE_MAJOR_VERSION >= 5
-		if (LastBuffer.IsEmpty())
-#else
-		if (LastBuffer.Num() == 0)
-#endif
+		if (AzSpeech::Internal::HasEmptyParam(LastBuffer))
 		{
 			return;
 		}
