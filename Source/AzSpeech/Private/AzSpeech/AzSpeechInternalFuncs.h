@@ -3,12 +3,13 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #pragma once
+
 #include "CoreMinimal.h"
 #include "AzSpeech.h"
 #include "AzSpeech/AzSpeechSettings.h"
 
 THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
+#include <speechapi_cxx_enums.h>
 THIRD_PARTY_INCLUDES_END
 
 namespace AzSpeech::Internal

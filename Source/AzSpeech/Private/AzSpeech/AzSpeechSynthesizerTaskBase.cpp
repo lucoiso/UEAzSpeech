@@ -6,10 +6,6 @@
 #include "AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
-THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
-THIRD_PARTY_INCLUDES_END
-
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
 	VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
@@ -225,13 +221,13 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Starting synthesis."), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, FuncName = __func__]
+	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
 	{
-		if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing synthesis task with text: %s"), *FString(FuncName), *SynthesisText);
-		}
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Using text: %s"), *FString(__func__), *SynthesisText);
+	}
 
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
 		const std::string SynthesisStr = TCHAR_TO_UTF8(*SynthesisText);
 		std::future<std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>> Future;
 		if (bIsSSMLBased)

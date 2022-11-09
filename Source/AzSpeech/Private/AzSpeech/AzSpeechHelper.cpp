@@ -81,7 +81,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 
 USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawData)
 {
-	if (AzSpeech::Internal::HasEmptyParam(RawData))
+	if (!IsStreamValid(RawData))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: RawData is empty"), *FString(__func__));
 	}
@@ -190,14 +190,23 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	return OutputPath;
 }
 
-void UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InPermissionStr)
+bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InPermission)
 {
 #if PLATFORM_ANDROID
-	if (!UAndroidPermissionFunctionLibrary::CheckPermission(InPermissionStr))
+	UE_LOG(LogAzSpeech, Error, TEXT("%s: Checking android permission: %s"), *FString(__func__), *InPermission);
+	if (!UAndroidPermissionFunctionLibrary::CheckPermission(InPermission))
 	{
-		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermissionStr });
+		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermission });
 	}
+
+	return UAndroidPermissionFunctionLibrary::CheckPermission(InPermission);
 #else
 	UE_LOG(LogAzSpeech, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
+	return true;
 #endif
+}
+
+bool UAzSpeechHelper::IsStreamValid(const TArray<uint8>& RawData)
+{
+	return !AzSpeech::Internal::HasEmptyParam(RawData);
 }

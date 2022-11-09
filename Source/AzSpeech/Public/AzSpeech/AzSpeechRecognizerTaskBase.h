@@ -13,8 +13,8 @@ THIRD_PARTY_INCLUDES_END
 
 #include "AzSpeechRecognizerTaskBase.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRecognitionUpdated, const FString, UpdatedString);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRecognitionCompleted, const FString, FinalString);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRecognitionUpdatedDelegate, const FString, UpdatedString);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRecognitionCompletedDelegate, const FString, FinalString);
 
 /**
  *
@@ -30,10 +30,10 @@ public:
 
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FRecognitionCompleted RecognitionCompleted;
+	FRecognitionCompletedDelegate RecognitionCompleted;
 
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FRecognitionUpdated RecognitionUpdated;
+	FRecognitionUpdatedDelegate RecognitionUpdated;
 
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	void EnableContinuousRecognition();

@@ -40,11 +40,11 @@ public:
 	}
 
 	/* Convert file to USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static USoundWave* ConvertFileToSoundWave(const FString& FilePath, const FString& FileName);
 
 	/* Convert data stream (TArray<uint8>) to USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static USoundWave* ConvertStreamToSoundWave(const TArray<uint8>& RawData);
 
 	/* Load a given .xml file and return the content as string */
@@ -61,5 +61,8 @@ public:
 
 	/* Check if the android platform already has permission and add if not */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Check and Add Android Permission"))
-	static void CheckAndroidPermission(const FString& InPermissionStr);
+	static bool CheckAndroidPermission(const FString& InPermission);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static bool IsStreamValid(const TArray<uint8>& RawData);
 };

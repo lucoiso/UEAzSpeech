@@ -6,10 +6,6 @@
 #include "AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
-THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
-THIRD_PARTY_INCLUDES_END
-
 void UAzSpeechRecognizerTaskBase::Activate()
 {
 	Super::Activate();
@@ -235,7 +231,7 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Starting recognition."), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
 	{
 		if (bContinuousRecognition)
 		{

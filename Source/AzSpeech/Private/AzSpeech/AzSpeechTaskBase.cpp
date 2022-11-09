@@ -10,10 +10,6 @@
 #include "Editor.h"
 #endif
 
-THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx.h>
-THIRD_PARTY_INCLUDES_END
-
 void UAzSpeechTaskBase::Activate()
 {
 	LanguageId = AzSpeech::Internal::GetLanguageID(LanguageId);
