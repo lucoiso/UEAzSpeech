@@ -3,10 +3,10 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/WavToTextAsync.h"
-#include "Async/Async.h"
 #include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
+#include "Async/Async.h"
 
 UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
 {
@@ -14,7 +14,6 @@ UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, c
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
-	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
 
 	return NewAsyncTask;
@@ -36,9 +35,8 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (FilePath.IsEmpty() || FileName.IsEmpty() || LanguageID.IsEmpty())
+	if (HasEmptyParam(FilePath, FileName, LanguageId))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
@@ -49,33 +47,13 @@ bool UWavToTextAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
-
 	const std::string InFilePath = TCHAR_TO_UTF8(*QualifiedPath);
-	const std::string InLanguage = TCHAR_TO_UTF8(*LanguageID);
-
-	const auto AudioConfig = AudioConfig::FromWavFileInput(InFilePath);
-	RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguage);
-
-	if (!RecognizerObject)
+	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(InFilePath);
+	if (!InitializeRecognizer(AudioConfig))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
 		return false;
 	}
 
-	ApplyExtraSettings();
-
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
-	{
-		if (bContinuousRecognition)
-		{
-			RecognizerObject->StartContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		}
-		else
-		{
-			RecognizerObject->RecognizeOnceAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		}
-	});
-
+	StartRecognitionWork();
 	return true;
 }

@@ -30,9 +30,7 @@ public:
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
-	
-	const UObject* WorldContextObject;
-	FString SSMLString;
+
 	FString FilePath;
 	FString FileName;
 };

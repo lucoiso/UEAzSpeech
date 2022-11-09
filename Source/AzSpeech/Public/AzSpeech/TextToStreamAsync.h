@@ -25,14 +25,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
 	static UTextToStreamAsync* TextToStream(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
-	virtual void Activate() override;
-
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
-	
-	const UObject* WorldContextObject;
-	FString TextToConvert;
-	FString VoiceName;
-	FString LanguageID;
 };

@@ -24,13 +24,8 @@ public:
 	/* Creates a SSML-To-Stream task that will convert your SSML file to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Stream"))
 	static USSMLToStreamAsync* SSMLToStream(const UObject* WorldContextObject, const FString& SSMLString);
-
-	virtual void Activate() override;
 	
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
-	
-	const UObject* WorldContextObject;
-	FString SSMLString;
 };

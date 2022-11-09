@@ -3,8 +3,8 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/VoiceToTextAsync.h"
-#include "Async/Async.h"
 #include "AzSpeechInternalFuncs.h"
+#include "Async/Async.h"
 
 #if PLATFORM_ANDROID
 // Only used to check android permission
@@ -15,7 +15,6 @@ UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObj
 {
 	UVoiceToTextAsync* const NewAsyncTask = NewObject<UVoiceToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
 	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
 
 	return NewAsyncTask;
@@ -37,38 +36,17 @@ bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
 		return false;
 	}
 
-	if (LanguageID.IsEmpty())
+	if (HasEmptyParam(LanguageId))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters"), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing task"), *FString(__func__));
-
-	const std::string InLanguage = TCHAR_TO_UTF8(*LanguageID);
-
-	const auto AudioConfig = AudioConfig::FromDefaultMicrophoneInput();
-	RecognizerObject = AzSpeech::Internal::GetAzureRecognizer(AudioConfig, InLanguage);
-
-	if (!RecognizerObject)
+	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromDefaultMicrophoneInput();
+	if (!InitializeRecognizer(AudioConfig))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to proceed with task: RecognizerObject is null"), *FString(__func__));
 		return false;
 	}
 
-	ApplyExtraSettings();
-
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
-	{
-		if (bContinuousRecognition)
-		{
-			RecognizerObject->StartContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		}
-		else
-		{
-			RecognizerObject->RecognizeOnceAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		}
-	});
-
+	StartRecognitionWork();
 	return true;
 }

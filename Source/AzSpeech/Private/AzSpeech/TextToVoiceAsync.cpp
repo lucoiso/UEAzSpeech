@@ -3,30 +3,26 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/TextToVoiceAsync.h"
-#include "AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
+#include "Components/AudioComponent.h"
 #include "Async/Async.h"
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
 	UTextToVoiceAsync* const NewAsyncTask = NewObject<UTextToVoiceAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TextToConvert = TextToConvert;
-	NewAsyncTask->VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
-	NewAsyncTask->LanguageID = AzSpeech::Internal::GetLanguageID(LanguageId);
+	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->bIsSSMLBased = false;
 
 	return NewAsyncTask;
 }
 
-void UTextToVoiceAsync::Activate()
-{
-	Super::Activate();
-}
-
 void UTextToVoiceAsync::StopAzSpeechTask()
 {
+	Super::StopAzSpeechTask();
+
 	if (AudioComponent.IsValid())
 	{
 		AsyncTask(ENamedThreads::GameThread, [this]
@@ -36,8 +32,6 @@ void UTextToVoiceAsync::StopAzSpeechTask()
 			AudioComponent.Reset();
 		});
 	}
-
-	Super::StopAzSpeechTask();
 }
 
 void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
@@ -49,17 +43,26 @@ void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Sp
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason == ResultReason::SynthesizingAudioCompleted)
+	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 	{
 		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
 
+#if ENGINE_MAJOR_VERSION >= 5
 		if (LastBuffer.IsEmpty())
+#else
+		if (LastBuffer.Num() == 0)
+#endif
 		{
 			return;
 		}
 
 		AsyncTask(ENamedThreads::GameThread, [this, LastBuffer]
 		{
+			if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+			{
+				return;
+			}
+
 			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertStreamToSoundWave(LastBuffer));
 			AudioComponent->Play();
 		});

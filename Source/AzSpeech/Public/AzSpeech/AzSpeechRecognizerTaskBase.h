@@ -45,7 +45,7 @@ public:
 	const FString GetLastRecognizedString() const;
 	
 protected:
-	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
 	bool bContinuousRecognition = false;
 	
 	virtual bool StartAzureTaskWork_Internal() override;
@@ -53,7 +53,14 @@ protected:
 	virtual void ClearBindings() override;
 	virtual void ApplyExtraSettings() override;
 
+	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
+
 	virtual void OnRecognitionUpdated(const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs);
+
+	bool InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+	void StartRecognitionWork();
+
+	const bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result) const;
 	
 private:
 	std::string LastRecognizedString;

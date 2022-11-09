@@ -5,7 +5,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/AudioComponent.h"
 #include "AzSpeech/SSMLToStreamAsync.h"
 #include "SSMLToVoiceAsync.generated.h"
 
@@ -22,12 +21,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Voice"))
 	static USSMLToVoiceAsync* SSMLToVoice(const UObject* WorldContextObject, const FString& SSMLString);
 
-	virtual void Activate() override;
 	virtual void StopAzSpeechTask() override;
 
 protected:
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
 
 private:
-	TWeakObjectPtr<UAudioComponent> AudioComponent;	
+	TWeakObjectPtr<class UAudioComponent> AudioComponent;	
 };

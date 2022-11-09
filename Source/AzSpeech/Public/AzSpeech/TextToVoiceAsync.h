@@ -5,7 +5,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/AudioComponent.h"
 #include "AzSpeech/TextToStreamAsync.h"
 #include "TextToVoiceAsync.generated.h"
 
@@ -22,7 +21,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
 	static UTextToVoiceAsync* TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
-	virtual void Activate() override;
 	virtual void StopAzSpeechTask() override;
 
 protected:

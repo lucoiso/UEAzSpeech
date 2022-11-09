@@ -22,6 +22,8 @@ FString UAzSpeechHelper::QualifyPath(const FString& Path)
 		Output += '/';
 	}
 
+	UE_LOG(LogAzSpeech, Log, TEXT("%s: Qualified directory path: %s"), *FString(__func__), *Output);
+
 	return Output;
 }
 
@@ -43,7 +45,7 @@ FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString
 
 	const FString QualifiedName = LocalPath + LocalName;
 
-	UE_LOG(LogAzSpeech, Log, TEXT("AzSpeech - %s: Qualified %s file path: %s"), *FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
+	UE_LOG(LogAzSpeech, Log, TEXT("%s: Qualified %s file path: %s"), *FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
 
 	return QualifiedName;
 }
@@ -145,7 +147,7 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 
 	if (!bOutput)
 	{
-		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Warning, TEXT("%s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
 
 		bOutput = bCreateParents
 			          ? FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path)
@@ -154,7 +156,7 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 
 	if (bOutput)
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success. Output path: %s"), *FString(__func__), *Path);
 	}
 	else
 	{

@@ -68,7 +68,12 @@ public:
 	const bool IsLastVisemeDataValid() const;
 	
 protected:
-	std::shared_ptr<class Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
+	FString VoiceName;
+	FString SynthesisText;
+
+	bool bIsSSMLBased;
+
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 
 	bool bLastResultIsValid = false;
 
@@ -78,10 +83,19 @@ protected:
 	void EnableVisemeOutput();
 	virtual void ApplyExtraSettings() override;
 
+	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
+
 	virtual void OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs);
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs);
 
+	bool InitializeSynthesizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+	void StartSynthesisWork();
+
 	void OutputSynthesisResult(const bool bSuccess) const;
+
+	const bool ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& Result) const;
+
+	const bool CanBroadcastWithReason(const Microsoft::CognitiveServices::Speech::ResultReason& Reason) const;
 
 private:
 	FAzSpeechVisemeData LastVisemeData;

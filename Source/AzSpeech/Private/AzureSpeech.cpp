@@ -60,7 +60,7 @@ void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 
 	if (Handle == nullptr)
 	{
-		UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech - %s: Failed to load library %s."), *FString(__func__), *Path);
+		UE_LOG(LogAzSpeech, Warning, TEXT("%s: Failed to load library %s."), *FString(__func__), *Path);
 	}
 }
 
