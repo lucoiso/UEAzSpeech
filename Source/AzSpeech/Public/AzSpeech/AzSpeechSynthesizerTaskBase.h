@@ -39,9 +39,13 @@ struct FAzSpeechVisemeData
 	FString Animation = FString();
 };
 
+class USoundWave;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVisemeReceived, const FAzSpeechVisemeData, VisemeData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStreamSynthesisDelegate, const TArray<uint8>&, RecognizedStream);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAudioDataSynthesisDelegate, const TArray<uint8>&, FinalAudioData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSoundWaveSynthesisDelegate, USoundWave*, GeneratedSound);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBooleanSynthesisDelegate, const bool, bSuccess);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSynthesisUpdatedGenericDelegate);
 
 /**
  *
@@ -56,6 +60,9 @@ public:
 	virtual void StopAzSpeechTask() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+	FSynthesisUpdatedGenericDelegate SynthesisUpdated;
+
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
@@ -66,6 +73,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsLastVisemeDataValid() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const bool IsLastResultValid() const;
 	
 protected:
 	FString VoiceName;
@@ -74,8 +84,6 @@ protected:
 	bool bIsSSMLBased;
 
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
-
-	bool bLastResultIsValid = false;
 
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void ClearBindings() override;
@@ -100,4 +108,5 @@ protected:
 private:
 	FAzSpeechVisemeData LastVisemeData;
 	std::vector<uint8_t> LastSynthesizedBuffer;
+	bool bLastResultIsValid = false;
 };

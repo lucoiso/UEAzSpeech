@@ -2,17 +2,16 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/TextToVoiceAsync.h"
+#include "AzSpeech/TextToSpeechAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 #include "Components/AudioComponent.h"
 #include "Async/Async.h"
-#include "AzSpeechInternalFuncs.h"
 
-UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
-	UTextToVoiceAsync* const NewAsyncTask = NewObject<UTextToVoiceAsync>();
+	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = TextToConvert;
 	NewAsyncTask->bIsSSMLBased = false;
@@ -20,7 +19,7 @@ UTextToVoiceAsync* UTextToVoiceAsync::TextToVoice(const UObject* WorldContextObj
 	return NewAsyncTask;
 }
 
-void UTextToVoiceAsync::StopAzSpeechTask()
+void UTextToSpeechAsync::StopAzSpeechTask()
 {
 	Super::StopAzSpeechTask();
 
@@ -35,7 +34,7 @@ void UTextToVoiceAsync::StopAzSpeechTask()
 	}
 }
 
-void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
 	Super::OnSynthesisUpdate(SynthesisEventArgs);
 
@@ -46,9 +45,13 @@ void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Sp
 
 	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 	{
-		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
+		if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+		{
+			SynthesisCompleted.Broadcast(IsLastResultValid());
+		}
 
-		if (AzSpeech::Internal::HasEmptyParam(LastBuffer))
+		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
+		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
 			return;
 		}
@@ -60,7 +63,7 @@ void UTextToVoiceAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Sp
 				return;
 			}
 
-			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertStreamToSoundWave(LastBuffer));
+			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 			AudioComponent->Play();
 		});
 	}

@@ -53,6 +53,11 @@ const bool UAzSpeechSynthesizerTaskBase::IsLastVisemeDataValid() const
 	return LastVisemeData.IsValid();
 }
 
+const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
+{
+	return bLastResultIsValid;
+}
+
 bool UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
 {
 	return Super::StartAzureTaskWork_Internal();
@@ -158,6 +163,8 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveSe
 
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
+	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisUpdated.Broadcast(); });
+
 	if (SynthesisEventArgs.Result->Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio)
 	{
 		bLastResultIsValid = ProcessSynthesisResult(SynthesisEventArgs.Result);

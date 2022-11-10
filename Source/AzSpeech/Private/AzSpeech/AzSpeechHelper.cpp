@@ -69,7 +69,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 			FFileHelper::LoadFileToArray(RawData, *Full_FileName, FILEREAD_NoFail))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(__func__));
-			return ConvertStreamToSoundWave(RawData);
+			return ConvertAudioDataToSoundWave(RawData);
 		}
 		// else
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: Result: Failed to load file"), *FString(__func__));
@@ -79,9 +79,9 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertStreamToSoundWave(const TArray<uint8>& RawData)
+USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData)
 {
-	if (!IsStreamValid(RawData))
+	if (!IsAudioDataValid(RawData))
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("%s: RawData is empty"), *FString(__func__));
 	}
@@ -206,7 +206,13 @@ bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InP
 #endif
 }
 
-bool UAzSpeechHelper::IsStreamValid(const TArray<uint8>& RawData)
+bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 {
-	return !AzSpeech::Internal::HasEmptyParam(RawData);
+	const bool bOutput = !AzSpeech::Internal::HasEmptyParam(RawData);
+	if (!bOutput)
+	{
+		UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid audio data."), *FString(__func__));
+	}
+
+	return bOutput;
 }

@@ -2,15 +2,15 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/WavToTextAsync.h"
+#include "AzSpeech/WavFileToTextAsync.h"
 #include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
-UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
 {
-	UWavToTextAsync* const NewAsyncTask = NewObject<UWavToTextAsync>();
+	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
@@ -19,7 +19,7 @@ UWavToTextAsync* UWavToTextAsync::WavToText(const UObject* WorldContextObject, c
 	return NewAsyncTask;
 }
 
-void UWavToTextAsync::Activate()
+void UWavFileToTextAsync::Activate()
 {
 #if PLATFORM_ANDROID
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
@@ -28,7 +28,7 @@ void UWavToTextAsync::Activate()
 	Super::Activate();
 }
 
-bool UWavToTextAsync::StartAzureTaskWork_Internal()
+bool UWavFileToTextAsync::StartAzureTaskWork_Internal()
 {
 	if (!Super::StartAzureTaskWork_Internal())
 	{

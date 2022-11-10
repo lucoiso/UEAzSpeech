@@ -5,21 +5,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/TextToStreamAsync.h"
-#include "TextToVoiceAsync.generated.h"
+#include "AzSpeech/AzSpeechAudioDataSynthesisBase.h"
+#include "TextToSpeechAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToVoiceAsync : public UTextToStreamAsync
+class AZSPEECH_API UTextToSpeechAsync : public UAzSpeechAudioDataSynthesisBase
 {
 	GENERATED_BODY()
 
 public:
-	/* Creates a Text-To-Voice task that will convert your text to speech */
+	/* Task delegate that will be called when completed */
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+	FBooleanSynthesisDelegate SynthesisCompleted;
+
+	/* Creates a Text-To-Speech task that will convert your text to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToVoiceAsync* TextToVoice(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
+	static UTextToSpeechAsync* TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
 	virtual void StopAzSpeechTask() override;
 

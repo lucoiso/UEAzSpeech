@@ -6,13 +6,13 @@
 
 #include "CoreMinimal.h"
 #include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
-#include "TextToWavAsync.generated.h"
+#include "SSMLToWavFileAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToWavAsync : public UAzSpeechSynthesizerTaskBase
+class AZSPEECH_API USSMLToWavFileAsync : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
@@ -21,9 +21,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FBooleanSynthesisDelegate SynthesisCompleted;
 
-	/* Creates a Text-To-Wav task that will convert your string to a .wav audio file */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To WAV"))
-	static UTextToWavAsync* TextToWav(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
+	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To .wav File"))
+	static USSMLToWavFileAsync* SSMLToWavFile(const UObject* WorldContextObject, const FString& SSMLString, const FString& FilePath, const FString& FileName);
 
 	virtual void Activate() override;
 

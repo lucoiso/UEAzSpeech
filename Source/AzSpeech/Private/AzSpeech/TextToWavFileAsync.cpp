@@ -2,14 +2,14 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/TextToWavAsync.h"
+#include "AzSpeech/TextToWavFileAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
-UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageId)
+UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageId)
 {
-	UTextToWavAsync* const NewAsyncTask = NewObject<UTextToWavAsync>();
+	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = TextToConvert;
 	NewAsyncTask->FilePath = FilePath;
@@ -19,7 +19,7 @@ UTextToWavAsync* UTextToWavAsync::TextToWav(const UObject* WorldContextObject, c
 	return NewAsyncTask;
 }
 
-void UTextToWavAsync::Activate()
+void UTextToWavFileAsync::Activate()
 {
 #if PLATFORM_ANDROID
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
@@ -28,7 +28,7 @@ void UTextToWavAsync::Activate()
 	Super::Activate();
 }
 
-bool UTextToWavAsync::StartAzureTaskWork_Internal()
+bool UTextToWavFileAsync::StartAzureTaskWork_Internal()
 {
 	if (!Super::StartAzureTaskWork_Internal())
 	{
@@ -58,7 +58,7 @@ bool UTextToWavAsync::StartAzureTaskWork_Internal()
 	return true;
 }
 
-void UTextToWavAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToWavFileAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
 	Super::OnSynthesisUpdate(SynthesisEventArgs);
 
@@ -69,6 +69,6 @@ void UTextToWavAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Spee
 
 	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
 	{
-		AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(bLastResultIsValid); });
+		AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
 	}
 }

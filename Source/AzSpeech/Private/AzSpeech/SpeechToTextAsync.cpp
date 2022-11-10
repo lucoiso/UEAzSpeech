@@ -2,7 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/VoiceToTextAsync.h"
+#include "AzSpeech/SpeechToTextAsync.h"
 #include "AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
@@ -11,16 +11,16 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #endif
 
-UVoiceToTextAsync* UVoiceToTextAsync::VoiceToText(const UObject* WorldContextObject, const FString& LanguageId, const bool bContinuosRecognition)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContextObject, const FString& LanguageId, const bool bContinuosRecognition)
 {
-	UVoiceToTextAsync* const NewAsyncTask = NewObject<UVoiceToTextAsync>();
+	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
 
 	return NewAsyncTask;
 }
 
-void UVoiceToTextAsync::Activate()
+void USpeechToTextAsync::Activate()
 {
 #if PLATFORM_ANDROID
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.RECORD_AUDIO");
@@ -29,7 +29,7 @@ void UVoiceToTextAsync::Activate()
 	Super::Activate();
 }
 
-bool UVoiceToTextAsync::StartAzureTaskWork_Internal()
+bool USpeechToTextAsync::StartAzureTaskWork_Internal()
 {
 	if (!Super::StartAzureTaskWork_Internal())
 	{
