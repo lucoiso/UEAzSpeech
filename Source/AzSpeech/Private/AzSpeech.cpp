@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech.h"
+#include "LogAzSpeech.h"
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
@@ -13,8 +14,6 @@
 #endif
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
-
-DEFINE_LOG_CATEGORY(LogAzSpeech);
 
 void FAzSpeechModule::StartupModule()
 {

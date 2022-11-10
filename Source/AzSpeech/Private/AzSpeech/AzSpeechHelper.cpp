@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeech.h"
+#include "LogAzSpeech.h"
 #include "Sound/SoundWave.h"
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFileManager.h"

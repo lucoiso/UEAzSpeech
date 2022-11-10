@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech.h"
+#include "LogAzSpeech.h"
 #include "AzSpeech/AzSpeechSettings.h"
 
 THIRD_PARTY_INCLUDES_START
