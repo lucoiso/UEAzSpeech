@@ -8,6 +8,7 @@
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "HAL/FileManager.h"
 
 #if ENGINE_MAJOR_VERSION < 5
 #include "GenericPlatform/GenericPlatformProcess.h"
