@@ -16,8 +16,6 @@
  *
  */
 
-DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech, Display, Verbose);
-
 class FAzSpeechModule : public IModuleInterface
 {
 public:

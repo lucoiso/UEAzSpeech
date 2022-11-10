@@ -3,18 +3,17 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeechInternalFuncs.h"
 
 #if WITH_EDITOR
 #include "Misc/MessageDialog.h"
 #endif // WITH_EDITOR
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(15.f)
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableSDKLogs(true), bEnableViseme(true), bEnableRuntimeDebug(false)
 {
-#if ENGINE_MAJOR_VERSION >= 5
-	if (AutoLanguageCandidates.IsEmpty())
-#else
-	if (AutoLanguageCandidates.Num() == 0)
-#endif
+	CategoryName = TEXT("Plugins");
+
+	if (AzSpeech::Internal::HasEmptyParam(AutoLanguageCandidates))
 	{
 		AutoLanguageCandidates.Add(LanguageID);
 	}
@@ -42,6 +41,9 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 		{
 			AutoLanguageCandidates.Insert(LanguageID, 0);
 		}
+
+		AutoLanguageCandidates.Remove(FString());
+		AutoLanguageCandidates.Shrink();
 	}
 
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates))
@@ -55,3 +57,17 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	}
 }
 #endif // WITH_EDITOR
+
+void UAzSpeechSettings::PostLoad()
+{
+	Super::PostLoad();
+
+	AutoLanguageCandidates.Remove(FString());
+
+	if (!AutoLanguageCandidates.Contains(LanguageID))
+	{
+		AutoLanguageCandidates.Insert(LanguageID, 0);
+	}
+
+	AutoLanguageCandidates.Shrink();
+}
