@@ -2,8 +2,8 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/AzSpeechTaskBase.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/Bases/AzSpeechTaskBase.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Misc/FileHelper.h"
 
 #if WITH_EDITOR

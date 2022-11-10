@@ -2,7 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/SSMLToSpeechAsync.h"
+#include "AzSpeech/Tasks/SSMLToSpeechAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"

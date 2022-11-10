@@ -2,7 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/SSMLToAudioDataAsync.h"
+#include "AzSpeech/Tasks/SSMLToAudioDataAsync.h"
 #include "Async/Async.h"
 
 USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* WorldContextObject, const FString& SSMLString)

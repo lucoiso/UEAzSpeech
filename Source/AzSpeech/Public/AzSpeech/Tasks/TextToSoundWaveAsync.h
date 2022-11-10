@@ -5,14 +5,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
+#include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "TextToSoundWaveAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API UTextToSoundWaveAsync : public UAzSpeechSynthesizerTaskBase
+class AZSPEECH_API UTextToSoundWaveAsync : public UAzSpeechAudioDataSynthesisBase
 {
 	GENERATED_BODY()
 

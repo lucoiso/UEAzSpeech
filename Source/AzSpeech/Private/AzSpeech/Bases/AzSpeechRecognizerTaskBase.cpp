@@ -2,8 +2,8 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/AzSpeechRecognizerTaskBase.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/Bases/AzSpeechRecognizerTaskBase.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
 void UAzSpeechRecognizerTaskBase::Activate()

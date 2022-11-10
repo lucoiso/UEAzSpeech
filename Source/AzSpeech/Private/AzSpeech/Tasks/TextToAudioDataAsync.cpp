@@ -2,8 +2,8 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/TextToAudioDataAsync.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/Tasks/TextToAudioDataAsync.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
 UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)

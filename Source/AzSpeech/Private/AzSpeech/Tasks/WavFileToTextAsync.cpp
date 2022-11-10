@@ -2,10 +2,10 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/WavFileToTextAsync.h"
+#include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)

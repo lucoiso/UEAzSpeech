@@ -2,22 +2,22 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/SSMLToSoundWaveAsync.h"
+#include "AzSpeech/Tasks/TextToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "Sound/SoundWave.h"
 #include "Async/Async.h"
 
-USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* WorldContextObject, const FString& SSMLString)
+UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {
-	USSMLToSoundWaveAsync* const NewAsyncTask = NewObject<USSMLToSoundWaveAsync>();
+	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SSMLString;
-	NewAsyncTask->bIsSSMLBased = true;
+	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->bIsSSMLBased = false;
 
 	return NewAsyncTask;
 }
 
-void USSMLToSoundWaveAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToSoundWaveAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
 	Super::OnSynthesisUpdate(SynthesisEventArgs);
 
@@ -29,12 +29,11 @@ void USSMLToSoundWaveAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices
 	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
 	{
 		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
-
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
 			return;
 		}
-		
+
 		AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer)); });
 	}
 }

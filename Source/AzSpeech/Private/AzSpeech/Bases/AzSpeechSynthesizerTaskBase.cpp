@@ -2,8 +2,8 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/AzSpeechSynthesizerTaskBase.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/Bases/AzSpeechSynthesizerTaskBase.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()

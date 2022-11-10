@@ -13,7 +13,7 @@ public class AzSpeech : ModuleRules
 		CppStandard = CppStandardVersion.Cpp17;
 		bEnableExceptions = true;
 
-        PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
+		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
 		PublicDependencyModuleNames.AddRange(
@@ -32,14 +32,13 @@ public class AzSpeech : ModuleRules
 				"Projects",
 				"AndroidPermission",
 				"DeveloperSettings"
-            }
+			}
 		);
 
 		if (Target.Type == TargetType.Editor)
 		{
 			PrivateDependencyModuleNames.Add("UnrealEd");
-
-        }
+		}
 
 		PrivateIncludePathModuleNames.Add("DesktopPlatform");
 	}

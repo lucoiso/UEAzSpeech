@@ -2,9 +2,9 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/AzSpeechAudioDataSynthesisBase.h"
+#include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork_Internal()
 {

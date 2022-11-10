@@ -2,8 +2,8 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/SpeechToTextAsync.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/Tasks/SpeechToTextAsync.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Async/Async.h"
 
 #if PLATFORM_ANDROID
