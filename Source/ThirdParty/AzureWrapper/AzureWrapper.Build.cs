@@ -15,8 +15,9 @@ public class AzureWrapper : ModuleRules
 		PublicIncludePaths.AddRange(
 			new[]
 			{
-				Path.Combine(ModuleDirectory, "include")
-			}
+				Path.Combine(ModuleDirectory, "include", "c_api"),
+                Path.Combine(ModuleDirectory, "include", "cxx_api")
+            }
 		);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
