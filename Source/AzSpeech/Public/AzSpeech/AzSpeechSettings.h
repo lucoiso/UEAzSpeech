@@ -33,19 +33,23 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Region ID"))
 	FString RegionID;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Default Language ID: To use if no value is specified"))
+	/* It will be used if no value is specified or "Default" is passed as Language ID parameter */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Default Language ID"))
 	FString LanguageID;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Default Voice Name: To use if no value is specified"))
+	/* It will be used if no value is specified or "Default" is passed as Voice Name parameter */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Default Voice Name"))
 	FString VoiceName;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
 	EAzSpeechProfanityFilter ProfanityFilter;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates: Used when LanguageID is set to Auto"))
+	/* It will be used if "Auto" is passed as Language ID parameter - Will use Azure SDK Language Identification */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Auto Language Candidates"))
 	TArray<FString> AutoLanguageCandidates;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Time limit in seconds to wait for related asynchronous tasks to complete"))
+	/* Time limit in seconds to wait for related asynchronous tasks to complete */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Tasks Timeout in Seconds"))
 	int32 TimeOutInSeconds;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
