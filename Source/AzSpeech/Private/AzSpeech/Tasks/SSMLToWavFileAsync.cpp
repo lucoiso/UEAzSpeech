@@ -1,0 +1,17 @@
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/UEAzSpeech
+
+#include "AzSpeech/Tasks/SSMLToWavFileAsync.h"
+
+USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile(const UObject* WorldContextObject, const FString& SSMLString, const FString& FilePath, const FString& FileName)
+{
+	USSMLToWavFileAsync* const NewAsyncTask = NewObject<USSMLToWavFileAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->SynthesisText = SSMLString;
+	NewAsyncTask->FilePath = FilePath;
+	NewAsyncTask->FileName = FileName;
+	NewAsyncTask->bIsSSMLBased = true;
+
+	return NewAsyncTask;
+}

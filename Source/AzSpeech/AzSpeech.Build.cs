@@ -13,8 +13,6 @@ public class AzSpeech : ModuleRules
 		CppStandard = CppStandardVersion.Cpp17;
 		bEnableExceptions = true;
 
-		PublicDefinitions.Add("WITH_OGGVORBIS");
-
 		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
@@ -36,6 +34,11 @@ public class AzSpeech : ModuleRules
 				"DeveloperSettings"
 			}
 		);
+
+		if (Target.Type == TargetType.Editor)
+		{
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 
 		PrivateIncludePathModuleNames.Add("DesktopPlatform");
 	}

@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 5,
-	"VersionName": "5.1.0",
+	"VersionName": "5.2.0",
 	"FriendlyName": "AzSpeech - Text and Voice",
 	"Description": "Integrates Microsoft Azure: Speech Services",
 	"Category": "Game Features",
