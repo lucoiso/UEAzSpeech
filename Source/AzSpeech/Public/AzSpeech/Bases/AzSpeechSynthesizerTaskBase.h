@@ -82,6 +82,7 @@ protected:
 	FString SynthesisText;
 
 	bool bIsSSMLBased;
+	bool bNullifySynthesizerObjectOnStop = false;
 
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 

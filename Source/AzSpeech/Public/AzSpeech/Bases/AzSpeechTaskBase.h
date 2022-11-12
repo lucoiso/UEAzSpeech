@@ -41,7 +41,7 @@ protected:
 	virtual void SetReadyToDestroy() override;
 
 	virtual void ApplyExtraSettings() {};
-	virtual void ClearBindings() {};
+	virtual void ClearBindings();
 
 	const bool IsUsingAutoLanguage() const;
 
@@ -71,4 +71,5 @@ protected:
 private:
 	bool bIsReadyToDestroy = false;
 	bool bHasStopped = false;
+	bool bAlreadyUnbound = false;
 };

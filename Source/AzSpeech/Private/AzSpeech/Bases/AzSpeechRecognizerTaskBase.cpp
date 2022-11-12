@@ -84,8 +84,6 @@ bool UAzSpeechRecognizerTaskBase::StartAzureTaskWork_Internal()
 
 void UAzSpeechRecognizerTaskBase::ClearBindings()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Removing existing bindings."), *FString(__func__));
-
 	if (RecognitionCompleted.IsBound())
 	{
 		RecognitionCompleted.RemoveAll(this);
@@ -255,6 +253,10 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult(const std::shar
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
 			UE_LOG(LogAzSpeech, Display, TEXT("%s: Task running. Reason: RecognizingSpeech"), *FString(__func__));
 			return true;
+
+		case Microsoft::CognitiveServices::Speech::ResultReason::NoMatch:
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Task Failed. Reason: NoMatch"), *FString(__func__));
+			return false;
 
 		default:
 			break;

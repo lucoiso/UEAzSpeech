@@ -25,13 +25,10 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	bHasStopped = true;
 	UE_LOG(LogAzSpeech, Display, TEXT("%s: Finishing AzSpeech Task"), *FString(__func__));
 	
-	if (UAzSpeechTaskBase::IsTaskStillValid(this))
-	{
-		ClearBindings();
-	}
+	bHasStopped = true;
+	ClearBindings();
 }
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
@@ -48,6 +45,16 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 {
 	bIsReadyToDestroy = true;
 	Super::SetReadyToDestroy();
+}
+
+void UAzSpeechTaskBase::ClearBindings()
+{
+	if (!bAlreadyUnbound)
+	{
+		UE_LOG(LogAzSpeech, Display, TEXT("%s: Removing existing bindings."), *FString(__func__));
+	}
+
+	bAlreadyUnbound = true;
 }
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const

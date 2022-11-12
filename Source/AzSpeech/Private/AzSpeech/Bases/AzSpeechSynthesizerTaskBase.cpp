@@ -29,6 +29,12 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 		}
 
 		SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+
+		if (bNullifySynthesizerObjectOnStop)
+		{
+			// Free the process handle - Necessary on .wav based tasks
+			SynthesizerObject = nullptr;
+		}
 	});
 }
 
@@ -65,8 +71,6 @@ bool UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
 
 void UAzSpeechSynthesizerTaskBase::ClearBindings()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Removing existing bindings."), *FString(__func__));
-
 	if (VisemeReceived.IsBound())
 	{
 		VisemeReceived.RemoveAll(this);

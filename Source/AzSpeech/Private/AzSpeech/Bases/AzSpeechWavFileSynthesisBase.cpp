@@ -9,6 +9,8 @@
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
+	bNullifySynthesizerObjectOnStop = true;
+
 #if PLATFORM_ANDROID
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
 #endif
@@ -18,10 +20,14 @@ void UAzSpeechWavFileSynthesisBase::Activate()
 
 void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 {
-	// Free the process handle
-	SynthesizerObject = nullptr;
-	
-	// If the task was cancelled, we need to delete the generated invalid file
+	Super::StopAzSpeechTask();
+		
+	if (IsLastResultValid())
+	{
+		return;
+	}
+
+	// If the task was cancelled due to SDK errors, we need to delete the generated invalid file
 	if (const FString Full_FileName = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
@@ -36,8 +42,6 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 			UE_LOG(LogAzSpeech, Error, TEXT("%s: File %s could not be deleted."), *FString(__func__), *Full_FileName);
 		}
 	}
-
-	Super::StopAzSpeechTask();
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork_Internal()
