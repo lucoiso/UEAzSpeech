@@ -13,6 +13,8 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 #include <map>
+#include <vector>
+#include <string>
 
 namespace AzSpeech::Internal
 {
