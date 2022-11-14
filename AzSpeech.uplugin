@@ -1,9 +1,9 @@
 {
 	"FileVersion": 3,
-	"Version": 5,
-	"VersionName": "5.2.0",
-	"FriendlyName": "AzSpeech - Text and Voice",
-	"Description": "Integrates Microsoft Azure: Speech Services",
+	"Version": 6,
+	"VersionName": "1.2.1",
+	"FriendlyName": "AzSpeech - Voice and Text",
+	"Description": "Integrates Azure Speech Cognitive Services to the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.",
 	"Category": "Game Features",
 	"CreatedBy": "Lucas Vilas-Boas",
 	"CreatedByURL": "https://github.com/lucoiso",
