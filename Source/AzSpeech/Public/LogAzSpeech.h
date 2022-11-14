@@ -10,4 +10,4 @@
  *
  */
 
-DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech, Display, Verbose);
+DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech, Display, All);
