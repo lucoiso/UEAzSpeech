@@ -8,7 +8,7 @@ An Unreal Engine plugin that integrates Azure Speech Cognitive Services to the E
 
 * [Documentation](https://github.com/lucoiso/UEAzSpeech/wiki)
 * [UE Marketplace](https://www.unrealengine.com/marketplace/en-US/product/azspeech-async-text-to-voice-and-voice-to-text)
-* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-azspeech-plugin-async-text-to-voice-and-voice-to-text-with-microsoft-azure/495394)
+* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-azspeech-plugin-text-to-speech-speech-to-text-and-more-with-microsoft-azure-cognitive-services/)
 * [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 * [Supported languages](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support)  
 * [Email](mailto:contatolukevboas@gmail.com)  
