@@ -16,8 +16,8 @@ public class AzureWrapper : ModuleRules
 			new[]
 			{
 				Path.Combine(ModuleDirectory, "include", "c_api"),
-                Path.Combine(ModuleDirectory, "include", "cxx_api")
-            }
+				Path.Combine(ModuleDirectory, "include", "cxx_api")
+			}
 		);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
@@ -30,7 +30,7 @@ public class AzureWrapper : ModuleRules
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
-      
+
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.core.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.kws.dll"));

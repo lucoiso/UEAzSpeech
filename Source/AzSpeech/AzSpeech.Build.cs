@@ -35,7 +35,7 @@ public class AzSpeech : ModuleRules
 			}
 		);
 
-		if (Target.Type == TargetType.Editor)
+		if (Target.bBuildEditor)
 		{
 			PrivateDependencyModuleNames.Add("UnrealEd");
 		}

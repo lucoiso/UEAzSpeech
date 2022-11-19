@@ -12,6 +12,8 @@ UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* Wor
 	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->VoiceName = VoiceName;
+	NewAsyncTask->LanguageId = LanguageId;
 	NewAsyncTask->bIsSSMLBased = false;
 
 	return NewAsyncTask;

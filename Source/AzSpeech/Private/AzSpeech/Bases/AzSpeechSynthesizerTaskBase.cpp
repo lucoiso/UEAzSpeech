@@ -8,7 +8,7 @@
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
-	VoiceName = AzSpeech::Internal::GetVoiceName(VoiceName);
+	AzSpeech::Internal::GetVoiceName(VoiceName);
 	Super::Activate();
 }
 

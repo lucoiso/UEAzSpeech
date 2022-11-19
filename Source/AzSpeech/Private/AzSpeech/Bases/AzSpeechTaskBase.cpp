@@ -12,7 +12,7 @@
 
 void UAzSpeechTaskBase::Activate()
 {
-	LanguageId = AzSpeech::Internal::GetLanguageID(LanguageId);
+	AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	Super::Activate();
 	
