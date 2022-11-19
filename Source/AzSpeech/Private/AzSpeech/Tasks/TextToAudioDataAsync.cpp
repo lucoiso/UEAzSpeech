@@ -11,6 +11,8 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* Wor
 	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->VoiceName = VoiceName;
+	NewAsyncTask->LanguageId = LanguageId;
 	NewAsyncTask->bIsSSMLBased = false;
 
 	return NewAsyncTask;

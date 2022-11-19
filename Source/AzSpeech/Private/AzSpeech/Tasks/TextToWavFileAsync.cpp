@@ -11,6 +11,8 @@ UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile(const UObject* WorldCont
 	NewAsyncTask->SynthesisText = TextToConvert;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
+	NewAsyncTask->VoiceName = VoiceName;
+	NewAsyncTask->LanguageId = LanguageId;
 	NewAsyncTask->bIsSSMLBased = false;
 
 	return NewAsyncTask;

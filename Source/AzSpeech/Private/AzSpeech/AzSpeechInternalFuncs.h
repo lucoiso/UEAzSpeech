@@ -143,26 +143,22 @@ namespace AzSpeech::Internal
 		return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
 	}
 
-	const FString GetLanguageID(const FString& InTestId = "Default")
+	void GetLanguageID(FString& InLanguage)
 	{
 		const auto Settings = GetAzSpeechKeys();
-		if (HasEmptyParam(InTestId) || InTestId.Equals("Default", ESearchCase::IgnoreCase))
+		if (HasEmptyParam(InLanguage) || InLanguage.Equals("Default", ESearchCase::IgnoreCase))
 		{
-			return UTF8_TO_TCHAR(Settings.at(2).c_str());
+			InLanguage = UTF8_TO_TCHAR(Settings.at(2).c_str());
 		}
-
-		return InTestId;
 	}
 
-	const FString GetVoiceName(const FString& InTestId = "Default")
+	void GetVoiceName(FString& InVoice)
 	{
 		const auto Settings = GetAzSpeechKeys();
-		if (HasEmptyParam(InTestId) || InTestId.Equals("Default", ESearchCase::IgnoreCase))
+		if (HasEmptyParam(InVoice) || InVoice.Equals("Default", ESearchCase::IgnoreCase))
 		{
-			return UTF8_TO_TCHAR(Settings.at(3).c_str());
+			InVoice = UTF8_TO_TCHAR(Settings.at(3).c_str());
 		}
-
-		return InTestId;
 	}
 
 	const FString GetAzSpeechLogsBaseDir()

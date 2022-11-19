@@ -14,6 +14,8 @@ UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContext
 	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->VoiceName = VoiceName;
+	NewAsyncTask->LanguageId = LanguageId;
 	NewAsyncTask->bIsSSMLBased = false;
 
 	return NewAsyncTask;
