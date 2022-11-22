@@ -5,14 +5,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechSynthesizerTaskBase.h"
+#include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "SSMLToAudioDataAsync.generated.h"
 
 /**
  *
  */
 UCLASS(NotPlaceable, Category = "AzSpeech")
-class AZSPEECH_API USSMLToAudioDataAsync : public UAzSpeechSynthesizerTaskBase
+class AZSPEECH_API USSMLToAudioDataAsync : public UAzSpeechAudioDataSynthesisBase
 {
 	GENERATED_BODY()
 
@@ -27,4 +27,5 @@ public:
 	
 protected:
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void BroadcastFinalResult() override;
 };

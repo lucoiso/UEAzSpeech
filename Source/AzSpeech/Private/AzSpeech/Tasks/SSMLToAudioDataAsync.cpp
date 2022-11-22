@@ -11,8 +11,15 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* Wor
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SSMLString;
 	NewAsyncTask->bIsSSMLBased = true;
+	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
+}
+
+void USSMLToAudioDataAsync::BroadcastFinalResult()
+{
+	Super::BroadcastFinalResult();
+	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(GetLastSynthesizedStream()); });
 }
 
 void USSMLToAudioDataAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
@@ -26,6 +33,6 @@ void USSMLToAudioDataAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices
 
 	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
 	{
-		AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(GetLastSynthesizedStream()); });
+		BroadcastFinalResult();
 	}
 }

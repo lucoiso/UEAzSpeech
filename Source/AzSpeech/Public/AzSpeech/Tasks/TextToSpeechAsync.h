@@ -29,6 +29,7 @@ public:
 
 protected:
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void BroadcastFinalResult() override;
 	
 private:
 	TWeakObjectPtr<UAudioComponent> AudioComponent;

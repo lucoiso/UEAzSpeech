@@ -16,6 +16,7 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldCont
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
+	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
 }
