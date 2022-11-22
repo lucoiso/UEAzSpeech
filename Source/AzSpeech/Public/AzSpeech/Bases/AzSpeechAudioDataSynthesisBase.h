@@ -16,7 +16,12 @@ class UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 
+public:
+	virtual void Activate() override;
+	virtual void StopAzSpeechTask() override;
+	
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void BroadcastFinalResult() override;
 };

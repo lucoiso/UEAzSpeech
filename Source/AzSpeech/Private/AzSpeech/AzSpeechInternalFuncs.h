@@ -77,7 +77,7 @@ namespace AzSpeech::Internal
 		const auto AzSpeechParams = GetAzSpeechKeys();
 		if (AzSpeechParams.empty())
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid settings. Aborting."), *FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
 			return false;
 		}
 

@@ -16,6 +16,7 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContext
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
+	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
 }

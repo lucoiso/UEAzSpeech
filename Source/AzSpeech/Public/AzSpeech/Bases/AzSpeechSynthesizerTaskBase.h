@@ -89,6 +89,8 @@ protected:
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void ClearBindings() override;
 	
+	virtual void BroadcastFinalResult() override;
+	
 	void EnableVisemeOutput();
 	virtual void ApplyExtraSettings() override;
 

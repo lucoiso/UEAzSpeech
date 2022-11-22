@@ -34,6 +34,9 @@ public:
 	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 
 protected:
+	FName TaskName = NAME_None;
+	bool bAlreadyBroadcastFinal = false;
+	
 	FString LanguageId;
 	const UObject* WorldContextObject;
 
@@ -42,6 +45,8 @@ protected:
 
 	virtual void ApplyExtraSettings() {};
 	virtual void ClearBindings();
+
+	virtual void BroadcastFinalResult();
 
 	const bool IsUsingAutoLanguage() const;
 
@@ -66,7 +71,7 @@ protected:
 	const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const;
 	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
 
-	static std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig();
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig();
 
 private:
 	bool bIsReadyToDestroy = false;

@@ -6,6 +6,16 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 
+void UAzSpeechAudioDataSynthesisBase::Activate()
+{
+	Super::Activate();
+}
+
+void UAzSpeechAudioDataSynthesisBase::StopAzSpeechTask()
+{
+	Super::StopAzSpeechTask();
+}
+
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork_Internal()
 {
 	if (!Super::StartAzureTaskWork_Internal())
@@ -27,6 +37,11 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork_Internal()
 	StartSynthesisWork();
 
 	return true;
+}
+
+void UAzSpeechAudioDataSynthesisBase::BroadcastFinalResult()
+{
+	Super::BroadcastFinalResult();
 }
 
 void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)

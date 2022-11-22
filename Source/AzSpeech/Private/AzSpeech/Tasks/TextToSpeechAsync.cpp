@@ -17,6 +17,7 @@ UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContext
 	NewAsyncTask->VoiceName = VoiceName;
 	NewAsyncTask->LanguageId = LanguageId;
 	NewAsyncTask->bIsSSMLBased = false;
+	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
 }
@@ -36,6 +37,11 @@ void UTextToSpeechAsync::StopAzSpeechTask()
 	}
 }
 
+void UTextToSpeechAsync::BroadcastFinalResult()
+{
+	Super::BroadcastFinalResult();
+}
+
 void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
 	Super::OnSynthesisUpdate(SynthesisEventArgs);
@@ -49,7 +55,7 @@ void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 	{
 		if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
 		{
-			SynthesisCompleted.Broadcast(IsLastResultValid());
+			AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
 		}
 
 		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();

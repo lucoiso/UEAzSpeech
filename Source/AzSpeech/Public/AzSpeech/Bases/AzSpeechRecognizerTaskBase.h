@@ -53,6 +53,8 @@ protected:
 	virtual void ClearBindings() override;
 	virtual void ApplyExtraSettings() override;
 
+	virtual void BroadcastFinalResult() override;
+
 	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
 
 	virtual void OnRecognitionUpdated(const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs);

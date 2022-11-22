@@ -15,6 +15,7 @@ USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech(const UObject* WorldContext
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SSMLString;
 	NewAsyncTask->bIsSSMLBased = true;
+	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
 }
@@ -34,6 +35,11 @@ void USSMLToSpeechAsync::StopAzSpeechTask()
 	}	
 }
 
+void USSMLToSpeechAsync::BroadcastFinalResult()
+{
+	Super::BroadcastFinalResult();
+}
+
 void USSMLToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 {
 	Super::OnSynthesisUpdate(SynthesisEventArgs);
@@ -47,7 +53,7 @@ void USSMLToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 	{
 		if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
 		{
-			SynthesisCompleted.Broadcast(IsLastResultValid());
+			AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
 		}
 
 		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
