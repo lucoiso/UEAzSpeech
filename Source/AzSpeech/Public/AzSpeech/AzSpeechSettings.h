@@ -19,7 +19,7 @@ enum class EAzSpeechProfanityFilter : uint8
 /**
  * 
  */
-UCLASS(Config=Game, DefaultConfig, meta = (DisplayName="AzSpeech"))
+UCLASS(Config = Plugins, DefaultConfig, meta = (DisplayName="AzSpeech"))
 class AZSPEECH_API UAzSpeechSettings final : public UDeveloperSettings
 {
 	GENERATED_BODY()
