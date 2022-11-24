@@ -177,7 +177,7 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveSe
 	}
 
 	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, AudioOffsetMs, VisemeAnimation_UEStr);
-	VisemeReceived.Broadcast(LastVisemeData);
+	AsyncTask(ENamedThreads::GameThread, [=] { VisemeReceived.Broadcast(LastVisemeData); });
 }
 
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
