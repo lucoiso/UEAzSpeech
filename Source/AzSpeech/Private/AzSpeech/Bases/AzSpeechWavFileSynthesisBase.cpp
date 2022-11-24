@@ -52,7 +52,7 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult(); 
-	SynthesisCompleted.Broadcast(IsLastResultValid());
+	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork_Internal()
