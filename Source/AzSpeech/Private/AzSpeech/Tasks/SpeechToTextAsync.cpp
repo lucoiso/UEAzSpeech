@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "Async/Async.h"
 
 #if PLATFORM_ANDROID
 // Only used to check android permission

@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/SSMLToAudioDataAsync.h"
-#include "Async/Async.h"
 
 USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* WorldContextObject, const FString& SSMLString)
 {

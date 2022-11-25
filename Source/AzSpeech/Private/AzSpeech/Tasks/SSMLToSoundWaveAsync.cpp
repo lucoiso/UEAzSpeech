@@ -5,7 +5,6 @@
 #include "AzSpeech/Tasks/SSMLToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "Sound/SoundWave.h"
-#include "Async/Async.h"
 
 USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* WorldContextObject, const FString& SSMLString)
 {

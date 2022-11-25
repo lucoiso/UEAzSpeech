@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "Async/Async.h"
 
 UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {

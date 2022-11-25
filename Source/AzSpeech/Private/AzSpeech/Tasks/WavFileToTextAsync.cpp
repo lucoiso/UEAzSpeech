@@ -6,7 +6,6 @@
 #include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "Async/Async.h"
 #include "Misc/FileHelper.h"
 
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
