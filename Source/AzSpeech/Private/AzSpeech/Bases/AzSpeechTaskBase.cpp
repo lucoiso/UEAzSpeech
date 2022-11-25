@@ -32,7 +32,6 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	
-	bHasStopped = true;
 	bIsTaskActive = false;
 }
 
@@ -43,7 +42,7 @@ bool UAzSpeechTaskBase::IsTaskActive() const
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 {
-	return IsValid(Test) && !Test->bIsReadyToDestroy && !Test->bHasStopped;
+	return IsValid(Test) && Test->bIsTaskActive;
 }
 
 bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
@@ -56,8 +55,7 @@ bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-	bIsReadyToDestroy = true;
+	
 	Super::SetReadyToDestroy();
 }
 
@@ -85,6 +83,8 @@ void UAzSpeechTaskBase::ClearBindings()
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
 	check(IsInGameThread());
+
+	FScopeLock Lock(&Mutex);
 
 	bIsTaskActive = false;
 	bAlreadyBroadcastFinal = true;

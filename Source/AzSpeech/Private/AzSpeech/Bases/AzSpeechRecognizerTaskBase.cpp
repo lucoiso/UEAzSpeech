@@ -80,6 +80,8 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 
 const FString UAzSpeechRecognizerTaskBase::GetLastRecognizedString() const
 {
+	FScopeLock Lock(&Mutex);
+	
 	if (!LastRecognitionResult)
 	{
 		return FString();
@@ -102,6 +104,10 @@ bool UAzSpeechRecognizerTaskBase::StartAzureTaskWork_Internal()
 
 void UAzSpeechRecognizerTaskBase::ClearBindings()
 {
+	Super::ClearBindings();
+
+	FScopeLock Lock(&Mutex);
+
 	if (RecognitionCompleted.IsBound())
 	{
 		RecognitionCompleted.RemoveAll(this);
@@ -137,6 +143,8 @@ void UAzSpeechRecognizerTaskBase::ApplyExtraSettings()
 		LastRecognitionResult = RecognitionEventArgs.Result;
 		AsyncTask(ENamedThreads::GameThread, [this] { OnRecognitionUpdated(); });
 	};
+
+	FScopeLock Lock(&Mutex);
 
 	RecognizerObject->Recognized.Connect(RecognitionUpdate_Lambda);
 
@@ -180,6 +188,7 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated()
 
 	if (!ProcessRecognitionResult())
 	{
+		ClearBindings();
 		return;
 	}
 

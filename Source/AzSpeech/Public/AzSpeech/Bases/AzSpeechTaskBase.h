@@ -78,7 +78,5 @@ protected:
 
 private:
 	bool bIsTaskActive = false;
-	bool bIsReadyToDestroy = false;
-	bool bHasStopped = false;
 	bool bAlreadyUnbound = false;
 };

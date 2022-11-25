@@ -45,11 +45,19 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
+	FScopeLock Lock(&Mutex);
+
+	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
+	{
+		return FAzSpeechVisemeData();
+	}
+
 	return VisemeDataArray.Last();
 }
 
 const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
 {
+	FScopeLock Lock(&Mutex);
 	return VisemeDataArray;
 }
 
@@ -80,7 +88,7 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedAudioData() 
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastVisemeDataValid() const
 {
-	return VisemeDataArray.Last().IsValid();
+	return GetLastVisemeData().IsValid();
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
@@ -95,6 +103,10 @@ bool UAzSpeechSynthesizerTaskBase::StartAzureTaskWork_Internal()
 
 void UAzSpeechSynthesizerTaskBase::ClearBindings()
 {
+	Super::ClearBindings();
+
+	FScopeLock Lock(&Mutex);
+
 	if (VisemeReceived.IsBound())
 	{
 		VisemeReceived.RemoveAll(this);
@@ -156,6 +168,9 @@ void UAzSpeechSynthesizerTaskBase::ApplyExtraSettings()
 		AsyncTask(ENamedThreads::GameThread, [this] { OnSynthesisUpdate(); });
 	};
 
+
+	FScopeLock Lock(&Mutex);
+	
 	SynthesizerObject->SynthesisStarted.Connect(SynthesisUpdate_Lambda);
 	SynthesizerObject->Synthesizing.Connect(SynthesisUpdate_Lambda);
 	SynthesizerObject->SynthesisCompleted.Connect(SynthesisUpdate_Lambda);
