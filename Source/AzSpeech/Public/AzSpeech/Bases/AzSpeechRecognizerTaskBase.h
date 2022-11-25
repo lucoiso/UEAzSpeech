@@ -62,8 +62,9 @@ protected:
 	bool InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	void StartRecognitionWork();
 
-	const bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result) const;
+	const bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result);
 	
 private:
 	std::string LastRecognizedString;
+	bool bRecognizingStatusAlreadyShown = false;
 };

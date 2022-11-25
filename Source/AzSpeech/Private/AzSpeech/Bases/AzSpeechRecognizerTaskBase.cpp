@@ -8,6 +8,7 @@
 
 void UAzSpeechRecognizerTaskBase::Activate()
 {
+	bRecognizingStatusAlreadyShown = false;
 	Super::Activate();
 }
 
@@ -262,7 +263,7 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 	});
 }
 
-const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result) const
+const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result)
 {
 	switch (Result->Reason)
 	{
@@ -271,7 +272,11 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult(const std::shar
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task running. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			if (!bRecognizingStatusAlreadyShown)
+			{
+				UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task running. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+				bRecognizingStatusAlreadyShown = true;
+			}
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::NoMatch:
