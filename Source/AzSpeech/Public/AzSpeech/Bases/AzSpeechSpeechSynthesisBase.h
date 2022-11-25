@@ -8,6 +8,8 @@
 #include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "AzSpeechSpeechSynthesisBase.generated.h"
 
+class UAudioComponent;
+
 /**
  *
  */
