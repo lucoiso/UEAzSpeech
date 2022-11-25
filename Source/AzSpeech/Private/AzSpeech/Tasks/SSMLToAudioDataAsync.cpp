@@ -17,9 +17,12 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* Wor
 }
 
 void USSMLToAudioDataAsync::BroadcastFinalResult()
-{
-	Super::BroadcastFinalResult();
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(GetLastSynthesizedStream()); });
+{	
+	AsyncTask(ENamedThreads::GameThread, [=] 
+	{ 
+		SynthesisCompleted.Broadcast(GetLastSynthesizedStream());
+		Super::BroadcastFinalResult();
+	});
 }
 
 void USSMLToAudioDataAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)

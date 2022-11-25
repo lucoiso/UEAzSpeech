@@ -24,11 +24,6 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 		
 	if (IsLastResultValid())
 	{
-		if (!bAlreadyBroadcastFinal)
-		{
-			BroadcastFinalResult();
-		}
-		
 		return;
 	}
 
@@ -40,19 +35,22 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 
 		if (bDeleteResult)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("%s: AzSpeech Task: %s (%s); File %s deleted successfully."), *FString(__func__), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString::FromInt(GetUniqueID()), *Full_FileName);
+			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; File %s deleted successfully."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(GetUniqueID()), *Full_FileName);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: AzSpeech Task: %s (%s); File %s could not be deleted."), *FString(__func__), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *Full_FileName);
+			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech Task: %s (%s): %s; File %s could not be deleted."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
 		}
 	}
 }
 
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
-{
-	Super::BroadcastFinalResult(); 
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
+{	
+	AsyncTask(ENamedThreads::GameThread, [=] 
+	{ 
+		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedStream()));
+		Super::BroadcastFinalResult();
+	});
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork_Internal()

@@ -20,10 +20,12 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* Wor
 }
 
 void UTextToAudioDataAsync::BroadcastFinalResult()
-{
-	Super::BroadcastFinalResult();
-	
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(GetLastSynthesizedStream()); });
+{	
+	AsyncTask(ENamedThreads::GameThread, [=] 
+	{ 
+		SynthesisCompleted.Broadcast(GetLastSynthesizedStream());
+		Super::BroadcastFinalResult();
+	});
 }
 
 void UTextToAudioDataAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)

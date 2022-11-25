@@ -51,13 +51,8 @@ void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
 	{
-		if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
-		{
-			AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
-		}
-
 		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
@@ -70,6 +65,11 @@ void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::S
 			{
 				return;
 			}
+
+			SynthesisCompleted.Broadcast(IsLastResultValid());
+
+			// Clear bindings
+			BroadcastFinalResult();
 
 			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 			AudioComponent->Play();
