@@ -15,13 +15,8 @@ UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech", meta = (Expose
 class UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
-
-public:
-	virtual void Activate() override;
-	virtual void StopAzSpeechTask() override;
 	
 protected:
-	virtual bool StartAzureTaskWork_Internal() override;
+	virtual bool StartAzureTaskWork() override;
 	virtual void OnSynthesisUpdate() override;
-	virtual void BroadcastFinalResult() override;
 };

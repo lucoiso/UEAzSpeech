@@ -21,6 +21,8 @@ UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* Wor
 
 void UTextToSoundWaveAsync::BroadcastFinalResult()
 {
+	FScopeLock Lock(&Mutex);
+
 	const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 	if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 	{
@@ -42,6 +44,7 @@ void UTextToSoundWaveAsync::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
 		BroadcastFinalResult();
 	}
 }

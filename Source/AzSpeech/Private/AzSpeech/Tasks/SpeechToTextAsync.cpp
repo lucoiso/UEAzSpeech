@@ -29,9 +29,9 @@ void USpeechToTextAsync::Activate()
 	Super::Activate();
 }
 
-bool USpeechToTextAsync::StartAzureTaskWork_Internal()
+bool USpeechToTextAsync::StartAzureTaskWork()
 {
-	if (!Super::StartAzureTaskWork_Internal())
+	if (!Super::StartAzureTaskWork())
 	{
 		return false;
 	}
@@ -40,6 +40,8 @@ bool USpeechToTextAsync::StartAzureTaskWork_Internal()
 	{
 		return false;
 	}
+
+	FScopeLock Lock(&Mutex);
 
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromDefaultMicrophoneInput();
 	if (!InitializeRecognizer(AudioConfig))

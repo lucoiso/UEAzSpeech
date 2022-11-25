@@ -5,6 +5,7 @@
 #include "AzSpeech/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Misc/FileHelper.h"
+#include "Async/Async.h"
 
 #if WITH_EDITOR
 #include "Editor.h"
@@ -18,8 +19,11 @@ void UAzSpeechTaskBase::Activate()
 
 	Super::Activate();
 	bIsTaskActive = true;
-	
-	StartAzureTaskWork_Internal();
+
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	{
+		StartAzureTaskWork();
+	});
 
 #if WITH_EDITOR
 	FEditorDelegates::PrePIEEnded.AddUObject(this, &UAzSpeechTaskBase::PrePIEEnded);
@@ -29,6 +33,8 @@ void UAzSpeechTaskBase::Activate()
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
 	check(IsInGameThread());
+	
+	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	
@@ -37,6 +43,7 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 bool UAzSpeechTaskBase::IsTaskActive() const
 {
+	FScopeLock Lock(&Mutex);
 	return bIsTaskActive;
 }
 
@@ -45,8 +52,10 @@ const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 	return IsValid(Test) && Test->bIsTaskActive;
 }
 
-bool UAzSpeechTaskBase::StartAzureTaskWork_Internal()
+bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
+	FScopeLock Lock(&Mutex);
+	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	return AzSpeech::Internal::CheckAzSpeechSettings();
@@ -93,6 +102,7 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
+	FScopeLock Lock(&Mutex);
 	return LanguageId.Equals("Auto", ESearchCase::IgnoreCase);
 }
 
@@ -115,6 +125,8 @@ void UAzSpeechTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::Cognit
 	{
 		return;
 	}
+	
+	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Applying Azure SDK Settings"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
@@ -141,6 +153,8 @@ void UAzSpeechTaskBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft
 		return;
 	}
 
+	FScopeLock Lock(&Mutex);
+	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Azure SDK log"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	if (FString AzSpeechLogPath = AzSpeech::Internal::GetAzSpeechLogsBaseDir();

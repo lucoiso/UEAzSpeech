@@ -19,7 +19,9 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* Wor
 }
 
 void UTextToAudioDataAsync::BroadcastFinalResult()
-{	
+{
+	FScopeLock Lock(&Mutex);
+	
 	SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
 	Super::BroadcastFinalResult();
 }
@@ -35,6 +37,7 @@ void UTextToAudioDataAsync::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
 		BroadcastFinalResult();
 	}
 }

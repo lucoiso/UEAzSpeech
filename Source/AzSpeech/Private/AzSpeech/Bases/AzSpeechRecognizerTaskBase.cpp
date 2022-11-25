@@ -20,6 +20,8 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 	{
 		return;
 	}
+
+	FScopeLock Lock(&Mutex);
 	
 	if (bContinuousRecognition)
 	{
@@ -50,6 +52,8 @@ void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
 		return;
 	}
 
+	FScopeLock Lock(&Mutex);
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	if (RecognizerObject->IsEnabled())
 	{
@@ -68,6 +72,8 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 		StopAzSpeechTask();
 		return;
 	}
+
+	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Disabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	if (!RecognizerObject->IsEnabled())
@@ -97,16 +103,9 @@ const FString UAzSpeechRecognizerTaskBase::GetLastRecognizedString() const
 	return UTF8_TO_TCHAR(LastRecognizedString.c_str());
 }
 
-bool UAzSpeechRecognizerTaskBase::StartAzureTaskWork_Internal()
-{
-	return Super::StartAzureTaskWork_Internal();
-}
-
 void UAzSpeechRecognizerTaskBase::ClearBindings()
 {
 	Super::ClearBindings();
-
-	FScopeLock Lock(&Mutex);
 
 	if (RecognitionCompleted.IsBound())
 	{
@@ -122,6 +121,8 @@ void UAzSpeechRecognizerTaskBase::ClearBindings()
 	{
 		return;
 	}
+
+	FScopeLock Lock(&Mutex);
 
 	SignalDisconecter_T(RecognizerObject->Recognizing);
 	SignalDisconecter_T(RecognizerObject->Recognized);
@@ -155,7 +156,11 @@ void UAzSpeechRecognizerTaskBase::ApplyExtraSettings()
 }
 
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
-{	
+{
+	check(IsInGameThread());
+	
+	FScopeLock Lock(&Mutex);
+	
 	RecognitionCompleted.Broadcast(GetLastRecognizedString());
 	Super::BroadcastFinalResult();
 }
@@ -168,6 +173,8 @@ void UAzSpeechRecognizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microso
 	{
 		return;
 	}
+	
+	FScopeLock Lock(&Mutex);
 	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *LanguageId);
 
@@ -225,6 +232,8 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 		return false;
 	}
 
+	FScopeLock Lock(&Mutex);
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing recognizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	const auto SpeechConfig = UAzSpeechTaskBase::CreateSpeechConfig();
@@ -269,6 +278,8 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 	{
 		return;
 	}
+	
+	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
@@ -287,6 +298,8 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 
 const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 {
+	FScopeLock Lock(&Mutex);
+	
 	switch (LastRecognitionResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:

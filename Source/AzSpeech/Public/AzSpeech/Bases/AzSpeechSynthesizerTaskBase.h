@@ -89,11 +89,8 @@ protected:
 
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult> LastSynthesisResult;
-
-	virtual bool StartAzureTaskWork_Internal() override;
-	virtual void ClearBindings() override;
 	
-	virtual void BroadcastFinalResult() override;
+	virtual void ClearBindings() override;
 	
 	void EnableVisemeOutput();
 	virtual void ApplyExtraSettings() override;

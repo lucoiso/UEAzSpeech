@@ -43,7 +43,7 @@ protected:
 	FString LanguageId;
 	const UObject* WorldContextObject;
 
-	virtual bool StartAzureTaskWork_Internal();
+	virtual bool StartAzureTaskWork();
 	virtual void SetReadyToDestroy() override;
 
 	virtual void ApplyExtraSettings() {};

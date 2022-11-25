@@ -9,8 +9,10 @@
 #include "Sound/SoundWave.h"
 
 void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
-{
+{	
 	Super::StopAzSpeechTask();
+	
+	FScopeLock Lock(&Mutex);
 
 	if (AudioComponent.IsValid())
 	{
@@ -20,13 +22,8 @@ void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
 	}
 }
 
-void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
-{
-	Super::BroadcastFinalResult();
-}
-
 void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate()
-{
+{	
 	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
@@ -36,6 +33,8 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+		
 		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{

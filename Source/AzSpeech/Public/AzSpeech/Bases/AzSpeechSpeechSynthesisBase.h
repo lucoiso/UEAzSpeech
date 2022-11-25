@@ -27,7 +27,6 @@ public:
 
 protected:
 	virtual void OnSynthesisUpdate() override;
-	virtual void BroadcastFinalResult() override;
 	
 private:
 	TWeakObjectPtr<UAudioComponent> AudioComponent;

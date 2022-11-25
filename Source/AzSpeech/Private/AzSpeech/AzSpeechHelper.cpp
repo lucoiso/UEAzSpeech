@@ -66,7 +66,7 @@ USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, con
 #endif
 
 		if (TArray<uint8> RawData;
-			FFileHelper::LoadFileToArray(RawData, *Full_FileName, FILEREAD_NoFail))
+			FFileHelper::LoadFileToArray(RawData, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech, Display, TEXT("%s: Result: Success"), *FString(__func__));
 			return ConvertAudioDataToSoundWave(RawData);

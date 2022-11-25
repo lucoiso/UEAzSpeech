@@ -48,8 +48,6 @@ protected:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastRecognitionResult;
 	bool bContinuousRecognition = false;
-	
-	virtual bool StartAzureTaskWork_Internal() override;
 
 	virtual void ClearBindings() override;
 	virtual void ApplyExtraSettings() override;

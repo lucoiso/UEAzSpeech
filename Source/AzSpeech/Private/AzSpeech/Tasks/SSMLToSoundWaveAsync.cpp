@@ -18,7 +18,9 @@ USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* Wor
 }
 
 void USSMLToSoundWaveAsync::BroadcastFinalResult()
-{	
+{
+	FScopeLock Lock(&Mutex);
+	
 	const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 
 	if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
@@ -41,6 +43,7 @@ void USSMLToSoundWaveAsync::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
 		BroadcastFinalResult();
 	}
 }

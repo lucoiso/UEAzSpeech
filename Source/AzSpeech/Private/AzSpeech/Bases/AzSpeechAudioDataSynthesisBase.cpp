@@ -6,27 +6,19 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 
-void UAzSpeechAudioDataSynthesisBase::Activate()
-{
-	Super::Activate();
-}
-
-void UAzSpeechAudioDataSynthesisBase::StopAzSpeechTask()
-{
-	Super::StopAzSpeechTask();
-}
-
-bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork_Internal()
-{
-	if (!Super::StartAzureTaskWork_Internal())
+bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
+{	
+	if (!Super::StartAzureTaskWork())
 	{
 		return false;
 	}
-
+	
 	if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
 	{
 		return false;
 	}
+	
+	FScopeLock Lock(&Mutex);
 
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream());
 	if (!InitializeSynthesizer(AudioConfig))
@@ -39,13 +31,8 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork_Internal()
 	return true;
 }
 
-void UAzSpeechAudioDataSynthesisBase::BroadcastFinalResult()
-{
-	Super::BroadcastFinalResult();
-}
-
 void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate()
-{
+{	
 	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
@@ -55,6 +42,7 @@ void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
 		OutputLastSynthesisResult(UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
 	}
 }

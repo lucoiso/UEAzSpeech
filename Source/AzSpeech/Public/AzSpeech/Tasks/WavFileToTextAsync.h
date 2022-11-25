@@ -24,7 +24,7 @@ public:
 	virtual void Activate() override;
 
 protected:
-	virtual bool StartAzureTaskWork_Internal() override;
+	virtual bool StartAzureTaskWork() override;
 	
 	const UObject* WorldContextObject;
 	FString LanguageID;
