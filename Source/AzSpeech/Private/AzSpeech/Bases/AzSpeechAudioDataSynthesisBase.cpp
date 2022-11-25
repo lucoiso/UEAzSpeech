@@ -44,17 +44,17 @@ void UAzSpeechAudioDataSynthesisBase::BroadcastFinalResult()
 	Super::BroadcastFinalResult();
 }
 
-void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate()
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		OutputSynthesisResult(UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedStream()));
+		OutputLastSynthesisResult(UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
 	}
 }

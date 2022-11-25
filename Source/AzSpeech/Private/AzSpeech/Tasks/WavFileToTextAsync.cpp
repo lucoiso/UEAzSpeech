@@ -44,16 +44,16 @@ bool UWavFileToTextAsync::StartAzureTaskWork_Internal()
 
 	const FString QualifiedPath = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*QualifiedPath))
-	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: File not found"), *FString(__func__));
+	{		
+		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: File not found"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 		return false;
 	}
 
-	// Try to read file before sending to Azure - If the file is already being used, the engine will crash!
+	// Try to read file before sending to Azure - Avoid crash due to the file already being used by another proccess
 	if (FString Placeholder;
 		!FFileHelper::LoadFileToString(Placeholder, *QualifiedPath) || AzSpeech::Internal::HasEmptyParam(Placeholder))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to load file"), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Failed to load file"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 		return false;
 	}
 

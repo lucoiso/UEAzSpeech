@@ -22,6 +22,6 @@ public:
 	
 protected:
 	virtual bool StartAzureTaskWork_Internal() override;
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void OnSynthesisUpdate() override;
 	virtual void BroadcastFinalResult() override;
 };

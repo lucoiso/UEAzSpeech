@@ -28,7 +28,7 @@ public:
 	virtual void StopAzSpeechTask() override;
 
 protected:
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void OnSynthesisUpdate() override;
 	virtual void BroadcastFinalResult() override;
 
 private:

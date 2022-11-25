@@ -26,6 +26,6 @@ public:
 	static USSMLToSoundWaveAsync* SSMLToSoundWave(const UObject* WorldContextObject, const FString& SSMLString);
 
 protected:
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void OnSynthesisUpdate() override;
 	virtual void BroadcastFinalResult() override;
 };

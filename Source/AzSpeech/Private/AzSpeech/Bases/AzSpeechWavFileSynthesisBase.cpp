@@ -35,22 +35,19 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 
 		if (bDeleteResult)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; File %s deleted successfully."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(GetUniqueID()), *Full_FileName);
+			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: File %s deleted successfully."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(GetUniqueID()), *Full_FileName);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech Task: %s (%s): %s; File %s could not be deleted."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: File %s could not be deleted."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
 		}
 	}
 }
 
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 {	
-	AsyncTask(ENamedThreads::GameThread, [=] 
-	{ 
-		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedStream()));
-		Super::BroadcastFinalResult();
-	});
+	SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
+	Super::BroadcastFinalResult();
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork_Internal()
@@ -83,23 +80,20 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork_Internal()
 	return true;
 }
 
-void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate()
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		AsyncTask(ENamedThreads::GameThread, [=] 
-		{
-			BroadcastFinalResult();
+		BroadcastFinalResult();
 
-			// Free the process handle
-			SynthesizerObject = nullptr;
-		});
+		// Free the process handle
+		SynthesizerObject = nullptr;
 	}
 }

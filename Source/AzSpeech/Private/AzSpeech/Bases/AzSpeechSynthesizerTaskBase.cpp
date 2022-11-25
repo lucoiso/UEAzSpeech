@@ -20,17 +20,17 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 	{
 		return;
 	}
+
+	if (!bAlreadyBroadcastFinal)
+	{
+		BroadcastFinalResult();
+	}
 	
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
 	{
 		if (!Mutex.TryLock())
 		{
 			return;
-		}
-	
-		if (!bAlreadyBroadcastFinal)
-		{
-			BroadcastFinalResult();
 		}
 
 		SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
@@ -45,18 +45,32 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
-	return LastVisemeData;
+	return VisemeDataArray.Last();
 }
 
-const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedStream() const
+const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
 {
-	if (LastSynthesizedBuffer.empty())
+	return VisemeDataArray;
+}
+
+const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedAudioData() const
+{
+	FScopeLock Lock(&Mutex);
+
+	if (!LastSynthesisResult || !LastSynthesisResult->GetAudioData())
+	{
+		return TArray<uint8>();
+	}
+
+	const std::vector<uint8_t> LastAudioBuffer = *LastSynthesisResult->GetAudioData().get();
+
+	if (LastAudioBuffer.empty())
 	{
 		return TArray<uint8>();
 	}
 
 	TArray<uint8> OutputArr;
-	for (const uint8_t& i : LastSynthesizedBuffer)
+	for (const uint8_t& i : LastAudioBuffer)
 	{
 		OutputArr.Add(static_cast<uint8>(i));
 	}
@@ -66,7 +80,7 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedStream() con
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastVisemeDataValid() const
 {
-	return LastVisemeData.IsValid();
+	return VisemeDataArray.Last().IsValid();
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
@@ -105,13 +119,22 @@ void UAzSpeechSynthesizerTaskBase::BroadcastFinalResult()
 
 void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Enabling Viseme"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	VisemeDataArray.Empty();
+	
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Viseme"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	if (VisemeReceived.IsBound())
 	{
-		SynthesizerObject->VisemeReceived.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeArgs)
+		SynthesizerObject->VisemeReceived.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 		{
-			OnVisemeReceived(VisemeArgs);
+			FScopeLock Lock(&Mutex);
+
+			FAzSpeechVisemeData LastVisemeData;
+			LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
+			LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
+			LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
+
+			AsyncTask(ENamedThreads::GameThread, [this, LastVisemeData] { OnVisemeReceived(LastVisemeData); });
 		});
 	}
 }
@@ -125,22 +148,23 @@ void UAzSpeechSynthesizerTaskBase::ApplyExtraSettings()
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Adding extra settings to existing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Adding extra settings to existing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+
+	const auto SynthesisUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+	{
+		LastSynthesisResult = SynthesisEventArgs.Result;
+		AsyncTask(ENamedThreads::GameThread, [this] { OnSynthesisUpdate(); });
+	};
+
+	SynthesizerObject->SynthesisStarted.Connect(SynthesisUpdate_Lambda);
+	SynthesizerObject->Synthesizing.Connect(SynthesisUpdate_Lambda);
+	SynthesizerObject->SynthesisCompleted.Connect(SynthesisUpdate_Lambda);
+	SynthesizerObject->SynthesisCanceled.Connect(SynthesisUpdate_Lambda);
 
 	if (AzSpeech::Internal::GetPluginSettings()->bEnableViseme)
 	{
 		EnableVisemeOutput();
 	}
-
-	const auto SynthesisUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-	{
-		OnSynthesisUpdate(SynthesisEventArgs);
-	};
-
-	SynthesizerObject->Synthesizing.Connect(SynthesisUpdate_Lambda);
-	SynthesizerObject->SynthesisStarted.Connect(SynthesisUpdate_Lambda);
-	SynthesizerObject->SynthesisCompleted.Connect(SynthesisUpdate_Lambda);
-	SynthesizerObject->SynthesisCanceled.Connect(SynthesisUpdate_Lambda);
 }
 
 void UAzSpeechSynthesizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig)
@@ -157,49 +181,55 @@ void UAzSpeechSynthesizerTaskBase::ApplySDKSettings(const std::shared_ptr<Micros
 	const std::string UsedLang = TCHAR_TO_UTF8(*LanguageId);
 	const std::string UsedVoice = TCHAR_TO_UTF8(*VoiceName);
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Using language: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedLang.c_str())));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedLang.c_str())));
 	InConfig->SetSpeechSynthesisLanguage(UsedLang);
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Using voice: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedVoice.c_str())));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using voice: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(UsedVoice.c_str())));
 	InConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 }
 
-void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
+void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& VisemeData)
 {
-	const int64 AudioOffsetMs = VisemeEventArgs.AudioOffset / 10000;
-	const FString VisemeAnimation_UEStr = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
+	check(IsInGameThread());
+
+	FScopeLock Lock(&Mutex);
+	
+	VisemeDataArray.Add(VisemeData);
+	VisemeReceived.Broadcast(VisemeData);
 
 	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current Viseme Id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(VisemeEventArgs.VisemeId));
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current Viseme Audio Offset: %sms"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(AudioOffsetMs));
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current Viseme Animation: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *VisemeAnimation_UEStr);
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current Viseme Id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(VisemeData.VisemeID));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current Viseme Audio Offset: %sms"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(VisemeData.AudioOffsetMilliseconds));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current Viseme Animation: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *VisemeData.Animation);
 	}
-
-	LastVisemeData = FAzSpeechVisemeData(VisemeEventArgs.VisemeId, AudioOffsetMs, VisemeAnimation_UEStr);
-	AsyncTask(ENamedThreads::GameThread, [=] { VisemeReceived.Broadcast(LastVisemeData); });
 }
 
-void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate()
 {
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisUpdated.Broadcast(); });
+	check(IsInGameThread());
 
-	if (SynthesisEventArgs.Result->Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio)
+	FScopeLock Lock(&Mutex);
+
+	if (!LastSynthesisResult)
 	{
-		bLastResultIsValid = ProcessSynthesisResult(SynthesisEventArgs.Result);
+		return;
 	}
 
-	LastSynthesizedBuffer.clear();
-	LastSynthesizedBuffer = *SynthesisEventArgs.Result->GetAudioData().get();
-	LastSynthesizedBuffer.shrink_to_fit();
+	if (LastSynthesisResult->Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio)
+	{
+		bLastResultIsValid = ProcessLastSynthesisResult();
+	}
+
+	SynthesisUpdated.Broadcast();
 
 	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current audio duration: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(SynthesisEventArgs.Result->AudioDuration.count()));
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current audio length: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(SynthesisEventArgs.Result->GetAudioLength()));
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current stream size: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(SynthesisEventArgs.Result->GetAudioData().get()->size()));
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current reason code: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(static_cast<int32>(SynthesisEventArgs.Result->Reason)));
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Current result id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(SynthesisEventArgs.Result->ResultId.c_str())));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current audio duration: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastSynthesisResult->AudioDuration.count()));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current audio length: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastSynthesisResult->GetAudioLength()));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current stream size: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastSynthesisResult->GetAudioData().get()->size()));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current reason code: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(static_cast<int32>(LastSynthesisResult->Reason)));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(LastSynthesisResult->ResultId.c_str())));
 	}
 }
 
@@ -210,7 +240,7 @@ bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<M
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Initializing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	const auto SpeechConfig = UAzSpeechTaskBase::CreateSpeechConfig();
 
@@ -223,11 +253,11 @@ bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<M
 
 	if (IsUsingAutoLanguage())
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Initializing auto language detection"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing auto language detection"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
 	}
-	else 
+	else
 	{
 		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
@@ -244,11 +274,11 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Starting synthesis"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting synthesis"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Using text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *SynthesisText);
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *SynthesisText);
 	}
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
@@ -266,52 +296,50 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
 
 		Future.wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
 	});
-
-	
 }
 
-void UAzSpeechSynthesizerTaskBase::OutputSynthesisResult(const bool bSuccess) const
+void UAzSpeechSynthesizerTaskBase::OutputLastSynthesisResult(const bool bSuccess) const
 {
 	if (bSuccess)
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task completed with result: Success"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed with result: Success"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	}
 	else if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task completed with result: Canceled"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed with result: Canceled"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech Task: %s (%s): %s; Task completed with result: Failed"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Task completed with result: Failed"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	}
 }
 
-const bool UAzSpeechSynthesizerTaskBase::ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& Result) const
+const bool UAzSpeechSynthesizerTaskBase::ProcessLastSynthesisResult() const
 {
-	switch (Result->Reason)
+	switch (LastSynthesisResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio:
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task running. Reason: SynthesizingAudio"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: SynthesizingAudio"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted:
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task completed. Reason: SynthesizingAudioCompleted"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed. Reason: SynthesizingAudioCompleted"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioStarted:
-			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Task started. Reason: SynthesizingAudioStarted"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task started. Reason: SynthesizingAudioStarted"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return true;
 
 		default:
 			break;
 	}
 
-	if (Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::Canceled)
+	if (LastSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::Canceled)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech Task: %s (%s): %s; Task failed. Reason: Canceled"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-		const auto CancellationDetails = Microsoft::CognitiveServices::Speech::SpeechSynthesisCancellationDetails::FromResult(Result);
+		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Reason: Canceled"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		const auto CancellationDetails = Microsoft::CognitiveServices::Speech::SpeechSynthesisCancellationDetails::FromResult(LastSynthesisResult);
 
-		UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech Task: %s (%s): %s; Cancellation Reason: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Cancellation Reason: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
 
 		if (CancellationDetails->Reason == Microsoft::CognitiveServices::Speech::CancellationReason::Error)
 		{
@@ -321,7 +349,7 @@ const bool UAzSpeechSynthesizerTaskBase::ProcessSynthesisResult(const std::share
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Warning, TEXT("AzSpeech Task: %s (%s): %s; Ended with undefined reason"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech, Warning, TEXT("Task: %s (%s); Function: %s; Message: Ended with undefined reason"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	return false;
 }
 

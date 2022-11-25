@@ -20,7 +20,7 @@ struct FAzSpeechVisemeData
 
 	FAzSpeechVisemeData() = default;
 
-	FAzSpeechVisemeData(const int32& InVisemeID, const int64& InAudioOffsetMilliseconds, const FString& InAnimation) : VisemeID(InVisemeID), AudioOffsetMilliseconds(InAudioOffsetMilliseconds), Animation(InAnimation)
+	FAzSpeechVisemeData(const int32 InVisemeID, const int64 InAudioOffsetMilliseconds, const FString& InAnimation) : VisemeID(InVisemeID), AudioOffsetMilliseconds(InAudioOffsetMilliseconds), Animation(InAnimation)
 	{
 	}
 
@@ -69,7 +69,10 @@ public:
 	const FAzSpeechVisemeData GetLastVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const TArray<uint8> GetLastSynthesizedStream() const;
+	const TArray<FAzSpeechVisemeData> GetVisemeDataArray() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const TArray<uint8> GetLastSynthesizedAudioData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsLastVisemeDataValid() const;
@@ -85,6 +88,7 @@ protected:
 	bool bNullifySynthesizerObjectOnStop = false;
 
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult> LastSynthesisResult;
 
 	virtual bool StartAzureTaskWork_Internal() override;
 	virtual void ClearBindings() override;
@@ -96,20 +100,19 @@ protected:
 
 	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
 
-	virtual void OnVisemeReceived(const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs);
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs);
+	virtual void OnVisemeReceived(const FAzSpeechVisemeData& VisemeData);
+	virtual void OnSynthesisUpdate();
 
 	bool InitializeSynthesizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	void StartSynthesisWork();
 
-	void OutputSynthesisResult(const bool bSuccess) const;
+	void OutputLastSynthesisResult(const bool bSuccess) const;
 
-	const bool ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& Result) const;
+	const bool ProcessLastSynthesisResult() const;
 
 	const bool CanBroadcastWithReason(const Microsoft::CognitiveServices::Speech::ResultReason& Reason) const;
 
 private:
-	FAzSpeechVisemeData LastVisemeData;
-	std::vector<uint8_t> LastSynthesizedBuffer;
+	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
 };

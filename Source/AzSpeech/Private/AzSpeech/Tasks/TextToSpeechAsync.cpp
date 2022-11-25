@@ -28,12 +28,9 @@ void UTextToSpeechAsync::StopAzSpeechTask()
 
 	if (AudioComponent.IsValid())
 	{
-		AsyncTask(ENamedThreads::GameThread, [this]
-		{
-			AudioComponent->Stop();
-			AudioComponent->DestroyComponent();
-			AudioComponent.Reset();
-		});
+		AudioComponent->Stop();
+		AudioComponent->DestroyComponent();
+		AudioComponent.Reset();
 	}
 }
 
@@ -42,37 +39,34 @@ void UTextToSpeechAsync::BroadcastFinalResult()
 	Super::BroadcastFinalResult();
 }
 
-void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToSpeechAsync::OnSynthesisUpdate()
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
+		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
 			return;
 		}
 
-		AsyncTask(ENamedThreads::GameThread, [this, LastBuffer]
+		if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 		{
-			if (!UAzSpeechTaskBase::IsTaskStillValid(this))
-			{
-				return;
-			}
+			return;
+		}
 
-			SynthesisCompleted.Broadcast(IsLastResultValid());
+		SynthesisCompleted.Broadcast(IsLastResultValid());
 
-			// Clear bindings
-			BroadcastFinalResult();
+		// Clear bindings
+		BroadcastFinalResult();
 
-			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-			AudioComponent->Play();
-		});
+		AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+		AudioComponent->Play();
 	}
 }

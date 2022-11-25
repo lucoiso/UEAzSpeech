@@ -26,6 +26,6 @@ public:
 	static UTextToSoundWaveAsync* TextToSoundWave(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
 
 protected:
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void OnSynthesisUpdate() override;
 	virtual void BroadcastFinalResult() override;
 };

@@ -21,23 +21,20 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* Wor
 
 void UTextToAudioDataAsync::BroadcastFinalResult()
 {	
-	AsyncTask(ENamedThreads::GameThread, [=] 
-	{ 
-		SynthesisCompleted.Broadcast(GetLastSynthesizedStream());
-		Super::BroadcastFinalResult();
-	});
+	SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
+	Super::BroadcastFinalResult();
 }
 
-void UTextToAudioDataAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToAudioDataAsync::OnSynthesisUpdate()
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
 		BroadcastFinalResult();
 	}

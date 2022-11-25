@@ -20,30 +20,27 @@ USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* Wor
 
 void USSMLToSoundWaveAsync::BroadcastFinalResult()
 {	
-	const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
+	const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 
 	if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 	{
 		return;
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [=] 
-	{ 
-		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-		Super::BroadcastFinalResult();
-	});
+	SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+	Super::BroadcastFinalResult();
 }
 
-void USSMLToSoundWaveAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void USSMLToSoundWaveAsync::OnSynthesisUpdate()
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
 		BroadcastFinalResult();
 	}

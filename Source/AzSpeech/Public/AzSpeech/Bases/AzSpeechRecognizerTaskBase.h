@@ -46,6 +46,7 @@ public:
 	
 protected:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastRecognitionResult;
 	bool bContinuousRecognition = false;
 	
 	virtual bool StartAzureTaskWork_Internal() override;
@@ -57,14 +58,13 @@ protected:
 
 	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
 
-	virtual void OnRecognitionUpdated(const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs);
+	virtual void OnRecognitionUpdated();
 
 	bool InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	void StartRecognitionWork();
 
-	const bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result);
+	const bool ProcessRecognitionResult();
 	
 private:
-	std::string LastRecognizedString;
 	bool bRecognizingStatusAlreadyShown = false;
 };
