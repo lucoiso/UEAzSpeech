@@ -18,8 +18,11 @@
 
 void FAzSpeechModule::StartupModule()
 {
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");	
+	UE_LOG(LogAzSpeech, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
+
 #if PLATFORM_WINDOWS
-	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);

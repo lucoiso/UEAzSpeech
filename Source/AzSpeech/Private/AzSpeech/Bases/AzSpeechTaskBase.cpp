@@ -60,6 +60,13 @@ void UAzSpeechTaskBase::ClearBindings()
 	}
 
 	bAlreadyUnbound = true;
+
+#if WITH_EDITOR
+	if (FEditorDelegates::PrePIEEnded.IsBoundToObject(this))
+	{
+		FEditorDelegates::PrePIEEnded.RemoveAll(this);
+	}
+#endif
 }
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
@@ -76,8 +83,6 @@ const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 #if WITH_EDITOR
 void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 {	
-	FEditorDelegates::PrePIEEnded.RemoveAll(this);
-
 	if (UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech Task: %s (%s): %s; Trying to finish task due to PIE end"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
