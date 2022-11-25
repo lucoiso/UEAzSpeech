@@ -80,6 +80,11 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 
 const FString UAzSpeechRecognizerTaskBase::GetLastRecognizedString() const
 {
+	if (!LastRecognitionResult)
+	{
+		return FString();
+	}
+
 	const std::string LastRecognizedString = LastRecognitionResult->Text;
 	
 	if (LastRecognizedString.empty())

@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
 	virtual void StopAzSpeechTask();
 
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	bool IsTaskActive() const;
+
 	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 
 protected:
@@ -74,6 +77,7 @@ protected:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig();
 
 private:
+	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
 	bool bHasStopped = false;
 	bool bAlreadyUnbound = false;

@@ -17,6 +17,7 @@ void UAzSpeechTaskBase::Activate()
 	AzSpeech::Internal::GetLanguageID(LanguageId);
 
 	Super::Activate();
+	bIsTaskActive = true;
 	
 	StartAzureTaskWork_Internal();
 
@@ -32,6 +33,12 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	
 	bHasStopped = true;
+	bIsTaskActive = false;
+}
+
+bool UAzSpeechTaskBase::IsTaskActive() const
+{
+	return bIsTaskActive;
 }
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
@@ -79,6 +86,7 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 {
 	check(IsInGameThread());
 
+	bIsTaskActive = false;
 	bAlreadyBroadcastFinal = true;
 	ClearBindings();
 }
