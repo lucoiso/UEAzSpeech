@@ -13,17 +13,15 @@
 
 void UAzSpeechTaskBase::Activate()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Activating"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Activating task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	AzSpeech::Internal::GetLanguageID(LanguageId);
 
-	Super::Activate();
 	bIsTaskActive = true;
+	bCanBroadcastFinal = true;
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
-	{
-		StartAzureTaskWork();
-	});
+	Super::Activate();
+	StartAzureTaskWork();
 
 #if WITH_EDITOR
 	FEditorDelegates::PrePIEEnded.AddUObject(this, &UAzSpeechTaskBase::PrePIEEnded);
@@ -32,30 +30,22 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	check(IsInGameThread());
-	
-	FScopeLock Lock(&Mutex);
-
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-	
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));	
 	bIsTaskActive = false;
 }
 
 bool UAzSpeechTaskBase::IsTaskActive() const
 {
-	FScopeLock Lock(&Mutex);
 	return bIsTaskActive;
 }
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 {
-	return IsValid(Test) && Test->bIsTaskActive;
+	return IsValid(Test) && Test->bIsTaskActive && !Test->bIsReadyToDestroy;
 }
 
 bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
-	FScopeLock Lock(&Mutex);
-	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	return AzSpeech::Internal::CheckAzSpeechSettings();
@@ -63,16 +53,33 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
+	if (bIsReadyToDestroy)
+	{
+		return;
+	}
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-	
+
+	bIsReadyToDestroy = true;
+	bCanBroadcastFinal = false;
+	ClearBindings();
+
 	Super::SetReadyToDestroy();
+}
+
+void UAzSpeechTaskBase::ConnectTaskSignals()
+{
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Connecting task signals"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 }
 
 void UAzSpeechTaskBase::ClearBindings()
 {
-	check(IsInGameThread());
-
-	FScopeLock Lock(&Mutex);
+#if WITH_EDITOR
+	if (FEditorDelegates::PrePIEEnded.IsBoundToObject(this))
+	{
+		FEditorDelegates::PrePIEEnded.RemoveAll(this);
+	}
+#endif
 	
 	if (!bAlreadyUnbound)
 	{
@@ -80,40 +87,28 @@ void UAzSpeechTaskBase::ClearBindings()
 	}
 
 	bAlreadyUnbound = true;
-
-#if WITH_EDITOR
-	if (FEditorDelegates::PrePIEEnded.IsBoundToObject(this))
-	{
-		FEditorDelegates::PrePIEEnded.RemoveAll(this);
-	}
-#endif
 }
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
 	check(IsInGameThread());
 
-	FScopeLock Lock(&Mutex);
-
 	bIsTaskActive = false;
-	bAlreadyBroadcastFinal = true;
-	ClearBindings();
+	bCanBroadcastFinal = false;
 }
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
-	FScopeLock Lock(&Mutex);
 	return LanguageId.Equals("Auto", ESearchCase::IgnoreCase);
 }
 
 #if WITH_EDITOR
 void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
-{	
+{
 	if (UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 		
-		ClearBindings();
 		StopAzSpeechTask();
 	}
 }
@@ -125,8 +120,6 @@ void UAzSpeechTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::Cognit
 	{
 		return;
 	}
-	
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Applying Azure SDK Settings"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
@@ -152,8 +145,6 @@ void UAzSpeechTaskBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft
 	{
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Azure SDK log"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 

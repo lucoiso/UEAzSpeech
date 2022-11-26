@@ -18,17 +18,16 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 
 	if (!SynthesizerObject)
 	{
+		SetReadyToDestroy();
 		return;
 	}
-	
-	FScopeLock Lock(&Mutex);
 
-	if (!bAlreadyBroadcastFinal)
+	if (bCanBroadcastFinal)
 	{
 		BroadcastFinalResult();
 	}
 	
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
 	{
 		if (!Mutex.TryLock())
 		{
@@ -43,12 +42,15 @@ void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
 			SynthesizerObject = nullptr;
 		}
 	});
+
+	if (IsValid(this))
+	{
+		SetReadyToDestroy();
+	}
 }
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
 		return FAzSpeechVisemeData();
@@ -59,14 +61,11 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() cons
 
 const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
 {
-	FScopeLock Lock(&Mutex);
 	return VisemeDataArray;
 }
 
 const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedAudioData() const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!LastSynthesisResult || !LastSynthesisResult->GetAudioData())
 	{
 		return TArray<uint8>();
@@ -90,13 +89,11 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedAudioData() 
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastVisemeDataValid() const
 {
-	FScopeLock Lock(&Mutex);
 	return GetLastVisemeData().IsValid();
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 {
-	FScopeLock Lock(&Mutex);
 	return bLastResultIsValid;
 }
 
@@ -113,8 +110,6 @@ void UAzSpeechSynthesizerTaskBase::ClearBindings()
 	{
 		return;
 	}
-	
-	FScopeLock Lock(&Mutex);
 
 	SignalDisconecter_T(SynthesizerObject->VisemeReceived);
 	SignalDisconecter_T(SynthesizerObject->Synthesizing);
@@ -125,8 +120,6 @@ void UAzSpeechSynthesizerTaskBase::ClearBindings()
 
 void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
 {
-	FScopeLock Lock(&Mutex);
-	
 	VisemeDataArray.Empty();
 	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Viseme"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
@@ -135,8 +128,6 @@ void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
 	{
 		SynthesizerObject->VisemeReceived.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 		{
-			FScopeLock Lock(&Mutex);
-
 			FAzSpeechVisemeData LastVisemeData;
 			LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
 			LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
@@ -147,25 +138,24 @@ void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
 	}
 }
 
-void UAzSpeechSynthesizerTaskBase::ApplyExtraSettings()
+void UAzSpeechSynthesizerTaskBase::ConnectTaskSignals()
 {
-	Super::ApplyExtraSettings();
+	Super::ConnectTaskSignals();
 
 	if (!SynthesizerObject)
 	{
+		StopAzSpeechTask();
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Adding extra settings to existing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
 	const auto SynthesisUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
+		FScopeLock Lock(&Mutex);
+
 		LastSynthesisResult = SynthesisEventArgs.Result;
 		AsyncTask(ENamedThreads::GameThread, [this] { OnSynthesisUpdate(); });
 	};
-	
-	FScopeLock Lock(&Mutex);
-	
+
 	SynthesizerObject->SynthesisStarted.Connect(SynthesisUpdate_Lambda);
 	SynthesizerObject->Synthesizing.Connect(SynthesisUpdate_Lambda);
 	SynthesizerObject->SynthesisCompleted.Connect(SynthesisUpdate_Lambda);
@@ -187,8 +177,6 @@ void UAzSpeechSynthesizerTaskBase::ApplySDKSettings(const std::shared_ptr<Micros
 	{
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	const std::string UsedLang = TCHAR_TO_UTF8(*LanguageId);
 	const std::string UsedVoice = TCHAR_TO_UTF8(*VoiceName);
@@ -249,10 +237,9 @@ bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<M
 {
 	if (!AzSpeech::Internal::CheckAzSpeechSettings())
 	{
+		StopAzSpeechTask();
 		return false;
 	}
-	
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
@@ -260,6 +247,7 @@ bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<M
 
 	if (!SpeechConfig)
 	{
+		StopAzSpeechTask();
 		return false;
 	}
 
@@ -276,7 +264,7 @@ bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<M
 		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
-	ApplyExtraSettings();
+	ConnectTaskSignals();
 
 	return true;
 }
@@ -285,10 +273,9 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
 {
 	if (!SynthesizerObject)
 	{
+		StopAzSpeechTask();
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting synthesis"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
@@ -297,7 +284,7 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
 		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *SynthesisText);
 	}
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
 	{
 		const std::string SynthesisStr = TCHAR_TO_UTF8(*SynthesisText);
 		std::future<std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>> Future;
@@ -314,7 +301,7 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
 	});
 }
 
-void UAzSpeechSynthesizerTaskBase::OutputLastSynthesisResult(const bool bSuccess) const
+void UAzSpeechSynthesizerTaskBase::LogSynthesisResultStatus(const bool bSuccess) const
 {
 	if (bSuccess)
 	{
@@ -332,8 +319,6 @@ void UAzSpeechSynthesizerTaskBase::OutputLastSynthesisResult(const bool bSuccess
 
 const bool UAzSpeechSynthesizerTaskBase::ProcessLastSynthesisResult() const
 {
-	FScopeLock Lock(&Mutex);
-	
 	switch (LastSynthesisResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio:

@@ -41,8 +41,6 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	FScopeLock Lock(&Mutex);
-
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromDefaultMicrophoneInput();
 	if (!InitializeRecognizer(AudioConfig))
 	{

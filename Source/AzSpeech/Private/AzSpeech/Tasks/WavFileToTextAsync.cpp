@@ -58,8 +58,6 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		delete FileHandle;
 	}
 
-	FScopeLock Lock(&Mutex);
-
 	const std::string InFilePath = TCHAR_TO_UTF8(*QualifiedPath);
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(InFilePath);
 	if (!InitializeRecognizer(AudioConfig))

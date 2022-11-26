@@ -38,7 +38,7 @@ public:
 
 protected:
 	FName TaskName = NAME_None;
-	bool bAlreadyBroadcastFinal = false;
+	bool bCanBroadcastFinal = true;
 	
 	FString LanguageId;
 	const UObject* WorldContextObject;
@@ -46,7 +46,7 @@ protected:
 	virtual bool StartAzureTaskWork();
 	virtual void SetReadyToDestroy() override;
 
-	virtual void ApplyExtraSettings() {};
+	virtual void ConnectTaskSignals();
 	virtual void ClearBindings();
 
 	virtual void BroadcastFinalResult();
@@ -78,5 +78,6 @@ protected:
 
 private:
 	bool bIsTaskActive = false;
+	bool bIsReadyToDestroy = false;
 	bool bAlreadyUnbound = false;
 };

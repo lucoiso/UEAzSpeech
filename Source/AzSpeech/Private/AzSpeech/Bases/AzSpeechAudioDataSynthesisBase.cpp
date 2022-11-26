@@ -17,8 +17,6 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 	{
 		return false;
 	}
-	
-	FScopeLock Lock(&Mutex);
 
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream());
 	if (!InitializeSynthesizer(AudioConfig))
@@ -42,7 +40,6 @@ void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		FScopeLock Lock(&Mutex);
-		OutputLastSynthesisResult(UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
+		LogSynthesisResultStatus(UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
 	}
 }

@@ -17,10 +17,10 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* Wor
 
 void USSMLToAudioDataAsync::BroadcastFinalResult()
 {
-	FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 	
 	SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
-	Super::BroadcastFinalResult();
+	SetReadyToDestroy();
 }
 
 void USSMLToAudioDataAsync::OnSynthesisUpdate()
@@ -34,7 +34,6 @@ void USSMLToAudioDataAsync::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		FScopeLock Lock(&Mutex);
 		BroadcastFinalResult();
 	}
 }

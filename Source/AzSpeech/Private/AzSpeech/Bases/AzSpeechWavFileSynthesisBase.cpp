@@ -45,12 +45,10 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 {
-	check(IsInGameThread());
-	
-	FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 	
 	SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
-	Super::BroadcastFinalResult();
+	SetReadyToDestroy();
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
@@ -69,8 +67,6 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 	{
 		return false;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	const std::string InFilePath = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(InFilePath);
@@ -96,8 +92,6 @@ void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		FScopeLock Lock(&Mutex);
-		
 		BroadcastFinalResult();
 
 		// Free the process handle

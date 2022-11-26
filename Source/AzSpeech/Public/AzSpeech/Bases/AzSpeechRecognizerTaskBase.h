@@ -50,7 +50,7 @@ protected:
 	bool bContinuousRecognition = false;
 
 	virtual void ClearBindings() override;
-	virtual void ApplyExtraSettings() override;
+	virtual void ConnectTaskSignals() override;
 
 	virtual void BroadcastFinalResult() override;
 

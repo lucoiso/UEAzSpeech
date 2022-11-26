@@ -93,7 +93,7 @@ protected:
 	virtual void ClearBindings() override;
 	
 	void EnableVisemeOutput();
-	virtual void ApplyExtraSettings() override;
+	virtual void ConnectTaskSignals() override;
 
 	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
 
@@ -103,7 +103,7 @@ protected:
 	bool InitializeSynthesizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	void StartSynthesisWork();
 
-	void OutputLastSynthesisResult(const bool bSuccess) const;
+	void LogSynthesisResultStatus(const bool bSuccess) const;
 
 	const bool ProcessLastSynthesisResult() const;
 

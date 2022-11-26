@@ -18,19 +18,18 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 
 	if (!RecognizerObject)
 	{
+		SetReadyToDestroy();
 		return;
 	}
 
-	FScopeLock Lock(&Mutex);
-	
 	if (bContinuousRecognition)
 	{
-		if (!bAlreadyBroadcastFinal)
+		if (bCanBroadcastFinal)
 		{
 			BroadcastFinalResult();
 		}
 
-		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
+		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
 		{
 			if (!Mutex.TryLock())
 			{
@@ -39,6 +38,11 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 
 			RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
 		});
+	}
+
+	if (IsValid(this))
+	{
+		SetReadyToDestroy();
 	}
 }
 
@@ -51,8 +55,6 @@ void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
 		StopAzSpeechTask();
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	if (RecognizerObject->IsEnabled())
@@ -73,8 +75,6 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 		return;
 	}
 
-	FScopeLock Lock(&Mutex);
-
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Disabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	if (!RecognizerObject->IsEnabled())
 	{
@@ -86,8 +86,6 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 
 const FString UAzSpeechRecognizerTaskBase::GetLastRecognizedString() const
 {
-	FScopeLock Lock(&Mutex);
-	
 	if (!LastRecognitionResult)
 	{
 		return FString();
@@ -122,30 +120,27 @@ void UAzSpeechRecognizerTaskBase::ClearBindings()
 		return;
 	}
 
-	FScopeLock Lock(&Mutex);
-
 	SignalDisconecter_T(RecognizerObject->Recognizing);
 	SignalDisconecter_T(RecognizerObject->Recognized);
 }
 
-void UAzSpeechRecognizerTaskBase::ApplyExtraSettings()
+void UAzSpeechRecognizerTaskBase::ConnectTaskSignals()
 {
-	Super::ApplyExtraSettings();
+	Super::ConnectTaskSignals();
 
 	if (!RecognizerObject)
 	{
+		StopAzSpeechTask();
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Adding extra settings to existing recognizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
 	const auto RecognitionUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 	{
+		FScopeLock Lock(&Mutex);
+
 		LastRecognitionResult = RecognitionEventArgs.Result;
 		AsyncTask(ENamedThreads::GameThread, [this] { OnRecognitionUpdated(); });
 	};
-
-	FScopeLock Lock(&Mutex);
 
 	RecognizerObject->Recognized.Connect(RecognitionUpdate_Lambda);
 
@@ -157,12 +152,10 @@ void UAzSpeechRecognizerTaskBase::ApplyExtraSettings()
 
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 {
-	check(IsInGameThread());
-	
-	FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 	
 	RecognitionCompleted.Broadcast(GetLastRecognizedString());
-	Super::BroadcastFinalResult();
+	SetReadyToDestroy();
 }
 
 void UAzSpeechRecognizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig)
@@ -174,8 +167,6 @@ void UAzSpeechRecognizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microso
 		return;
 	}
 	
-	FScopeLock Lock(&Mutex);
-	
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *LanguageId);
 
 	const std::string UsedLang = TCHAR_TO_UTF8(*LanguageId);
@@ -186,16 +177,16 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated()
 {
 	check(IsInGameThread());
 
-	FScopeLock Lock(&Mutex);
-
 	if (!LastRecognitionResult)
 	{
 		return;
 	}
 
+	FScopeLock Lock(&Mutex);
+
 	if (!ProcessRecognitionResult())
 	{
-		ClearBindings();
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -229,10 +220,9 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 {
 	if (!AzSpeech::Internal::CheckAzSpeechSettings())
 	{
+		StopAzSpeechTask();
 		return false;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing recognizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
@@ -240,6 +230,7 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 
 	if (!SpeechConfig)
 	{
+		StopAzSpeechTask();
 		return false;
 	}
 
@@ -251,6 +242,7 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 		if (Candidates.empty())
 		{
 			UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			StopAzSpeechTask();
 			return false;
 		}
 
@@ -267,7 +259,7 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 		RecognizerObject = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, InAudioConfig);
 	}
 
-	ApplyExtraSettings();
+	ConnectTaskSignals();
 
 	return true;
 }
@@ -276,15 +268,14 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 {
 	if (!RecognizerObject)
 	{
+		StopAzSpeechTask();
 		return;
 	}
 	
-	FScopeLock Lock(&Mutex);
-
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]
-	{
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
+	{	
 		if (bContinuousRecognition)
 		{
 			RecognizerObject->StartContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
@@ -298,8 +289,6 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 
 const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 {
-	FScopeLock Lock(&Mutex);
-	
 	switch (LastRecognitionResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
