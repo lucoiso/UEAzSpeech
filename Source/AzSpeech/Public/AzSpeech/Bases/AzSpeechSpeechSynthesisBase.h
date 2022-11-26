@@ -5,6 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/AudioComponent.h"
 #include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "AzSpeechSpeechSynthesisBase.generated.h"
 
@@ -27,6 +28,9 @@ public:
 
 protected:
 	virtual void OnSynthesisUpdate() override;
+
+	UFUNCTION()
+	void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);
 	
 private:
 	TWeakObjectPtr<UAudioComponent> AudioComponent;

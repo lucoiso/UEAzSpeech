@@ -24,7 +24,7 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 
 	if (bContinuousRecognition)
 	{
-		if (bCanBroadcastFinal)
+		if (IsTaskStillValid(this) && bCanBroadcastFinal)
 		{
 			BroadcastFinalResult();
 		}
@@ -37,26 +37,25 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 			}
 
 			RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+			RecognizerObject = nullptr;
+			LastRecognitionResult = nullptr;
 		});
 	}
 
-	if (IsValid(this))
-	{
-		SetReadyToDestroy();
-	}
+	SetReadyToDestroy();
 }
 
 void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
 {
 	if (!RecognizerObject)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Trying to enable continuos recognition with invalid recognizer"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Trying to enable continuos recognition with invalid recognizer"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 		StopAzSpeechTask();
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	if (RecognizerObject->IsEnabled())
 	{
 		return;
@@ -69,13 +68,13 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 {
 	if (!RecognizerObject)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Trying to disable continuos recognition with invalid recognizer"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Trying to disable continuos recognition with invalid recognizer"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 		StopAzSpeechTask();
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Disabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Disabling continuous recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	if (!RecognizerObject->IsEnabled())
 	{
 		return;
@@ -154,7 +153,11 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
 	
-	RecognitionCompleted.Broadcast(GetLastRecognizedString());
+	if (RecognitionCompleted.IsBound())
+	{
+		RecognitionCompleted.Broadcast(GetLastRecognizedString());
+	}
+	
 	SetReadyToDestroy();
 }
 
@@ -167,7 +170,7 @@ void UAzSpeechRecognizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microso
 		return;
 	}
 	
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *LanguageId);
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *LanguageId);
 
 	const std::string UsedLang = TCHAR_TO_UTF8(*LanguageId);
 	InConfig->SetSpeechRecognitionLanguage(UsedLang);
@@ -176,8 +179,8 @@ void UAzSpeechRecognizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microso
 void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated()
 {
 	check(IsInGameThread());
-
-	if (!LastRecognitionResult)
+	
+	if (!IsTaskStillValid(this) || !LastRecognitionResult)
 	{
 		return;
 	}
@@ -190,28 +193,31 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated()
 		return;
 	}
 
-	if (AzSpeech::Internal::GetPluginSettings()->bEnableRuntimeDebug)
-	{
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current recognized text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *GetLastRecognizedString());
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current duration: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastRecognitionResult->Duration()));
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current offset: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastRecognitionResult->Offset()));
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current reason code: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(static_cast<int32>(LastRecognitionResult->Reason)));
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(LastRecognitionResult->ResultId.c_str())));
-	}
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Current recognized text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *GetLastRecognizedString());
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Current duration: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastRecognitionResult->Duration()));
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Current offset: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(LastRecognitionResult->Offset()));
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Current reason code: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString::FromInt(static_cast<int32>(LastRecognitionResult->Reason)));
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(LastRecognitionResult->ResultId.c_str())));
 
 	switch (LastRecognitionResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
-			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed with result: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *GetLastRecognizedString());
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed with result: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *GetLastRecognizedString());
 			BroadcastFinalResult();
 
 			// Also broadcast the final result on update delegate
-			RecognitionUpdated.Broadcast(GetLastRecognizedString());
+			if (RecognitionUpdated.IsBound())
+			{
+				RecognitionUpdated.Broadcast(GetLastRecognizedString());
+			}
 
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
-			RecognitionUpdated.Broadcast(GetLastRecognizedString());
+			if (RecognitionUpdated.IsBound())
+			{
+				RecognitionUpdated.Broadcast(GetLastRecognizedString());
+			}
 			break;
 	}
 }
@@ -224,7 +230,7 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing recognizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing recognizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	const auto SpeechConfig = UAzSpeechTaskBase::CreateSpeechConfig();
 
@@ -238,18 +244,13 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 
 	if (IsUsingAutoLanguage())
 	{
-		const std::vector<std::string> Candidates = AzSpeech::Internal::GetCandidateLanguages();
+		const std::vector<std::string> Candidates = AzSpeech::Internal::GetCandidateLanguages(TaskName, GetUniqueID(), bContinuousRecognition);
 		if (Candidates.empty())
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			
 			StopAzSpeechTask();
 			return false;
-		}
-
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing auto language detection"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-		for (const std::string& Iterator : Candidates)
-		{
-			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language candidate: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(Iterator.c_str())));
 		}
 
 		RecognizerObject = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromLanguages(Candidates), InAudioConfig);
@@ -292,19 +293,19 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 	switch (LastRecognitionResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
-			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed. Reason: RecognizedSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed. Reason: RecognizedSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
 			if (!bRecognizingStatusAlreadyShown)
 			{
-				UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+				UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 				bRecognizingStatusAlreadyShown = true;
 			}
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::NoMatch:
-			UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Reason: NoMatch"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Reason: NoMatch"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return false;
 
 		default:
@@ -313,10 +314,10 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 
 	if (LastRecognitionResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::Canceled)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Reason: Canceled"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Reason: Canceled"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 		const auto CancellationDetails = Microsoft::CognitiveServices::Speech::CancellationDetails::FromResult(LastRecognitionResult);
 
-		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Cancellation Reason: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Cancellation Reason: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
 
 		if (CancellationDetails->Reason == Microsoft::CognitiveServices::Speech::CancellationReason::Error)
 		{
@@ -326,6 +327,6 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech, Warning, TEXT("Task: %s (%s); Function: %s; Message: Ended with undefined reason"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("Task: %s (%s); Function: %s; Message: Ended with undefined reason"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	return false;
 }

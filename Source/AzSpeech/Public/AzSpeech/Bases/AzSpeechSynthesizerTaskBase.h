@@ -85,7 +85,6 @@ protected:
 	FString SynthesisText;
 
 	bool bIsSSMLBased;
-	bool bNullifySynthesizerObjectOnStop = false;
 
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SynthesizerObject;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult> LastSynthesisResult;
@@ -105,11 +104,12 @@ protected:
 
 	void LogSynthesisResultStatus(const bool bSuccess) const;
 
-	const bool ProcessLastSynthesisResult() const;
+	const bool ProcessLastSynthesisResult();
 
 	const bool CanBroadcastWithReason(const Microsoft::CognitiveServices::Speech::ResultReason& Reason) const;
 
 private:
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
+	bool bSynthesizingStatusAlreadyShown = false;
 };

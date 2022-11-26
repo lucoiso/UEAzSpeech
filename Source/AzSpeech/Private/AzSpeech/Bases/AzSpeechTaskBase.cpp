@@ -39,16 +39,27 @@ bool UAzSpeechTaskBase::IsTaskActive() const
 	return bIsTaskActive;
 }
 
+bool UAzSpeechTaskBase::IsTaskReadyToDestroy() const
+{
+	return bIsReadyToDestroy;
+}
+
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 {
-	return IsValid(Test) && Test->bIsTaskActive && !Test->bIsReadyToDestroy;
+	bool bOutput = IsValid(Test) && Test->IsTaskActive() && !Test->IsTaskReadyToDestroy();
+
+#if WITH_EDITOR
+	bOutput = bOutput && !Test->bEndingPIE;
+#endif
+
+	return bOutput;
 }
 
 bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
-	return AzSpeech::Internal::CheckAzSpeechSettings();
+	return AzSpeech::Internal::CheckAzSpeechSettings() && IsTaskStillValid(this);
 }
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
@@ -58,18 +69,18 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 		return;
 	}
 
+	ClearBindings();
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	bIsReadyToDestroy = true;
 	bCanBroadcastFinal = false;
-	ClearBindings();
 
 	Super::SetReadyToDestroy();
 }
 
 void UAzSpeechTaskBase::ConnectTaskSignals()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Connecting task signals"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Connecting task signals"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 }
 
 void UAzSpeechTaskBase::ClearBindings()
@@ -83,7 +94,7 @@ void UAzSpeechTaskBase::ClearBindings()
 	
 	if (!bAlreadyUnbound)
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Removing existing bindings"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Removing existing bindings"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	}
 
 	bAlreadyUnbound = true;
@@ -92,6 +103,8 @@ void UAzSpeechTaskBase::ClearBindings()
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
 	check(IsInGameThread());
+	
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	bIsTaskActive = false;
 	bCanBroadcastFinal = false;
@@ -105,12 +118,10 @@ const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 #if WITH_EDITOR
 void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 {
-	if (UAzSpeechTaskBase::IsTaskStillValid(this))
-	{
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-		
-		StopAzSpeechTask();
-	}
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	
+	bEndingPIE = true;
+	StopAzSpeechTask();
 }
 #endif
 
@@ -121,7 +132,7 @@ void UAzSpeechTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::Cognit
 		return;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Applying Azure SDK Settings"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Applying Azure SDK Settings"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	EnableLogInConfiguration(InSpeechConfig);
 
@@ -129,7 +140,7 @@ void UAzSpeechTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::Cognit
 
 	if (IsUsingAutoLanguage())
 	{
-		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Using auto language identification"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Using auto language identification"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 		InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_SingleLanguageIdPriority, "Latency");
 	}
 }
@@ -146,7 +157,7 @@ void UAzSpeechTaskBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft
 		return;
 	}
 	
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Azure SDK log"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Azure SDK log"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
 	if (FString AzSpeechLogPath = AzSpeech::Internal::GetAzSpeechLogsBaseDir();
 		FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*AzSpeechLogPath))
@@ -240,23 +251,23 @@ void UAzSpeechTaskBase::ProcessCancellationError(const Microsoft::CognitiveServi
 			break;
 	}
 
-	UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Error code: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *ErrorCodeStr);
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Error code: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *ErrorCodeStr);
 
 	const FString ErrorDetailsStr = UTF8_TO_TCHAR(ErrorDetails.c_str());
-	UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Error Details: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *ErrorDetailsStr);
-	UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Log generated in directory: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *AzSpeech::Internal::GetAzSpeechLogsBaseDir());
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Error Details: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *ErrorDetailsStr);
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Log generated in directory: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *AzSpeech::Internal::GetAzSpeechLogsBaseDir());
 }
 
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> UAzSpeechTaskBase::CreateSpeechConfig()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Creating Azure SDK speech config"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Creating Azure SDK speech config"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	
 	const auto Settings = AzSpeech::Internal::GetAzSpeechKeys();
 	const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 
 	if (!SpeechConfig)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: Failed to create speech configuration"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Failed to create speech configuration"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 		return nullptr;
 	}
 

@@ -40,6 +40,6 @@ void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate()
 
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
-		LogSynthesisResultStatus(UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
+		LogSynthesisResultStatus(IsLastResultValid());
 	}
 }

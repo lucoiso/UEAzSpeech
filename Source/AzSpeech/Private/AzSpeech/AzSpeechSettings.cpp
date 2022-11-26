@@ -9,13 +9,13 @@
 #include "Misc/MessageDialog.h"
 #endif // WITH_EDITOR
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableSDKLogs(true), bEnableViseme(true), bEnableRuntimeDebug(false)
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableViseme(true), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false)
 {
 	CategoryName = TEXT("Plugins");
 
-	if (AzSpeech::Internal::HasEmptyParam(AutoLanguageCandidates))
+	if (AzSpeech::Internal::HasEmptyParam(AutoCandidateLanguages))
 	{
-		AutoLanguageCandidates.Add(LanguageID);
+		AutoCandidateLanguages.Add(LanguageID);
 	}
 }
 
@@ -26,7 +26,7 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 
 	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
-		AutoLanguageCandidates.Remove(LanguageID);
+		AutoCandidateLanguages.Remove(LanguageID);
 	}
 }
 
@@ -34,40 +34,51 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates)
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages)
 		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
-		if (!AutoLanguageCandidates.Contains(LanguageID))
-		{
-			AutoLanguageCandidates.Insert(LanguageID, 0);
-		}
-
-		AutoLanguageCandidates.Remove(FString());
-		AutoLanguageCandidates.Shrink();
+		ValidateCandidateLanguages();
 	}
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates))
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages))
 	{
-		if (AutoLanguageCandidates.Num() > 4)
+		if (AutoCandidateLanguages.Num() > MaxContinuousCandidateLanguages)
 		{
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
-
-			AutoLanguageCandidates.RemoveAtSwap(4, AutoLanguageCandidates.Num() - 4, true);
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));			
+			AutoCandidateLanguages.RemoveAtSwap(MaxContinuousCandidateLanguages, AutoCandidateLanguages.Num() - MaxContinuousCandidateLanguages, true);
 		}
+	}
+	
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableInternalLogs)
+		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableDebuggingLogs))
+	{
+		ToggleInternalLogs();
 	}
 }
 #endif // WITH_EDITOR
 
-void UAzSpeechSettings::PostLoad()
+void UAzSpeechSettings::PostInitProperties()
 {
-	Super::PostLoad();
+	Super::PostInitProperties();
 
-	AutoLanguageCandidates.Remove(FString());
+	ValidateCandidateLanguages();
+	ToggleInternalLogs();
+}
 
-	if (!AutoLanguageCandidates.Contains(LanguageID))
+void UAzSpeechSettings::ValidateCandidateLanguages()
+{
+	AutoCandidateLanguages.Remove(FString());
+
+	if (!AutoCandidateLanguages.Contains(LanguageID))
 	{
-		AutoLanguageCandidates.Insert(LanguageID, 0);
+		AutoCandidateLanguages.Insert(LanguageID, 0);
 	}
 
-	AutoLanguageCandidates.Shrink();
+	AutoCandidateLanguages.Shrink();
+}
+
+void UAzSpeechSettings::ToggleInternalLogs()
+{
+	LogAzSpeech_Internal.SetVerbosity(bEnableInternalLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
+	LogAzSpeech_Debugging.SetVerbosity(bEnableDebuggingLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
 }

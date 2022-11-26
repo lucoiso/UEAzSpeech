@@ -8,8 +8,6 @@
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
-	bNullifySynthesizerObjectOnStop = true;
-
 #if PLATFORM_ANDROID
 	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
 #endif
@@ -34,11 +32,11 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 
 		if (bDeleteResult)
 		{
-			UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: File %s deleted successfully."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: File %s deleted successfully."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%s); Function: %s; Message: File %s could not be deleted."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: File %s could not be deleted."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
 		}
 	}
 }
@@ -46,8 +44,12 @@ void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
+
+	if (SynthesisCompleted.IsBound())
+	{
+		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
+	}
 	
-	SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
 	SetReadyToDestroy();
 }
 

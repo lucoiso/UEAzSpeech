@@ -18,8 +18,12 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* Wor
 void USSMLToAudioDataAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
+
+	if (SynthesisCompleted.IsBound())
+	{
+		SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
+	}
 	
-	SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
 	SetReadyToDestroy();
 }
 

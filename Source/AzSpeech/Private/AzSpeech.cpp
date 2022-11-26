@@ -19,7 +19,7 @@
 void FAzSpeechModule::StartupModule()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");	
-	UE_LOG(LogAzSpeech, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
 #if PLATFORM_WINDOWS
 	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
@@ -63,7 +63,7 @@ void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 
 	if (Handle == nullptr)
 	{
-		UE_LOG(LogAzSpeech, Warning, TEXT("%s: Failed to load library %s."), *FString(__func__), *Path);
+		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load library %s."), *FString(__func__), *Path);
 	}
 }
 

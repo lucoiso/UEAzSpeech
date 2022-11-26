@@ -41,7 +41,7 @@ namespace AzSpeech::Internal
 		const bool bOutput = HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
 		if (bOutput)
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters!"), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Missing parameters!"), *FString(__func__));
 		}
 
 		return bOutput;
@@ -77,7 +77,7 @@ namespace AzSpeech::Internal
 		const auto AzSpeechParams = GetAzSpeechKeys();
 		if (AzSpeechParams.empty())
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
 			return false;
 		}
 
@@ -85,7 +85,7 @@ namespace AzSpeech::Internal
 		{
 			if (AzSpeechParams.at(Iterator).empty())
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+				UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
 				return false;
 			}
 		}
@@ -93,19 +93,31 @@ namespace AzSpeech::Internal
 		return true;
 	}
 
-	const std::vector<std::string> GetCandidateLanguages()
+	const std::vector<std::string> GetCandidateLanguages(const FName TaskName, const uint32 TaskId, const bool bContinuous)
 	{
+		const unsigned Quantity = bContinuous ? UAzSpeechSettings::MaxContinuousCandidateLanguages : UAzSpeechSettings::MaxAtStartCandidateLanguages;
+		const FString AutoDetectModeStr = bContinuous ? "Continuous" : "At-Start";
+
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Getting candidate languages. Mode: %s; Candidates: %d"), *TaskName.ToString(), *FString::FromInt(TaskId), *FString(__func__), *AutoDetectModeStr, Quantity);
+
 		std::vector<std::string> Output;
 
 		const UAzSpeechSettings* const Settings = GetPluginSettings();
-		for (const FString& Iterator : Settings->AutoLanguageCandidates)
+		for (const FString& Iterator : Settings->AutoCandidateLanguages)
 		{
 			if (HasEmptyParam(Iterator))
 			{
 				continue;
 			}
 
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language %s as candidate"), *TaskName.ToString(), *FString::FromInt(TaskId), *FString(__func__), *Iterator);
+
 			Output.push_back(TCHAR_TO_UTF8(*Iterator));
+
+			if (Output.size() >= 3)
+			{
+				break;
+			}
 		}
 
 		return Output;

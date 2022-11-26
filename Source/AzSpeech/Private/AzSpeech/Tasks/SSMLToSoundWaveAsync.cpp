@@ -20,15 +20,13 @@ USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* Wor
 void USSMLToSoundWaveAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
-	
-	const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 
-	if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
+	if (SynthesisCompleted.IsBound())
 	{
-		return;
+		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
+		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 	}
 
-	SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 	SetReadyToDestroy();
 }
 

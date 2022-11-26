@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	bool IsTaskActive() const;
 
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	bool IsTaskReadyToDestroy() const;
+
 	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 
 protected:
@@ -80,4 +83,8 @@ private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
 	bool bAlreadyUnbound = false;
+
+#if WITH_EDITOR
+	bool bEndingPIE = false;
+#endif
 };

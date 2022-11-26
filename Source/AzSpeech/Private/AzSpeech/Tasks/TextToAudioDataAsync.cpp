@@ -21,8 +21,12 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* Wor
 void UTextToAudioDataAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
+
+	if (SynthesisCompleted.IsBound())
+	{
+		SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
+	}
 	
-	SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
 	SetReadyToDestroy();
 }
 
