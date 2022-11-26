@@ -79,6 +79,8 @@ void UAzSpeechSettings::ValidateCandidateLanguages()
 
 void UAzSpeechSettings::ToggleInternalLogs()
 {
+#if !UE_BUILD_SHIPPING
 	LogAzSpeech_Internal.SetVerbosity(bEnableInternalLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
 	LogAzSpeech_Debugging.SetVerbosity(bEnableDebuggingLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
+#endif
 }
