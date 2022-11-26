@@ -11,5 +11,5 @@
  */
 
 DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech, Display, All);
-DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech_Internal, NoLogging, All);
-DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech_Debugging, NoLogging, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech_Internal, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech_Debugging, Log, All);
