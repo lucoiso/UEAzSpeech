@@ -2,31 +2,69 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/Bases/AzSpeechSpeechSynthesisBase.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechSpeechSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 
-void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate()
-{	
-	Super::OnSynthesisUpdate();
-
-	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
+{
+	if (IsTaskReadyToDestroy())
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
+	Super::SetReadyToDestroy();
+
+	if (!AudioComponent.IsValid())
+	{
+		return;
+	}
+
+	if (AudioComponent->IsPlaying())
+	{
+		AudioComponent->Stop();
+	}
+
+	AudioComponent->DestroyComponent();
+	AudioComponent.Reset();
+
+	if (AudioComponent->OnAudioPlayStateChanged.IsBound())
+	{
+		AudioComponent->OnAudioPlayStateChanged.Clear();
+	}
+}
+
+void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
+{
+	Super::BroadcastFinalResult();
+
+	if (SynthesisCompleted.IsBound())
+	{
+		SynthesisCompleted.Broadcast(IsLastResultValid());
+		SynthesisCompleted.Clear();
+	}
+}
+
+void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
+{	
+	Super::OnSynthesisUpdate(LastResult);
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	{
+		SetReadyToDestroy();
+		return;
+	}
+
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
 		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
+			SetReadyToDestroy();
 			return;
 		}
 
-		SynthesisCompleted.Broadcast(IsLastResultValid());
-
-		// Clear bindings
 		BroadcastFinalResult();
 
 		AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
@@ -37,34 +75,6 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate()
 
 		AudioComponent->Play();
 	}
-}
-
-void UAzSpeechSpeechSynthesisBase::ClearAllBindings()
-{
-	Super::ClearAllBindings();
-
-	if (!AudioComponent.IsValid())
-	{
-		return;
-	}
-
-	if (AudioComponent->OnAudioPlayStateChanged.IsBound())
-	{
-		AudioComponent->OnAudioPlayStateChanged.RemoveAll(this);
-	}
-}
-
-void UAzSpeechSpeechSynthesisBase::ReleaseResources()
-{
-	Super::ReleaseResources();
-
-	if (AudioComponent->IsPlaying())
-	{
-		AudioComponent->Stop();
-	}
-
-	AudioComponent->DestroyComponent();
-	AudioComponent.Reset();
 }
 
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)

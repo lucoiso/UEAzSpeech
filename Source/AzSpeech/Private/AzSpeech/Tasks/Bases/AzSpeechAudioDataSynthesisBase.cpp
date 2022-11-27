@@ -2,8 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
-#include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
@@ -22,19 +21,4 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 	StartSynthesisWork(AudioConfig);
 
 	return true;
-}
-
-void UAzSpeechAudioDataSynthesisBase::OnSynthesisUpdate()
-{	
-	Super::OnSynthesisUpdate();
-
-	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
-	{
-		return;
-	}
-
-	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
-	{
-		LogSynthesisResultStatus(IsLastResultValid());
-	}
 }

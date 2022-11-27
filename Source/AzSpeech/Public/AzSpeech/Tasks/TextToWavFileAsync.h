@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechWavFileSynthesisBase.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "TextToWavFileAsync.generated.h"
 
 /**

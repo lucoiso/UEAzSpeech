@@ -8,11 +8,7 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 
 THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx_embedded_speech_config.h>
-#include <speechapi_cxx_hybrid_speech_config.h>
-#include <speechapi_cxx_speech_config.h>
 #include <speechapi_cxx_audio_config.h>
-#include <speechapi_cxx_eventsignal.h>
 THIRD_PARTY_INCLUDES_END
 
 #include "AzSpeechTaskBase.generated.h"
@@ -39,28 +35,29 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	bool IsTaskReadyToDestroy() const;
 
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const bool IsUsingAutoLanguage() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const FString GetTaskName() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const FString GetLanguageID() const;
+
+	virtual void SetReadyToDestroy() override;
+
 protected:
+	TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
 	FName TaskName = NAME_None;
-	bool bCanBroadcastFinal = true;
 	
 	FString LanguageId;
 	const UObject* WorldContextObject;
 
-	virtual void StopAzureTaskWork();
-
 	virtual bool StartAzureTaskWork();
-	virtual void SetReadyToDestroy() override;
-
-	virtual void ReleaseResources();
-
-	virtual void ConnectTaskSignals();
-	virtual void ClearAllBindings();
-
 	virtual void BroadcastFinalResult();
-
-	const bool IsUsingAutoLanguage() const;
 
 	mutable FCriticalSection Mutex;
 
@@ -70,25 +67,7 @@ protected:
 	bool bEndingPIE = false;
 #endif
 
-	template<typename SignalTy>
-	void SignalDisconecter_T(SignalTy& Signal)
-	{
-		if (Signal.IsConnected())
-		{
-			Signal.DisconnectAll();
-		}
-	};
-
-	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig);
-	void EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig);
-
-	const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const;
-	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
-
-	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig();
-
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
-	bool bAlreadyUnbound = false;
 };

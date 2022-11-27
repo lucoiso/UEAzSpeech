@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "SSMLToAudioDataAsync.generated.h"
 
 /**
@@ -26,6 +26,6 @@ public:
 	static USSMLToAudioDataAsync* SSMLToAudioData(const UObject* WorldContextObject, const FString& SSMLString);
 	
 protected:
-	virtual void OnSynthesisUpdate() override;
+	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;
 	virtual void BroadcastFinalResult() override;
 };

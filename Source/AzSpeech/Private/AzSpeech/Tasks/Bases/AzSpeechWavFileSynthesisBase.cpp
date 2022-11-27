@@ -2,7 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/Bases/AzSpeechWavFileSynthesisBase.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "HAL/PlatformFileManager.h"
@@ -16,10 +16,20 @@ void UAzSpeechWavFileSynthesisBase::Activate()
 	Super::Activate();
 }
 
-void UAzSpeechWavFileSynthesisBase::ReleaseResources()
+void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 {
-	Super::ReleaseResources();
-		
+	if (IsTaskReadyToDestroy())
+	{
+		return;
+	}
+
+	if (SynthesisCompleted.IsBound())
+	{
+		SynthesisCompleted.Clear();;
+	}
+
+	Super::SetReadyToDestroy();
+
 	if (IsLastResultValid())
 	{
 		return;
@@ -33,11 +43,11 @@ void UAzSpeechWavFileSynthesisBase::ReleaseResources()
 
 		if (bDeleteResult)
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: File %s deleted successfully."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: File %s deleted successfully."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: File %s could not be deleted."), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File %s could not be deleted."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
 		}
 	}
 }
@@ -49,9 +59,8 @@ void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 	if (SynthesisCompleted.IsBound())
 	{
 		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
+		SynthesisCompleted.Clear();
 	}
-	
-	SetReadyToDestroy();
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
@@ -77,16 +86,16 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 	return true;
 }
 
-void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate()
+void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	Super::OnSynthesisUpdate();
+	Super::OnSynthesisUpdate(LastResult);
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
 		BroadcastFinalResult();
 	}

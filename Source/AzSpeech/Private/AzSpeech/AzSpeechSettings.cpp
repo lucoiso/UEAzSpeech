@@ -9,7 +9,7 @@
 #include "Misc/MessageDialog.h"
 #endif // WITH_EDITOR
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableViseme(true), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false)
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableViseme(true), TasksThreadPriority(EAzSpeechThreadPriority::Normal), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false)
 {
 	CategoryName = TEXT("Plugins");
 

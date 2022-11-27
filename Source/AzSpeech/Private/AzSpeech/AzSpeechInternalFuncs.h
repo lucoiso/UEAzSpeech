@@ -25,6 +25,10 @@ namespace AzSpeech::Internal
 		{
 			return Arg1.IsEmpty();
 		}
+		else if constexpr (std::is_base_of<std::string, Ty>())
+		{
+			return Arg1.empty();
+		}
 		else
 		{
 #if ENGINE_MAJOR_VERSION >= 5
@@ -98,7 +102,7 @@ namespace AzSpeech::Internal
 		const unsigned Quantity = bContinuous ? UAzSpeechSettings::MaxContinuousCandidateLanguages : UAzSpeechSettings::MaxAtStartCandidateLanguages;
 		const FString AutoDetectModeStr = bContinuous ? "Continuous" : "At-Start";
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Getting candidate languages. Mode: %s; Candidates: %d"), *TaskName.ToString(), *FString::FromInt(TaskId), *FString(__func__), *AutoDetectModeStr, Quantity);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages. Mode: %s; Candidates: %d"), *TaskName.ToString(), TaskId, *FString(__func__), *AutoDetectModeStr, Quantity);
 
 		std::vector<std::string> Output;
 
@@ -110,7 +114,7 @@ namespace AzSpeech::Internal
 				continue;
 			}
 
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Using language %s as candidate"), *TaskName.ToString(), *FString::FromInt(TaskId), *FString(__func__), *Iterator);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language %s as candidate"), *TaskName.ToString(), TaskId, *FString(__func__), *Iterator);
 
 			Output.push_back(TCHAR_TO_UTF8(*Iterator));
 
@@ -178,16 +182,32 @@ namespace AzSpeech::Internal
 		return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
 	}
 
-	const ENamedThreads::Type GetBackgroundThread()
+	const EThreadPriority GetCPUThreadPriority()
 	{
 		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
 		{
-			if (Settings->bUseHighPriorityThreads)
+			switch (Settings->TasksThreadPriority)
 			{
-				return ENamedThreads::AnyBackgroundHiPriTask;
+				case EAzSpeechThreadPriority::Lowest:
+					return EThreadPriority::TPri_Lowest;
+
+				case EAzSpeechThreadPriority::BelowNormal:
+					return EThreadPriority::TPri_Lowest;
+				
+				case EAzSpeechThreadPriority::Normal:
+					return EThreadPriority::TPri_Lowest;
+
+				case EAzSpeechThreadPriority::AboveNormal:
+					return EThreadPriority::TPri_Lowest;
+
+				case EAzSpeechThreadPriority::Highest:				
+					return EThreadPriority::TPri_Lowest;
+				
+				default:
+					break;
 			}
 		}
 
-		return ENamedThreads::AnyBackgroundThreadNormalTask;
+		return EThreadPriority::TPri_Normal;
 	}
 }

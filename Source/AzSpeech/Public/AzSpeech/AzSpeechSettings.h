@@ -16,6 +16,16 @@ enum class EAzSpeechProfanityFilter : uint8
 	Removed
 };
 
+UENUM(BlueprintType, Category = "AzSpeech")
+enum class EAzSpeechThreadPriority : uint8
+{
+	Lowest,
+	BelowNormal,
+	Normal,
+	AboveNormal,
+	Highest,
+};
+
 /**
  * 
  */
@@ -59,9 +69,9 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Viseme"))
 	bool bEnableViseme;
 
-	/* Use high priority background CPU threads */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Use High Priority Threads"))
-	bool bUseHighPriorityThreads;
+	/* CPU thread priority to use in created runnable threads */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Tasks Thread Priority"))
+	EAzSpeechThreadPriority TasksThreadPriority;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))

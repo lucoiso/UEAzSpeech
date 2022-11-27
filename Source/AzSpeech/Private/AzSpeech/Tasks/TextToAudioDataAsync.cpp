@@ -25,21 +25,20 @@ void UTextToAudioDataAsync::BroadcastFinalResult()
 	if (SynthesisCompleted.IsBound())
 	{
 		SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
+		SynthesisCompleted.Clear();
 	}
-	
-	SetReadyToDestroy();
 }
 
-void UTextToAudioDataAsync::OnSynthesisUpdate()
+void UTextToAudioDataAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	Super::OnSynthesisUpdate();
+	Super::OnSynthesisUpdate(LastResult);
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
 		BroadcastFinalResult();
 	}

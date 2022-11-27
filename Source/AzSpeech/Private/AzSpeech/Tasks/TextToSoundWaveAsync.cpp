@@ -27,21 +27,20 @@ void UTextToSoundWaveAsync::BroadcastFinalResult()
 	{
 		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
 		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+		SynthesisCompleted.Clear();
 	}
-	
-	SetReadyToDestroy();
 }
 
-void UTextToSoundWaveAsync::OnSynthesisUpdate()
+void UTextToSoundWaveAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	Super::OnSynthesisUpdate();
+	Super::OnSynthesisUpdate(LastResult);
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
 		BroadcastFinalResult();
 	}

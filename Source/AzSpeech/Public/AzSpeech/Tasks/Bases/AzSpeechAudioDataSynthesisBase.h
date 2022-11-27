@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechSynthesizerTaskBase.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeechAudioDataSynthesisBase.generated.h"
 
 /**
@@ -18,5 +18,4 @@ class UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizerTaskBase
 	
 protected:
 	virtual bool StartAzureTaskWork() override;
-	virtual void OnSynthesisUpdate() override;
 };
