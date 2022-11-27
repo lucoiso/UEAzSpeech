@@ -7,29 +7,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 
-void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
-{
-	Super::StopAzSpeechTask();
-
-	if (!AudioComponent.IsValid())
-	{
-		return;
-	}
-
-	if (AudioComponent->OnAudioPlayStateChanged.IsBound())
-	{
-		AudioComponent->OnAudioPlayStateChanged.RemoveAll(this);
-	}
-
-	if (AudioComponent->IsPlaying())
-	{
-		AudioComponent->Stop();
-	}
-
-	AudioComponent->DestroyComponent();
-	AudioComponent.Reset();
-}
-
 void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate()
 {	
 	Super::OnSynthesisUpdate();
@@ -62,6 +39,34 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate()
 	}
 }
 
+void UAzSpeechSpeechSynthesisBase::ClearAllBindings()
+{
+	Super::ClearAllBindings();
+
+	if (!AudioComponent.IsValid())
+	{
+		return;
+	}
+
+	if (AudioComponent->OnAudioPlayStateChanged.IsBound())
+	{
+		AudioComponent->OnAudioPlayStateChanged.RemoveAll(this);
+	}
+}
+
+void UAzSpeechSpeechSynthesisBase::ReleaseResources()
+{
+	Super::ReleaseResources();
+
+	if (AudioComponent->IsPlaying())
+	{
+		AudioComponent->Stop();
+	}
+
+	AudioComponent->DestroyComponent();
+	AudioComponent.Reset();
+}
+
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)
 {
 	if (!IsTaskStillValid(this))
@@ -71,6 +76,6 @@ void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponent
 
 	if (PlayState == EAudioComponentPlayState::Stopped)
 	{
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 	}
 }

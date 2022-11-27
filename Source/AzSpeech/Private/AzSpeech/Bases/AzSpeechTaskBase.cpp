@@ -6,6 +6,7 @@
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "Misc/FileHelper.h"
 #include "Async/Async.h"
+#include "HAL/PlatformFileManager.h"
 
 #if WITH_EDITOR
 #include "Editor.h"
@@ -30,8 +31,15 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));	
+	if (!IsTaskStillValid(this))
+	{
+		return;
+	}
+
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Finishing task"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	bIsTaskActive = false;
+
+	AsyncTask(ENamedThreads::GameThread, [this] { StopAzureTaskWork(); });
 }
 
 bool UAzSpeechTaskBase::IsTaskActive() const
@@ -46,13 +54,18 @@ bool UAzSpeechTaskBase::IsTaskReadyToDestroy() const
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 {
-	bool bOutput = IsValid(Test) && Test->IsTaskActive() && !Test->IsTaskReadyToDestroy();
+	bool bOutput = IsValid(Test) && !Test->IsTaskReadyToDestroy();
 
 #if WITH_EDITOR
 	bOutput = bOutput && !Test->bEndingPIE;
 #endif
 
 	return bOutput;
+}
+
+void UAzSpeechTaskBase::StopAzureTaskWork()
+{
+	check(IsInGameThread());
 }
 
 bool UAzSpeechTaskBase::StartAzureTaskWork()
@@ -69,13 +82,33 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 		return;
 	}
 
-	ClearBindings();
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 
-	bIsReadyToDestroy = true;
+	AsyncTask(AzSpeech::Internal::GetBackgroundThread(), [this]
+	{
+		if (!IsTaskStillValid(this))
+		{
+			return;
+		}
+
+		FScopeLock Lock(&Mutex);
+		ReleaseResources();
+		bIsReadyToDestroy = true;
+	});
+
 	bCanBroadcastFinal = false;
 
 	Super::SetReadyToDestroy();
+}
+
+void UAzSpeechTaskBase::ReleaseResources()
+{
+	if (!bAlreadyUnbound)
+	{
+		ClearAllBindings();
+	}
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Releasing resources"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 }
 
 void UAzSpeechTaskBase::ConnectTaskSignals()
@@ -83,7 +116,7 @@ void UAzSpeechTaskBase::ConnectTaskSignals()
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Connecting task signals"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 }
 
-void UAzSpeechTaskBase::ClearBindings()
+void UAzSpeechTaskBase::ClearAllBindings()
 {
 #if WITH_EDITOR
 	if (FEditorDelegates::PrePIEEnded.IsBoundToObject(this))
@@ -118,6 +151,11 @@ const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 #if WITH_EDITOR
 void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 {
+	if (!IsTaskStillValid(this))
+	{
+		return;
+	}
+
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	
 	bEndingPIE = true;

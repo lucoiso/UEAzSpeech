@@ -24,10 +24,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FBooleanSynthesisDelegate SynthesisCompleted;
 
-	virtual void StopAzSpeechTask() override;
-
 protected:
 	virtual void OnSynthesisUpdate() override;
+	virtual void ClearAllBindings() override;
+	virtual void ReleaseResources() override;
 
 	UFUNCTION()
 	void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);

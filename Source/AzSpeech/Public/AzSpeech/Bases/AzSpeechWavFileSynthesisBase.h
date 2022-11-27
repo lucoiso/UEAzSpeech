@@ -22,9 +22,9 @@ public:
 	FBooleanSynthesisDelegate SynthesisCompleted;
 	
 	virtual void Activate() override;
-	virtual void StopAzSpeechTask() override;
 
 protected:
+	virtual void ReleaseResources() override;
 	virtual bool StartAzureTaskWork() override;
 	virtual void OnSynthesisUpdate() override;
 	virtual void BroadcastFinalResult() override;

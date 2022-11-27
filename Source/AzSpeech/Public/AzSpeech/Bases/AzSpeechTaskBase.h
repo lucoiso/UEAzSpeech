@@ -17,6 +17,8 @@ THIRD_PARTY_INCLUDES_END
 
 #include "AzSpeechTaskBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAzSpeechTaskGenericDelegate);
+
 /**
  *
  */
@@ -46,11 +48,15 @@ protected:
 	FString LanguageId;
 	const UObject* WorldContextObject;
 
+	virtual void StopAzureTaskWork();
+
 	virtual bool StartAzureTaskWork();
 	virtual void SetReadyToDestroy() override;
 
+	virtual void ReleaseResources();
+
 	virtual void ConnectTaskSignals();
-	virtual void ClearBindings();
+	virtual void ClearAllBindings();
 
 	virtual void BroadcastFinalResult();
 
@@ -60,6 +66,8 @@ protected:
 
 #if WITH_EDITOR
 	virtual void PrePIEEnded(bool bIsSimulating);
+
+	bool bEndingPIE = false;
 #endif
 
 	template<typename SignalTy>
@@ -83,8 +91,4 @@ private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
 	bool bAlreadyUnbound = false;
-
-#if WITH_EDITOR
-	bool bEndingPIE = false;
-#endif
 };

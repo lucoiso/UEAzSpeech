@@ -12,11 +12,11 @@ void UAzSpeechRecognizerTaskBase::Activate()
 	Super::Activate();
 }
 
-void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
+void UAzSpeechRecognizerTaskBase::StopAzureTaskWork()
 {
-	Super::StopAzSpeechTask();
+	Super::StopAzureTaskWork();
 
-	if (!RecognizerObject)
+	if (!IsTaskStillValid(this) || !RecognizerObject)
 	{
 		SetReadyToDestroy();
 		return;
@@ -24,34 +24,35 @@ void UAzSpeechRecognizerTaskBase::StopAzSpeechTask()
 
 	if (bContinuousRecognition)
 	{
-		if (IsTaskStillValid(this) && bCanBroadcastFinal)
+		if (bCanBroadcastFinal)
 		{
 			BroadcastFinalResult();
 		}
 
-		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
+		AsyncTask(AzSpeech::Internal::GetBackgroundThread(), [this]
 		{
-			if (!Mutex.TryLock())
+			if (!IsTaskStillValid(this))
 			{
 				return;
 			}
 
-			RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-			RecognizerObject = nullptr;
-			LastRecognitionResult = nullptr;
+			FScopeLock Lock(&Mutex);
+			
+			if (RecognizerObject)
+			{
+				RecognizerObject->StopContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+			}
+
+			SetReadyToDestroy();
 		});
 	}
-
-	SetReadyToDestroy();
 }
 
 void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
 {
-	if (!RecognizerObject)
+	if (!IsTaskStillValid(this) || !RecognizerObject)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Trying to enable continuos recognition with invalid recognizer"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -66,11 +67,9 @@ void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
 
 void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 {
-	if (!RecognizerObject)
+	if (!IsTaskStillValid(this) || !RecognizerObject)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Trying to disable continuos recognition with invalid recognizer"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -100,9 +99,9 @@ const FString UAzSpeechRecognizerTaskBase::GetLastRecognizedString() const
 	return UTF8_TO_TCHAR(LastRecognizedString.c_str());
 }
 
-void UAzSpeechRecognizerTaskBase::ClearBindings()
+void UAzSpeechRecognizerTaskBase::ClearAllBindings()
 {
-	Super::ClearBindings();
+	Super::ClearAllBindings();
 
 	if (RecognitionCompleted.IsBound())
 	{
@@ -114,28 +113,28 @@ void UAzSpeechRecognizerTaskBase::ClearBindings()
 		RecognitionUpdated.RemoveAll(this);
 	}
 
-	if (!RecognizerObject)
-	{
-		return;
-	}
-
-	SignalDisconecter_T(RecognizerObject->Recognizing);
-	SignalDisconecter_T(RecognizerObject->Recognized);
+	DisconnectRecognitionSignals();
 }
 
 void UAzSpeechRecognizerTaskBase::ConnectTaskSignals()
 {
 	Super::ConnectTaskSignals();
 
-	if (!RecognizerObject)
+	if (!IsTaskStillValid(this) || !RecognizerObject)
 	{
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 		return;
 	}
 
 	const auto RecognitionUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 	{
 		FScopeLock Lock(&Mutex);
+
+		if (!IsTaskStillValid(this))
+		{
+			SetReadyToDestroy();
+			return;
+		}
 
 		LastRecognitionResult = RecognitionEventArgs.Result;
 		AsyncTask(ENamedThreads::GameThread, [this] { OnRecognitionUpdated(); });
@@ -147,6 +146,18 @@ void UAzSpeechRecognizerTaskBase::ConnectTaskSignals()
 	{
 		RecognizerObject->Recognizing.Connect(RecognitionUpdate_Lambda);
 	}
+}
+
+void UAzSpeechRecognizerTaskBase::ReleaseResources()
+{
+	Super::ReleaseResources();
+
+	if (!IsValid(this))
+	{
+		return;
+	}
+
+	RecognizerObject = nullptr;
 }
 
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
@@ -179,13 +190,21 @@ void UAzSpeechRecognizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microso
 void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated()
 {
 	check(IsInGameThread());
+	FScopeLock Lock(&Mutex);
 	
 	if (!IsTaskStillValid(this) || !LastRecognitionResult)
 	{
+		SetReadyToDestroy();
 		return;
 	}
 
-	FScopeLock Lock(&Mutex);
+	if (!bRecognizingStatusAlreadyShown)
+	{
+		if (RecognitionStarted.IsBound())
+		{
+			RecognitionStarted.Broadcast();
+		}
+	}
 
 	if (!ProcessRecognitionResult())
 	{
@@ -222,11 +241,46 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated()
 	}
 }
 
+void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
+{
+	AsyncTask(AzSpeech::Internal::GetBackgroundThread(), [this, InAudioConfig, FuncName = __func__]
+	{		
+		if (!IsTaskStillValid(this))
+		{
+			return;
+		}
+
+		FScopeLock Lock(&Mutex);
+
+		if (!InitializeRecognizer(InAudioConfig))
+		{
+			SetReadyToDestroy();
+			return;
+		}
+
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(FuncName));
+
+		if (bContinuousRecognition)
+		{
+			RecognizerObject->StartContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+		}
+		else
+		{
+			RecognizerObject->RecognizeOnceAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+		}
+	});
+}
+
 bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
 {
+	if (!IsTaskStillValid(this))
+	{
+		return false;
+	}
+
 	if (!AzSpeech::Internal::CheckAzSpeechSettings())
 	{
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 		return false;
 	}
 
@@ -236,7 +290,7 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 
 	if (!SpeechConfig)
 	{
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 		return false;
 	}
 
@@ -248,8 +302,8 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 		if (Candidates.empty())
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%s); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-			
-			StopAzSpeechTask();
+
+			SetReadyToDestroy();
 			return false;
 		}
 
@@ -265,31 +319,14 @@ bool UAzSpeechRecognizerTaskBase::InitializeRecognizer(const std::shared_ptr<Mic
 	return true;
 }
 
-void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
-{
-	if (!RecognizerObject)
-	{
-		StopAzSpeechTask();
-		return;
-	}
-	
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting recognition"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
-	{	
-		if (bContinuousRecognition)
-		{
-			RecognizerObject->StartContinuousRecognitionAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		}
-		else
-		{
-			RecognizerObject->RecognizeOnceAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		}
-	});
-}
-
 const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 {
+	if (!LastRecognitionResult)
+	{
+		SetReadyToDestroy();
+		return false;
+	}
+
 	switch (LastRecognitionResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
@@ -299,9 +336,10 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
 			if (!bRecognizingStatusAlreadyShown)
 			{
-				UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+				UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task started. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 				bRecognizingStatusAlreadyShown = true;
 			}
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: RecognizingSpeech"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::NoMatch:
@@ -329,4 +367,17 @@ const bool UAzSpeechRecognizerTaskBase::ProcessRecognitionResult()
 
 	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("Task: %s (%s); Function: %s; Message: Ended with undefined reason"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 	return false;
+}
+
+void UAzSpeechRecognizerTaskBase::DisconnectRecognitionSignals()
+{
+	if (!RecognizerObject)
+	{
+		return;
+	}
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Disconnecting Azure SDK recognition signals"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+
+	SignalDisconecter_T(RecognizerObject->Recognizing);
+	SignalDisconecter_T(RecognizerObject->Recognized);
 }

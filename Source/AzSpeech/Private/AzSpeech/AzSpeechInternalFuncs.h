@@ -177,4 +177,17 @@ namespace AzSpeech::Internal
 	{
 		return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
 	}
+
+	const ENamedThreads::Type GetBackgroundThread()
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			if (Settings->bUseHighPriorityThreads)
+			{
+				return ENamedThreads::AnyBackgroundHiPriTask;
+			}
+		}
+
+		return ENamedThreads::AnyBackgroundThreadNormalTask;
+	}
 }

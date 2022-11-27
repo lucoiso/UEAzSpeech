@@ -42,11 +42,7 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 	}
 
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromDefaultMicrophoneInput();
-	if (!InitializeRecognizer(AudioConfig))
-	{
-		return false;
-	}
+	StartRecognitionWork(AudioConfig);
 
-	StartRecognitionWork();
 	return true;
 }

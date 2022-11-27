@@ -59,6 +59,10 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Viseme"))
 	bool bEnableViseme;
 
+	/* Use high priority background CPU threads */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Use High Priority Threads"))
+	bool bUseHighPriorityThreads;
+
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;

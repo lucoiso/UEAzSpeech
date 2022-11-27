@@ -5,6 +5,7 @@
 #include "AzSpeech/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "HAL/PlatformFileManager.h"
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
@@ -15,9 +16,9 @@ void UAzSpeechWavFileSynthesisBase::Activate()
 	Super::Activate();
 }
 
-void UAzSpeechWavFileSynthesisBase::StopAzSpeechTask()
+void UAzSpeechWavFileSynthesisBase::ReleaseResources()
 {
-	Super::StopAzSpeechTask();
+	Super::ReleaseResources();
 		
 	if (IsLastResultValid())
 	{
@@ -70,15 +71,8 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 
-	const std::string InFilePath = TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName));
-	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(InFilePath);
-
-	if (!InitializeSynthesizer(AudioConfig))
-	{
-		return false;
-	}
-
-	StartSynthesisWork();
+	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileOutput(TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName)));
+	StartSynthesisWork(AudioConfig);
 
 	return true;
 }
@@ -95,8 +89,5 @@ void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate()
 	if (CanBroadcastWithReason(LastSynthesisResult->Reason))
 	{
 		BroadcastFinalResult();
-
-		// Free the process handle
-		SynthesizerObject = nullptr;
 	}
 }

@@ -26,14 +26,18 @@ class UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 
 public:	
 	virtual void Activate() override;
-	virtual void StopAzSpeechTask() override;
 
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FRecognitionCompletedDelegate RecognitionCompleted;
 
+	/* Task delegate that will be called when dpdated */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FRecognitionUpdatedDelegate RecognitionUpdated;
+
+	/* Task delegate that will be called when started */
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+	FAzSpeechTaskGenericDelegate RecognitionStarted;
 
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	void EnableContinuousRecognition();
@@ -45,12 +49,16 @@ public:
 	const FString GetLastRecognizedString() const;
 	
 protected:
-	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
-	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastRecognitionResult;
 	bool bContinuousRecognition = false;
 
-	virtual void ClearBindings() override;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastRecognitionResult;
+
+	virtual void StopAzureTaskWork() override;
+
+	virtual void ClearAllBindings() override;
 	virtual void ConnectTaskSignals() override;
+
+	virtual void ReleaseResources() override;
 
 	virtual void BroadcastFinalResult() override;
 
@@ -58,11 +66,13 @@ protected:
 
 	virtual void OnRecognitionUpdated();
 
-	bool InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
-	void StartRecognitionWork();
+	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
-	const bool ProcessRecognitionResult();
-	
 private:
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
 	bool bRecognizingStatusAlreadyShown = false;
+
+	bool InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+	const bool ProcessRecognitionResult();
+	void DisconnectRecognitionSignals();
 };

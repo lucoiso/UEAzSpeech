@@ -12,34 +12,37 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 	Super::Activate();
 }
 
-void UAzSpeechSynthesizerTaskBase::StopAzSpeechTask()
-{	
-	Super::StopAzSpeechTask();
+void UAzSpeechSynthesizerTaskBase::StopAzureTaskWork()
+{
+	Super::StopAzureTaskWork();
 
-	if (!SynthesizerObject)
+	if (!IsTaskStillValid(this) || !SynthesizerObject)
 	{
 		SetReadyToDestroy();
 		return;
 	}
 
-	if (IsTaskStillValid(this) && bCanBroadcastFinal)
+	if (bCanBroadcastFinal)
 	{		
 		BroadcastFinalResult();
 	}
 	
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
+	AsyncTask(AzSpeech::Internal::GetBackgroundThread(), [this]
 	{
-		if (!Mutex.TryLock())
+		if (!IsTaskStillValid(this))
 		{
 			return;
 		}
 
-		SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
-		SynthesizerObject = nullptr;
-		LastSynthesisResult = nullptr;
-	});
+		FScopeLock Lock(&Mutex);
 
-	SetReadyToDestroy();
+		if (SynthesizerObject)
+		{
+			SynthesizerObject->StopSpeakingAsync().wait_for(std::chrono::seconds(AzSpeech::Internal::GetTimeout()));
+		}
+
+		SetReadyToDestroy();
+	});
 }
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
@@ -90,60 +93,43 @@ const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 	return bLastResultIsValid;
 }
 
-void UAzSpeechSynthesizerTaskBase::ClearBindings()
+void UAzSpeechSynthesizerTaskBase::ClearAllBindings()
 {
-	Super::ClearBindings();
+	Super::ClearAllBindings();
+
+	if (!IsTaskStillValid(this))
+	{
+		SetReadyToDestroy();
+		return;
+	}
 
 	if (VisemeReceived.IsBound())
 	{
 		VisemeReceived.RemoveAll(this);
 	}
 
-	if (!SynthesizerObject)
-	{
-		return;
-	}
-
-	SignalDisconecter_T(SynthesizerObject->VisemeReceived);
-	SignalDisconecter_T(SynthesizerObject->Synthesizing);
-	SignalDisconecter_T(SynthesizerObject->SynthesisStarted);
-	SignalDisconecter_T(SynthesizerObject->SynthesisCompleted);
-	SignalDisconecter_T(SynthesizerObject->SynthesisCanceled);
-}
-
-void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
-{
-	VisemeDataArray.Empty();
-	
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Viseme"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-	if (VisemeReceived.IsBound())
-	{
-		SynthesizerObject->VisemeReceived.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
-		{
-			FAzSpeechVisemeData LastVisemeData;
-			LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
-			LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
-			LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
-
-			AsyncTask(ENamedThreads::GameThread, [this, LastVisemeData] { OnVisemeReceived(LastVisemeData); });
-		});
-	}
+	DisconnectSynthesisSignals();
 }
 
 void UAzSpeechSynthesizerTaskBase::ConnectTaskSignals()
 {
 	Super::ConnectTaskSignals();
 
-	if (!SynthesizerObject)
+	if (!IsTaskStillValid(this) || !SynthesizerObject)
 	{
-		StopAzSpeechTask();
+		SetReadyToDestroy();
 		return;
 	}
 
 	const auto SynthesisUpdate_Lambda = [this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
 		FScopeLock Lock(&Mutex);
+
+		if (!IsTaskStillValid(this))
+		{
+			SetReadyToDestroy();
+			return;
+		}
 
 		LastSynthesisResult = SynthesisEventArgs.Result;
 		AsyncTask(ENamedThreads::GameThread, [this] { OnSynthesisUpdate(); });
@@ -158,6 +144,18 @@ void UAzSpeechSynthesizerTaskBase::ConnectTaskSignals()
 	{
 		EnableVisemeOutput();
 	}
+}
+
+void UAzSpeechSynthesizerTaskBase::ReleaseResources()
+{
+	Super::ReleaseResources();
+
+	if (!IsValid(this))
+	{
+		return;
+	}
+
+	SynthesizerObject = nullptr;
 }
 
 void UAzSpeechSynthesizerTaskBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig)
@@ -184,13 +182,13 @@ void UAzSpeechSynthesizerTaskBase::ApplySDKSettings(const std::shared_ptr<Micros
 void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& VisemeData)
 {
 	check(IsInGameThread());
+	FScopeLock Lock(&Mutex);
 
 	if (!IsTaskStillValid(this))
 	{
+		SetReadyToDestroy();
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	VisemeDataArray.Add(VisemeData);
 
@@ -207,13 +205,20 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate()
 {
 	check(IsInGameThread());
+	FScopeLock Lock(&Mutex);
 
 	if (!IsTaskStillValid(this) || !LastSynthesisResult)
 	{
 		return;
 	}
 
-	FScopeLock Lock(&Mutex);
+	if (LastSynthesisResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioStarted)
+	{
+		if (SynthesisStarted.IsBound())
+		{
+			SynthesisStarted.Broadcast();
+		}
+	}
 
 	bLastResultIsValid = ProcessLastSynthesisResult() && !LastSynthesisResult->GetAudioData()->empty();
 
@@ -229,55 +234,26 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate()
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *FString(UTF8_TO_TCHAR(LastSynthesisResult->ResultId.c_str())));
 }
 
-bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
+void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
 {
-	if (!AzSpeech::Internal::CheckAzSpeechSettings())
+	AsyncTask(AzSpeech::Internal::GetBackgroundThread(), [this, InAudioConfig, FuncName = __func__]
 	{
-		StopAzSpeechTask();
-		return false;
-	}
+		if (!IsTaskStillValid(this))
+		{
+			return;
+		}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+		FScopeLock Lock(&Mutex);
 
-	const auto SpeechConfig = UAzSpeechTaskBase::CreateSpeechConfig();
+		if (!InitializeSynthesizer(InAudioConfig))
+		{
+			SetReadyToDestroy();
+			return;
+		}
 
-	if (!SpeechConfig)
-	{
-		StopAzSpeechTask();
-		return false;
-	}
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting synthesis"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(FuncName));
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Using text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(FuncName), *SynthesisText);
 
-	ApplySDKSettings(SpeechConfig);
-
-	if (IsUsingAutoLanguage())
-	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing auto language detection"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
-	}
-	else
-	{
-		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
-	}
-
-	ConnectTaskSignals();
-
-	return true;
-}
-
-void UAzSpeechSynthesizerTaskBase::StartSynthesisWork()
-{
-	if (!SynthesizerObject)
-	{
-		StopAzSpeechTask();
-		return;
-	}
-
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%s); Function: %s; Message: Starting synthesis"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%s); Function: %s; Message: Using text: %s"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__), *SynthesisText);
-
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
-	{
 		const std::string SynthesisStr = TCHAR_TO_UTF8(*SynthesisText);
 		std::future<std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>> Future;
 		if (bIsSSMLBased)
@@ -309,18 +285,91 @@ void UAzSpeechSynthesizerTaskBase::LogSynthesisResultStatus(const bool bSuccess)
 	}
 }
 
+const bool UAzSpeechSynthesizerTaskBase::CanBroadcastWithReason(const Microsoft::CognitiveServices::Speech::ResultReason& Reason) const
+{
+	return Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio && Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioStarted;
+}
+
+void UAzSpeechSynthesizerTaskBase::EnableVisemeOutput()
+{
+	if (!IsTaskStillValid(this))
+	{
+		SetReadyToDestroy();
+		return;
+	}
+
+	VisemeDataArray.Empty();
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Enabling Viseme"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+
+	if (VisemeReceived.IsBound())
+	{
+		SynthesizerObject->VisemeReceived.Connect([this](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
+		{
+			FAzSpeechVisemeData LastVisemeData;
+			LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
+			LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
+			LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
+
+			AsyncTask(ENamedThreads::GameThread, [this, LastVisemeData] { OnVisemeReceived(LastVisemeData); });
+		});
+	}
+}
+
+bool UAzSpeechSynthesizerTaskBase::InitializeSynthesizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
+{
+	if (!IsTaskStillValid(this))
+	{
+		SetReadyToDestroy();
+		return false;
+	}
+
+	if (!AzSpeech::Internal::CheckAzSpeechSettings())
+	{
+		SetReadyToDestroy();
+		return false;
+	}
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing synthesizer object"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+
+	const auto SpeechConfig = UAzSpeechTaskBase::CreateSpeechConfig();
+
+	if (!SpeechConfig)
+	{
+		SetReadyToDestroy();
+		return false;
+	}
+
+	ApplySDKSettings(SpeechConfig);
+
+	if (IsUsingAutoLanguage())
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Initializing auto language detection"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+
+		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromOpenRange(), InAudioConfig);
+	}
+	else
+	{
+		SynthesizerObject = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, InAudioConfig);
+	}
+
+	ConnectTaskSignals();
+
+	return true;
+}
+
 const bool UAzSpeechSynthesizerTaskBase::ProcessLastSynthesisResult()
 {
+	if (!IsTaskStillValid(this))
+	{
+		SetReadyToDestroy();
+		return false;
+	}
+
 	switch (LastSynthesisResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio:
-			if (!bSynthesizingStatusAlreadyShown)
-			{
-				UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: SynthesizingAudio"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
-
-				bSynthesizingStatusAlreadyShown = true;
-			}
-
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Task running. Reason: SynthesizingAudio"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
 			return true;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted:
@@ -354,7 +403,18 @@ const bool UAzSpeechSynthesizerTaskBase::ProcessLastSynthesisResult()
 	return false;
 }
 
-const bool UAzSpeechSynthesizerTaskBase::CanBroadcastWithReason(const Microsoft::CognitiveServices::Speech::ResultReason& Reason) const
+void UAzSpeechSynthesizerTaskBase::DisconnectSynthesisSignals()
 {
-	return Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio && Reason != Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioStarted;
+	if (!SynthesizerObject)
+	{
+		return;
+	}
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%s); Function: %s; Message: Disconnecting Azure SDK recognition signals"), *TaskName.ToString(), *FString::FromInt(GetUniqueID()), *FString(__func__));
+
+	SignalDisconecter_T(SynthesizerObject->VisemeReceived);
+	SignalDisconecter_T(SynthesizerObject->Synthesizing);
+	SignalDisconecter_T(SynthesizerObject->SynthesisStarted);
+	SignalDisconecter_T(SynthesizerObject->SynthesisCompleted);
+	SignalDisconecter_T(SynthesizerObject->SynthesisCanceled);
 }

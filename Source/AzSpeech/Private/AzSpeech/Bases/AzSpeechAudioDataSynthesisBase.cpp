@@ -19,12 +19,7 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 	}
 
 	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream());
-	if (!InitializeSynthesizer(AudioConfig))
-	{
-		return false;
-	}
-
-	StartSynthesisWork();
+	StartSynthesisWork(AudioConfig);
 
 	return true;
 }

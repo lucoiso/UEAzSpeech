@@ -58,13 +58,8 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		delete FileHandle;
 	}
 
-	const std::string InFilePath = TCHAR_TO_UTF8(*QualifiedPath);
-	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(InFilePath);
-	if (!InitializeRecognizer(AudioConfig))
-	{
-		return false;
-	}
+	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(TCHAR_TO_UTF8(*QualifiedPath));
+	StartRecognitionWork(AudioConfig);
 
-	StartRecognitionWork();
 	return true;
 }
