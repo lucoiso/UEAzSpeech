@@ -229,7 +229,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
 
-	const auto Comparisor_Lambda = [&InString, FuncName = __func__](const FString& KeyType, const FString& Key) -> bool
+	const auto Comparisor_Lambda = [&InString, &GroupName, FuncName = __func__](const FString& KeyType, const FString& Key) -> bool
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Key))
 		{
@@ -238,7 +238,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 
 		if (InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart))
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String %s contains %s key %s"), *FString(FuncName), *InString, *KeyType, *Key);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
 			return true;
 		}
 
@@ -267,7 +267,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 
 				if (bStopAtFirstTrigger)
 				{
-					UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Returning first triggered key with result: %d"), *FString(__func__), OutputResult.Value);
+					UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Returning first triggered key from group %s. Result: %d"), *FString(__func__), *GroupName.ToString(), OutputResult.Value);
 					return Iterator.Value;
 				}
 			}
