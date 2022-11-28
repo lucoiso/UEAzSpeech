@@ -25,7 +25,7 @@ struct FAzSpeechRecognitionData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<FString> IgnoreKeys;
 
-	bool operator==(const FAzSpeechRecognitionData& Rhs)
+	bool operator==(const FAzSpeechRecognitionData& Rhs) const
 	{
 		return Value == Rhs.Value || TriggerKeys == Rhs.TriggerKeys;
 	}
@@ -42,7 +42,7 @@ struct FAzSpeechRecognitionMap
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (TitleProperty = "Value: {Value}"))
 	TArray<FAzSpeechRecognitionData> RecognitionData;
 
-	bool operator==(const FAzSpeechRecognitionMap& Rhs)
+	bool operator==(const FAzSpeechRecognitionMap& Rhs) const
 	{
 		return GroupName == Rhs.GroupName || RecognitionData == Rhs.RecognitionData;
 	}
