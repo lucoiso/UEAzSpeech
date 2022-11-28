@@ -26,13 +26,13 @@ void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
 		AudioComponent->Stop();
 	}
 
-	AudioComponent->DestroyComponent();
-	AudioComponent.Reset();
-
 	if (AudioComponent->OnAudioPlayStateChanged.IsBound())
 	{
 		AudioComponent->OnAudioPlayStateChanged.Clear();
 	}
+
+	AudioComponent->DestroyComponent();
+	AudioComponent.Reset();
 }
 
 void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
