@@ -221,6 +221,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 {
 	if (AzSpeech::Internal::HasEmptyParam(InString, GroupName))
 	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid input string or group name"), *FString(__func__));
 		return -1;
 	}
 
@@ -228,7 +229,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
 
-	const auto Comparisor_Lambda = [&InString](const FString& KeyType, const FString& Key) -> bool
+	const auto Comparisor_Lambda = [&InString, FuncName = __func__](const FString& KeyType, const FString& Key) -> bool
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Key))
 		{
@@ -237,7 +238,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 
 		if (InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart))
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String %s contains %s key %s"), *FString(__func__), *InString, *KeyType, *Key);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String %s contains %s key %s"), *FString(FuncName), *InString, *KeyType, *Key);
 			return true;
 		}
 
@@ -281,11 +282,11 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 
 	if (OutputResult.Value < 0 || MatchPoints == 0u)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to find matching data in recognition map group %s"), *FString(__func__), AzSpeech::Internal::HasEmptyParam(GroupName) ? *FString("EMPTY_GROUP_NAME") : *GroupName.ToString());
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to find matching data in recognition map group %s"), *FString(__func__), *GroupName.ToString());
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: %d; Matching Points: %d"), *FString(__func__), OutputResult.Value, MatchPoints);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Found matching data in recognition map group %s. Result: %d; Matching Points: %d"), *FString(__func__), *GroupName.ToString(), OutputResult.Value, MatchPoints);
 	}
 
 	return OutputResult.Value;
