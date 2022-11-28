@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
+#include "AzSpeech/AzSpeechRecognitionMap.h"
 #include "AzSpeechSettings.generated.h"
 
 UENUM(BlueprintType, Category = "AzSpeech")
@@ -85,6 +86,10 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Debugging Logs"))
 	bool bEnableDebuggingLogs;
 
+	/* Map of keywords to trigger or ignore in recognition interactions: Used by UAzSpeechHelper::CheckReturnFromRecognitionMap */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map"))
+	TArray<FAzSpeechRecognitionMap> RecognitionMap;
+
 protected:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
@@ -96,4 +101,5 @@ protected:
 private:
 	void ValidateCandidateLanguages();
 	void ToggleInternalLogs();
+	void ValidateRecognitionMap();
 };

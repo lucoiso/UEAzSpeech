@@ -66,4 +66,8 @@ public:
 	/* Check if the audio data is valid or not */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static bool IsAudioDataValid(const TArray<uint8>& RawData);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static int32 CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName);
+
 };

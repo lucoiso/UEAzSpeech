@@ -216,3 +216,66 @@ bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 
 	return bOutput;
 }
+
+int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName)
+{
+	const TArray<FAzSpeechRecognitionData> DataArray = AzSpeech::Internal::GetRecognitionMap(GroupName);
+	FAzSpeechRecognitionData OutputResult(-1);
+	uint32 MatchPoints = 0u;
+
+	const auto Comparisor_Lambda = [&InString](const FString& KeyType, const FString& Key) -> bool
+	{
+		if (AzSpeech::Internal::HasEmptyParam(Key))
+		{
+			return false;
+		}
+
+		if (InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart))
+		{
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String %s contains %s key %s"), *FString(__func__), *InString, *KeyType, *Key);
+			return true;
+		}
+
+		return false;
+	};
+
+	for (const FAzSpeechRecognitionData& Iterator : DataArray)
+	{
+		bool bIgnore = false;
+		for (const FString& Ignore : Iterator.IgnoreKeys)
+		{
+			bIgnore = Comparisor_Lambda("ignore", Ignore);
+		}
+
+		if (bIgnore)
+		{
+			continue;
+		}
+
+		uint32 It_MatchPoints = 0u;
+		for (const FString& Trigger : Iterator.TriggerKeys)
+		{
+			if (Comparisor_Lambda("trigger", Trigger))
+			{
+				++It_MatchPoints;
+			}
+		}
+
+		if (It_MatchPoints >= MatchPoints)
+		{
+			MatchPoints = It_MatchPoints;
+			OutputResult = Iterator;
+		}
+	}
+
+	if (OutputResult.Value < 0 || MatchPoints == 0u)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to find matching data in recognition map group %s"), *FString(__func__), AzSpeech::Internal::HasEmptyParam(GroupName) ? *FString("EMPTY_GROUP_NAME") : *GroupName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: %d; Matching Points: %d"), *FString(__func__), OutputResult.Value, MatchPoints);
+	}
+
+	return OutputResult.Value;
+}

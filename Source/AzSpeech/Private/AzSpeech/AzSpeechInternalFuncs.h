@@ -25,6 +25,10 @@ namespace AzSpeech::Internal
 		{
 			return Arg1.IsEmpty();
 		}
+		else if constexpr (std::is_base_of<FName, Ty>())
+		{
+			return Arg1.IsNone();
+		}
 		else if constexpr (std::is_base_of<std::string, Ty>())
 		{
 			return Arg1.empty();
@@ -175,6 +179,29 @@ namespace AzSpeech::Internal
 		{
 			InVoice = UTF8_TO_TCHAR(Settings.at(3).c_str());
 		}
+	}
+
+	const TArray<FAzSpeechRecognitionData> GetRecognitionMap(const FName& InGroup)
+	{
+		if (HasEmptyParam(InGroup))
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid group name"), *FString(__func__));
+			return TArray<FAzSpeechRecognitionData>();
+		}
+
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			for (const FAzSpeechRecognitionMap& RecognitionData : Settings->RecognitionMap)
+			{
+				if (RecognitionData.GroupName.IsEqual(InGroup))
+				{
+					return RecognitionData.RecognitionData;
+				}
+			}
+		}
+
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Group with name %s not found"), *FString(__func__), *InGroup.ToString());
+		return TArray<FAzSpeechRecognitionData>();
 	}
 
 	const FString GetAzSpeechLogsBaseDir()

@@ -63,6 +63,7 @@ void UAzSpeechSettings::PostInitProperties()
 
 	ValidateCandidateLanguages();
 	ToggleInternalLogs();
+	ValidateRecognitionMap();
 }
 
 void UAzSpeechSettings::ValidateCandidateLanguages()
@@ -83,4 +84,40 @@ void UAzSpeechSettings::ToggleInternalLogs()
 	LogAzSpeech_Internal.SetVerbosity(bEnableInternalLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
 	LogAzSpeech_Debugging.SetVerbosity(bEnableDebuggingLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
 #endif
+}
+
+void UAzSpeechSettings::ValidateRecognitionMap()
+{
+	for (const FAzSpeechRecognitionMap& RecognitionMapGroup : RecognitionMap)
+	{
+		if (AzSpeech::Internal::HasEmptyParam(RecognitionMapGroup.GroupName))
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: RecognitionMap has a group with invalid name."));
+			continue;
+		}
+
+		for (const FAzSpeechRecognitionData& RecognitionData : RecognitionMapGroup.RecognitionData)
+		{
+			if (RecognitionData.Value < 0)
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a Recognition Data with invalid value."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+				break;
+			}
+
+			if (AzSpeech::Internal::HasEmptyParam(RecognitionData.TriggerKeys))
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a Recognition Data without Trigger Keys."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+				break;
+			}
+
+			for (const FString& TriggerKey : RecognitionData.TriggerKeys)
+			{
+				if (AzSpeech::Internal::HasEmptyParam(TriggerKey))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a empty Trigger Key."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+					break;
+				}
+			}
+		}
+	}
 }
