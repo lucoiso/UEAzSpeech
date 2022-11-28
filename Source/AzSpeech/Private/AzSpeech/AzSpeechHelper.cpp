@@ -51,7 +51,7 @@ FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString
 	return QualifiedName;
 }
 
-USoundWave* UAzSpeechHelper::ConvertFileToSoundWave(const FString& FilePath, const FString& FileName)
+USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName)
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{

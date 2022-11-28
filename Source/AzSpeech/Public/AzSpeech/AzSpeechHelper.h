@@ -39,9 +39,9 @@ public:
 		return QualifyFileExtension(Path, Name, "xml");
 	}
 
-	/* Convert file to USoundWave */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static USoundWave* ConvertFileToSoundWave(const FString& FilePath, const FString& FileName);
+	/* Convert .wav file to USoundWave */
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Convert .wav file to USoundWave"))
+	static USoundWave* ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName);
 
 	/* Convert audio data (TArray<uint8>) to USoundWave */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
