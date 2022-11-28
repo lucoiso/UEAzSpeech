@@ -135,7 +135,7 @@ namespace AzSpeech::Internal
 	{
 		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
 		{
-			return Settings->TimeOutInSeconds;
+			return Settings->TimeOutInSeconds <= 0.f ? 15.f : Settings->TimeOutInSeconds;
 		}
 
 		return 15.f;
@@ -236,5 +236,15 @@ namespace AzSpeech::Internal
 		}
 
 		return EThreadPriority::TPri_Normal;
+	}
+
+	float GetThreadUpdateInterval()
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return Settings->ThreadUpdateInterval <= 0.f ? 0.1f : Settings->ThreadUpdateInterval;
+		}
+
+		return 0.1f;
 	}
 }

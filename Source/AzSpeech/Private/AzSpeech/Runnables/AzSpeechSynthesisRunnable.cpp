@@ -55,7 +55,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	float InSeconds = 0.f;
 #endif
 
-	constexpr float SleepTime = 0.1f;
+	const float SleepTime = AzSpeech::Internal::GetThreadUpdateInterval();
 	while (!IsPendingStop())
 	{
 #if !UE_BUILD_SHIPPING
