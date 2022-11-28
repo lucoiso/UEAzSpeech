@@ -87,7 +87,7 @@ public:
 	bool bEnableDebuggingLogs;
 
 	/* Map of keywords to trigger or ignore in recognition interactions: Used by UAzSpeechHelper::CheckReturnFromRecognitionMap */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 
 protected:
