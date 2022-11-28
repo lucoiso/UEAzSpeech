@@ -217,7 +217,7 @@ bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 	return bOutput;
 }
 
-int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName)
+int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
 {
 	const TArray<FAzSpeechRecognitionData> DataArray = AzSpeech::Internal::GetRecognitionMap(GroupName);
 	FAzSpeechRecognitionData OutputResult(-1);
@@ -258,6 +258,12 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 			if (Comparisor_Lambda("trigger", Trigger))
 			{
 				++It_MatchPoints;
+
+				if (bStopAtFirstTrigger)
+				{
+					UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Returning first triggered key with result: %d"), *FString(__func__), OutputResult.Value);
+					return Iterator.Value;
+				}
 			}
 		}
 
