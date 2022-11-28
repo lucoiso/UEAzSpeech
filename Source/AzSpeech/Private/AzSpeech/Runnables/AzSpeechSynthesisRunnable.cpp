@@ -27,7 +27,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
 
-	if (!IsValid(SynthesizerTask))
+	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return 0u;
@@ -72,9 +72,9 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	return 1u;
 }
 
-void FAzSpeechSynthesisRunnable::Stop()
+void FAzSpeechSynthesisRunnable::Exit()
 {
-	Super::Stop();
+	Super::Exit();
 	
 	if (SpeechSynthesizer)
 	{
@@ -214,7 +214,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 		{
 			if (!IsValid(SynthesizerTask))
 			{
-				Stop();
+				StopAzSpeechRunnableTask();
 				return;
 			}
 
@@ -231,7 +231,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	{
 		if (!IsValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
 		{
-			Stop();
+			StopAzSpeechRunnableTask();
 			return;
 		}
 		
@@ -246,7 +246,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	{
 		if (!IsValid(SynthesizerTask))
 		{
-			Stop();
+			StopAzSpeechRunnableTask();
 			return;
 		}
 

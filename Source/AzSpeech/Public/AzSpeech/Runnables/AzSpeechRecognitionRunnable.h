@@ -25,7 +25,7 @@ public:
 	
 	// FRunnable interface
 	virtual uint32 Run() override;
-	virtual void Stop() override;
+	virtual void Exit() override;
 	// End of FRunnable interface
 
 private:

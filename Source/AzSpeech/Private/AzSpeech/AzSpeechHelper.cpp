@@ -219,6 +219,11 @@ bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 
 int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
 {
+	if (AzSpeech::Internal::HasEmptyParam(InString, GroupName))
+	{
+		return -1;
+	}
+
 	const TArray<FAzSpeechRecognitionData> DataArray = AzSpeech::Internal::GetRecognitionMap(GroupName);
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
@@ -267,7 +272,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 			}
 		}
 
-		if (It_MatchPoints >= MatchPoints)
+		if (It_MatchPoints > MatchPoints)
 		{
 			MatchPoints = It_MatchPoints;
 			OutputResult = Iterator;

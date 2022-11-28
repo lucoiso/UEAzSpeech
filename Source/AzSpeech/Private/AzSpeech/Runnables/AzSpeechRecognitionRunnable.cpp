@@ -32,7 +32,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
 
-	if (!IsValid(RecognizerTask))
+	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return 0u;
@@ -81,9 +81,9 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	return 1u;
 }
 
-void FAzSpeechRecognitionRunnable::Stop()
+void FAzSpeechRecognitionRunnable::Exit()
 {
-	Super::Stop();
+	Super::Exit();
 
 	if (SpeechRecognizer)
 	{
@@ -209,7 +209,7 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	{
 		if (!IsValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
 		{
-			Stop();
+			StopAzSpeechRunnableTask();
 			return;
 		}
 		
