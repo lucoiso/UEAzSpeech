@@ -77,11 +77,11 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
 
-	/* Will print extra internal informations on log */
+	/* Will print extra internal informations in log */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Internal Logs"))
 	bool bEnableInternalLogs;
 
-	/* Will print extra debugging informations on log */
+	/* Will print extra debugging informations in log */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Debugging Logs"))
 	bool bEnableDebuggingLogs;
 

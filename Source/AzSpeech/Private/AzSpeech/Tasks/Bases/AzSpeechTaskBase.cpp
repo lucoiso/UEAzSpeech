@@ -135,7 +135,7 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 		return;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	
 	bEndingPIE = true;
 	StopAzSpeechTask();

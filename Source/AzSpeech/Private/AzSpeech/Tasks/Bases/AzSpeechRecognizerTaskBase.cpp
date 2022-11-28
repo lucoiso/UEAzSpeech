@@ -59,14 +59,14 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 	RecognizerObj->Disable();
 }
 
-const FString UAzSpeechRecognizerTaskBase::GetLastRecognizedString() const
+const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {
-	if (LastRecognizedText.empty())
+	if (RecognizedText.empty())
 	{
 		return FString();
 	}
 
-	return UTF8_TO_TCHAR(LastRecognizedText.c_str());
+	return UTF8_TO_TCHAR(RecognizedText.c_str());
 }
 
 const bool UAzSpeechRecognizerTaskBase::IsUsingContinuousRecognition() const
@@ -93,7 +93,7 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 	
 	if (RecognitionCompleted.IsBound())
 	{
-		RecognitionCompleted.Broadcast(GetLastRecognizedString());
+		RecognitionCompleted.Broadcast(GetRecognizedString());
 		RecognitionCompleted.Clear();
 	}
 }
@@ -115,9 +115,9 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 	
 	FScopeLock Lock(&Mutex);
 
-	LastRecognizedText = LastResult->Text;
+	RecognizedText = LastResult->Text;
 
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current recognized text: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetLastRecognizedString());
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current recognized text: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetRecognizedString());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__),LastResult->Duration());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current offset: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->Offset());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
@@ -126,14 +126,14 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 	switch (LastResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetLastRecognizedString());
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetRecognizedString());
 
 			BroadcastFinalResult();
 
 			// Also broadcast the final result on update delegate
 			if (RecognitionUpdated.IsBound())
 			{
-				RecognitionUpdated.Broadcast(GetLastRecognizedString());
+				RecognitionUpdated.Broadcast(GetRecognizedString());
 			}
 
 			break;
@@ -141,7 +141,7 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
 			if (RecognitionUpdated.IsBound())
 			{
-				RecognitionUpdated.Broadcast(GetLastRecognizedString());
+				RecognitionUpdated.Broadcast(GetRecognizedString());
 			}
 			break;
 	}

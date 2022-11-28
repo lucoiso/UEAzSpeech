@@ -58,7 +58,7 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 
 	if (CanBroadcastWithReason(LastResult->Reason))
 	{
-		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
+		const TArray<uint8> LastBuffer = GetAudioData();
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
 			SetReadyToDestroy();

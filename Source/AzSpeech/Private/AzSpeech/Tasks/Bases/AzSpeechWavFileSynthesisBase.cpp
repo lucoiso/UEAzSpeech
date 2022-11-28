@@ -58,7 +58,7 @@ void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 
 	if (SynthesisCompleted.IsBound())
 	{
-		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetLastSynthesizedAudioData()));
+		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
 		SynthesisCompleted.Clear();
 	}
 }

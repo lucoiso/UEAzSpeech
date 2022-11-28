@@ -25,7 +25,7 @@ void UTextToSoundWaveAsync::BroadcastFinalResult()
 
 	if (SynthesisCompleted.IsBound())
 	{
-		const TArray<uint8> LastBuffer = GetLastSynthesizedAudioData();
+		const TArray<uint8> LastBuffer = GetAudioData();
 		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 		SynthesisCompleted.Clear();
 	}

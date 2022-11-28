@@ -12,7 +12,7 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 	Super::Activate();
 }
 
-const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
+const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetVisemeData() const
 {
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
@@ -27,25 +27,20 @@ const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArr
 	return VisemeDataArray;
 }
 
-const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetLastSynthesizedAudioData() const
+const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 {
-	if (LastAudioBuffer.empty())
+	if (AudioData.empty())
 	{
 		return TArray<uint8>();
 	}
 
 	TArray<uint8> OutputArr;
-	for (const uint8_t& i : LastAudioBuffer)
+	for (const uint8_t& i : AudioData)
 	{
 		OutputArr.Add(static_cast<uint8>(i));
 	}
 
 	return OutputArr;
-}
-
-const bool UAzSpeechSynthesizerTaskBase::IsLastVisemeDataValid() const
-{
-	return GetLastVisemeData().IsValid();
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
@@ -126,7 +121,7 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 
 	FScopeLock Lock(&Mutex);
 
-	LastAudioBuffer = *LastResult->GetAudioData().get();
+	AudioData = *LastResult->GetAudioData().get();
 
 	bLastResultIsValid = !LastResult->GetAudioData()->empty();
 

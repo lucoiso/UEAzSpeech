@@ -72,16 +72,13 @@ public:
 	FVisemeReceived VisemeReceived;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FAzSpeechVisemeData GetLastVisemeData() const;
+	const FAzSpeechVisemeData GetVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const TArray<FAzSpeechVisemeData> GetVisemeDataArray() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const TArray<uint8> GetLastSynthesizedAudioData() const;
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const bool IsLastVisemeDataValid() const;
+	const TArray<uint8> GetAudioData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsLastResultValid() const;
@@ -108,7 +105,7 @@ protected:
 	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
 	
 private:
-	std::vector<uint8_t> LastAudioBuffer;
+	std::vector<uint8_t> AudioData;
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
 

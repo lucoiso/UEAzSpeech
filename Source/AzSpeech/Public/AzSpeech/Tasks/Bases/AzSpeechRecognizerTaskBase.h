@@ -47,7 +47,7 @@ public:
 	void DisableContinuousRecognition();	
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetLastRecognizedString() const;
+	const FString GetRecognizedString() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsUsingContinuousRecognition() const;
@@ -64,5 +64,5 @@ protected:
 
 private:
 	bool bRecognizingStatusAlreadyShown = false;
-	std::string LastRecognizedText;
+	std::string RecognizedText;
 };

@@ -24,7 +24,7 @@ void UTextToAudioDataAsync::BroadcastFinalResult()
 
 	if (SynthesisCompleted.IsBound())
 	{
-		SynthesisCompleted.Broadcast(GetLastSynthesizedAudioData());
+		SynthesisCompleted.Broadcast(GetAudioData());
 		SynthesisCompleted.Clear();
 	}
 }

@@ -58,15 +58,24 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		});
 	}
 
+#if !UE_BUILD_SHIPPING
+	const UAzSpeechSettings* const Settings = AzSpeech::Internal::GetPluginSettings();
+	const bool bEnablePrints = Settings->bEnableDebuggingLogs;
 	float InSeconds = 0.f;
+#endif
+
+	constexpr float SleepTime = 0.1f;
 	while (!IsPendingStop())
 	{
-		constexpr float SleepTime = 0.1f;
-		GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d). Active time: %f seconds."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), InSeconds));
+#if !UE_BUILD_SHIPPING
+		if (bEnablePrints)
+		{
+			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d). Active time: %f seconds\nCurrent recognized string: %s\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), InSeconds, *RecognizerTask->GetRecognizedString()));
+			InSeconds += SleepTime;
+		}
+#endif
 
 		FPlatformProcess::Sleep(SleepTime);
-
-		InSeconds += SleepTime;
 	}
 	
 	return 1u;
@@ -198,8 +207,6 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	
 	const auto RecognitionUpdate_Lambda = [this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 	{
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: RecognitionUpdate_Lambda; Message: Recognition signal called with resuld id %s and reason code %d"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(UTF8_TO_TCHAR(RecognitionEventArgs.Result->ResultId.c_str())), static_cast<int>(RecognitionEventArgs.Result->Reason));
-
 		if (!IsValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
 		{
 			Stop();

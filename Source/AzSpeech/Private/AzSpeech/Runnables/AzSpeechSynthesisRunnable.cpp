@@ -49,15 +49,24 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 	Future.wait_for(GetTaskTimeout());
 
+#if !UE_BUILD_SHIPPING
+	const UAzSpeechSettings* const Settings = AzSpeech::Internal::GetPluginSettings();
+	const bool bEnablePrints = Settings->bEnableDebuggingLogs;
 	float InSeconds = 0.f;
+#endif
+
+	constexpr float SleepTime = 0.1f;
 	while (!IsPendingStop())
 	{
-		constexpr float SleepTime = 0.1f;
-		GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d). Active time: %f seconds."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), InSeconds));
+#if !UE_BUILD_SHIPPING
+		if (bEnablePrints)
+		{
+			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d). Active time: %f seconds\nCurrent synthesis buffer size: %d\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), InSeconds, SynthesizerTask->GetAudioData().Num()));
+			InSeconds += SleepTime;
+		}
+#endif
 
 		FPlatformProcess::Sleep(SleepTime);
-
-		InSeconds += SleepTime;
 	}
 
 	return 1u;
@@ -220,8 +229,6 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 
 	const auto SynthesisUpdate_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: SynthesisUpdate_Lambda; Message: Synthesis signal called with resuld id %s and reason code %d"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(UTF8_TO_TCHAR(SynthesisEventArgs.Result->ResultId.c_str())), static_cast<int>(SynthesisEventArgs.Result->Reason));
-
 		if (!IsValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
 		{
 			Stop();
