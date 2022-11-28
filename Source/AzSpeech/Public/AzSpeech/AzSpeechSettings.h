@@ -63,7 +63,7 @@ public:
 	TArray<FString> AutoCandidateLanguages;
 
 	/* Time limit in seconds to wait for related asynchronous tasks to complete */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Tasks Timeout in Seconds", ClampMin = "0", UIMin = "0"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Tasks Timeout in Seconds", ClampMin = "1", UIMin = "1"))
 	int32 TimeOutInSeconds;
 
 	/* If enabled, synthesizers tasks will generate Viseme data */
@@ -75,7 +75,7 @@ public:
 	EAzSpeechThreadPriority TasksThreadPriority;
 
 	/* Thread update interval: Sleep time between task update checks */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0", UIMin = "0"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001"))
 	float ThreadUpdateInterval;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
