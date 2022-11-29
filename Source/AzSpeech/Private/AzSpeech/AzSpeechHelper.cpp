@@ -233,17 +233,30 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Key))
 		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Empty %s key in group %s"), *FString(FuncName), *KeyType, *GroupName.ToString());
 			return false;
 		}
 
-		if (InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart))
+		const bool bOutput = InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart);
+		if (bOutput)
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
-			return true;
+		}
+		else
+		{
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' does not contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
 		}
 
-		return false;
+		return bOutput;
 	};
+
+	for (const FString& GlobalRequirementKey : InMap.GlobalRequirementKeys)
+	{
+		if (!Comparisor_Lambda("requirement", GlobalRequirementKey))
+		{
+			return -1;
+		}
+	}
 
 	for (const FString& GlobalIgnoreKey : InMap.GlobalIgnoreKeys)
 	{
