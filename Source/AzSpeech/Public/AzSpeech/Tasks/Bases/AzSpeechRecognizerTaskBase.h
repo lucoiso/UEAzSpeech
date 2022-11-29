@@ -48,13 +48,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetRecognizedString() const;
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const bool IsUsingContinuousRecognition() const;
 	
 protected:
-	bool bContinuousRecognition = false;
-
 	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> GetRecognizer() const;
 	
 	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
@@ -63,6 +58,5 @@ protected:
 	virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
 private:
-	bool bRecognizingStatusAlreadyShown = false;
 	std::string RecognizedText;
 };

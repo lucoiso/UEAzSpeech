@@ -38,16 +38,9 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		return 0u;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition. Mode: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), RecognizerTask->IsUsingContinuousRecognition() ? *FString("Continuous") : *FString("Single"));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
-	if (RecognizerTask->IsUsingContinuousRecognition())
-	{
-		SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
-	}
-	else
-	{
-		SpeechRecognizer->RecognizeOnceAsync().wait_for(GetTaskTimeout());
-	}
+	SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
 
 	if (RecognizerTask->RecognitionStarted.IsBound())
 	{
@@ -172,7 +165,7 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 
 	if (RecognizerTask->IsUsingAutoLanguage())
 	{
-		const std::vector<std::string> Candidates = AzSpeech::Internal::GetCandidateLanguages(*RecognizerTask->GetTaskName(), RecognizerTask->GetUniqueID(), RecognizerTask->IsUsingContinuousRecognition());
+		const std::vector<std::string> Candidates = AzSpeech::Internal::GetCandidateLanguages(*RecognizerTask->GetTaskName(), RecognizerTask->GetUniqueID());
 		if (Candidates.empty())
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
@@ -217,11 +210,7 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	};
 
 	SpeechRecognizer->Recognized.Connect(RecognitionUpdate_Lambda);
-
-	if (RecognizerTask->IsUsingContinuousRecognition())
-	{
-		SpeechRecognizer->Recognizing.Connect(RecognitionUpdate_Lambda);
-	}
+	SpeechRecognizer->Recognizing.Connect(RecognitionUpdate_Lambda);
 	
 	return true;
 }

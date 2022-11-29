@@ -42,10 +42,10 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages))
 	{
-		if (AutoCandidateLanguages.Num() > MaxContinuousCandidateLanguages)
+		if (AutoCandidateLanguages.Num() > MaxCandidateLanguages)
 		{
 			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));			
-			AutoCandidateLanguages.RemoveAtSwap(MaxContinuousCandidateLanguages, AutoCandidateLanguages.Num() - MaxContinuousCandidateLanguages, true);
+			AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
 		}
 	}
 	

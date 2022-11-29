@@ -229,7 +229,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
 
-	const auto Comparisor_Lambda = [&InString, &GroupName, FuncName = __func__](const FString& KeyType, const FString& Key) -> bool
+	const auto Comparisor_Lambda = [&InString, &GroupName, FuncName = __func__](const FString& KeyType, const FString& Key, const bool bLogIfContains = true, const bool bLogIfNotContains = false) -> bool
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Key))
 		{
@@ -238,13 +238,13 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 		}
 
 		const bool bOutput = InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart);
-		if (bOutput)
+		if (bOutput && bLogIfContains)
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
 		}
-		else
+		else if (bLogIfNotContains)
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' does not contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: String '%s' does not contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
 		}
 
 		return bOutput;
@@ -252,7 +252,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 
 	for (const FString& GlobalRequirementKey : InMap.GlobalRequirementKeys)
 	{
-		if (!Comparisor_Lambda("requirement", GlobalRequirementKey))
+		if (!Comparisor_Lambda("requirement", GlobalRequirementKey, false, true))
 		{
 			return -1;
 		}

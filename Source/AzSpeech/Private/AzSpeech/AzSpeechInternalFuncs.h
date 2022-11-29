@@ -101,12 +101,9 @@ namespace AzSpeech::Internal
 		return true;
 	}
 
-	const std::vector<std::string> GetCandidateLanguages(const FName TaskName, const uint32 TaskId, const bool bContinuous)
+	const std::vector<std::string> GetCandidateLanguages(const FName TaskName, const uint32 TaskId)
 	{
-		const unsigned Quantity = bContinuous ? UAzSpeechSettings::MaxContinuousCandidateLanguages : UAzSpeechSettings::MaxAtStartCandidateLanguages;
-		const FString AutoDetectModeStr = bContinuous ? "Continuous" : "At-Start";
-
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages. Mode: %s; Candidates: %d"), *TaskName.ToString(), TaskId, *FString(__func__), *AutoDetectModeStr, Quantity);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages"), *TaskName.ToString(), TaskId, *FString(__func__));
 
 		std::vector<std::string> Output;
 
@@ -122,8 +119,9 @@ namespace AzSpeech::Internal
 
 			Output.push_back(TCHAR_TO_UTF8(*Iterator));
 
-			if (Output.size() >= 3)
+			if (Output.size() >= UAzSpeechSettings::MaxCandidateLanguages)
 			{
+				Output.resize(UAzSpeechSettings::MaxCandidateLanguages);
 				break;
 			}
 		}

@@ -38,8 +38,7 @@ class AZSPEECH_API UAzSpeechSettings final : public UDeveloperSettings
 public:
 	explicit UAzSpeechSettings(const FObjectInitializer& ObjectInitializer);
 
-	static constexpr unsigned MaxAtStartCandidateLanguages = 4u;
-	static constexpr unsigned MaxContinuousCandidateLanguages = 10u;
+	static constexpr unsigned MaxCandidateLanguages = 10u;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK API Access Key"))
 	FString APIAccessKey;

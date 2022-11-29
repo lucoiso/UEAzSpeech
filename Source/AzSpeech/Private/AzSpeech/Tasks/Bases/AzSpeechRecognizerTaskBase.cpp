@@ -69,11 +69,6 @@ const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 	return UTF8_TO_TCHAR(RecognizedText.c_str());
 }
 
-const bool UAzSpeechRecognizerTaskBase::IsUsingContinuousRecognition() const
-{
-	return bContinuousRecognition;
-}
-
 void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
 {
 	RunnableTask = MakeShared<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
