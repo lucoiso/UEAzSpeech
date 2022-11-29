@@ -40,11 +40,11 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	std::future<std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>> Future;
 	if (SynthesizerTask->IsSSMLBased())
 	{
-		Future = SpeechSynthesizer->SpeakSsmlAsync(SynthesisStr);
+		Future = SpeechSynthesizer->StartSpeakingSsmlAsync(SynthesisStr);
 	}
 	else
 	{
-		Future = SpeechSynthesizer->SpeakTextAsync(SynthesisStr);
+		Future = SpeechSynthesizer->StartSpeakingTextAsync(SynthesisStr);
 	}
 
 	Future.wait_for(GetTaskTimeout());

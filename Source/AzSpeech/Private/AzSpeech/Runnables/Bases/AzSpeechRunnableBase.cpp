@@ -14,11 +14,13 @@ FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, co
 
 void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
 {
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Creating new runnable thread to initialize work"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID()), 0u, AzSpeech::Internal::GetCPUThreadPriority()));
 }
 
 void FAzSpeechRunnableBase::StopAzSpeechRunnableTask()
 {
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting runnable work as pending stop"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	bStopTask = true;
 }
 
