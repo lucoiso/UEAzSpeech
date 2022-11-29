@@ -23,7 +23,8 @@ public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FBooleanSynthesisDelegate SynthesisCompleted;
-	
+
+	virtual void StopAzSpeechTask() override;
 	virtual void SetReadyToDestroy() override;
 
 protected:

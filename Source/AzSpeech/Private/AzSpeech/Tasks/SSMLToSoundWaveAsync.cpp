@@ -40,6 +40,8 @@ void USSMLToSoundWaveAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::C
 
 	if (CanBroadcastWithReason(LastResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+
 		BroadcastFinalResult();
 	}
 }

@@ -33,6 +33,8 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 		return;
 	}
 
+	FScopeLock Lock(&Mutex);
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Finishing task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsTaskActive = false;
 
@@ -88,6 +90,8 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 	{
 		return;
 	}
+
+	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsReadyToDestroy = true;

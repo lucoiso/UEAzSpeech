@@ -33,7 +33,6 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 		return 0u;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting synthesis. Mode: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), SynthesizerTask->IsSSMLBased() ? *FString("SSML") : *FString("Text"));
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Using text: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *SynthesizerTask->GetSynthesisText());
 
 	const std::string SynthesisStr = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisText());
@@ -47,6 +46,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 		Future = SpeechSynthesizer->StartSpeakingTextAsync(SynthesisStr);
 	}
 
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting synthesis."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	Future.wait_for(GetTaskTimeout());
 
 #if !UE_BUILD_SHIPPING

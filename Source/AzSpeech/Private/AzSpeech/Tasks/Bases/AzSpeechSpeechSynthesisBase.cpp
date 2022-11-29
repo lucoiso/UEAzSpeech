@@ -7,14 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 
-void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
+void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
 {
-	if (IsTaskReadyToDestroy())
-	{
-		return;
-	}
-
-	Super::SetReadyToDestroy();
+	Super::StopAzSpeechTask();
 
 	if (!AudioComponent.IsValid())
 	{
@@ -26,13 +21,19 @@ void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
 		AudioComponent->Stop();
 	}
 
-	if (AudioComponent->OnAudioPlayStateChanged.IsBound())
-	{
-		AudioComponent->OnAudioPlayStateChanged.Clear();
-	}
-
 	AudioComponent->DestroyComponent();
 	AudioComponent.Reset();
+}
+
+void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
+{
+	// Only set as ready to destroy after the sound stop playing normally or the user ask to stop
+	if (AudioComponent.IsValid() && AudioComponent->IsPlaying())
+	{
+		return;
+	}
+
+	Super::SetReadyToDestroy();
 }
 
 void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
@@ -52,12 +53,13 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
-		SetReadyToDestroy();
 		return;
 	}
 
 	if (CanBroadcastWithReason(LastResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+
 		const TArray<uint8> LastBuffer = GetAudioData();
 		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
 		{
@@ -83,6 +85,8 @@ void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponent
 	{
 		return;
 	}
+
+	AudioComponent->OnAudioPlayStateChanged.Clear();
 
 	if (PlayState == EAudioComponentPlayState::Stopped)
 	{

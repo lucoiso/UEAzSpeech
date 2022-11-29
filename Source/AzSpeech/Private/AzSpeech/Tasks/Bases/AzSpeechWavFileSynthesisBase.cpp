@@ -43,11 +43,11 @@ void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 
 		if (bDeleteResult)
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: File %s deleted successfully."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: File '%s' deleted successfully."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File %s could not be deleted."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' could not be deleted."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
 		}
 	}
 }
@@ -97,6 +97,8 @@ void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micr
 
 	if (CanBroadcastWithReason(LastResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+
 		BroadcastFinalResult();
 	}
 }

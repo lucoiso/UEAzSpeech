@@ -39,7 +39,6 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
-
 	SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
 
 	if (RecognizerTask->RecognitionStarted.IsBound())

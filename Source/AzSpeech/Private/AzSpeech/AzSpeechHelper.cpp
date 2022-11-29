@@ -72,7 +72,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 			return ConvertAudioDataToSoundWave(RawData);
 		}
 		// else
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file '%s'"), *FString(__func__), *Full_FileName);
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Cannot find the specified file"), *FString(__func__));
@@ -129,7 +129,7 @@ FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString&
 		if (FString OutputStr;
 			FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: %s loaded"), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: '%s' loaded"), *FString(__func__), *Full_FileName);
 			return OutputStr;
 		}
 	}
