@@ -181,12 +181,12 @@ namespace AzSpeech::Internal
 		}
 	}
 
-	const TArray<FAzSpeechRecognitionData> GetRecognitionMap(const FName& InGroup)
+	const FAzSpeechRecognitionMap GetRecognitionMap(const FName& InGroup)
 	{
 		if (HasEmptyParam(InGroup))
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid group name"), *FString(__func__));
-			return TArray<FAzSpeechRecognitionData>();
+			return FAzSpeechRecognitionMap();
 		}
 
 		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
@@ -195,13 +195,19 @@ namespace AzSpeech::Internal
 			{
 				if (RecognitionData.GroupName.IsEqual(InGroup))
 				{
-					return RecognitionData.RecognitionData;
+					if (HasEmptyParam(RecognitionData.RecognitionData))
+					{
+						UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Recognition map group %s has empty data"), *FString(__func__), *RecognitionData.GroupName.ToString());
+						return FAzSpeechRecognitionMap();
+					}
+
+					return RecognitionData;
 				}
 			}
 		}
 
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Group with name %s not found"), *FString(__func__), *InGroup.ToString());
-		return TArray<FAzSpeechRecognitionData>();
+		return FAzSpeechRecognitionMap();
 	}
 
 	const FString GetAzSpeechLogsBaseDir()

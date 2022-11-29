@@ -16,12 +16,15 @@ struct FAzSpeechRecognitionData
 
 	FAzSpeechRecognitionData(const int32 InValue) : Value(InValue) {};
 
+	/* Value that will be returned if this recognition data matches the checked string */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (ClampMin = "0", UIMin = "0"))
 	int32 Value = 0;
 
+	/* Keys that will define if this recognition data is a good match */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<FString> TriggerKeys;
 
+	/* If the recognized string contains any of this ignore keys, this recognition data will be ignored in the check */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<FString> IgnoreKeys;
 
@@ -36,11 +39,17 @@ struct FAzSpeechRecognitionMap
 {
 	GENERATED_USTRUCT_BODY()
 
+	/* The name of this recognition data group */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	FName GroupName = NAME_None;
 
+	/* Container of trigger/ignore keys and the values that they will returned if matches the recognized string */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (TitleProperty = "Value: {Value}"))
 	TArray<FAzSpeechRecognitionData> RecognitionData;
+
+	/* Ignore keys that will be applied to the entire group */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	TArray<FString> GlobalIgnoreKeys;
 
 	bool operator==(const FAzSpeechRecognitionMap& Rhs) const
 	{

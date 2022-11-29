@@ -225,7 +225,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 		return -1;
 	}
 
-	const TArray<FAzSpeechRecognitionData> DataArray = AzSpeech::Internal::GetRecognitionMap(GroupName);
+	const FAzSpeechRecognitionMap InMap = AzSpeech::Internal::GetRecognitionMap(GroupName);
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
 
@@ -245,7 +245,15 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 		return false;
 	};
 
-	for (const FAzSpeechRecognitionData& Iterator : DataArray)
+	for (const FString& GlobalIgnoreKey : InMap.GlobalIgnoreKeys)
+	{
+		if (Comparisor_Lambda("global ignore", GlobalIgnoreKey))
+		{
+			return -1;
+		}
+	}
+
+	for (const FAzSpeechRecognitionData& Iterator : InMap.RecognitionData)
 	{
 		bool bIgnore = false;
 		for (const FString& Ignore : Iterator.IgnoreKeys)
