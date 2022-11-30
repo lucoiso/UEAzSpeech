@@ -52,13 +52,13 @@ void FAzSpeechRunnableBase::Exit()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Exiting thread"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
-	ClearSignals();
-	RemoveBindings();
-
 	if (!OwningTask->IsTaskReadyToDestroy())
 	{
 		OwningTask->SetReadyToDestroy();
 	}
+
+	ClearSignals();
+	RemoveBindings();
 }
 
 bool FAzSpeechRunnableBase::InitializeAzureObject()
