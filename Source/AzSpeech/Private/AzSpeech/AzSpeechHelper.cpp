@@ -228,8 +228,9 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 	const FAzSpeechRecognitionMap InMap = AzSpeech::Internal::GetRecognitionMap(GroupName);
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
+	const FString StringDelimiters = AzSpeech::Internal::GetStringDelimiters();
 
-	const auto Comparisor_Lambda = [&InString, &GroupName, FuncName = __func__](const FString& KeyType, const FString& Key, const bool bLogIfContains = true, const bool bLogIfNotContains = false) -> bool
+	const auto Comparisor_Lambda = [&InString, &GroupName, &StringDelimiters, FuncName = __func__](const FString& KeyType, const FString& Key) -> bool
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Key))
 		{
@@ -237,25 +238,52 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 			return false;
 		}
 
-		const bool bOutput = InString.Contains(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart);
-		if (bOutput && bLogIfContains)
+		const auto CheckDelimiter_Lambda = [&InString, &StringDelimiters, &FuncName](const int32 Index)
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
+			if (InString.IsValidIndex(Index))
+			{
+				const FString PreviousSubStr = InString.Mid(Index, 1);
+				const bool bResult = StringDelimiters.Contains(PreviousSubStr);
+
+				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Checking delimiter in string '%s' index %d. Result: %d"), *FString(FuncName), *InString, Index, bResult);
+				return bResult;
+			}
+
+			UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: String '%s' does not contains index %d"), *FString(FuncName), *InString, Index);
+			return true;
+		};
+
+		const int32 Index = InString.Find(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart, -1);
+		const bool bOutput = Index != INDEX_NONE && CheckDelimiter_Lambda(Index - 1) && CheckDelimiter_Lambda(Index + Key.Len());
+
+		if (bOutput)
+		{
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' contains the %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
 		}
-		else if (bLogIfNotContains)
+		else
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: String '%s' does not contains %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
+			UE_LOG(LogAzSpeech_Debugging, Error, TEXT("%s: String '%s' does not contains the %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
 		}
 
 		return bOutput;
 	};
 
+	bool bContainsRequirement = AzSpeech::Internal::HasEmptyParam(InMap.GlobalRequirementKeys);
 	for (const FString& GlobalRequirementKey : InMap.GlobalRequirementKeys)
 	{
-		if (!Comparisor_Lambda("requirement", GlobalRequirementKey, false, true))
+		if (Comparisor_Lambda("requirement", GlobalRequirementKey))
 		{
-			return -1;
+			bContainsRequirement = true;
+			break;
 		}
+
+		bContainsRequirement = false;
+	}
+
+	if (!bContainsRequirement)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Aborting check: String '%s' does not contains any requirement key from group %s"), *FString(__func__), *InString, *GroupName.ToString());
+		return -1;
 	}
 
 	for (const FString& GlobalIgnoreKey : InMap.GlobalIgnoreKeys)

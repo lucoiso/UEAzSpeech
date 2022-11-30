@@ -89,6 +89,10 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Debugging Logs"))
 	bool bEnableDebuggingLogs;
 
+	/* String delimiters to use in recognition checks */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "String Delimiters"))
+	FString StringDelimiters;
+
 	/* Map of keywords to trigger or ignore in recognition interactions: Used by UAzSpeechHelper::CheckReturnFromRecognitionMap */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;

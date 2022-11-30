@@ -40,15 +40,15 @@ public:
 	}
 
 	/* Convert .wav file to USoundWave */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Convert .wav file to USoundWave"))
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", Meta = (DisplayName = "Convert .wav file to USoundWave"))
 	static USoundWave* ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName);
 
 	/* Convert audio data (TArray<uint8>) to USoundWave */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static USoundWave* ConvertAudioDataToSoundWave(const TArray<uint8>& RawData);
 
 	/* Load a given .xml file and return the content as string */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Load XML to String"))
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Load XML to String"))
 	static FString LoadXMLToString(const FString& FilePath, const FString& FileName);
 
 	/* Create a new directory in the specified location */
@@ -68,7 +68,7 @@ public:
 	static bool IsAudioDataValid(const TArray<uint8>& RawData);
 
 	/* Search in the recognition map for the key that best matches with the input string and return the registered value (See Project Settings -> AzSpeech: Recognition Map) */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static int32 CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger = false);
 
 };

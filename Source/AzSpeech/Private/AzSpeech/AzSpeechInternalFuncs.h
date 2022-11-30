@@ -242,7 +242,7 @@ namespace AzSpeech::Internal
 		return EThreadPriority::TPri_Normal;
 	}
 
-	float GetThreadUpdateInterval()
+	const float GetThreadUpdateInterval()
 	{
 		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
 		{
@@ -250,5 +250,15 @@ namespace AzSpeech::Internal
 		}
 
 		return 0.1f;
+	}
+
+	const FString GetStringDelimiters()
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return Settings->StringDelimiters;
+		}
+
+		return FString(" ,.;:[]{}!'\"?");
 	}
 }

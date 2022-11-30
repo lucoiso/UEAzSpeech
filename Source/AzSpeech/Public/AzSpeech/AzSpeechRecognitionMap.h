@@ -51,7 +51,7 @@ struct FAzSpeechRecognitionMap
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (TitleProperty = "Value: {Value}"))
 	TArray<FAzSpeechRecognitionData> RecognitionData;
 
-	/* Requirement keys that the recognized string needs to contain to check this group */
+	/* Requirement keys that the recognized string needs to contains at least 1 to check this group */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<FString> GlobalRequirementKeys;
 
