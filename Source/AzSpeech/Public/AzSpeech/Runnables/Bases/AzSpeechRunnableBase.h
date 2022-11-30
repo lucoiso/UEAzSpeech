@@ -77,6 +77,8 @@ protected:
 
 	const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const;
 	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
+	
+	int64 GetTimeInMilliseconds();
 
 private:
 	bool bStopTask = false;

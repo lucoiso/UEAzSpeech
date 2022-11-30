@@ -271,3 +271,12 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 	
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Log generated in directory: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *AzSpeech::Internal::GetAzSpeechLogsBaseDir());
 }
+
+int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
+{
+	const auto time = std::chrono::system_clock::now();
+	const auto since_epoch = time.time_since_epoch();
+	const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(since_epoch);
+
+	return static_cast<int64>(millis.count());
+}
