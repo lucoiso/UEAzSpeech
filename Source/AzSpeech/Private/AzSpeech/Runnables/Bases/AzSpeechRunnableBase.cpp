@@ -7,6 +7,7 @@
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "HAL/PlatformFileManager.h"
 #include "Misc/FileHelper.h"
+#include "Async/Async.h"
 
 FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
 {
@@ -54,7 +55,7 @@ void FAzSpeechRunnableBase::Exit()
 
 	if (UAzSpeechTaskBase::IsTaskStillValid(OwningTask) && OwningTask->IsTaskActive())
 	{
-		OwningTask->BroadcastFinalResult();
+		AsyncTask(ENamedThreads::GameThread, [this] { OwningTask->BroadcastFinalResult(); });
 	}
 
 	ClearSignals();
