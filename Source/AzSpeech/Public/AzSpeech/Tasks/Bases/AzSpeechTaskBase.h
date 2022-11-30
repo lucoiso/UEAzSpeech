@@ -23,6 +23,8 @@ class UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
+	friend class FAzSpeechRunnableBase;
+
 public:
 	virtual void Activate() override;
 
