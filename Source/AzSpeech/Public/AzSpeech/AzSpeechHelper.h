@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include <CoreMinimal.h>
+#include <Kismet/BlueprintFunctionLibrary.h>
 #include "AzSpeechHelper.generated.h"
 
 /**
@@ -66,9 +66,4 @@ public:
 	/* Check if the audio data is valid or not */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static bool IsAudioDataValid(const TArray<uint8>& RawData);
-
-	/* Search in the recognition map for the key that best matches with the input string and return the registered value (See Project Settings -> AzSpeech: Recognition Map) */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
-	static int32 CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger = false);
-
 };

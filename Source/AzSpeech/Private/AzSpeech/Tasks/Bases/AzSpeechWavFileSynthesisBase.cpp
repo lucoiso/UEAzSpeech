@@ -5,7 +5,7 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "HAL/PlatformFileManager.h"
+#include <HAL/PlatformFileManager.h>
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {

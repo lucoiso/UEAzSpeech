@@ -6,7 +6,7 @@
 #include "AzSpeechInternalFuncs.h"
 
 #if WITH_EDITOR
-#include "Misc/MessageDialog.h"
+#include <Misc/MessageDialog.h>
 #endif // WITH_EDITOR
 
 UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableViseme(true), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")

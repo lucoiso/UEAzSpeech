@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Logging/LogMacros.h"
+#include <Logging/LogMacros.h>
 
 /**
  *

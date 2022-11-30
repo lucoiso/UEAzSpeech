@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "HAL/Runnable.h"
+#include <CoreMinimal.h>
+#include <HAL/Runnable.h>
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_embedded_speech_config.h>

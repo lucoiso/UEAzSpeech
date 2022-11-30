@@ -4,7 +4,7 @@
 
 #include "AzSpeech/Tasks/TextToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "Sound/SoundWave.h"
+#include <Sound/SoundWave.h>
 
 UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {

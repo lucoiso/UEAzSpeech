@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 
 THIRD_PARTY_INCLUDES_START

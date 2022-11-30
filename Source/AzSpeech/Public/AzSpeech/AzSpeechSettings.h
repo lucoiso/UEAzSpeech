@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Engine/DeveloperSettings.h"
+#include <CoreMinimal.h>
+#include <Engine/DeveloperSettings.h>
 #include "AzSpeech/AzSpeechRecognitionMap.h"
 #include "AzSpeechSettings.generated.h"
 
@@ -93,7 +93,7 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "String Delimiters"))
 	FString StringDelimiters;
 
-	/* Map of keywords to trigger or ignore in recognition interactions: Used by UAzSpeechHelper::CheckReturnFromRecognitionMap */
+	/* Map of keywords to trigger or ignore in recognition interactions: Used by CheckReturnFromRecognitionMap task */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 

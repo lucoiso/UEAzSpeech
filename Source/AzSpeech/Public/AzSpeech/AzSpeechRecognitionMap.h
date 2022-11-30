@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "AzSpeechRecognitionMap.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")

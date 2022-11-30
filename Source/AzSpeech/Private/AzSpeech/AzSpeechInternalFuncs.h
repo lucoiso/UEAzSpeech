@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "LogAzSpeech.h"
 #include "AzSpeech/AzSpeechSettings.h"
 

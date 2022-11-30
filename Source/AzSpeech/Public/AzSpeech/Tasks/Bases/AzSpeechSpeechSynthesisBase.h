@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Components/AudioComponent.h"
+#include <CoreMinimal.h>
+#include <Components/AudioComponent.h>
 #include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "AzSpeechSpeechSynthesisBase.generated.h"
 

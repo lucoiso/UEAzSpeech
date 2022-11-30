@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
-
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_speech_synthesizer.h>

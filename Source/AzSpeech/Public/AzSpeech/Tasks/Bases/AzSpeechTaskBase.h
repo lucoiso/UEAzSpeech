@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include <CoreMinimal.h>
+#include <Kismet/BlueprintAsyncActionBase.h>
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_audio_config.h>

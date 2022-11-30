@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "SSMLToAudioDataAsync.generated.h"
 

@@ -3,16 +3,16 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechHelper.h"
-#include "LogAzSpeech.h"
-#include "Sound/SoundWave.h"
-#include "Misc/FileHelper.h"
-#include "HAL/PlatformFileManager.h"
-#include "DesktopPlatformModule.h"
-#include "Kismet/GameplayStatics.h"
 #include "AzSpeechInternalFuncs.h"
+#include "LogAzSpeech.h"
+#include <Sound/SoundWave.h>
+#include <Misc/FileHelper.h>
+#include <HAL/PlatformFileManager.h>
+#include <DesktopPlatformModule.h>
+#include <Kismet/GameplayStatics.h>
 
 #if PLATFORM_ANDROID
-#include "AndroidPermissionFunctionLibrary.h"
+#include <AndroidPermissionFunctionLibrary.h>
 #endif
 
 FString UAzSpeechHelper::QualifyPath(const FString& Path)
@@ -215,128 +215,4 @@ bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 	}
 
 	return bOutput;
-}
-
-int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
-{
-	if (AzSpeech::Internal::HasEmptyParam(InString, GroupName))
-	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid input string or group name"), *FString(__func__));
-		return -1;
-	}
-
-	const FAzSpeechRecognitionMap InMap = AzSpeech::Internal::GetRecognitionMap(GroupName);
-	FAzSpeechRecognitionData OutputResult(-1);
-	uint32 MatchPoints = 0u;
-	const FString StringDelimiters = AzSpeech::Internal::GetStringDelimiters();
-
-	const auto Comparisor_Lambda = [&InString, &GroupName, &StringDelimiters, FuncName = __func__](const FString& KeyType, const FString& Key) -> bool
-	{
-		if (AzSpeech::Internal::HasEmptyParam(Key))
-		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Empty %s key in group %s"), *FString(FuncName), *KeyType, *GroupName.ToString());
-			return false;
-		}
-
-		const auto CheckDelimiter_Lambda = [&InString, &StringDelimiters, &FuncName](const int32 Index)
-		{
-			if (InString.IsValidIndex(Index))
-			{
-				const FString PreviousSubStr = InString.Mid(Index, 1);
-				const bool bResult = StringDelimiters.Contains(PreviousSubStr);
-
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Checking delimiter in string '%s' index %d. Result: %d"), *FString(FuncName), *InString, Index, bResult);
-				return bResult;
-			}
-
-			UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: String '%s' does not contains index %d"), *FString(FuncName), *InString, Index);
-			return true;
-		};
-
-		const int32 Index = InString.Find(Key, ESearchCase::IgnoreCase, ESearchDir::FromStart, -1);
-		const bool bOutput = Index != INDEX_NONE && CheckDelimiter_Lambda(Index - 1) && CheckDelimiter_Lambda(Index + Key.Len());
-
-		if (bOutput)
-		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: String '%s' contains the %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
-		}
-		else
-		{
-			UE_LOG(LogAzSpeech_Debugging, Error, TEXT("%s: String '%s' does not contains the %s key '%s' from group %s"), *FString(FuncName), *InString, *KeyType, *Key, *GroupName.ToString());
-		}
-
-		return bOutput;
-	};
-
-	bool bContainsRequirement = AzSpeech::Internal::HasEmptyParam(InMap.GlobalRequirementKeys);
-	for (const FString& GlobalRequirementKey : InMap.GlobalRequirementKeys)
-	{
-		if (Comparisor_Lambda("requirement", GlobalRequirementKey))
-		{
-			bContainsRequirement = true;
-			break;
-		}
-
-		bContainsRequirement = false;
-	}
-
-	if (!bContainsRequirement)
-	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Aborting check: String '%s' does not contains any requirement key from group %s"), *FString(__func__), *InString, *GroupName.ToString());
-		return -1;
-	}
-
-	for (const FString& GlobalIgnoreKey : InMap.GlobalIgnoreKeys)
-	{
-		if (Comparisor_Lambda("global ignore", GlobalIgnoreKey))
-		{
-			return -1;
-		}
-	}
-
-	for (const FAzSpeechRecognitionData& Iterator : InMap.RecognitionData)
-	{
-		bool bIgnore = false;
-		for (const FString& Ignore : Iterator.IgnoreKeys)
-		{
-			bIgnore = Comparisor_Lambda("ignore", Ignore);
-		}
-
-		if (bIgnore)
-		{
-			continue;
-		}
-
-		uint32 It_MatchPoints = 0u;
-		for (const FString& Trigger : Iterator.TriggerKeys)
-		{
-			if (Comparisor_Lambda("trigger", Trigger))
-			{
-				It_MatchPoints += Iterator.Weight;
-
-				if (bStopAtFirstTrigger)
-				{
-					UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Returning first triggered key from group %s. Result: %d"), *FString(__func__), *GroupName.ToString(), OutputResult.Value);
-					return Iterator.Value;
-				}
-			}
-		}
-
-		if (It_MatchPoints > MatchPoints)
-		{
-			MatchPoints = It_MatchPoints;
-			OutputResult = Iterator;
-		}
-	}
-
-	if (OutputResult.Value < 0 || MatchPoints == 0u)
-	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to find matching data in recognition map group %s"), *FString(__func__), *GroupName.ToString());
-	}
-	else
-	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Found matching data in recognition map group %s. Result: %d; Matching Points: %d"), *FString(__func__), *GroupName.ToString(), OutputResult.Value, MatchPoints);
-	}
-
-	return OutputResult.Value;
 }

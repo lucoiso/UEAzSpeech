@@ -3,15 +3,15 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech.h"
-#include "LogAzSpeech.h"
-#include "Modules/ModuleManager.h"
-#include "Interfaces/IPluginManager.h"
-#include "Misc/Paths.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "HAL/FileManager.h"
+#include "LogAzSpeech.h"
+#include <Modules/ModuleManager.h>
+#include <Interfaces/IPluginManager.h>
+#include <Misc/Paths.h>
+#include <HAL/FileManager.h>
 
 #if ENGINE_MAJOR_VERSION < 5
-#include "GenericPlatform/GenericPlatformProcess.h"
+#include <GenericPlatform/GenericPlatformProcess.h>
 #endif
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
