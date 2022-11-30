@@ -67,7 +67,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 #if !UE_BUILD_SHIPPING
 		if (bEnablePrints)
 		{
-			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d). Activation Delay: %d milliseconds\nActive time: %f seconds\nCurrent recognized string: %s\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), ActivationDelay, InSeconds, *RecognizerTask->GetRecognizedString()));
+			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\nCurrent recognized string: %s\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), ActivationDelay, InSeconds, *RecognizerTask->GetRecognizedString()));
 			InSeconds += SleepTime;
 		}
 #endif

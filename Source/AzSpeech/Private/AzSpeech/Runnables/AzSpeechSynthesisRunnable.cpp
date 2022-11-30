@@ -66,7 +66,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 #if !UE_BUILD_SHIPPING
 		if (bEnablePrints)
 		{
-			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d). Activation Delay: %d milliseconds\nActive time: %f seconds\nCurrent synthesis buffer size: %d\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), ActivationDelay, InSeconds, SynthesizerTask->GetAudioData().Num()));
+			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\nCurrent synthesis buffer size: %d\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), ActivationDelay, InSeconds, SynthesizerTask->GetAudioData().Num()));
 			InSeconds += SleepTime;
 		}
 #endif
