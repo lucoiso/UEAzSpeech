@@ -20,7 +20,7 @@ struct FAzSpeechRecognitionData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (ClampMin = "0", UIMin = "0"))
 	int32 Value = 0;
 
-	/* Value that will be returned if this recognition data matches the checked string */
+	/* Weight property to use in recognition checks */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (ClampMin = "1", UIMin = "1"))
 	int32 Weight = 1;
 
