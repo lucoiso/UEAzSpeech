@@ -284,7 +284,7 @@ int32 UAzSpeechHelper::CheckReturnFromRecognitionMap(const FString& InString, co
 		{
 			if (Comparisor_Lambda("trigger", Trigger))
 			{
-				++It_MatchPoints;
+				It_MatchPoints += Iterator.Weight;
 
 				if (bStopAtFirstTrigger)
 				{
