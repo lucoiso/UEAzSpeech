@@ -10,10 +10,11 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #endif
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContextObject, const FString& LanguageId)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContextObject, const FString& LanguageId, const FName PhraseListGroup)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;

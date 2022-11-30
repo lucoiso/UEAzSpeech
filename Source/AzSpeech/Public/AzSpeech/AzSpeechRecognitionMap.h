@@ -48,8 +48,8 @@ struct FAzSpeechRecognitionMap
 	FName GroupName = NAME_None;
 
 	/* Container of trigger/ignore keys and the values that they will returned if matches the recognized string */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (TitleProperty = "Value: {Value}"))
-	TArray<FAzSpeechRecognitionData> RecognitionData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (DisplayName = "Recognition Data", TitleProperty = "Value: {Value}"))
+	TArray<FAzSpeechRecognitionData> Data;
 
 	/* Requirement keys that the recognized string needs to contains at least 1 to check this group */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
@@ -61,6 +61,6 @@ struct FAzSpeechRecognitionMap
 
 	bool operator==(const FAzSpeechRecognitionMap& Rhs) const
 	{
-		return GroupName == Rhs.GroupName || RecognitionData == Rhs.RecognitionData;
+		return GroupName == Rhs.GroupName || Data == Rhs.Data;
 	}
 };

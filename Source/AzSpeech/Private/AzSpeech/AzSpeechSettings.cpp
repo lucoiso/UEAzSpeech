@@ -96,21 +96,21 @@ void UAzSpeechSettings::ValidateRecognitionMap()
 			continue;
 		}
 
-		for (const FAzSpeechRecognitionData& RecognitionData : RecognitionMapGroup.RecognitionData)
+		for (const FAzSpeechRecognitionData& Data : RecognitionMapGroup.Data)
 		{
-			if (RecognitionData.Value < 0)
+			if (Data.Value < 0)
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a Recognition Data with invalid value."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
 				break;
 			}
 
-			if (AzSpeech::Internal::HasEmptyParam(RecognitionData.TriggerKeys))
+			if (AzSpeech::Internal::HasEmptyParam(Data.TriggerKeys))
 			{
 				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a Recognition Data without Trigger Keys."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
 				break;
 			}
 
-			for (const FString& TriggerKey : RecognitionData.TriggerKeys)
+			for (const FString& TriggerKey : Data.TriggerKeys)
 			{
 				if (AzSpeech::Internal::HasEmptyParam(TriggerKey))
 				{

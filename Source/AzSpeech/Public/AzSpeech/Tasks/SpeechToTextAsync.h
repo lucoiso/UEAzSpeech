@@ -19,7 +19,7 @@ class AZSPEECH_API USpeechToTextAsync : public UAzSpeechRecognizerTaskBase
 public:
 	/* Creates a Speech-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static USpeechToTextAsync* SpeechToText(const UObject* WorldContextObject, const FString& LanguageId = "Default");
+	static USpeechToTextAsync* SpeechToText(const UObject* WorldContextObject, const FString& LanguageId = "Default", const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
 

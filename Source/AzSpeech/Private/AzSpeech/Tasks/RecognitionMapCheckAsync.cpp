@@ -98,7 +98,7 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult_Internal()
 	}
 
 	// Look for trigger keys in the string
-	for (const FAzSpeechRecognitionData& Iterator : InMap.RecognitionData)
+	for (const FAzSpeechRecognitionData& Iterator : InMap.Data)
 	{
 		// Check for local ignore keys before trying to compare the trigger
 		bool bIgnore = false;

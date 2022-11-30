@@ -7,6 +7,7 @@
 #include <CoreMinimal.h>
 #include <Engine/DeveloperSettings.h>
 #include "AzSpeech/AzSpeechRecognitionMap.h"
+#include "AzSpeechPhraseListMap.h"
 #include "AzSpeechSettings.generated.h"
 
 UENUM(BlueprintType, Category = "AzSpeech")
@@ -96,6 +97,10 @@ public:
 	/* Map of keywords to trigger or ignore in recognition interactions: Used by CheckReturnFromRecognitionMap task */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
+
+	/* Map of Phrase Lists used to improve recognition accuracy */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Phrase List Map", TitleProperty = "Group: {GroupName}"))
+	TArray<FAzSpeechPhraseListMap> PhraseListMap;
 
 protected:
 #if WITH_EDITOR

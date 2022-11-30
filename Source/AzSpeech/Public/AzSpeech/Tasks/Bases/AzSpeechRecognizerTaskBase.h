@@ -50,6 +50,7 @@ public:
 	const FString GetRecognizedString() const;
 	
 protected:
+	FName PhraseListGroup = NAME_None;
 	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> GetRecognizer() const;
 	
 	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);

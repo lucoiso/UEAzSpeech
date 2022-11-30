@@ -19,7 +19,7 @@ THIRD_PARTY_INCLUDES_END
 namespace AzSpeech::Internal
 {
 	template<typename Ty>
-	const bool HasEmptyParam(const Ty& Arg1)
+	constexpr const bool HasEmptyParam(const Ty& Arg1)
 	{
 		if constexpr (std::is_base_of<FString, Ty>())
 		{
@@ -44,7 +44,7 @@ namespace AzSpeech::Internal
 	}
 
 	template<typename Ty, typename ...Args>
-	const bool HasEmptyParam(const Ty& Arg1, Args&& ...args)
+	constexpr const bool HasEmptyParam(const Ty& Arg1, Args&& ...args)
 	{
 		const bool bOutput = HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
 		if (bOutput)
@@ -179,33 +179,58 @@ namespace AzSpeech::Internal
 		}
 	}
 
-	const FAzSpeechRecognitionMap GetRecognitionMap(const FName& InGroup)
+	template<typename ReturnTy, typename IteratorTy>
+	constexpr const ReturnTy GetDataFromMapGroup(const FName& InGroup, const TArray<IteratorTy> InContainer)
 	{
 		if (HasEmptyParam(InGroup))
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid group name"), *FString(__func__));
-			return FAzSpeechRecognitionMap();
+			return ReturnTy();
 		}
 
-		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		for (const IteratorTy& IteratorData : InContainer)
 		{
-			for (const FAzSpeechRecognitionMap& RecognitionData : Settings->RecognitionMap)
+			if (IteratorData.GroupName.IsEqual(InGroup))
 			{
-				if (RecognitionData.GroupName.IsEqual(InGroup))
+				if (HasEmptyParam(IteratorData.Data))
 				{
-					if (HasEmptyParam(RecognitionData.RecognitionData))
-					{
-						UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Recognition map group %s has empty data"), *FString(__func__), *RecognitionData.GroupName.ToString());
-						return FAzSpeechRecognitionMap();
-					}
+					UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Map group %s has empty data"), *FString(__func__), *IteratorData.GroupName.ToString());
+					return ReturnTy();
+				}
 
-					return RecognitionData;
+				if constexpr (std::is_base_of<FAzSpeechRecognitionMap, ReturnTy>())
+				{
+					return IteratorData;
+				}
+				else
+				{
+					return IteratorData.Data;
 				}
 			}
 		}
 
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Group with name %s not found"), *FString(__func__), *InGroup.ToString());
+		return ReturnTy();
+	}
+
+	const FAzSpeechRecognitionMap GetRecognitionMap(const FName& InGroup)
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return GetDataFromMapGroup<FAzSpeechRecognitionMap, FAzSpeechRecognitionMap>(InGroup, Settings->RecognitionMap);
+		}
+
 		return FAzSpeechRecognitionMap();
+	}
+
+	const TArray<FString> GetPhraseListFromGroup(const FName& InGroup)
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return GetDataFromMapGroup<TArray<FString>, FAzSpeechPhraseListMap>(InGroup, Settings->PhraseListMap);
+		}
+
+		return TArray<FString>();
 	}
 
 	const FString GetAzSpeechLogsBaseDir()

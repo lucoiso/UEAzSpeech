@@ -7,6 +7,10 @@
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
 
+THIRD_PARTY_INCLUDES_START
+#include <speechapi_cxx_phrase_list_grammar.h>
+THIRD_PARTY_INCLUDES_END
+
 FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : Super(InOwningTask, InAudioConfig)
 {
 }
@@ -184,7 +188,7 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 		SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, AudioConfig);
 	}
 
-	return ConnectRecognitionSignals();
+	return InsertPhraseList() && ConnectRecognitionSignals();
 }
 
 bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
@@ -218,6 +222,46 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	
 	return true;
 }
+
+bool FAzSpeechRecognitionRunnable::InsertPhraseList()
+{
+	if (!SpeechRecognizer)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid recognizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		return false;
+	}
+
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
+	if (!IsValid(RecognizerTask))
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		return false;
+	}
+
+	if (AzSpeech::Internal::HasEmptyParam(RecognizerTask->PhraseListGroup))
+	{
+		return true;
+	}
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Inserting Phrase List Data in Recognition Object"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+
+	const auto PhraseListGrammar = Microsoft::CognitiveServices::Speech::PhraseListGrammar::FromRecognizer(SpeechRecognizer);
+	if (!PhraseListGrammar)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid phrase list grammar"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		return false;
+	}
+
+	for (const FString& PhraseListData : AzSpeech::Internal::GetPhraseListFromGroup(RecognizerTask->PhraseListGroup))
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Inserting Phrase List Data %s to Phrase List Grammar"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *PhraseListData);
+
+		PhraseListGrammar->AddPhrase(TCHAR_TO_UTF8(*PhraseListData));
+	}
+
+	return true;
+}
+
 
 bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult)
 {

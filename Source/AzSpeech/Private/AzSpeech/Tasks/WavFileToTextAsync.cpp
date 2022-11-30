@@ -7,12 +7,13 @@
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <HAL/PlatformFileManager.h>
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
+	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
