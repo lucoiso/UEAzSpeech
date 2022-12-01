@@ -23,6 +23,8 @@ void URecognitionMapCheckAsync::Activate()
 {
 	Super::Activate();
 
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
 	{
 		const int32 TaskResult = CheckRecognitionResult();
@@ -30,9 +32,18 @@ void URecognitionMapCheckAsync::Activate()
 	});
 }
 
+void URecognitionMapCheckAsync::SetReadyToDestroy()
+{
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+
+	Super::SetReadyToDestroy();
+}
+
 void URecognitionMapCheckAsync::BroadcastResult(const int32 Result)
 {
 	check(IsInGameThread());
+
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Broadcasting result: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), Result);
 
 	if (Result < 0)
 	{

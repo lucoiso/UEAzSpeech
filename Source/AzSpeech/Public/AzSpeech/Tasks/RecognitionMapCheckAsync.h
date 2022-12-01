@@ -33,6 +33,7 @@ public:
 	static URecognitionMapCheckAsync* RecognitionMapCheckAsync(const UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger = false);
 
 	virtual void Activate() override;
+	virtual void SetReadyToDestroy() override;
 
 protected:
 	const UObject* WorldContextObject;
