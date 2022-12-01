@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <HAL/PlatformFileManager.h>
 
 void UAzSpeechWavFileSynthesisBase::Activate()
@@ -70,7 +69,7 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, VoiceName, LanguageId, FilePath, FileName))
+	if (HasEmptyParameters(SynthesisText, VoiceName, LanguageId, FilePath, FileName))
 	{
 		return false;
 	}

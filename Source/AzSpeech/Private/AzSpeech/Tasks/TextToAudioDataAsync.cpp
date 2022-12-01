@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
 {

@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
 
 THIRD_PARTY_INCLUDES_START

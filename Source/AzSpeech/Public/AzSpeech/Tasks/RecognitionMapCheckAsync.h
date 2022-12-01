@@ -43,6 +43,7 @@ protected:
 
 private:
 	void BroadcastResult(const int32 Result);
-	const int32 CheckRecognitionResult_Internal();
-	const bool CheckStringContains_Internal(const FString& KeyType, const FString& Key);
+	const int32 CheckRecognitionResult();
+	const bool CheckStringContains(const FString& KeyType, const FString& Key);
+	const bool CheckStringDelimiters(const int32 Index);
 };

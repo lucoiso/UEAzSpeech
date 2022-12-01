@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <HAL/PlatformFileManager.h>
 
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const FName PhraseListGroup)
@@ -35,7 +34,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, LanguageId))
+	if (HasEmptyParameters(FilePath, FileName, LanguageId))
 	{
 		return false;
 	}

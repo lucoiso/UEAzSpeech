@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 #if PLATFORM_ANDROID
 // Only used to check android permission
@@ -36,7 +35,7 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(LanguageId))
+	if (HasEmptyParameters(LanguageId))
 	{
 		return false;
 	}

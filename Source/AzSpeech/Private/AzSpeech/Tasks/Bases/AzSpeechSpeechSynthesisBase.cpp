@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSpeechSynthesisBase.h"
-#include "AzSpeech/AzSpeechHelper.h"
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
 

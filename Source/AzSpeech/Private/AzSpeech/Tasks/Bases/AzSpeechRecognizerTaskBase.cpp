@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> UAzSpeechRecognizerTaskBase::GetRecognizer() const
 {

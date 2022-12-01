@@ -3,8 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeechInternalFuncs.h"
-#include "LogAzSpeech.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <HAL/PlatformFileManager.h>
@@ -32,6 +31,7 @@ FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString
 {
 	if (AzSpeech::Internal::HasEmptyParam(Path, Name, Extension))
 	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath, Filename or Extension is empty"), *FString(__func__));
 		return FString();
 	}
 
@@ -55,7 +55,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: FilePath or FileName is empty"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath or Filename is empty"), *FString(__func__));
 	}
 
 	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName);

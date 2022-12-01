@@ -92,21 +92,20 @@ void UAzSpeechSettings::ValidateRecognitionMap()
 	{
 		if (AzSpeech::Internal::HasEmptyParam(RecognitionMapGroup.GroupName))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: RecognitionMap has a group with invalid name."));
-			continue;
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map has a group with invalid name."));
 		}
 
 		for (const FAzSpeechRecognitionData& Data : RecognitionMapGroup.Data)
 		{
 			if (Data.Value < 0)
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a Recognition Data with invalid value."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data with invalid value."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
 				break;
 			}
 
 			if (AzSpeech::Internal::HasEmptyParam(Data.TriggerKeys))
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a Recognition Data without Trigger Keys."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data without Trigger Keys."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
 				break;
 			}
 
@@ -114,9 +113,29 @@ void UAzSpeechSettings::ValidateRecognitionMap()
 			{
 				if (AzSpeech::Internal::HasEmptyParam(TriggerKey))
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group '%s' has a empty Trigger Key."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+					UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a empty Trigger Key."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
 					break;
 				}
+			}
+		}
+	}
+}
+
+void UAzSpeechSettings::ValidatePhraseList()
+{
+	for (const FAzSpeechPhraseListMap& PhraseListData : PhraseListMap)
+	{
+		if (AzSpeech::Internal::HasEmptyParam(PhraseListData.GroupName))
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map has a group with invalid name."));
+		}
+
+		for (const FString& Data : PhraseListData.Data)
+		{
+			if (AzSpeech::Internal::HasEmptyParam(Data))
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map Group %s contains empty objects"));
+				break;
 			}
 		}
 	}

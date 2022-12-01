@@ -46,13 +46,7 @@ namespace AzSpeech::Internal
 	template<typename Ty, typename ...Args>
 	constexpr const bool HasEmptyParam(const Ty& Arg1, Args&& ...args)
 	{
-		const bool bOutput = HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
-		if (bOutput)
-		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Missing parameters!"), *FString(__func__));
-		}
-
-		return bOutput;
+		return HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
 	}
 
 	const UAzSpeechSettings* GetPluginSettings()
@@ -112,6 +106,7 @@ namespace AzSpeech::Internal
 		{
 			if (HasEmptyParam(Iterator))
 			{
+				UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Found empty candidate language in settings"), *FString(__func__));
 				continue;
 			}
 

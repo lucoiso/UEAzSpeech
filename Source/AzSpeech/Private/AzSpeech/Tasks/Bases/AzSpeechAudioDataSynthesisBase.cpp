@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 {	
@@ -12,7 +11,7 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 	
-	if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
+	if (HasEmptyParameters(SynthesisText))
 	{
 		return false;
 	}

@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
@@ -16,6 +15,7 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetVisemeData() const
 {
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Viseme data is empty"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 		return FAzSpeechVisemeData();
 	}
 
