@@ -9,12 +9,13 @@
 #include <HAL/PlatformFileManager.h>
 #include <DesktopPlatformModule.h>
 #include <Kismet/GameplayStatics.h>
+#include <AudioCaptureCore.h>
 
 #if PLATFORM_ANDROID
 #include <AndroidPermissionFunctionLibrary.h>
 #endif
 
-FString UAzSpeechHelper::QualifyPath(const FString& Path)
+const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
 	if (!Output.EndsWith("/") && !Output.EndsWith("\""))
@@ -27,7 +28,7 @@ FString UAzSpeechHelper::QualifyPath(const FString& Path)
 	return Output;
 }
 
-FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString& Name, const FString& Extension)
+const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const FString& Name, const FString& Extension)
 {
 	if (AzSpeech::Internal::HasEmptyParam(Path, Name, Extension))
 	{
@@ -117,7 +118,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 	return nullptr;
 }
 
-FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString& FileName)
+const FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString& FileName)
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
@@ -138,7 +139,7 @@ FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FString&
 	return FString();
 }
 
-bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreateParents)
+const bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreateParents)
 {
 	bool bOutput = FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*Path);
 
@@ -163,7 +164,7 @@ bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreate
 	return bOutput;
 }
 
-FString UAzSpeechHelper::OpenDesktopFolderPicker()
+const FString UAzSpeechHelper::OpenDesktopFolderPicker()
 {
 	FString OutputPath;
 
@@ -190,7 +191,7 @@ FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	return OutputPath;
 }
 
-bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InPermission)
+const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InPermission)
 {
 #if PLATFORM_ANDROID
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Checking android permission: %s"), *FString(__func__), *InPermission);
@@ -206,7 +207,7 @@ bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InP
 #endif
 }
 
-bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
+const bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 {
 	const bool bOutput = !AzSpeech::Internal::HasEmptyParam(RawData);
 	if (!bOutput)
@@ -215,4 +216,66 @@ bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 	}
 
 	return bOutput;
+}
+
+const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioInputDevices()
+{
+	TArray<FAzSpeechAudioInputDeviceInfo> Output;
+	TArray<Audio::FCaptureDeviceInfo> Internal_Devices;
+	
+	if (Audio::FAudioCapture AudioCapture;
+		AudioCapture.GetCaptureDevicesAvailable(Internal_Devices) <= 0)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));		
+	}
+	else
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
+		
+		for (const Audio::FCaptureDeviceInfo& DeviceInfo : Internal_Devices)
+		{
+			Output.Add(FAzSpeechAudioInputDeviceInfo(DeviceInfo.DeviceName, DeviceInfo.DeviceId));
+			UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Found available audio input device: %s - %s"), *FString(__func__), *Output.Last().DeviceName, *Output.Last().GetAudioInputDeviceEndpointID());
+		}
+	}
+
+	return Output;
+}
+
+constexpr auto PlaceholderDeviceID = "00000000-0000-0000-0000-000000000000";
+
+const FAzSpeechAudioInputDeviceInfo UAzSpeechHelper::GetAudioInputDeviceInfoFromID(const FString& DeviceID)
+{
+	if (DeviceID.Len() < std::strlen(PlaceholderDeviceID))
+	{
+		return FAzSpeechAudioInputDeviceInfo("INVALID_DEVICE", "INVALID_DEVICE");
+	}
+
+	for (const FAzSpeechAudioInputDeviceInfo& DeviceInfo : GetAvailableAudioInputDevices())
+	{
+		if (DeviceInfo.GetDeviceID().Contains(DeviceID))
+		{
+			return DeviceInfo;
+		}
+	}
+	
+	return FAzSpeechAudioInputDeviceInfo("INVALID_DEVICE", "INVALID_DEVICE");
+}
+
+const bool UAzSpeechHelper::IsAudioInputDeviceAvailable(const FString& DeviceID)
+{
+	if (DeviceID.Contains("INVALID_DEVICE") || DeviceID.Len() < std::strlen(PlaceholderDeviceID))
+	{
+		return false;
+	}
+
+	for (const FAzSpeechAudioInputDeviceInfo& DeviceInfo : GetAvailableAudioInputDevices())
+	{
+		if (DeviceInfo.GetDeviceID().Contains(DeviceID))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -4,13 +4,13 @@
 
 #include "AzSpeech/Tasks/TextToSpeechAsync.h"
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = TextToConvert;
 	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageId = LanguageId;
+	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 

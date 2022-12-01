@@ -6,7 +6,7 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include <HAL/PlatformFileManager.h>
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
@@ -34,7 +34,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (HasEmptyParameters(FilePath, FileName, LanguageId))
+	if (HasEmptyParameters(FilePath, FileName, LanguageID))
 	{
 		return false;
 	}

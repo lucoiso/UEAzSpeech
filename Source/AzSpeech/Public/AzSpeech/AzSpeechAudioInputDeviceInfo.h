@@ -1,0 +1,52 @@
+// Author: Lucas Vilas-Boas
+// Year: 2022
+// Repo: https://github.com/lucoiso/UEAzSpeech
+
+#pragma once
+
+#include <CoreMinimal.h>
+#include "LogAzSpeech.h"
+#include "AzSpeechAudioInputDeviceInfo.generated.h"
+
+USTRUCT(BlueprintType, Category = "AzSpeech")
+struct FAzSpeechAudioInputDeviceInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	FAzSpeechAudioInputDeviceInfo() = default;
+	FAzSpeechAudioInputDeviceInfo(const FString& InName, const FString& InID) : DeviceName(InName), DeviceID(InID) {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	FString DeviceName = "Default";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (Getter = "GetDeviceID"))
+	FString DeviceID = "Default";
+
+	const FString GetDeviceID() const
+	{
+		FString Output = DeviceID;
+		if (!Output.StartsWith("{"))
+		{
+			Output.InsertAt(0, "{");
+		}
+
+		if (!Output.EndsWith("}"))
+		{
+			Output.Append("}");
+		}
+
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Formatted device id: %s"), *FString(__func__), *Output);
+		return Output;
+	}
+	
+	const FString GetAudioInputDeviceEndpointID() const
+	{
+		// {0.0.1.00000000}.{Device ID}
+		return FString::Format(TEXT("{0}.{1}"), { FString("{0.0.1.00000000}"), GetDeviceID() });
+	}
+
+	const bool operator==(const FAzSpeechAudioInputDeviceInfo& Rhs) const
+	{
+		return DeviceID == Rhs.DeviceID;
+	}
+};

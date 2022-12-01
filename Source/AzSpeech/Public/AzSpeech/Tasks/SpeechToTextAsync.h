@@ -5,6 +5,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
+#include "AzSpeech/AzSpeechAudioInputDeviceInfo.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "SpeechToTextAsync.generated.h"
 
@@ -19,13 +20,16 @@ class AZSPEECH_API USpeechToTextAsync : public UAzSpeechRecognizerTaskBase
 public:
 	/* Creates a Speech-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static USpeechToTextAsync* SpeechToText(const UObject* WorldContextObject, const FString& LanguageId = "Default", const FName PhraseListGroup = NAME_None);
+	static USpeechToTextAsync* SpeechToText(const UObject* WorldContextObject, const FString& LanguageID = "Default", const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
+	
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	bool IsUsingDefaultAudioInputDevice() const;
 
 protected:
 	virtual bool StartAzureTaskWork() override;
 	
-	const UObject* WorldContextObject;
-	FString LanguageID;
+private:
+	FString AudioInputDeviceID;
 };

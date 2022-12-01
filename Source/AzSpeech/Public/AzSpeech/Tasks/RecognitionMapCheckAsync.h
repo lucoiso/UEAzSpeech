@@ -44,7 +44,7 @@ protected:
 
 private:
 	void BroadcastResult(const int32 Result);
-	const int32 CheckRecognitionResult();
-	const bool CheckStringContains(const FString& KeyType, const FString& Key);
-	const bool CheckStringDelimiters(const int32 Index);
+	const int32 CheckRecognitionResult() const;
+	const bool CheckStringContains(const FString& KeyType, const FString& Key) const;
+	const bool CheckStringDelimiters(const int32 Index) const;
 };

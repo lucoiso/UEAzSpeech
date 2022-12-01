@@ -69,7 +69,7 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 
-	if (HasEmptyParameters(SynthesisText, VoiceName, LanguageId, FilePath, FileName))
+	if (HasEmptyParameters(SynthesisText, VoiceName, LanguageID, FilePath, FileName))
 	{
 		return false;
 	}

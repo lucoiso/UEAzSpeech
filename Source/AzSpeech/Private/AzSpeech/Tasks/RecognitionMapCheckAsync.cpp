@@ -67,7 +67,7 @@ void URecognitionMapCheckAsync::BroadcastResult(const int32 Result)
 	SetReadyToDestroy();
 }
 
-const int32 URecognitionMapCheckAsync::CheckRecognitionResult()
+const int32 URecognitionMapCheckAsync::CheckRecognitionResult() const
 {
 	if (AzSpeech::Internal::HasEmptyParam(InputString, GroupName))
 	{
@@ -158,7 +158,7 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult()
 	return OutputResult.Value;
 }
 
-const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType, const FString& Key)
+const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType, const FString& Key) const
 {
 	if (AzSpeech::Internal::HasEmptyParam(Key))
 	{
@@ -181,7 +181,7 @@ const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType
 	return bOutput;
 }
 
-const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index)
+const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index) const
 {
 	const FString StringDelimiters = AzSpeech::Internal::GetStringDelimiters();
 

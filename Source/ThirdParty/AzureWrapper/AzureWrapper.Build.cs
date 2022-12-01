@@ -12,13 +12,11 @@ public class AzureWrapper : ModuleRules
 		Type = ModuleType.External;
 		bEnableExceptions = true;
 
-		PublicIncludePaths.AddRange(
-			new[]
-			{
-				Path.Combine(ModuleDirectory, "include", "c_api"),
-				Path.Combine(ModuleDirectory, "include", "cxx_api")
-			}
-		);
+		PublicIncludePaths.AddRange(new[]
+		{
+			Path.Combine(ModuleDirectory, "include", "c_api"),
+			Path.Combine(ModuleDirectory, "include", "cxx_api")
+		});
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{

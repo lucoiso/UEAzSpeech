@@ -13,7 +13,7 @@ void UAzSpeechTaskBase::Activate()
 {
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	AzSpeech::Internal::GetLanguageID(LanguageId);
+	AzSpeech::Internal::GetLanguageID(LanguageID);
 
 	bIsTaskActive = true;
 
@@ -70,7 +70,7 @@ const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
-	return LanguageId.Equals("Auto", ESearchCase::IgnoreCase);
+	return LanguageID.Equals("Auto", ESearchCase::IgnoreCase);
 }
 
 const FString UAzSpeechTaskBase::GetTaskName() const
@@ -80,7 +80,7 @@ const FString UAzSpeechTaskBase::GetTaskName() const
 
 const FString UAzSpeechTaskBase::GetLanguageID() const
 {
-	return LanguageId;
+	return LanguageID;
 }
 
 void UAzSpeechTaskBase::SetReadyToDestroy()

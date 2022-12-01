@@ -19,5 +19,5 @@ class AZSPEECH_API UTextToSpeechAsync : public UAzSpeechSpeechSynthesisBase
 public:
 	/* Creates a Text-To-Speech task that will convert your text to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToSpeechAsync* TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
+	static UTextToSpeechAsync* TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
 };

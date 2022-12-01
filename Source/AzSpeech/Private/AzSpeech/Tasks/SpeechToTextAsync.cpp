@@ -3,16 +3,13 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
-
-#if PLATFORM_ANDROID
-// Only used to check android permission
 #include "AzSpeech/AzSpeechHelper.h"
-#endif
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContextObject, const FString& LanguageId, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContextObject, const FString& LanguageID, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->TaskName = *FString(__func__);
 
@@ -28,6 +25,11 @@ void USpeechToTextAsync::Activate()
 	Super::Activate();
 }
 
+bool USpeechToTextAsync::IsUsingDefaultAudioInputDevice() const
+{
+	return HasEmptyParameters(AudioInputDeviceID) || AudioInputDeviceID.Equals("Default", ESearchCase::IgnoreCase);
+}
+
 bool USpeechToTextAsync::StartAzureTaskWork()
 {
 	if (!Super::StartAzureTaskWork())
@@ -35,12 +37,22 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (HasEmptyParameters(LanguageId))
+	if (HasEmptyParameters(LanguageID))
 	{
 		return false;
 	}
 
-	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromDefaultMicrophoneInput();
+	const FAzSpeechAudioInputDeviceInfo DeviceInfo = UAzSpeechHelper::GetAudioInputDeviceInfoFromID(AudioInputDeviceID);
+	if (!IsUsingDefaultAudioInputDevice() && !UAzSpeechHelper::IsAudioInputDeviceAvailable(DeviceInfo.GetDeviceID()))
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Audio input device %s isn't available."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *DeviceInfo.GetAudioInputDeviceEndpointID());
+
+		return false;
+	}
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using audio input device: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
+	
+	const auto AudioConfig = IsUsingDefaultAudioInputDevice() ? Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromDefaultMicrophoneInput() : Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromMicrophoneInput(TCHAR_TO_UTF8(*DeviceInfo.GetAudioInputDeviceEndpointID()));
 	StartRecognitionWork(AudioConfig);
 
 	return true;

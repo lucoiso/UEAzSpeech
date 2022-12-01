@@ -19,15 +19,14 @@ class AZSPEECH_API UWavFileToTextAsync : public UAzSpeechRecognizerTaskBase
 public:
 	/* Creates a WavFile-To-Text task that will convert your Wav file to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = ".wav File To Text"))
-	static UWavFileToTextAsync* WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId = "Default", const FName PhraseListGroup = NAME_None);
+	static UWavFileToTextAsync* WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID = "Default", const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
 
 protected:
 	virtual bool StartAzureTaskWork() override;
 	
-	const UObject* WorldContextObject;
-	FString LanguageID;
+private:
 	FString FilePath;
 	FString FileName;
 };

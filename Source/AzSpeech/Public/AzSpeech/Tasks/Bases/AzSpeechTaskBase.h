@@ -55,7 +55,7 @@ protected:
 	TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
 	FName TaskName = NAME_None;
 	
-	FString LanguageId;
+	FString LanguageID;
 	const UObject* WorldContextObject;
 
 	virtual bool StartAzureTaskWork();
@@ -70,7 +70,7 @@ protected:
 #endif
 
 	template<typename ...Args>
-	constexpr const bool HasEmptyParameters(Args&& ...args)
+	constexpr const bool HasEmptyParameters(Args&& ...args) const
 	{
 		const bool bOutput = AzSpeech::Internal::HasEmptyParam(std::forward<Args>(args)...);
 		if (bOutput)
