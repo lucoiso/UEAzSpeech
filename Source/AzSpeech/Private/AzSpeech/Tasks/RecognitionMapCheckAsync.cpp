@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/RecognitionMapCheckAsync.h"
 #include "AzSpeech/AzSpeechRecognitionMap.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
 
 URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(const UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
