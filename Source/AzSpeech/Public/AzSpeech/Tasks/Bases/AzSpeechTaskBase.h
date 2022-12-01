@@ -6,7 +6,6 @@
 
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_audio_config.h>
