@@ -13,7 +13,7 @@ FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwni
 uint32 FAzSpeechSynthesisRunnable::Run()
 {
 #if !UE_BUILD_SHIPPING
-	const int64 StartTime = GetTimeInMilliseconds();
+	const int64 StartTime = FAzSpeechRunnableBase::GetTimeInMilliseconds();
 #endif
 	
 	if (Super::Run() == 0u)
@@ -51,25 +51,18 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting synthesis."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	Future.wait_for(GetTaskTimeout());
-
+	
 #if !UE_BUILD_SHIPPING
-	const UAzSpeechSettings* const Settings = AzSpeech::Internal::GetPluginSettings();
-	const bool bEnablePrints = Settings->bEnableDebuggingLogs;
-	float InSeconds = 0.f;
-	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
+	const int64 ActivationDelay = FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime;
 #endif
 
 	const float SleepTime = AzSpeech::Internal::GetThreadUpdateInterval();
+	
 	while (!IsPendingStop())
 	{
 #if !UE_BUILD_SHIPPING
-		if (bEnablePrints)
-		{
-			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\nCurrent synthesis buffer size: %d\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), ActivationDelay, InSeconds, SynthesizerTask->GetAudioData().Num()));
-			InSeconds += SleepTime;
-		}
+		FAzSpeechRunnableBase::PrintDebugInformation(SynthesizerTask, StartTime, ActivationDelay, SleepTime);
 #endif
-
 		FPlatformProcess::Sleep(SleepTime);
 	}
 
@@ -232,7 +225,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	}
 
 	const auto SynthesisUpdate_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-	{
+	{		
 		if (!IsValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
 		{
 			StopAzSpeechRunnableTask();
@@ -247,7 +240,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	SpeechSynthesizer->SynthesisCanceled.Connect(SynthesisUpdate_Lambda);
 	
 	const auto SynthesisStarted_Lambda = [this, SynthesizerTask]([[maybe_unused]] const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-	{
+	{		
 		if (!IsValid(SynthesizerTask))
 		{
 			StopAzSpeechRunnableTask();
@@ -312,7 +305,7 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 			ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
 		}		
 	}
-
+	
 	if (bFinishTask)
 	{
 		StopAzSpeechRunnableTask();

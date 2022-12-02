@@ -50,6 +50,8 @@ void FAzSpeechRunnableBase::Stop()
 
 void FAzSpeechRunnableBase::Exit()
 {
+	FScopeLock Lock(&OwningTask->Mutex);
+
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Exiting thread"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
 	if (UAzSpeechTaskBase::IsTaskStillValid(OwningTask) && OwningTask->IsTaskActive())
@@ -127,7 +129,6 @@ const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
 {
 	return std::chrono::seconds(AzSpeech::Internal::GetTimeout());
 }
-
 
 bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
@@ -271,7 +272,8 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Log generated in directory: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *AzSpeech::Internal::GetAzSpeechLogsBaseDir());
 }
 
-int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
+#if !UE_BUILD_SHIPPING
+const int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
 {
 	const auto time = std::chrono::system_clock::now();
 	const auto since_epoch = time.time_since_epoch();
@@ -279,3 +281,4 @@ int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
 
 	return static_cast<int64>(millis.count());
 }
+#endif

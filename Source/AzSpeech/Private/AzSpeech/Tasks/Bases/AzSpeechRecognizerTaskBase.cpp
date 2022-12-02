@@ -104,12 +104,6 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 	{
 		return;
 	}
-
-	if (!LastResult)
-	{
-		SetReadyToDestroy();
-		return;
-	}
 	
 	FScopeLock Lock(&Mutex);
 

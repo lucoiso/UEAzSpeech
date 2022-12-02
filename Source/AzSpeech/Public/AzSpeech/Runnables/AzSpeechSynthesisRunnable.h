@@ -20,6 +20,7 @@ public:
 	FAzSpeechSynthesisRunnable() = delete;
 	FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
+protected:
 	// FRunnable interface
 	virtual uint32 Run() override;
 	virtual void Exit() override;

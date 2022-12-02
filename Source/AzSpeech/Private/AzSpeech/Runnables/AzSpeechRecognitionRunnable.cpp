@@ -22,7 +22,7 @@ const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> FAzSpeec
 uint32 FAzSpeechRecognitionRunnable::Run()
 {
 #if !UE_BUILD_SHIPPING
-	const int64 StartTime = GetTimeInMilliseconds();
+	const int64 StartTime = FAzSpeechRunnableBase::GetTimeInMilliseconds();
 #endif
 
 	if (Super::Run() == 0u)
@@ -47,7 +47,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
-
+	
 	if (RecognizerTask->RecognitionStarted.IsBound())
 	{
 		AsyncTask(ENamedThreads::GameThread, [RecognizerTask] 
@@ -58,23 +58,16 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	}
 
 #if !UE_BUILD_SHIPPING
-	const UAzSpeechSettings* const Settings = AzSpeech::Internal::GetPluginSettings();
-	const bool bEnablePrints = Settings->bEnableDebuggingLogs;
-	float InSeconds = 0.f;
-	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
+	const int64 ActivationDelay = FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime;
 #endif
 
 	const float SleepTime = AzSpeech::Internal::GetThreadUpdateInterval();
+	
 	while (!IsPendingStop())
 	{
 #if !UE_BUILD_SHIPPING
-		if (bEnablePrints)
-		{
-			GEngine->AddOnScreenDebugMessage((int32)OwningTask->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\nCurrent recognized string: %s\nNote: Disable Debugging Logs to avoid this Print"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), ActivationDelay, InSeconds, *RecognizerTask->GetRecognizedString()));
-			InSeconds += SleepTime;
-		}
+		FAzSpeechRunnableBase::PrintDebugInformation(RecognizerTask, StartTime, ActivationDelay, SleepTime);
 #endif
-
 		FPlatformProcess::Sleep(SleepTime);
 	}
 	

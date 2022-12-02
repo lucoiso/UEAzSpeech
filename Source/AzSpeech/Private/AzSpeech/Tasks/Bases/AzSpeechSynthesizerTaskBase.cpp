@@ -115,17 +115,11 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 		return;
 	}
 
-	if (!LastResult)
-	{
-		SetReadyToDestroy();
-		return;
-	}
-
 	FScopeLock Lock(&Mutex);
 
 	AudioData = *LastResult->GetAudioData().get();
 
-	bLastResultIsValid = !LastResult->GetAudioData()->empty();
+	bLastResultIsValid = !AudioData.empty();
 
 	if (CanBroadcastWithReason(LastResult->Reason))
 	{

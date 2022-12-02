@@ -31,6 +31,7 @@ public:
 
 	bool IsPendingStop() const;
 
+protected:
 	// FRunnable interface
 	virtual bool Init() override;
 	virtual uint32 Run() override;
@@ -38,7 +39,6 @@ public:
 	virtual void Exit() override;
 	// End of FRunnable interface
 	
-protected:
 	typedef FAzSpeechRunnableBase Super;
 
 	UAzSpeechTaskBase* OwningTask;
@@ -77,8 +77,39 @@ protected:
 
 	const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const;
 	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
-	
-	int64 GetTimeInMilliseconds();
+
+#if !UE_BUILD_SHIPPING
+	static const int64 GetTimeInMilliseconds();
+
+	template<typename TaskTy>
+	static constexpr void PrintDebugInformation(const TaskTy* Task, const int64 StartTime, const int64 ActivationDelay, const float SleepTime)
+	{
+		if (!IsValid(Task))
+		{
+			return;
+		}
+
+		const UAzSpeechSettings* const Settings = AzSpeech::Internal::GetPluginSettings();
+		if (!IsValid(Settings) || !Settings->bEnableDebuggingLogs)
+		{
+			return;
+		}
+
+		const float InSeconds = (FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime) / 1000.f;
+		FString SpecificDataStr;
+		
+		if constexpr (std::is_base_of<TaskTy, UAzSpeechRecognizerTaskBase>())
+		{
+			SpecificDataStr = FString::Printf(TEXT("Current recognized string: %s"), *Task->GetRecognizedString());
+		}
+		else if constexpr (std::is_base_of<TaskTy, UAzSpeechSynthesizerTaskBase>())
+		{
+			SpecificDataStr = FString::Printf(TEXT("Current synthesis buffer size: %d"), Task->GetAudioData().Num());
+		}
+
+		GEngine->AddOnScreenDebugMessage((int32)Task->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\n%s\nNote: Disable Debugging Logs to avoid this Print"), *Task->GetTaskName(), Task->GetUniqueID(), ActivationDelay, InSeconds, *SpecificDataStr));
+	}
+#endif
 
 private:
 	bool bStopTask = false;

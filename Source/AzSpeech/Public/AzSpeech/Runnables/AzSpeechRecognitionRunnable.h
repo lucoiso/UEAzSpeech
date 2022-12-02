@@ -22,7 +22,8 @@ public:
 	FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	
 	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> GetRecognizer() const;
-	
+
+protected:
 	// FRunnable interface
 	virtual uint32 Run() override;
 	virtual void Exit() override;
