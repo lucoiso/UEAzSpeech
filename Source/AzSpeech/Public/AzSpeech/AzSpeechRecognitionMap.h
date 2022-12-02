@@ -12,17 +12,17 @@ struct FAzSpeechRecognitionData
 {
 	GENERATED_USTRUCT_BODY()
 	
-	FAzSpeechRecognitionData() = default;
-
+	FAzSpeechRecognitionData() : Value(0), Weight(1) {};
 	FAzSpeechRecognitionData(const int32 InValue) : Value(InValue) {};
+	FAzSpeechRecognitionData(const int32 InValue, const int32 InWeight) : Value(InValue), Weight(InWeight) {};
 
 	/* Value that will be returned if this recognition data matches the checked string */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (ClampMin = "0", UIMin = "0"))
-	int32 Value = 0;
+	int32 Value;
 
 	/* Weight property to use in recognition checks */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (ClampMin = "1", UIMin = "1"))
-	int32 Weight = 1;
+	int32 Weight;
 
 	/* Keys that will define if this recognition data is a good match */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
@@ -43,9 +43,11 @@ struct FAzSpeechRecognitionMap
 {
 	GENERATED_USTRUCT_BODY()
 
+	FAzSpeechRecognitionMap() : GroupName(NAME_None) {};
+
 	/* The name of this recognition data group */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-	FName GroupName = NAME_None;
+	FName GroupName;
 
 	/* Container of trigger/ignore keys and the values that they will returned if matches the recognized string */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (DisplayName = "Recognition Data", TitleProperty = "Value: {Value}"))

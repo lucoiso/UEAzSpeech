@@ -37,7 +37,7 @@ class AZSPEECH_API UAzSpeechSettings final : public UDeveloperSettings
 	GENERATED_BODY()
 
 public:
-	explicit UAzSpeechSettings(const FObjectInitializer& ObjectInitializer);
+	explicit UAzSpeechSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 

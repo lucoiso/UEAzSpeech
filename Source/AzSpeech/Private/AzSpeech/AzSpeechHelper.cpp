@@ -244,38 +244,52 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 
 constexpr auto PlaceholderDeviceID = "00000000-0000-0000-0000-000000000000";
 
-const FAzSpeechAudioInputDeviceInfo UAzSpeechHelper::GetAudioInputDeviceInfoFromID(const FString& DeviceID)
+template <typename ReturnTy>
+constexpr const ReturnTy GetSomethingFromDeviceID(const FString& DeviceID)
 {
-	if (DeviceID.Len() < std::strlen(PlaceholderDeviceID))
+	const auto InvalidReturn_Lambda = []() -> ReturnTy
 	{
-		return FAzSpeechAudioInputDeviceInfo("INVALID_DEVICE", "INVALID_DEVICE");
+		if constexpr (std::is_base_of<ReturnTy, bool>())
+		{
+			return false;
+		}
+		else if constexpr (std::is_base_of<ReturnTy, FAzSpeechAudioInputDeviceInfo>())
+		{
+			return FAzSpeechAudioInputDeviceInfo("INVALID_DEVICE", "INVALID_DEVICE");
+		}
+
+		return ReturnTy();
+	};
+
+	if (DeviceID.Contains("INVALID_DEVICE") || DeviceID.Len() < std::strlen(PlaceholderDeviceID))
+	{
+		return InvalidReturn_Lambda();
 	}
 
-	for (const FAzSpeechAudioInputDeviceInfo& DeviceInfo : GetAvailableAudioInputDevices())
+	for (const FAzSpeechAudioInputDeviceInfo& DeviceInfo : UAzSpeechHelper::GetAvailableAudioInputDevices())
 	{
 		if (DeviceInfo.GetDeviceID().Contains(DeviceID))
 		{
-			return DeviceInfo;
+			if constexpr (std::is_base_of<ReturnTy, bool>())
+			{
+				return true;
+			}
+			else if constexpr (std::is_base_of<ReturnTy, FAzSpeechAudioInputDeviceInfo>())
+			{
+				return DeviceInfo;
+			}
 		}
 	}
-	
-	return FAzSpeechAudioInputDeviceInfo("INVALID_DEVICE", "INVALID_DEVICE");
+
+	return InvalidReturn_Lambda();
+}
+
+const FAzSpeechAudioInputDeviceInfo UAzSpeechHelper::GetAudioInputDeviceInfoFromID(const FString& DeviceID)
+{
+	return GetSomethingFromDeviceID<FAzSpeechAudioInputDeviceInfo>(DeviceID);
 }
 
 const bool UAzSpeechHelper::IsAudioInputDeviceAvailable(const FString& DeviceID)
 {
-	if (DeviceID.Contains("INVALID_DEVICE") || DeviceID.Len() < std::strlen(PlaceholderDeviceID))
-	{
-		return false;
-	}
-
-	for (const FAzSpeechAudioInputDeviceInfo& DeviceInfo : GetAvailableAudioInputDevices())
-	{
-		if (DeviceInfo.GetDeviceID().Contains(DeviceID))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return GetSomethingFromDeviceID<bool>(DeviceID);
 }

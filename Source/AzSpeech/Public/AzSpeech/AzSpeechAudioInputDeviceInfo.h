@@ -13,14 +13,14 @@ struct FAzSpeechAudioInputDeviceInfo
 {
 	GENERATED_USTRUCT_BODY()
 
-	FAzSpeechAudioInputDeviceInfo() = default;
+	FAzSpeechAudioInputDeviceInfo() : DeviceName("Default Device"), DeviceID(FString()) {}
 	FAzSpeechAudioInputDeviceInfo(const FString& InName, const FString& InID) : DeviceName(InName), DeviceID(InID) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-	FString DeviceName = "Default";
+	FString DeviceName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (Getter = "GetDeviceID"))
-	FString DeviceID = "Default";
+	FString DeviceID;
 
 	const FString GetDeviceID() const
 	{
