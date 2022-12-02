@@ -23,7 +23,7 @@ public:
 
 	/* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data"))
-	static USSMLToAudioDataAsync* SSMLToAudioData(const UObject* WorldContextObject, const FString& SSMLString);
+	static USSMLToAudioDataAsync* SSMLToAudioData(const UObject* WorldContextObject, const FString& SynthesisSSML);
 	
 protected:
 	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;

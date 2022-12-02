@@ -23,7 +23,7 @@ public:
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave"))
-	static USSMLToSoundWaveAsync* SSMLToSoundWave(const UObject* WorldContextObject, const FString& SSMLString);
+	static USSMLToSoundWaveAsync* SSMLToSoundWave(const UObject* WorldContextObject, const FString& SynthesisSSML);
 
 protected:
 	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;

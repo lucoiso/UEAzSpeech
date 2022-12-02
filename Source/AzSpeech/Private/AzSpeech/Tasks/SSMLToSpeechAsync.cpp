@@ -4,11 +4,11 @@
 
 #include "AzSpeech/Tasks/SSMLToSpeechAsync.h"
 
-USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech(const UObject* WorldContextObject, const FString& SSMLString)
+USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech(const UObject* WorldContextObject, const FString& SynthesisSSML)
 {
 	USSMLToSpeechAsync* const NewAsyncTask = NewObject<USSMLToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SSMLString;
+	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);
 

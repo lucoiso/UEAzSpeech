@@ -4,11 +4,11 @@
 
 #include "AzSpeech/Tasks/TextToWavFileAsync.h"
 
-UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageID)
+UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile(const UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->SynthesisText = SynthesisText ;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->VoiceName = VoiceName;
