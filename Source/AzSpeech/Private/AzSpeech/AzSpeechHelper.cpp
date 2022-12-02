@@ -245,7 +245,7 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 constexpr auto PlaceholderDeviceID = "00000000-0000-0000-0000-000000000000";
 
 template <typename ReturnTy>
-constexpr const ReturnTy GetSomethingFromDeviceID(const FString& DeviceID)
+constexpr const ReturnTy GetInformationFromDeviceID_T(const FString& DeviceID)
 {
 	const auto InvalidReturn_Lambda = []() -> ReturnTy
 	{
@@ -286,10 +286,10 @@ constexpr const ReturnTy GetSomethingFromDeviceID(const FString& DeviceID)
 
 const FAzSpeechAudioInputDeviceInfo UAzSpeechHelper::GetAudioInputDeviceInfoFromID(const FString& DeviceID)
 {
-	return GetSomethingFromDeviceID<FAzSpeechAudioInputDeviceInfo>(DeviceID);
+	return GetInformationFromDeviceID_T<FAzSpeechAudioInputDeviceInfo>(DeviceID);
 }
 
 const bool UAzSpeechHelper::IsAudioInputDeviceAvailable(const FString& DeviceID)
 {
-	return GetSomethingFromDeviceID<bool>(DeviceID);
+	return GetInformationFromDeviceID_T<bool>(DeviceID);
 }
