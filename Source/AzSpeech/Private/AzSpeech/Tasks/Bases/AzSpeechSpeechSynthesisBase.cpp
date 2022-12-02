@@ -39,6 +39,8 @@ void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
 
+	FScopeLock Lock(&Mutex);
+
 	if (SynthesisCompleted.IsBound())
 	{
 		SynthesisCompleted.Broadcast(IsLastResultValid());

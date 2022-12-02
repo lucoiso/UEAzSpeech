@@ -60,6 +60,8 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 
 const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (RecognizedText.empty())
 	{
 		return FString();
@@ -84,6 +86,8 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Mic
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
+
+	FScopeLock Lock(&Mutex);
 	
 	if (RecognitionCompleted.IsBound())
 	{

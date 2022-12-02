@@ -19,6 +19,8 @@ void USSMLToAudioDataAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
 
+	FScopeLock Lock(&Mutex);
+
 	if (SynthesisCompleted.IsBound())
 	{
 		SynthesisCompleted.Broadcast(GetAudioData());

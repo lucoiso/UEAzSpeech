@@ -23,6 +23,8 @@ void UTextToSoundWaveAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
 
+	FScopeLock Lock(&Mutex);
+
 	if (SynthesisCompleted.IsBound())
 	{
 		const TArray<uint8> LastBuffer = GetAudioData();

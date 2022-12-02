@@ -29,6 +29,8 @@ const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArr
 
 const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (AudioData.empty())
 	{
 		return TArray<uint8>();
