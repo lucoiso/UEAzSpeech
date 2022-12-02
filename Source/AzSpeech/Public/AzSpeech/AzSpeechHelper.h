@@ -76,4 +76,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const bool IsAudioInputDeviceAvailable(const FString& DeviceID);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is Audio Input Device ID Valid"))
+	static const bool IsAudioInputDeviceIDValid(const FString& DeviceID);
 };

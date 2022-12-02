@@ -16,6 +16,9 @@ struct FAzSpeechAudioInputDeviceInfo
 	FAzSpeechAudioInputDeviceInfo() : DeviceName("Default Device"), DeviceID(FString()) {}
 	FAzSpeechAudioInputDeviceInfo(const FString& InName, const FString& InID) : DeviceName(InName), DeviceID(InID) {}
 
+	static constexpr auto InvalidDeviceID = "INVALID_DEVICE";
+	static constexpr auto PlaceholderDeviceID = "00000000-0000-0000-0000-000000000000";
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	FString DeviceName;
 
@@ -35,7 +38,6 @@ struct FAzSpeechAudioInputDeviceInfo
 			Output.Append("}");
 		}
 
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Formatted device id: %s"), *FString(__func__), *Output);
 		return Output;
 	}
 	

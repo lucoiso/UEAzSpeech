@@ -242,8 +242,6 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 	return Output;
 }
 
-constexpr auto PlaceholderDeviceID = "00000000-0000-0000-0000-000000000000";
-
 template <typename ReturnTy>
 constexpr const ReturnTy GetInformationFromDeviceID_T(const FString& DeviceID)
 {
@@ -255,13 +253,13 @@ constexpr const ReturnTy GetInformationFromDeviceID_T(const FString& DeviceID)
 		}
 		else if constexpr (std::is_base_of<ReturnTy, FAzSpeechAudioInputDeviceInfo>())
 		{
-			return FAzSpeechAudioInputDeviceInfo("INVALID_DEVICE", "INVALID_DEVICE");
+			return FAzSpeechAudioInputDeviceInfo(FAzSpeechAudioInputDeviceInfo::InvalidDeviceID, FAzSpeechAudioInputDeviceInfo::InvalidDeviceID);
 		}
 
 		return ReturnTy();
 	};
 
-	if (DeviceID.Contains("INVALID_DEVICE") || DeviceID.Len() < std::strlen(PlaceholderDeviceID))
+	if (!UAzSpeechHelper::IsAudioInputDeviceIDValid(DeviceID))
 	{
 		return InvalidReturn_Lambda();
 	}
@@ -292,4 +290,9 @@ const FAzSpeechAudioInputDeviceInfo UAzSpeechHelper::GetAudioInputDeviceInfoFrom
 const bool UAzSpeechHelper::IsAudioInputDeviceAvailable(const FString& DeviceID)
 {
 	return GetInformationFromDeviceID_T<bool>(DeviceID);
+}
+
+const bool UAzSpeechHelper::IsAudioInputDeviceIDValid(const FString& DeviceID)
+{
+	return !(DeviceID.Contains(FAzSpeechAudioInputDeviceInfo::InvalidDeviceID) || DeviceID.Len() < std::strlen(FAzSpeechAudioInputDeviceInfo::PlaceholderDeviceID));
 }
