@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
+#include "LogAzSpeech.h"
 
 const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> UAzSpeechRecognizerTaskBase::GetRecognizer() const
 {
@@ -102,6 +103,12 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 
 	if (!IsTaskStillValid(this))
 	{
+		return;
+	}
+
+	if (!LastResult)
+	{
+		SetReadyToDestroy();
 		return;
 	}
 	

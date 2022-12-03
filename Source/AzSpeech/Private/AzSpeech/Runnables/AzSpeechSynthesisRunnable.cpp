@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
 
 FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : Super(InOwningTask, InAudioConfig)
@@ -13,7 +14,7 @@ FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwni
 uint32 FAzSpeechSynthesisRunnable::Run()
 {
 #if !UE_BUILD_SHIPPING
-	const int64 StartTime = FAzSpeechRunnableBase::GetTimeInMilliseconds();
+	const int64 StartTime = AzSpeech::Internal::GetTimeInMilliseconds();
 #endif
 	
 	if (Super::Run() == 0u)
@@ -53,7 +54,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	Future.wait_for(GetTaskTimeout());
 	
 #if !UE_BUILD_SHIPPING
-	const int64 ActivationDelay = FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime;
+	const int64 ActivationDelay = AzSpeech::Internal::GetTimeInMilliseconds() - StartTime;
 #endif
 
 	const float SleepTime = AzSpeech::Internal::GetThreadUpdateInterval();

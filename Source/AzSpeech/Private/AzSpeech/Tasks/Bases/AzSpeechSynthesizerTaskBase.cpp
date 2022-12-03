@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
@@ -112,6 +113,12 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 
 	if (!IsTaskStillValid(this))
 	{
+		return;
+	}
+
+	if (!LastResult)
+	{
+		SetReadyToDestroy();
 		return;
 	}
 

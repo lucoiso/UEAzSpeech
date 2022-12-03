@@ -79,8 +79,6 @@ protected:
 	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
 
 #if !UE_BUILD_SHIPPING
-	static const int64 GetTimeInMilliseconds();
-
 	template<typename TaskTy>
 	static constexpr void PrintDebugInformation(const TaskTy* Task, const int64 StartTime, const int64 ActivationDelay, const float SleepTime)
 	{
@@ -95,7 +93,7 @@ protected:
 			return;
 		}
 
-		const float InSeconds = (FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime) / 1000.f;
+		const float InSeconds = (AzSpeech::Internal::GetTimeInMilliseconds() - StartTime) / 1000.f;
 		FString SpecificDataStr;
 		
 		if constexpr (std::is_base_of<TaskTy, UAzSpeechRecognizerTaskBase>())

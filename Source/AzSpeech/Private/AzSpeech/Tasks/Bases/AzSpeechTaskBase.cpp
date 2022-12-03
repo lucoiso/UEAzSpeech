@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 #if WITH_EDITOR
 #include <Editor.h>
@@ -16,9 +17,16 @@ void UAzSpeechTaskBase::Activate()
 	AzSpeech::Internal::GetLanguageID(LanguageID);
 
 	bIsTaskActive = true;
-
+	
 	Super::Activate();
-	StartAzureTaskWork();
+	
+	if (!StartAzureTaskWork())
+	{
+		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to activate task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+		SetReadyToDestroy();
+		
+		return;
+	}
 
 #if WITH_EDITOR
 	FEditorDelegates::PrePIEEnded.AddUObject(this, &UAzSpeechTaskBase::PrePIEEnded);

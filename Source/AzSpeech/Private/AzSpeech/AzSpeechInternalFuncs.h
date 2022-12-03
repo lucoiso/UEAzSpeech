@@ -15,6 +15,7 @@ THIRD_PARTY_INCLUDES_END
 #include <map>
 #include <vector>
 #include <string>
+#include <chrono>
 
 namespace AzSpeech::Internal
 {
@@ -280,5 +281,14 @@ namespace AzSpeech::Internal
 		}
 
 		return FString(" ,.;:[]{}!'\"?");
+	}
+
+	const int64 GetTimeInMilliseconds()
+	{
+		const auto CurrentTime = std::chrono::system_clock::now();
+		const auto TimeSinceEpoch = CurrentTime.time_since_epoch();
+		const auto CurrentTimeInMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(TimeSinceEpoch);
+
+		return static_cast<int64>(CurrentTimeInMilliseconds.count());
 	}
 }

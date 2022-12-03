@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <HAL/PlatformFileManager.h>
 #include <Misc/FileHelper.h>
 #include <Async/Async.h>
@@ -271,14 +272,3 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 	
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Log generated in directory: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *AzSpeech::Internal::GetAzSpeechLogsBaseDir());
 }
-
-#if !UE_BUILD_SHIPPING
-const int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
-{
-	const auto time = std::chrono::system_clock::now();
-	const auto since_epoch = time.time_since_epoch();
-	const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(since_epoch);
-
-	return static_cast<int64>(millis.count());
-}
-#endif
