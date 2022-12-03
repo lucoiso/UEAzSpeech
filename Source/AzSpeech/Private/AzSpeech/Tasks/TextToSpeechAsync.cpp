@@ -3,76 +3,16 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/TextToSpeechAsync.h"
-#include "AzSpeech/AzSpeechHelper.h"
-#include "Kismet/GameplayStatics.h"
-#include "Sound/SoundWave.h"
-#include "Components/AudioComponent.h"
-#include "Async/Async.h"
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->SynthesisText = SynthesisText ;
 	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageId = LanguageId;
+	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
-}
-
-void UTextToSpeechAsync::StopAzSpeechTask()
-{
-	Super::StopAzSpeechTask();
-
-	if (AudioComponent.IsValid())
-	{
-		AsyncTask(ENamedThreads::GameThread, [this]
-		{
-			AudioComponent->Stop();
-			AudioComponent->DestroyComponent();
-			AudioComponent.Reset();
-		});
-	}
-}
-
-void UTextToSpeechAsync::BroadcastFinalResult()
-{
-	Super::BroadcastFinalResult();
-}
-
-void UTextToSpeechAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-{
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
-
-	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
-	{
-		return;
-	}
-
-	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
-	{
-		if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
-		{
-			AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(IsLastResultValid()); });
-		}
-
-		const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
-		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
-		{
-			return;
-		}
-
-		AsyncTask(ENamedThreads::GameThread, [this, LastBuffer]
-		{
-			if (!UAzSpeechTaskBase::IsTaskStillValid(this))
-			{
-				return;
-			}
-
-			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-			AudioComponent->Play();
-		});
-	}
 }

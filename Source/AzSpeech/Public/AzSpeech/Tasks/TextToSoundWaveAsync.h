@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechAudioDataSynthesisBase.h"
+#include <CoreMinimal.h>
+#include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
 #include "TextToSoundWaveAsync.generated.h"
 
 /**
@@ -23,9 +23,9 @@ public:
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToSoundWaveAsync* TextToSoundWave(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
+	static UTextToSoundWaveAsync* TextToSoundWave(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
 
 protected:
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;
 	virtual void BroadcastFinalResult() override;
 };

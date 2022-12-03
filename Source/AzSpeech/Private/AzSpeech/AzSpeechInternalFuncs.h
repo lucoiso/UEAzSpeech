@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "LogAzSpeech.h"
 #include "AzSpeech/AzSpeechSettings.h"
 
@@ -15,15 +15,24 @@ THIRD_PARTY_INCLUDES_END
 #include <map>
 #include <vector>
 #include <string>
+#include <chrono>
 
 namespace AzSpeech::Internal
 {
 	template<typename Ty>
-	const bool HasEmptyParam(const Ty& Arg1)
+	constexpr const bool HasEmptyParam(const Ty& Arg1)
 	{
 		if constexpr (std::is_base_of<FString, Ty>())
 		{
 			return Arg1.IsEmpty();
+		}
+		else if constexpr (std::is_base_of<FName, Ty>())
+		{
+			return Arg1.IsNone();
+		}
+		else if constexpr (std::is_base_of<std::string, Ty>())
+		{
+			return Arg1.empty();
 		}
 		else
 		{
@@ -36,15 +45,9 @@ namespace AzSpeech::Internal
 	}
 
 	template<typename Ty, typename ...Args>
-	const bool HasEmptyParam(const Ty& Arg1, Args&& ...args)
+	constexpr const bool HasEmptyParam(const Ty& Arg1, Args&& ...args)
 	{
-		const bool bOutput = HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
-		if (bOutput)
-		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Missing parameters!"), *FString(__func__));
-		}
-
-		return bOutput;
+		return HasEmptyParam(Arg1) || HasEmptyParam(std::forward<Args>(args)...);
 	}
 
 	const UAzSpeechSettings* GetPluginSettings()
@@ -77,7 +80,7 @@ namespace AzSpeech::Internal
 		const auto AzSpeechParams = GetAzSpeechKeys();
 		if (AzSpeechParams.empty())
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
 			return false;
 		}
 
@@ -85,7 +88,7 @@ namespace AzSpeech::Internal
 		{
 			if (AzSpeechParams.at(Iterator).empty())
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+				UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
 				return false;
 			}
 		}
@@ -93,19 +96,30 @@ namespace AzSpeech::Internal
 		return true;
 	}
 
-	const std::vector<std::string> GetCandidateLanguages()
+	const std::vector<std::string> GetCandidateLanguages(const FName TaskName, const uint32 TaskId)
 	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages"), *TaskName.ToString(), TaskId, *FString(__func__));
+
 		std::vector<std::string> Output;
 
 		const UAzSpeechSettings* const Settings = GetPluginSettings();
-		for (const FString& Iterator : Settings->AutoLanguageCandidates)
+		for (const FString& Iterator : Settings->AutoCandidateLanguages)
 		{
 			if (HasEmptyParam(Iterator))
 			{
+				UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Found empty candidate language in settings"), *FString(__func__));
 				continue;
 			}
 
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language %s as candidate"), *TaskName.ToString(), TaskId, *FString(__func__), *Iterator);
+
 			Output.push_back(TCHAR_TO_UTF8(*Iterator));
+
+			if (Output.size() >= UAzSpeechSettings::MaxCandidateLanguages)
+			{
+				Output.resize(UAzSpeechSettings::MaxCandidateLanguages);
+				break;
+			}
 		}
 
 		return Output;
@@ -115,7 +129,7 @@ namespace AzSpeech::Internal
 	{
 		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
 		{
-			return Settings->TimeOutInSeconds;
+			return Settings->TimeOutInSeconds <= 0.f ? 15.f : Settings->TimeOutInSeconds;
 		}
 
 		return 15.f;
@@ -161,8 +175,120 @@ namespace AzSpeech::Internal
 		}
 	}
 
+	template<typename ReturnTy, typename IteratorTy>
+	constexpr const ReturnTy GetDataFromMapGroup(const FName& InGroup, const TArray<IteratorTy> InContainer)
+	{
+		if (HasEmptyParam(InGroup))
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid group name"), *FString(__func__));
+			return ReturnTy();
+		}
+
+		for (const IteratorTy& IteratorData : InContainer)
+		{
+			if (IteratorData.GroupName.IsEqual(InGroup))
+			{
+				if (HasEmptyParam(IteratorData.Data))
+				{
+					UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Map group %s has empty data"), *FString(__func__), *IteratorData.GroupName.ToString());
+					return ReturnTy();
+				}
+
+				if constexpr (std::is_base_of<FAzSpeechRecognitionMap, ReturnTy>())
+				{
+					return IteratorData;
+				}
+				else
+				{
+					return IteratorData.Data;
+				}
+			}
+		}
+
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Group with name %s not found"), *FString(__func__), *InGroup.ToString());
+		return ReturnTy();
+	}
+
+	const FAzSpeechRecognitionMap GetRecognitionMap(const FName& InGroup)
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return GetDataFromMapGroup<FAzSpeechRecognitionMap, FAzSpeechRecognitionMap>(InGroup, Settings->RecognitionMap);
+		}
+
+		return FAzSpeechRecognitionMap();
+	}
+
+	const TArray<FString> GetPhraseListFromGroup(const FName& InGroup)
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return GetDataFromMapGroup<TArray<FString>, FAzSpeechPhraseListMap>(InGroup, Settings->PhraseListMap);
+		}
+
+		return TArray<FString>();
+	}
+
 	const FString GetAzSpeechLogsBaseDir()
 	{
 		return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+	}
+
+	const EThreadPriority GetCPUThreadPriority()
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			switch (Settings->TasksThreadPriority)
+			{
+				case EAzSpeechThreadPriority::Lowest:
+					return EThreadPriority::TPri_Lowest;
+
+				case EAzSpeechThreadPriority::BelowNormal:
+					return EThreadPriority::TPri_Lowest;
+				
+				case EAzSpeechThreadPriority::Normal:
+					return EThreadPriority::TPri_Lowest;
+
+				case EAzSpeechThreadPriority::AboveNormal:
+					return EThreadPriority::TPri_Lowest;
+
+				case EAzSpeechThreadPriority::Highest:				
+					return EThreadPriority::TPri_Lowest;
+				
+				default:
+					break;
+			}
+		}
+
+		return EThreadPriority::TPri_Normal;
+	}
+
+	const float GetThreadUpdateInterval()
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return Settings->ThreadUpdateInterval <= 0.f ? 0.1f : Settings->ThreadUpdateInterval;
+		}
+
+		return 0.1f;
+	}
+
+	const FString GetStringDelimiters()
+	{
+		if (const UAzSpeechSettings* const Settings = GetPluginSettings())
+		{
+			return Settings->StringDelimiters;
+		}
+
+		return FString(" ,.;:[]{}!'\"?");
+	}
+
+	const int64 GetTimeInMilliseconds()
+	{
+		const auto CurrentTime = std::chrono::system_clock::now();
+		const auto TimeSinceEpoch = CurrentTime.time_since_epoch();
+		const auto CurrentTimeInMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(TimeSinceEpoch);
+
+		return static_cast<int64>(CurrentTimeInMilliseconds.count());
 	}
 }

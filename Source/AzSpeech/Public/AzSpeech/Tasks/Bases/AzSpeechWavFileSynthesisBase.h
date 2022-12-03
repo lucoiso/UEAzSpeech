@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechSynthesizerTaskBase.h"
+#include <CoreMinimal.h>
+#include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeechWavFileSynthesisBase.generated.h"
 
 /**
@@ -22,11 +22,12 @@ public:
 	FBooleanSynthesisDelegate SynthesisCompleted;
 	
 	virtual void Activate() override;
-	virtual void StopAzSpeechTask() override;
+	
+	virtual void SetReadyToDestroy() override;
 
 protected:
-	virtual bool StartAzureTaskWork_Internal() override;
-	virtual void OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs) override;
+	virtual bool StartAzureTaskWork() override;
+	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;
 	virtual void BroadcastFinalResult() override;
 
 	FString FilePath;

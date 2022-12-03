@@ -4,16 +4,15 @@
 
 #include "AzSpeech/Tasks/TextToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "Sound/SoundWave.h"
-#include "Async/Async.h"
+#include <Sound/SoundWave.h>
 
-UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
+UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->SynthesisText = SynthesisText ;
 	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageId = LanguageId;
+	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 
@@ -24,26 +23,29 @@ void UTextToSoundWaveAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
 
-	const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
-	if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
-	{
-		return;
-	}
+	FScopeLock Lock(&Mutex);
 
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer)); });
+	if (SynthesisCompleted.IsBound())
+	{
+		const TArray<uint8> LastBuffer = GetAudioData();
+		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+		SynthesisCompleted.Clear();
+	}
 }
 
-void UTextToSoundWaveAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToSoundWaveAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate(LastResult);
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+
 		BroadcastFinalResult();
 	}
 }

@@ -3,16 +3,14 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "Async/Async.h"
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* WorldContextObject, const FString& TextToConvert, const FString& VoiceName, const FString& LanguageId)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = TextToConvert;
+	NewAsyncTask->SynthesisText = SynthesisText ;
 	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageId = LanguageId;
+	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 
@@ -22,21 +20,29 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* Wor
 void UTextToAudioDataAsync::BroadcastFinalResult()
 {
 	Super::BroadcastFinalResult();
-	
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(GetLastSynthesizedStream()); });
+
+	FScopeLock Lock(&Mutex);
+
+	if (SynthesisCompleted.IsBound())
+	{
+		SynthesisCompleted.Broadcast(GetAudioData());
+		SynthesisCompleted.Clear();
+	}
 }
 
-void UTextToAudioDataAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void UTextToAudioDataAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate(LastResult);
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(SynthesisEventArgs.Result->Reason))
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+
 		BroadcastFinalResult();
 	}
 }

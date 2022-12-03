@@ -3,19 +3,16 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
-#include "HAL/PlatformFileManager.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "Async/Async.h"
-#include "Misc/FileHelper.h"
+#include <HAL/PlatformFileManager.h>
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageId, const bool bContinuosRecognition)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
-	NewAsyncTask->bContinuousRecognition = bContinuosRecognition;
+	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->TaskName = *FString(__func__);
 
 	return NewAsyncTask;
@@ -30,40 +27,46 @@ void UWavFileToTextAsync::Activate()
 	Super::Activate();
 }
 
-bool UWavFileToTextAsync::StartAzureTaskWork_Internal()
+bool UWavFileToTextAsync::StartAzureTaskWork()
 {
-	if (!Super::StartAzureTaskWork_Internal())
+	if (!Super::StartAzureTaskWork())
 	{
 		return false;
 	}
-
-	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, LanguageId))
+	
+	if (HasEmptyParameters(FilePath, FileName, LanguageID))
 	{
 		return false;
 	}
 
 	const FString QualifiedPath = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
+
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*QualifiedPath))
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: File not found"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' not found"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *QualifiedPath);
 		return false;
 	}
 
-	// Try to read file before sending to Azure - If the file is already being used, the engine will crash!
-	if (FString Placeholder;
-		!FFileHelper::LoadFileToString(Placeholder, *QualifiedPath) || AzSpeech::Internal::HasEmptyParam(Placeholder))
+	if (FPlatformFileManager::Get().GetPlatformFile().FileSize(*QualifiedPath) <= 0)
 	{
-		UE_LOG(LogAzSpeech, Error, TEXT("%s: Failed to load file"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' is invalid"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *QualifiedPath);
 		return false;
 	}
 
-	const std::string InFilePath = TCHAR_TO_UTF8(*QualifiedPath);
-	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(InFilePath);
-	if (!InitializeRecognizer(AudioConfig))
+	// Try to open the file before sending to Azure - Avoid crash due to the file already being used by another proccess
+	if (IFileHandle* const FileHandle = FPlatformFileManager::Get().GetPlatformFile().OpenRead(*QualifiedPath);
+		FileHandle == nullptr)
 	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to load file '%s'"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *QualifiedPath);
 		return false;
 	}
+	else
+	{
+		delete FileHandle;
+	}
 
-	StartRecognitionWork();
+	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromWavFileInput(TCHAR_TO_UTF8(*QualifiedPath));
+	StartRecognitionWork(AudioConfig);
+
 	return true;
 }

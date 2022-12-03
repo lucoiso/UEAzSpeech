@@ -3,19 +3,19 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechSettings.h"
-#include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechInternalFuncs.h"
 
 #if WITH_EDITOR
-#include "Misc/MessageDialog.h"
+#include <Misc/MessageDialog.h>
 #endif // WITH_EDITOR
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableSDKLogs(true), bEnableViseme(true), bEnableRuntimeDebug(false)
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableViseme(true), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
 	CategoryName = TEXT("Plugins");
 
-	if (AzSpeech::Internal::HasEmptyParam(AutoLanguageCandidates))
+	if (AzSpeech::Internal::HasEmptyParam(AutoCandidateLanguages))
 	{
-		AutoLanguageCandidates.Add(LanguageID);
+		AutoCandidateLanguages.Add(LanguageID);
 	}
 }
 
@@ -26,7 +26,7 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 
 	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
-		AutoLanguageCandidates.Remove(LanguageID);
+		AutoCandidateLanguages.Remove(LanguageID);
 	}
 }
 
@@ -34,40 +34,109 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates)
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages)
 		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
 	{
-		if (!AutoLanguageCandidates.Contains(LanguageID))
-		{
-			AutoLanguageCandidates.Insert(LanguageID, 0);
-		}
-
-		AutoLanguageCandidates.Remove(FString());
-		AutoLanguageCandidates.Shrink();
+		ValidateCandidateLanguages();
 	}
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoLanguageCandidates))
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages))
 	{
-		if (AutoLanguageCandidates.Num() > 4)
+		if (AutoCandidateLanguages.Num() > MaxCandidateLanguages)
 		{
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID, but continuous recognition has not yet been implemented."));
-
-			AutoLanguageCandidates.RemoveAtSwap(4, AutoLanguageCandidates.Num() - 4, true);
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));			
+			AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
 		}
+	}
+	
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableInternalLogs)
+		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableDebuggingLogs))
+	{
+		ToggleInternalLogs();
 	}
 }
 #endif // WITH_EDITOR
 
-void UAzSpeechSettings::PostLoad()
+void UAzSpeechSettings::PostInitProperties()
 {
-	Super::PostLoad();
+	Super::PostInitProperties();
 
-	AutoLanguageCandidates.Remove(FString());
+	ValidateCandidateLanguages();
+	ToggleInternalLogs();
+	ValidateRecognitionMap();
+}
 
-	if (!AutoLanguageCandidates.Contains(LanguageID))
+void UAzSpeechSettings::ValidateCandidateLanguages()
+{
+	AutoCandidateLanguages.Remove(FString());
+
+	if (!AutoCandidateLanguages.Contains(LanguageID))
 	{
-		AutoLanguageCandidates.Insert(LanguageID, 0);
+		AutoCandidateLanguages.Insert(LanguageID, 0);
 	}
 
-	AutoLanguageCandidates.Shrink();
+	AutoCandidateLanguages.Shrink();
+}
+
+void UAzSpeechSettings::ToggleInternalLogs()
+{
+#if !UE_BUILD_SHIPPING
+	LogAzSpeech_Internal.SetVerbosity(bEnableInternalLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
+	LogAzSpeech_Debugging.SetVerbosity(bEnableDebuggingLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
+#endif
+}
+
+void UAzSpeechSettings::ValidateRecognitionMap()
+{
+	for (const FAzSpeechRecognitionMap& RecognitionMapGroup : RecognitionMap)
+	{
+		if (AzSpeech::Internal::HasEmptyParam(RecognitionMapGroup.GroupName))
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map has a group with invalid name."));
+		}
+
+		for (const FAzSpeechRecognitionData& Data : RecognitionMapGroup.Data)
+		{
+			if (Data.Value < 0)
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data with invalid value."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+				break;
+			}
+
+			if (AzSpeech::Internal::HasEmptyParam(Data.TriggerKeys))
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data without Trigger Keys."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+				break;
+			}
+
+			for (const FString& TriggerKey : Data.TriggerKeys)
+			{
+				if (AzSpeech::Internal::HasEmptyParam(TriggerKey))
+				{
+					UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a empty Trigger Key."), *FString(__func__), *RecognitionMapGroup.GroupName.ToString());
+					break;
+				}
+			}
+		}
+	}
+}
+
+void UAzSpeechSettings::ValidatePhraseList()
+{
+	for (const FAzSpeechPhraseListMap& PhraseListData : PhraseListMap)
+	{
+		if (AzSpeech::Internal::HasEmptyParam(PhraseListData.GroupName))
+		{
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map has a group with invalid name."));
+		}
+
+		for (const FString& Data : PhraseListData.Data)
+		{
+			if (AzSpeech::Internal::HasEmptyParam(Data))
+			{
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map Group %s contains empty objects"));
+				break;
+			}
+		}
+	}
 }

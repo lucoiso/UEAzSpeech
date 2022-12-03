@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Runtime/Launch/Resources/Version.h"
+#include <CoreMinimal.h>
+#include <Runtime/Launch/Resources/Version.h>
 
 #if ENGINE_MAJOR_VERSION >= 5
-#include "Modules/ModuleInterface.h"
+#include <Modules/ModuleInterface.h>
 #else
-#include "Modules/ModuleManager.h"
+#include <Modules/ModuleManager.h>
 #endif
 
 /**

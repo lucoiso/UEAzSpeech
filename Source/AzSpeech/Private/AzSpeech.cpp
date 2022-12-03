@@ -3,23 +3,25 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech.h"
-#include "LogAzSpeech.h"
-#include "Modules/ModuleManager.h"
-#include "Interfaces/IPluginManager.h"
-#include "Misc/Paths.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
-#include "HAL/FileManager.h"
+#include <Modules/ModuleManager.h>
+#include <Interfaces/IPluginManager.h>
+#include <Misc/Paths.h>
+#include <HAL/FileManager.h>
 
 #if ENGINE_MAJOR_VERSION < 5
-#include "GenericPlatform/GenericPlatformProcess.h"
+#include <GenericPlatform/GenericPlatformProcess.h>
 #endif
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
 void FAzSpeechModule::StartupModule()
 {
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");	
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
+
 #if PLATFORM_WINDOWS
-	const FString PreDir = FPaths::Combine(*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
 
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
@@ -60,7 +62,7 @@ void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
 
 	if (Handle == nullptr)
 	{
-		UE_LOG(LogAzSpeech, Warning, TEXT("%s: Failed to load library %s."), *FString(__func__), *Path);
+		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load library %s."), *FString(__func__), *Path);
 	}
 }
 

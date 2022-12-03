@@ -4,14 +4,13 @@
 
 #include "AzSpeech/Tasks/SSMLToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "Sound/SoundWave.h"
-#include "Async/Async.h"
+#include <Sound/SoundWave.h>
 
-USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* WorldContextObject, const FString& SSMLString)
+USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* WorldContextObject, const FString& SynthesisSSML)
 {
 	USSMLToSoundWaveAsync* const NewAsyncTask = NewObject<USSMLToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SSMLString;
+	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);
 
@@ -20,29 +19,31 @@ USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(const UObject* Wor
 
 void USSMLToSoundWaveAsync::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult(); 
-	
-	const TArray<uint8> LastBuffer = GetLastSynthesizedStream();
+	Super::BroadcastFinalResult();
 
-	if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
+	FScopeLock Lock(&Mutex);
+
+	if (SynthesisCompleted.IsBound())
 	{
-		return;
+		const TArray<uint8> LastBuffer = GetAudioData();
+		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+		SynthesisCompleted.Clear();
 	}
-
-	AsyncTask(ENamedThreads::GameThread, [=] { SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer)); });
 }
 
-void USSMLToSoundWaveAsync::OnSynthesisUpdate(const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+void USSMLToSoundWaveAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	Super::OnSynthesisUpdate(SynthesisEventArgs);
+	Super::OnSynthesisUpdate(LastResult);
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
 	{
 		return;
 	}
 
-	if (SynthesisEventArgs.Result->Reason == Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted)
+	if (CanBroadcastWithReason(LastResult->Reason))
 	{
+		FScopeLock Lock(&Mutex);
+
 		BroadcastFinalResult();
 	}
 }

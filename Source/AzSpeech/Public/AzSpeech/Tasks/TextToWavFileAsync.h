@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechWavFileSynthesisBase.h"
+#include <CoreMinimal.h>
+#include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "TextToWavFileAsync.generated.h"
 
 /**
@@ -19,5 +19,5 @@ class AZSPEECH_API UTextToWavFileAsync : public UAzSpeechWavFileSynthesisBase
 public:
 	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To .wav File"))
-	static UTextToWavFileAsync* TextToWavFile(const UObject* WorldContextObject, const FString& TextToConvert, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageId = "Default");
+	static UTextToWavFileAsync* TextToWavFile(const UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
 };

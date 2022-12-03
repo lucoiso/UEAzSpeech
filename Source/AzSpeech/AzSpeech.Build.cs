@@ -16,24 +16,21 @@ public class AzSpeech : ModuleRules
 		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
-		PublicDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Core",
-				"AzureWrapper"
-			}
-		);
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core"
+		});
 
-		PrivateDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Engine",
-				"CoreUObject",
-				"Projects",
-				"AndroidPermission",
-				"DeveloperSettings"
-			}
-		);
+		PrivateDependencyModuleNames.AddRange(new[]
+		{
+			"Engine",
+			"CoreUObject",
+			"Projects",
+			"AndroidPermission",
+			"DeveloperSettings",
+			"AudioCaptureCore",
+			"AzureWrapper"
+		});
 
 		if (Target.bBuildEditor)
 		{

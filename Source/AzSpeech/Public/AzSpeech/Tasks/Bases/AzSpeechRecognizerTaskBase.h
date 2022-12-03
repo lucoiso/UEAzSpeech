@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "AzSpeech/Bases/AzSpeechTaskBase.h"
+#include <CoreMinimal.h>
+#include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 
 THIRD_PARTY_INCLUDES_START
-#include <speechapi_cxx_speech_recognizer.h>
+#include <speechapi_cxx_speech_recognition_result.h>
 THIRD_PARTY_INCLUDES_END
 
 #include "AzSpeechRecognizerTaskBase.generated.h"
@@ -24,16 +25,20 @@ class UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 
+	friend class FAzSpeechRecognitionRunnable;
+	
 public:	
-	virtual void Activate() override;
-	virtual void StopAzSpeechTask() override;
-
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FRecognitionCompletedDelegate RecognitionCompleted;
 
+	/* Task delegate that will be called when dpdated */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FRecognitionUpdatedDelegate RecognitionUpdated;
+
+	/* Task delegate that will be called when started */
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+	FAzSpeechTaskGenericDelegate RecognitionStarted;
 
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	void EnableContinuousRecognition();
@@ -42,28 +47,17 @@ public:
 	void DisableContinuousRecognition();	
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetLastRecognizedString() const;
+	const FString GetRecognizedString() const;
 	
 protected:
-	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> RecognizerObject;
-	bool bContinuousRecognition = false;
+	FName PhraseListGroup = NAME_None;
+	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> GetRecognizer() const;
 	
-	virtual bool StartAzureTaskWork_Internal() override;
-
-	virtual void ClearBindings() override;
-	virtual void ApplyExtraSettings() override;
+	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
 	virtual void BroadcastFinalResult() override;
+	virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
-	virtual void ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) override;
-
-	virtual void OnRecognitionUpdated(const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs);
-
-	bool InitializeRecognizer(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
-	void StartRecognitionWork();
-
-	const bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& Result) const;
-	
 private:
-	std::string LastRecognizedString;
+	std::string RecognizedText;
 };
