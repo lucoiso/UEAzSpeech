@@ -50,7 +50,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 		Future = SpeechSynthesizer->StartSpeakingTextAsync(SynthesisStr);
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting synthesis."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting synthesis."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	Future.wait_for(GetTaskTimeout());
 	
 #if !UE_BUILD_SHIPPING
@@ -164,7 +164,7 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
-
+	
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Creating synthesizer object"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
 	const auto SpeechConfig = CreateSpeechConfig();
@@ -200,6 +200,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	}
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
+	
 	if (!IsValid(SynthesizerTask))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));

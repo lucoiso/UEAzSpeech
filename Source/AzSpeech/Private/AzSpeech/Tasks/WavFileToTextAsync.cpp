@@ -33,16 +33,23 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 	{
 		return false;
 	}
-
+	
 	if (HasEmptyParameters(FilePath, FileName, LanguageID))
 	{
 		return false;
 	}
 
 	const FString QualifiedPath = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
+
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*QualifiedPath))
-	{		
+	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' not found"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *QualifiedPath);
+		return false;
+	}
+
+	if (FPlatformFileManager::Get().GetPlatformFile().FileSize(*QualifiedPath) <= 0)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' is invalid"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *QualifiedPath);
 		return false;
 	}
 

@@ -42,7 +42,7 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 	FScopeLock Lock(&Mutex);
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Finishing task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Stopping task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsTaskActive = false;
 
 	if (RunnableTask)
@@ -129,7 +129,7 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 {
 	check(IsInGameThread());
 	
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
 	bIsTaskActive = false;
 }

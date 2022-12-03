@@ -28,15 +28,16 @@ void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 	}
 
 	Super::SetReadyToDestroy();
+	
+	const FString Full_FileName = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
 
-	if (IsLastResultValid())
+	if (IsLastResultValid() && FPlatformFileManager::Get().GetPlatformFile().FileSize(*Full_FileName) > 0)
 	{
 		return;
 	}
 
 	// If the task was cancelled due to SDK errors, we need to delete the generated invalid file
-	if (const FString Full_FileName = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
-		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
+	if (FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
 		const bool bDeleteResult = FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*Full_FileName);
 

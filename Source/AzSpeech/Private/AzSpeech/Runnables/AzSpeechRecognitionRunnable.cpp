@@ -46,7 +46,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		return 0u;
 	}
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 	SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
 	
 	if (RecognizerTask->RecognitionStarted.IsBound())
@@ -193,6 +193,7 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	}
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
+	
 	if (!IsValid(RecognizerTask))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));	
@@ -225,6 +226,7 @@ bool FAzSpeechRecognitionRunnable::InsertPhraseList()
 	}
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
+	
 	if (!IsValid(RecognizerTask))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
