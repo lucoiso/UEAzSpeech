@@ -6,6 +6,7 @@
 
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
+#include "LogAzSpeech.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_audio_config.h>
