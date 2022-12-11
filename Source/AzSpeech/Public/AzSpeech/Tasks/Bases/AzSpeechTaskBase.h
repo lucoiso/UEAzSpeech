@@ -62,6 +62,9 @@ protected:
 	virtual bool StartAzureTaskWork();
 	virtual void BroadcastFinalResult();
 
+	void ValidateLanguageID(FString& InLanguage);
+	void ValidateVoiceName(FString& InVoice);
+
 	mutable FCriticalSection Mutex;
 
 #if WITH_EDITOR

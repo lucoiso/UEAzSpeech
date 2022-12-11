@@ -4,7 +4,8 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
+#include "LogAzSpeech.h"
 
 #if WITH_EDITOR
 #include <Editor.h>
@@ -14,7 +15,7 @@ void UAzSpeechTaskBase::Activate()
 {
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	AzSpeech::Internal::GetLanguageID(LanguageID);
+	ValidateLanguageID(LanguageID);
 
 	bIsTaskActive = true;
 	
@@ -122,7 +123,7 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	return AzSpeech::Internal::CheckAzSpeechSettings() && IsTaskStillValid(this);
+	return UAzSpeechSettings::CheckAzSpeechSettings() && IsTaskStillValid(this);
 }
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
@@ -132,6 +133,24 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
 	bIsTaskActive = false;
+}
+
+void UAzSpeechTaskBase::ValidateLanguageID(FString& InLanguage)
+{
+	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
+	if (HasEmptyParameters(InLanguage) || InLanguage.Equals("Default", ESearchCase::IgnoreCase))
+	{
+		InLanguage = UTF8_TO_TCHAR(Settings.at(2).c_str());
+	}
+}
+
+void UAzSpeechTaskBase::ValidateVoiceName(FString& InVoice)
+{
+	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
+	if (HasEmptyParameters(InVoice) || InVoice.Equals("Default", ESearchCase::IgnoreCase))
+	{
+		InVoice = UTF8_TO_TCHAR(Settings.at(3).c_str());
+	}
 }
 
 #if WITH_EDITOR

@@ -5,6 +5,7 @@
 #include "AzSpeech/Tasks/RecognitionMapCheckAsync.h"
 #include "AzSpeech/AzSpeechRecognitionMap.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include <Async/Async.h>
 
 URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(const UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
@@ -75,7 +76,7 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult() const
 		return -1;
 	}
 
-	const FAzSpeechRecognitionMap InMap = AzSpeech::Internal::GetRecognitionMap(GroupName);
+	const FAzSpeechRecognitionMap InMap = GetRecognitionMap(GroupName);
 	FAzSpeechRecognitionData OutputResult(-1);
 	uint32 MatchPoints = 0u;
 
@@ -181,9 +182,19 @@ const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType
 	return bOutput;
 }
 
+const FString URecognitionMapCheckAsync::GetStringDelimiters() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		return Settings->StringDelimiters;
+	}
+
+	return FString(" ,.;:[]{}!'\"?");
+}
+
 const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index) const
 {
-	const FString StringDelimiters = AzSpeech::Internal::GetStringDelimiters();
+	const FString StringDelimiters = GetStringDelimiters();
 
 	if (InputString.IsValidIndex(Index))
 	{
@@ -196,4 +207,14 @@ const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index) c
 
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: String '%s' does not contains index %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *InputString, Index);
 	return true;
+}
+
+const FAzSpeechRecognitionMap URecognitionMapCheckAsync::GetRecognitionMap(const FName& InGroup) const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		return AzSpeech::Internal::GetDataFromMapGroup<FAzSpeechRecognitionMap, FAzSpeechRecognitionMap>(InGroup, Settings->RecognitionMap);
+	}
+
+	return FAzSpeechRecognitionMap();
 }

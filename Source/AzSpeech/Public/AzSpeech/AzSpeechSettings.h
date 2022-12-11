@@ -6,6 +6,8 @@
 
 #include <CoreMinimal.h>
 #include <Engine/DeveloperSettings.h>
+#include <map>
+#include <string>
 #include "AzSpeech/AzSpeechRecognitionMap.h"
 #include "AzSpeechPhraseListMap.h"
 #include "AzSpeechSettings.generated.h"
@@ -38,6 +40,8 @@ class AZSPEECH_API UAzSpeechSettings final : public UDeveloperSettings
 
 public:
 	explicit UAzSpeechSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	static const UAzSpeechSettings* Get();
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
@@ -115,4 +119,8 @@ private:
 	void ToggleInternalLogs();
 	void ValidateRecognitionMap();
 	void ValidatePhraseList();
+
+public:
+	static const std::map<int, std::string> GetAzSpeechKeys();
+	static const bool CheckAzSpeechSettings();
 };

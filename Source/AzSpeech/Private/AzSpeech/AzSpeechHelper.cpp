@@ -6,6 +6,7 @@
 #include "AzSpeech/AzSpeechInternalFuncs.h"
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
+#include <Misc/Paths.h>
 #include <HAL/PlatformFileManager.h>
 #include <DesktopPlatformModule.h>
 #include <Kismet/GameplayStatics.h>
@@ -295,4 +296,9 @@ const bool UAzSpeechHelper::IsAudioInputDeviceAvailable(const FString& DeviceID)
 const bool UAzSpeechHelper::IsAudioInputDeviceIDValid(const FString& DeviceID)
 {
 	return !(DeviceID.Contains(FAzSpeechAudioInputDeviceInfo::InvalidDeviceID) || DeviceID.Len() < std::strlen(FAzSpeechAudioInputDeviceInfo::PlaceholderDeviceID));
+}
+
+const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()
+{
+	return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
 }

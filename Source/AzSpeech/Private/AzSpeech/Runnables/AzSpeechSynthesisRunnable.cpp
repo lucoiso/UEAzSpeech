@@ -4,7 +4,8 @@
 
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
+#include "LogAzSpeech.h"
 #include <Async/Async.h>
 
 FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : Super(InOwningTask, InAudioConfig)
@@ -14,7 +15,7 @@ FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwni
 uint32 FAzSpeechSynthesisRunnable::Run()
 {
 #if !UE_BUILD_SHIPPING
-	const int64 StartTime = AzSpeech::Internal::GetTimeInMilliseconds();
+	const int64 StartTime = GetTimeInMilliseconds();
 #endif
 	
 	if (Super::Run() == 0u)
@@ -54,10 +55,10 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	Future.wait_for(GetTaskTimeout());
 	
 #if !UE_BUILD_SHIPPING
-	const int64 ActivationDelay = AzSpeech::Internal::GetTimeInMilliseconds() - StartTime;
+	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
 #endif
 
-	const float SleepTime = AzSpeech::Internal::GetThreadUpdateInterval();
+	const float SleepTime = GetThreadUpdateInterval();
 	
 	while (!IsPendingStop())
 	{
@@ -116,7 +117,7 @@ void FAzSpeechSynthesisRunnable::RemoveBindings()
 	DelegateDisconnecter_T(SynthesizerTask->SynthesisStarted);
 }
 
-bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
+const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
 {
 	if (!Super::ApplySDKSettings(InConfig))
 	{
@@ -207,7 +208,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 		return false;
 	}
 
-	if (AzSpeech::Internal::GetPluginSettings()->bEnableViseme)
+	if (UAzSpeechSettings::Get()->bEnableViseme)
 	{
 		SpeechSynthesizer->VisemeReceived.Connect([this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 		{

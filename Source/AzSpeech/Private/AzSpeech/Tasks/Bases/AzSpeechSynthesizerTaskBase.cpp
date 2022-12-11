@@ -5,10 +5,11 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "LogAzSpeech.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
-	AzSpeech::Internal::GetVoiceName(VoiceName);
+	ValidateVoiceName(VoiceName);
 	Super::Activate();
 }
 
