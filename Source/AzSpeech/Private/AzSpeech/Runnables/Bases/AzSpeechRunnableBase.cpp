@@ -5,9 +5,13 @@
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeech/AzSpeechHelper.h"
+#include "LogAzSpeech.h"
 #include <HAL/PlatformFileManager.h>
 #include <Misc/FileHelper.h>
 #include <Async/Async.h>
+#include <chrono>
 
 FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
 {
@@ -16,7 +20,7 @@ FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, co
 void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Creating new runnable thread to initialize work"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
-	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID()), 0u, AzSpeech::Internal::GetCPUThreadPriority()));
+	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID()), 0u, GetCPUThreadPriority()));
 }
 
 void FAzSpeechRunnableBase::StopAzSpeechRunnableTask()
@@ -82,7 +86,7 @@ bool FAzSpeechRunnableBase::CanInitializeTask()
 	
 	bool bOutput = true;
 
-	if (!AzSpeech::Internal::CheckAzSpeechSettings())
+	if (!UAzSpeechSettings::CheckAzSpeechSettings())
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to initialize task due to invalid settings"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
@@ -113,13 +117,13 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Creating Azure SDK speech config"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
-	const auto Settings = AzSpeech::Internal::GetAzSpeechKeys();
+	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
 	const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
 
 	if (!SpeechConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to create speech configuration"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
-
+		
 		return nullptr;
 	}
 
@@ -128,10 +132,10 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
 {
-	return std::chrono::seconds(AzSpeech::Internal::GetTimeout());
+	return std::chrono::seconds(GetTimeout());
 }
 
-bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
 	if (!InSpeechConfig)
 	{
@@ -143,7 +147,7 @@ bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::Co
 
 	EnableLogInConfiguration(InSpeechConfig);
 
-	InSpeechConfig->SetProfanity(AzSpeech::Internal::GetProfanityFilter());
+	InSpeechConfig->SetProfanity(GetProfanityFilter());
 
 	if (OwningTask->IsUsingAutoLanguage())
 	{
@@ -155,7 +159,7 @@ bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::Co
 	return true;
 }
 
-bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
 	if (!InSpeechConfig)
 	{
@@ -163,14 +167,14 @@ bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Micro
 		return false;
 	}
 
-	if (!AzSpeech::Internal::GetPluginSettings()->bEnableSDKLogs)
+	if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
 	{
 		return true;
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Enabling Azure SDK log"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 
-	if (FString AzSpeechLogPath = AzSpeech::Internal::GetAzSpeechLogsBaseDir();
+	if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir();
 		FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*AzSpeechLogPath))
 	{
 		AzSpeechLogPath += "/UEAzSpeech " + FDateTime::Now().ToString() + ".log";
@@ -184,6 +188,28 @@ bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Micro
 	}
 
 	return false;
+}
+
+const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBase::GetProfanityFilter() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		switch (Settings->ProfanityFilter)
+		{
+		case EAzSpeechProfanityFilter::Raw:
+			return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
+
+		case EAzSpeechProfanityFilter::Removed:
+			return Microsoft::CognitiveServices::Speech::ProfanityOption::Removed;
+
+		case EAzSpeechProfanityFilter::Masked:
+			return Microsoft::CognitiveServices::Speech::ProfanityOption::Masked;
+
+		default: break;
+		}
+	}
+
+	return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
 }
 
 const FString FAzSpeechRunnableBase::CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const
@@ -270,5 +296,92 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 	
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Error Details: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *UTF8_TO_TCHAR(ErrorDetails.c_str()));
 	
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Log generated in directory: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *AzSpeech::Internal::GetAzSpeechLogsBaseDir());
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Log generated in directory: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
+}
+
+const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		switch (Settings->TasksThreadPriority)
+		{
+		case EAzSpeechThreadPriority::Lowest:
+			return EThreadPriority::TPri_Lowest;
+
+		case EAzSpeechThreadPriority::BelowNormal:
+			return EThreadPriority::TPri_Lowest;
+
+		case EAzSpeechThreadPriority::Normal:
+			return EThreadPriority::TPri_Lowest;
+
+		case EAzSpeechThreadPriority::AboveNormal:
+			return EThreadPriority::TPri_Lowest;
+
+		case EAzSpeechThreadPriority::Highest:
+			return EThreadPriority::TPri_Lowest;
+
+		default:
+			break;
+		}
+	}
+
+	return EThreadPriority::TPri_Normal;
+}
+
+const float FAzSpeechRunnableBase::GetThreadUpdateInterval() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		return Settings->ThreadUpdateInterval <= 0.f ? 0.1f : Settings->ThreadUpdateInterval;
+	}
+
+	return 0.1f;
+}
+
+const int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
+{
+	const auto CurrentTime = std::chrono::system_clock::now();
+	const auto TimeSinceEpoch = CurrentTime.time_since_epoch();
+	const auto CurrentTimeInMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(TimeSinceEpoch);
+
+	return static_cast<int64>(CurrentTimeInMilliseconds.count());
+}
+
+const int32 FAzSpeechRunnableBase::GetTimeout() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		return Settings->TimeOutInSeconds <= 0.f ? 15.f : Settings->TimeOutInSeconds;
+	}
+
+	return 15.f;
+}
+
+const std::vector<std::string> FAzSpeechRunnableBase::GetCandidateLanguages() const
+{
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+
+	std::vector<std::string> Output;
+
+	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
+	for (const FString& Iterator : Settings->AutoCandidateLanguages)
+	{
+		if (AzSpeech::Internal::HasEmptyParam(Iterator))
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Found empty candidate language in settings"), *FString(__func__));
+			continue;
+		}
+
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language %s as candidate"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *Iterator);
+
+		Output.push_back(TCHAR_TO_UTF8(*Iterator));
+
+		if (Output.size() >= UAzSpeechSettings::MaxCandidateLanguages)
+		{
+			Output.resize(UAzSpeechSettings::MaxCandidateLanguages);
+			break;
+		}
+	}
+
+	return Output;
 }

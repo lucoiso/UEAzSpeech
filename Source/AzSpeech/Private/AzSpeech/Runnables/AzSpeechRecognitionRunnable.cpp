@@ -5,6 +5,8 @@
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
+#include "LogAzSpeech.h"
 #include <Async/Async.h>
 
 THIRD_PARTY_INCLUDES_START
@@ -23,7 +25,7 @@ const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> FAzSpeec
 uint32 FAzSpeechRecognitionRunnable::Run()
 {
 #if !UE_BUILD_SHIPPING
-	const int64 StartTime = AzSpeech::Internal::GetTimeInMilliseconds();
+	const int64 StartTime = GetTimeInMilliseconds();
 #endif
 
 	if (Super::Run() == 0u)
@@ -59,10 +61,10 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	}
 
 #if !UE_BUILD_SHIPPING
-	const int64 ActivationDelay = AzSpeech::Internal::GetTimeInMilliseconds() - StartTime;
+	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
 #endif
 
-	const float SleepTime = AzSpeech::Internal::GetThreadUpdateInterval();
+	const float SleepTime = GetThreadUpdateInterval();
 	
 	while (!IsPendingStop())
 	{
@@ -117,7 +119,7 @@ void FAzSpeechRecognitionRunnable::RemoveBindings()
 	DelegateDisconnecter_T(RecognizerTask->RecognitionUpdated);
 }
 
-bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
+const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
 {
 	if (!Super::ApplySDKSettings(InConfig))
 	{
@@ -166,7 +168,7 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 
 	if (RecognizerTask->IsUsingAutoLanguage())
 	{
-		const std::vector<std::string> Candidates = AzSpeech::Internal::GetCandidateLanguages(*RecognizerTask->GetTaskName(), RecognizerTask->GetUniqueID());
+		const std::vector<std::string> Candidates = GetCandidateLanguages();
 		if (Candidates.empty())
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
@@ -247,7 +249,7 @@ bool FAzSpeechRecognitionRunnable::InsertPhraseList()
 		return false;
 	}
 
-	for (const FString& PhraseListData : AzSpeech::Internal::GetPhraseListFromGroup(RecognizerTask->PhraseListGroup))
+	for (const FString& PhraseListData : GetPhraseListFromGroup(RecognizerTask->PhraseListGroup))
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Inserting Phrase List Data %s to Phrase List Grammar"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *PhraseListData);
 
@@ -310,4 +312,14 @@ bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_pt
 	}
 
 	return bOutput;
+}
+
+const TArray<FString> FAzSpeechRecognitionRunnable::GetPhraseListFromGroup(const FName& InGroup) const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		return AzSpeech::Internal::GetDataFromMapGroup<TArray<FString>, FAzSpeechPhraseListMap>(InGroup, Settings->PhraseListMap);
+	}
+
+	return TArray<FString>();
 }

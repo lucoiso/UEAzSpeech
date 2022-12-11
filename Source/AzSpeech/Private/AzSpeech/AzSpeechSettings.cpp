@@ -19,6 +19,12 @@ UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer
 	}
 }
 
+const UAzSpeechSettings* UAzSpeechSettings::Get()
+{
+	static const UAzSpeechSettings* const Instance = GetDefault<UAzSpeechSettings>();
+	return Instance;
+}
+
 #if WITH_EDITOR
 void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 {
@@ -139,4 +145,49 @@ void UAzSpeechSettings::ValidatePhraseList()
 			}
 		}
 	}
+}
+
+const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
+{
+	std::map<int, std::string> Output;
+
+	const UAzSpeechSettings* const Instance = UAzSpeechSettings::Get();
+	if (!IsValid(Instance))
+	{
+		return Output;
+	}
+
+	const auto UpdateSettingsMap = [&Output](const int& InId, const FString& InString)
+	{
+		const std::string InStr = TCHAR_TO_UTF8(*InString);
+		Output.insert(std::make_pair(InId, InStr));
+	};
+
+	UpdateSettingsMap(0, Instance->APIAccessKey);
+	UpdateSettingsMap(1, Instance->RegionID);
+	UpdateSettingsMap(2, Instance->LanguageID);
+	UpdateSettingsMap(3, Instance->VoiceName);
+
+	return Output;
+}
+
+const bool UAzSpeechSettings::CheckAzSpeechSettings()
+{
+	const auto AzSpeechParams = GetAzSpeechKeys();
+	if (AzSpeechParams.empty())
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+		return false;
+	}
+
+	for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
+	{
+		if (AzSpeechParams.at(Iterator).empty())
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+			return false;
+		}
+	}
+
+	return true;
 }

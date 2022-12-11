@@ -6,6 +6,8 @@
 
 #include <CoreMinimal.h>
 #include <HAL/Runnable.h>
+#include <vector>
+#include <string>
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_embedded_speech_config.h>
@@ -72,12 +74,23 @@ protected:
 	
 	const std::chrono::seconds GetTaskTimeout() const;
 
-	virtual bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
-	bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;	
+	virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+	
+	const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+	
+	const Microsoft::CognitiveServices::Speech::ProfanityOption GetProfanityFilter() const;
 
 	const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const;
 	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
 
+	const EThreadPriority GetCPUThreadPriority() const;
+	const float GetThreadUpdateInterval() const;
+
+	static const int64 GetTimeInMilliseconds();
+	const int32 GetTimeout() const;
+
+	const std::vector<std::string> GetCandidateLanguages() const;
+	
 #if !UE_BUILD_SHIPPING
 	template<typename TaskTy>
 	static constexpr void PrintDebugInformation(const TaskTy* Task, const int64 StartTime, const int64 ActivationDelay, const float SleepTime)
@@ -87,13 +100,13 @@ protected:
 			return;
 		}
 
-		const UAzSpeechSettings* const Settings = AzSpeech::Internal::GetPluginSettings();
+		const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
 		if (!IsValid(Settings) || !Settings->bEnableDebuggingLogs)
 		{
 			return;
 		}
 
-		const float InSeconds = (AzSpeech::Internal::GetTimeInMilliseconds() - StartTime) / 1000.f;
+		const float InSeconds = (FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime) / 1000.f;
 		FString SpecificDataStr;
 		
 		if constexpr (std::is_base_of<TaskTy, UAzSpeechRecognizerTaskBase>())

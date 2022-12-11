@@ -3,7 +3,8 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "LogAzSpeech.h"
+#include "AzSpeech/AzSpeechHelper.h"
 #include <Modules/ModuleManager.h>
 #include <Interfaces/IPluginManager.h>
 #include <Misc/Paths.h>
@@ -31,9 +32,9 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
 #endif
 
-	if (FPaths::DirectoryExists(AzSpeech::Internal::GetAzSpeechLogsBaseDir()))
+	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
-		IFileManager::Get().DeleteDirectory(*AzSpeech::Internal::GetAzSpeechLogsBaseDir(), true, true);
+		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
 	}
 }
 

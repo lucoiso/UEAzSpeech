@@ -5,7 +5,6 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "AzSpeech/AzSpeechAudioInputDeviceInfo.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "SpeechToTextAsync.generated.h"
 

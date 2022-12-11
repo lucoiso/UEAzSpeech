@@ -5,7 +5,6 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "LogAzSpeech.h"
 #include "AzSpeechAudioInputDeviceInfo.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
