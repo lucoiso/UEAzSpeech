@@ -15,7 +15,7 @@ void UAzSpeechTaskBase::Activate()
 {
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	ValidateLanguageID(LanguageID);
+	ValidateLanguageID();
 
 	bIsTaskActive = true;
 	
@@ -135,24 +135,6 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 	bIsTaskActive = false;
 }
 
-void UAzSpeechTaskBase::ValidateLanguageID(FString& InLanguage)
-{
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (HasEmptyParameters(InLanguage) || InLanguage.Equals("Default", ESearchCase::IgnoreCase))
-	{
-		InLanguage = UTF8_TO_TCHAR(Settings.at(2).c_str());
-	}
-}
-
-void UAzSpeechTaskBase::ValidateVoiceName(FString& InVoice)
-{
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (HasEmptyParameters(InVoice) || InVoice.Equals("Default", ESearchCase::IgnoreCase))
-	{
-		InVoice = UTF8_TO_TCHAR(Settings.at(3).c_str());
-	}
-}
-
 #if WITH_EDITOR
 void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 {
@@ -167,3 +149,12 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 	StopAzSpeechTask();
 }
 #endif
+
+void UAzSpeechTaskBase::ValidateLanguageID()
+{	
+	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
+	if (HasEmptyParameters(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
+	{
+		LanguageID = UTF8_TO_TCHAR(Settings.at(2).c_str());
+	}
+}

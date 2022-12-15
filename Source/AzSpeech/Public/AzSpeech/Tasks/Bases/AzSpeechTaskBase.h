@@ -61,10 +61,7 @@ protected:
 
 	virtual bool StartAzureTaskWork();
 	virtual void BroadcastFinalResult();
-
-	void ValidateLanguageID(FString& InLanguage);
-	void ValidateVoiceName(FString& InVoice);
-
+	
 	mutable FCriticalSection Mutex;
 
 #if WITH_EDITOR
@@ -88,4 +85,6 @@ protected:
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
+	
+	void ValidateLanguageID();
 };

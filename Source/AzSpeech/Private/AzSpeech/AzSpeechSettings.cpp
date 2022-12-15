@@ -67,14 +67,17 @@ void UAzSpeechSettings::PostInitProperties()
 {
 	Super::PostInitProperties();
 
-	ValidateCandidateLanguages();
+	ValidateCandidateLanguages(true);
 	ToggleInternalLogs();
 	ValidateRecognitionMap();
 }
 
-void UAzSpeechSettings::ValidateCandidateLanguages()
+void UAzSpeechSettings::ValidateCandidateLanguages(const bool bRemoveEmpties)
 {
-	AutoCandidateLanguages.Remove(FString());
+	if (bRemoveEmpties)
+	{
+		AutoCandidateLanguages.Remove(FString());
+	}
 
 	if (!AutoCandidateLanguages.Contains(LanguageID))
 	{

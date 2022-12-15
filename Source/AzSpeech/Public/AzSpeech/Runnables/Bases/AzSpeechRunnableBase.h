@@ -6,8 +6,6 @@
 
 #include <CoreMinimal.h>
 #include <HAL/Runnable.h>
-#include <vector>
-#include <string>
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_embedded_speech_config.h>
@@ -88,8 +86,6 @@ protected:
 
 	static const int64 GetTimeInMilliseconds();
 	const int32 GetTimeout() const;
-
-	const std::vector<std::string> GetCandidateLanguages() const;
 	
 #if !UE_BUILD_SHIPPING
 	template<typename TaskTy>

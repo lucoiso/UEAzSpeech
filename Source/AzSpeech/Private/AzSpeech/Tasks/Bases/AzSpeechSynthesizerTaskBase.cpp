@@ -5,11 +5,13 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
-	ValidateVoiceName(VoiceName);
+	ValidateVoiceName();
+	
 	Super::Activate();
 }
 
@@ -159,5 +161,14 @@ void UAzSpeechSynthesizerTaskBase::LogSynthesisResultStatus(const bool bSuccess)
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: Failed"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+	}
+}
+
+void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
+{	
+	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
+	if (HasEmptyParameters(VoiceName) || VoiceName.Equals("Default", ESearchCase::IgnoreCase))
+	{
+		VoiceName = UTF8_TO_TCHAR(Settings.at(3).c_str());
 	}
 }
