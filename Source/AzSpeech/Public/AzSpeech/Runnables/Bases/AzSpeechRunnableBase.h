@@ -93,7 +93,7 @@ protected:
 	
 #if !UE_BUILD_SHIPPING
 	template<typename TaskTy>
-	static constexpr void PrintDebugInformation(const TaskTy* Task, const int64 StartTime, const int64 ActivationDelay, const float SleepTime)
+	static void PrintDebugInformation(const TaskTy* Task, const int64 StartTime, const int64 ActivationDelay, const float SleepTime)
 	{
 		if (!IsValid(Task))
 		{
