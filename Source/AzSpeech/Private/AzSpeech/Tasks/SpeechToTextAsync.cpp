@@ -9,6 +9,7 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContext
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->TaskName = *FString(__func__);

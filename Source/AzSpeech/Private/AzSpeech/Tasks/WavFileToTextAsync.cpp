@@ -12,6 +12,7 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldCont
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
+	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->TaskName = *FString(__func__);
 

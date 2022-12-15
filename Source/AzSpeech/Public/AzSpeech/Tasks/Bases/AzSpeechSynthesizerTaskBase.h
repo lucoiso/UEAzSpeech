@@ -96,7 +96,7 @@ protected:
 	FString VoiceName;
 	FString SynthesisText;
 	bool bIsSSMLBased;
-
+	
 	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	
 	const bool CanBroadcastWithReason(const Microsoft::CognitiveServices::Speech::ResultReason& Reason) const;
@@ -109,5 +109,6 @@ private:
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
 
+	void ValidateVoiceName();
 	void LogSynthesisResultStatus(const bool bSuccess) const;
 };

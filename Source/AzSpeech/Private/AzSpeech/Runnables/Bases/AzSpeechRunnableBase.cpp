@@ -356,32 +356,3 @@ const int32 FAzSpeechRunnableBase::GetTimeout() const
 
 	return 15.f;
 }
-
-const std::vector<std::string> FAzSpeechRunnableBase::GetCandidateLanguages() const
-{
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
-
-	std::vector<std::string> Output;
-
-	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	for (const FString& Iterator : Settings->AutoCandidateLanguages)
-	{
-		if (AzSpeech::Internal::HasEmptyParam(Iterator))
-		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Found empty candidate language in settings"), *FString(__func__));
-			continue;
-		}
-
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language %s as candidate"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *Iterator);
-
-		Output.push_back(TCHAR_TO_UTF8(*Iterator));
-
-		if (Output.size() >= UAzSpeechSettings::MaxCandidateLanguages)
-		{
-			Output.resize(UAzSpeechSettings::MaxCandidateLanguages);
-			break;
-		}
-	}
-
-	return Output;
-}

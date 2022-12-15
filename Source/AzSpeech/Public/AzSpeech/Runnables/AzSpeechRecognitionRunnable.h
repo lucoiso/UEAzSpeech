@@ -5,6 +5,8 @@
 #pragma once
 
 #include <CoreMinimal.h>
+#include <vector>
+#include <string>
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 
 THIRD_PARTY_INCLUDES_START
@@ -46,5 +48,6 @@ private:
 
 	bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
+	const std::vector<std::string> GetCandidateLanguages() const;
 	const TArray<FString> GetPhraseListFromGroup(const FName& InGroup) const;
 };

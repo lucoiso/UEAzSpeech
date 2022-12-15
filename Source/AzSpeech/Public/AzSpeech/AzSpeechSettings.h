@@ -115,7 +115,7 @@ protected:
 	virtual void PostInitProperties() override;
 
 private:
-	void ValidateCandidateLanguages();
+	void ValidateCandidateLanguages(const bool bRemoveEmpties = false);
 	void ToggleInternalLogs();
 	void ValidateRecognitionMap();
 	void ValidatePhraseList();
