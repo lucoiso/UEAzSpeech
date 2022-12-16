@@ -50,7 +50,7 @@ void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
 		return;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Enabling continuous recognition"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Disabling continuous recognition"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	if (!RecognizerObj->IsEnabled())
 	{
 		return;
