@@ -15,6 +15,11 @@ THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_eventsignal.h>
 THIRD_PARTY_INCLUDES_END
 
+#if !UE_BUILD_SHIPPING
+// Used to print debug informations on screen - only available on non-shipping builds
+#include <Engine/Engine.h>
+#endif
+
 class UAzSpeechTaskBase;
 
 /**
