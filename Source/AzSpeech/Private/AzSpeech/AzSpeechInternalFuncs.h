@@ -5,7 +5,10 @@
 #pragma once
 
 #include <CoreMinimal.h>
+#include <Runtime/Launch/Resources/Version.h>
 #include "LogAzSpeech.h"
+
+struct FAzSpeechRecognitionMap;
 
 namespace AzSpeech::Internal
 {

@@ -20,7 +20,11 @@ THIRD_PARTY_INCLUDES_END
 #include <Engine/Engine.h>
 #endif
 
+#include "AzSpeech/AzSpeechSettings.h"
+
 class UAzSpeechTaskBase;
+class UAzSpeechRecognizerTaskBase;
+class UAzSpeechSynthesizerTaskBase;
 
 /**
  *
