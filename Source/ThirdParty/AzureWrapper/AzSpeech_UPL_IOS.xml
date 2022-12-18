@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+	<iosPListUpdates>
+		<insert>
+			<!-- Allow microphone access -->
+			<key>NSMicrophoneUsageDescription</key>
+			<string>AzSpeech</string>
+		</insert>
+	</iosPListUpdates>
+</root>

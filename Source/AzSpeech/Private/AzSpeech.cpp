@@ -30,6 +30,29 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
+	
+#elif PLATFORM_MAC
+#if PLATFORM_MAC_ARM64
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/Arm64/Runtime/"));
+#else
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/x64/Runtime/"));
+#endif
+
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.dylib", CoreRuntimeLib);
+
+#elif PLATFORM_LINUX || PLATFORM_LINUXARM64
+#if PLATFORM_LINUX
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/x64/Runtime/"));
+#elif PLATFORM_LINUXARM64
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/Arm64/Runtime/"));
+#endif
+
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.so", CoreRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so", AudioRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.kws.so", KwsRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.lu.so", LuRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.mas.so", MasRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.codec.so", CodecRuntimeLib);
 #endif
 
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
@@ -41,11 +64,14 @@ void FAzSpeechModule::StartupModule()
 void FAzSpeechModule::ShutdownModule()
 {
 	FreeDependency(CoreRuntimeLib);
+	
+#if !PLATFORM_MAC
 	FreeDependency(AudioRuntimeLib);
 	FreeDependency(KwsRuntimeLib);
 	FreeDependency(LuRuntimeLib);
 	FreeDependency(MasRuntimeLib);
 	FreeDependency(CodecRuntimeLib);
+#endif
 }
 
 void FAzSpeechModule::FreeDependency(void*& Handle)
