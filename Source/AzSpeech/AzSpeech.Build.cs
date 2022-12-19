@@ -18,8 +18,9 @@ public class AzSpeech : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new[]
 		{
-			"Core"
-		});
+			"Core",
+            "AzureWrapper"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
@@ -28,8 +29,7 @@ public class AzSpeech : ModuleRules
 			"Projects",
 			"AndroidPermission",
 			"DeveloperSettings",
-			"AudioCaptureCore",
-			"AzureWrapper"
+			"AudioCaptureCore"
 		});
 
 		if (Target.bBuildEditor)

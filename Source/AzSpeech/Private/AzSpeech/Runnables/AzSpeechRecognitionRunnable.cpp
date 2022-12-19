@@ -4,8 +4,8 @@
 
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 
