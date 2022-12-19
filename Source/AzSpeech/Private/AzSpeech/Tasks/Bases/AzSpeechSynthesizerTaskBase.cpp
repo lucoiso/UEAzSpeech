@@ -4,8 +4,8 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
 void UAzSpeechSynthesizerTaskBase::Activate()

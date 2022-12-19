@@ -4,9 +4,9 @@
 
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
-#include "AzSpeech/AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <HAL/PlatformFileManager.h>
 #include <Misc/FileHelper.h>
