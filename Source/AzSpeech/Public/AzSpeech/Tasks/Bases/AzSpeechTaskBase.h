@@ -6,7 +6,7 @@
 
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
-#include "AzSpeech/AzSpeechInternalFuncs.h"
+#include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
 THIRD_PARTY_INCLUDES_START
