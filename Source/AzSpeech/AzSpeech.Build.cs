@@ -19,8 +19,8 @@ public class AzSpeech : ModuleRules
 		PublicDependencyModuleNames.AddRange(new[]
 		{
 			"Core",
-            "AzureWrapper"
-        });
+			"AzureWrapper"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
