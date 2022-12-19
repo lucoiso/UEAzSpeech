@@ -20,8 +20,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRecognitionCompletedDelegate, const
 /**
  *
  */
-UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
-class UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
+UCLASS(Abstract, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
+class AZSPEECH_API UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 

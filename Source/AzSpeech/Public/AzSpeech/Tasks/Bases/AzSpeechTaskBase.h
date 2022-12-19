@@ -20,8 +20,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAzSpeechTaskGenericDelegate);
 /**
  *
  */
-UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech")
-class UAzSpeechTaskBase : public UBlueprintAsyncActionBase
+UCLASS(Abstract, NotPlaceable, Category = "AzSpeech")
+class AZSPEECH_API UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 

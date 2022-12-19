@@ -49,8 +49,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBooleanSynthesisDelegate, const boo
 /**
  *
  */
-UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
-class UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
+UCLASS(Abstract, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
+class AZSPEECH_API UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
 {
 	GENERATED_BODY()
 

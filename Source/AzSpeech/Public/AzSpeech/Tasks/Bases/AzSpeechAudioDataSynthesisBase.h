@@ -11,8 +11,8 @@
 /**
  *
  */
-UCLASS(Abstract, MinimalAPI, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
-class UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizerTaskBase
+UCLASS(Abstract, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
+class AZSPEECH_API UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
 	
