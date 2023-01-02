@@ -40,10 +40,16 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			string LibPath = "Arm";
+			if (Target.Architecture.ToLower().Contains("arm64"))
+			{
+				LibPath = "Arm64";
+			}
+
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
