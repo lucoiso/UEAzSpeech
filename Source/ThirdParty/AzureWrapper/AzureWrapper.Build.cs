@@ -7,6 +7,11 @@ using UnrealBuildTool;
 
 public class AzureWrapper : ModuleRules
 {
+	private string checkArmArchitecture(string defaultValue)
+	{
+		return Target.Architecture.ToLower().Contains("arm64") ? "Arm64" : defaultValue;
+	}
+
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
 	{
 		Type = ModuleType.External;
@@ -40,16 +45,12 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
-			string LibPath = "Arm";
-			if (Target.Architecture.ToLower().Contains("arm64"))
-			{
-				LibPath = "Arm64";
-			}
+			string libPath = checkArmArchitecture("Arm");
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
@@ -59,32 +60,24 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			string LibPath = "x64";
-			if (Target.Architecture.ToLower().Contains("arm64"))
-			{
-				LibPath = "Arm64";
-			}
+			string libPath = checkArmArchitecture("x64");
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Mac", LibPath, "Microsoft.CognitiveServices.Speech.core.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Mac", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.dylib"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.dylib"));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.LinuxArm64)
 		{
-			string LibPath = "x64";
-			if (Target.Platform == UnrealTargetPlatform.LinuxArm64)
-			{
-				LibPath = "Arm64";
-			}
+			string libPath = checkArmArchitecture("x64");
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Microsoft.CognitiveServices.Speech.core.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", LibPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
 		}
 	}
 }
