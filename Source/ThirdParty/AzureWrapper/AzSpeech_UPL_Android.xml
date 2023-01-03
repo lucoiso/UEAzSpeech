@@ -8,17 +8,17 @@
     </androidManifestUpdates>
     
     <resourceCopies>
-        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.core.so" 
-                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.core.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.core.so" 
+                  dst="$S(BuildDir)/libs/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.core.so" />
         
-        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so" 
-                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so" 
+                  dst="$S(BuildDir)/libs/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so" />
         
-        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.kws.so"
-                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.kws.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.extension.kws.so"
+                  dst="$S(BuildDir)/libs/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.extension.kws.so" />
         
-        <copyFile src="$S(PluginDir)/libs/Android/libMicrosoft.CognitiveServices.Speech.extension.lu.so"
-                  dst="$S(BuildDir)/libs/arm64-v8a/libMicrosoft.CognitiveServices.Speech.extension.lu.so" />
+        <copyFile src="$S(PluginDir)/libs/Android/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.extension.lu.so"
+                  dst="$S(BuildDir)/libs/$S(Architecture)/libMicrosoft.CognitiveServices.Speech.extension.lu.so" />
     </resourceCopies>
     
     <soLoadLibrary>        
