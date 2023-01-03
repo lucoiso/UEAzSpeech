@@ -45,10 +45,10 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 			
-			string LibPath = "arm64-v8a";
+			string libPath = "arm64-v8a";
 			if (!string.IsNullOrEmpty(Target.Architecture) && !Target.Architecture.ToLower().Contains("64"))
 			{
-				LibPath = "armeabi-armv7a";
+                libPath = "armeabi-armv7a";
 			}
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
