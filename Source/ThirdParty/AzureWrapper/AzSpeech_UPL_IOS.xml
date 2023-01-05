@@ -1,6 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
+	<init>
+		<copyFile src="$S(PluginDir)/libs/iOS/libMicrosoft.CognitiveServices.Speech.core.a"
+                  dst="$S(BuildDir)/resource/libMicrosoft.CognitiveServices.Speech.core.a" />
+	</init>
+	
 	<iosPListUpdates>
 		<insert>
 			<!-- Allow microphone access -->
@@ -8,4 +13,10 @@
 			<string>AzSpeech</string>
 		</insert>
 	</iosPListUpdates>
+
+
+	<soLoadLibrary>
+		<loadLibrary name="libMicrosoft.CognitiveServices.Speech.core.a"
+                     failmsg="libMicrosoft.CognitiveServices.Speech.core.a library not loaded and may be required for AzSpeech." />
+	</soLoadLibrary>
 </root>
