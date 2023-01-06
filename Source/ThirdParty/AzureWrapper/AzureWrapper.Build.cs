@@ -40,10 +40,16 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			string LibPath = "arm64-v8a";
+			if (!string.IsNullOrEmpty(Target.Architecture) && !Target.Architecture.ToLower().Contains("64"))
+			{
+				LibPath = "armeabi-armv7a";
+			}
+
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", LibPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
 		}
 	}
 }
