@@ -7,14 +7,9 @@ using UnrealBuildTool;
 
 public class AzureWrapper : ModuleRules
 {
-	private bool isArm64(bool isAndroid)
+	private bool isArm()
 	{
-		if (isAndroid && string.IsNullOrEmpty(Target.Architecture))
-		{
-			return true;
-		}
-
-		return !string.IsNullOrEmpty(Target.Architecture) && Target.Architecture.ToLower().Contains("arm64");
+		return Target.Architecture.ToLower().Contains("arm");
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -50,12 +45,17 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
-			string libPath = isArm64(true) ? "arm64-v8a" : "armeabi-armv7a";
+			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty ._.
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
@@ -65,7 +65,7 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			string libPath = isArm64(false) ? "Arm64" : "x64";
+			string libPath = isArm() ? "Arm64" : "x64";
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 
@@ -73,7 +73,7 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			string libPath = isArm64(false) ? "Arm64" : "x64";
+			string libPath = isArm() ? "Arm64" : "x64";
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 
