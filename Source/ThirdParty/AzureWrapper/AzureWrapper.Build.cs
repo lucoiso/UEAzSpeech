@@ -28,7 +28,7 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		if (Target.Platform == UnrealTargetPlatform.Win64)
+        if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Microsoft.CognitiveServices.Speech.core.lib"));
 
@@ -50,12 +50,17 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
-			string libPath = isArm64(true) ? "arm64-v8a" : "armeabi-armv7a";
+			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty ._.
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-		}
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+        }
 	}
 }
