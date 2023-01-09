@@ -7,9 +7,14 @@ using UnrealBuildTool;
 
 public class AzureWrapper : ModuleRules
 {
-	private string checkArmArchitecture(string defaultValue)
+	private bool isArm64(bool isAndroid)
 	{
-		return Target.Architecture.ToLower().Contains("arm64") ? "Arm64" : defaultValue;
+		if (isAndroid && string.IsNullOrEmpty(Target.Architecture))
+		{
+			return true;
+		}
+
+		return !string.IsNullOrEmpty(Target.Architecture) && Target.Architecture.ToLower().Contains("Arm64");
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -44,12 +49,8 @@ public class AzureWrapper : ModuleRules
 		else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
-			
-			string libPath = "arm64-v8a";
-			if (!string.IsNullOrEmpty(Target.Architecture) && !Target.Architecture.ToLower().Contains("64"))
-			{
-                libPath = "armeabi-armv7a";
-			}
+
+			string libPath = isArm64(true) ? "arm64-v8a" : "armeabi-armv7a";
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
@@ -64,7 +65,7 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			string libPath = checkArmArchitecture("x64");
+			string libPath = isArm64(false) ? "Arm64" : "x64";
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 
@@ -72,7 +73,7 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.LinuxArm64)
 		{
-			string libPath = checkArmArchitecture("x64");
+			string libPath = isArm64(false) ? "Arm64" : "x64";
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 

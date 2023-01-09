@@ -7,11 +7,11 @@
 	</init>
 	
 	<iosPListUpdates>
-		<insert>
+		<addElements tag="dict" once="true">
 			<!-- Allow microphone access -->
 			<key>NSMicrophoneUsageDescription</key>
-			<string>AzSpeech</string>
-		</insert>
+			<string>Microphone access is required by AzSpeech to perform Speech to Text tasks</string>
+		</addElements>
 	</iosPListUpdates>
 
 
