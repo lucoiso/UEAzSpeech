@@ -66,10 +66,10 @@ public class AzureWrapper : ModuleRules
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
 			string libPath = isArm() ? "Arm64" : "x64";
+			string fullLibPath = Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "libMicrosoft.CognitiveServices.Speech.core.dylib");
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
-
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.dylib"));
+			PublicAdditionalLibraries.Add(fullLibPath);
+			RuntimeDependencies.Add(fullLibPath);
 		}
 		else if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
