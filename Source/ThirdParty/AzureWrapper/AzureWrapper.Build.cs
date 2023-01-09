@@ -14,7 +14,7 @@ public class AzureWrapper : ModuleRules
 			return true;
 		}
 
-		return !string.IsNullOrEmpty(Target.Architecture) && Target.Architecture.ToLower().Contains("Arm64");
+		return !string.IsNullOrEmpty(Target.Architecture) && Target.Architecture.ToLower().Contains("arm64");
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
