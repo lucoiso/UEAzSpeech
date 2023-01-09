@@ -3,7 +3,7 @@
 <root>
 	<init>
 		<copyFile src="$S(PluginDir)/libs/iOS/libMicrosoft.CognitiveServices.Speech.core.a"
-                  dst="$S(BuildDir)/resource/libMicrosoft.CognitiveServices.Speech.core.a" />
+                  dst="$S(BuildDir)/libs/libMicrosoft.CognitiveServices.Speech.core.a" />
 	</init>
 	
 	<iosPListUpdates>
