@@ -71,7 +71,7 @@ public class AzureWrapper : ModuleRules
 
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.dylib"));
 		}
-		else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.LinuxArm64)
+		else if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
 			string libPath = isArm64(false) ? "Arm64" : "x64";
 
