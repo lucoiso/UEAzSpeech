@@ -20,25 +20,23 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	
 	if (Super::Run() == 0u)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Run returned 0"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
 		return 0u;
 	}
 	
-	if (!SpeechSynthesizer)
+	if (!IsSpeechSynthesizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid synthesizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return 0u;
 	}
 
-	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
+	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return 0u;
 	}
 
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Using text: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *SynthesizerTask->GetSynthesisText());
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Thread: %s; Function: %s; Message: Using text: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisText());
 
 	const std::string SynthesisStr = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisText());
 	std::future<std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>> Future;
@@ -51,7 +49,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 		Future = SpeechSynthesizer->StartSpeakingTextAsync(SynthesisStr);
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting synthesis."), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting synthesis."), *GetThreadName(), *FString(__func__));
 	Future.wait_for(GetTaskTimeout());
 	
 #if !UE_BUILD_SHIPPING
@@ -83,13 +81,32 @@ void FAzSpeechSynthesisRunnable::Exit()
 	SpeechSynthesizer = nullptr;
 }
 
+const bool FAzSpeechSynthesisRunnable::IsSpeechSynthesizerValid() const
+{
+	if (!SpeechSynthesizer)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid synthesizer"), *GetThreadName(), *FString(__func__));
+	}
+
+	return SpeechSynthesizer != nullptr;
+}
+
+UAzSpeechSynthesizerTaskBase* FAzSpeechSynthesisRunnable::GetOwningSynthesizerTask() const
+{
+	if (!GetOwningTask())
+	{
+		return nullptr;
+	}
+
+	return Cast<UAzSpeechSynthesizerTaskBase>(GetOwningTask());
+}
+
 void FAzSpeechSynthesisRunnable::ClearSignals()
 {
 	Super::ClearSignals();
 	
-	if (!SpeechSynthesizer)
+	if (!IsSpeechSynthesizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid synthesizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return;
 	}
 
@@ -104,11 +121,10 @@ void FAzSpeechSynthesisRunnable::RemoveBindings()
 {
 	Super::RemoveBindings();
 
-	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
+	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!IsValid(SynthesizerTask))
+	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return;
 	}
 
@@ -124,11 +140,10 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 		return false;
 	}
 
-	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
-	
-	if (!IsValid(SynthesizerTask))
+	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
@@ -142,10 +157,10 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetLanguageID());
 	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetVoiceName());
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *SynthesizerTask->GetLanguageID());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetLanguageID());
 	InConfig->SetSpeechSynthesisLanguage(UsedLang);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using voice: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *SynthesizerTask->GetVoiceName());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetVoiceName());
 	InConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
 	return true;
@@ -158,21 +173,20 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 		return false;
 	}
 	
-	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
+	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!IsValid(SynthesizerTask))
+	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 	
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Creating synthesizer object"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating synthesizer object"), *GetThreadName(), *FString(__func__));
 
 	const auto SpeechConfig = CreateSpeechConfig();
 
 	if (!SpeechConfig)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid speech config"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));	
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));	
 		return false;
 	}
 	
@@ -180,13 +194,13 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 
 	if (SynthesizerTask->IsUsingAutoLanguage())
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Initializing auto language detection"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing auto language detection"), *GetThreadName(), *FString(__func__));
 
-		SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromOpenRange(), AudioConfig);
+		SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromOpenRange(), GetAudioConfig());
 	}
 	else
 	{
-		SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, AudioConfig);
+		SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, GetAudioConfig());
 	}
 
 	return ConnectSynthesisSignals();
@@ -194,17 +208,15 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 
 bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 {
-	if (!SpeechSynthesizer)
+	if (!IsSpeechSynthesizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid synthesizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
-	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = Cast<UAzSpeechSynthesizerTaskBase>(OwningTask);
-	
-	if (!IsValid(SynthesizerTask))
+	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
@@ -212,7 +224,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	{
 		SpeechSynthesizer->VisemeReceived.Connect([this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 		{
-			if (!IsValid(SynthesizerTask))
+			if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 			{
 				StopAzSpeechRunnableTask();
 				return;
@@ -228,8 +240,8 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	}
 
 	const auto SynthesisUpdate_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-	{		
-		if (!IsValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
+	{
+		if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
 		{
 			StopAzSpeechRunnableTask();
 			return;
@@ -243,8 +255,8 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	SpeechSynthesizer->SynthesisCanceled.Connect(SynthesisUpdate_Lambda);
 	
 	const auto SynthesisStarted_Lambda = [this, SynthesizerTask]([[maybe_unused]] const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-	{		
-		if (!IsValid(SynthesizerTask))
+	{
+		if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
 		{
 			StopAzSpeechRunnableTask();
 			return;
@@ -271,19 +283,19 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 	switch (LastResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task running. Reason: SynthesizingAudio"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task running. Reason: SynthesizingAudio"), *GetThreadName(), *FString(__func__));
 			bOutput = true;
 			bFinishTask = false;
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Reason: SynthesizingAudioCompleted"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task completed. Reason: SynthesizingAudioCompleted"), *GetThreadName(), *FString(__func__));
 			bOutput = true;
 			bFinishTask = true;
 			break;
 			
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioStarted:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task started. Reason: SynthesizingAudioStarted"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task started. Reason: SynthesizingAudioStarted"), *GetThreadName(), *FString(__func__));
 			bOutput = true;
 			bFinishTask = false;
 			break;
@@ -297,11 +309,11 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 		bOutput = false;
 		bFinishTask = true;
 		
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Reason: Canceled"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: Canceled"), *GetThreadName(), *FString(__func__));
 		
 		const auto CancellationDetails = Microsoft::CognitiveServices::Speech::SpeechSynthesisCancellationDetails::FromResult(LastResult);
 
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Cancellation Reason: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Cancellation Reason: %s"), *GetThreadName(), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
 
 		if (CancellationDetails->Reason == Microsoft::CognitiveServices::Speech::CancellationReason::Error)
 		{

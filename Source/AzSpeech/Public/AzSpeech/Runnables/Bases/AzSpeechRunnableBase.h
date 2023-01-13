@@ -50,8 +50,8 @@ protected:
 	
 	typedef FAzSpeechRunnableBase Super;
 
-	UAzSpeechTaskBase* OwningTask;
-	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
+	UAzSpeechTaskBase* GetOwningTask() const;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
 	
 	virtual bool InitializeAzureObject();
 	virtual bool CanInitializeTask();
@@ -95,6 +95,8 @@ protected:
 
 	static const int64 GetTimeInMilliseconds();
 	const int32 GetTimeout() const;
+
+	const FString GetThreadName() const;
 	
 #if !UE_BUILD_SHIPPING
 	template<typename TaskTy>
@@ -130,4 +132,6 @@ protected:
 private:
 	bool bStopTask = false;
 	TUniquePtr<FRunnableThread> Thread;
+	UAzSpeechTaskBase* OwningTask;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
 };
