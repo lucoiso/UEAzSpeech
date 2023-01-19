@@ -55,6 +55,8 @@ void FAzSpeechRunnableBase::Stop()
 
 void FAzSpeechRunnableBase::Exit()
 {
+	FScopeLock Lock_Runnable(&Mutex);
+
 	ClearSignals();
 
 	if (!IsValid(GetOwningTask()))
@@ -62,7 +64,7 @@ void FAzSpeechRunnableBase::Exit()
 		return;
 	}
 
-	FScopeLock Lock(&GetOwningTask()->Mutex);
+	FScopeLock Lock_Task(&GetOwningTask()->Mutex);
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 

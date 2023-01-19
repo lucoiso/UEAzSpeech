@@ -134,4 +134,5 @@ private:
 	TUniquePtr<FRunnableThread> Thread;
 	UAzSpeechTaskBase* OwningTask;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
+	mutable FCriticalSection Mutex;
 };
