@@ -18,7 +18,7 @@
 
 void FAzSpeechModule::StartupModule()
 {
-	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");	
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
 #if PLATFORM_WINDOWS
@@ -30,21 +30,21 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
-	
-#elif PLATFORM_MAC
+
+#elif PLATFORM_MAC || PLATFORM_MAC_ARM64
 #if PLATFORM_MAC_ARM64
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/Arm64/Runtime/"));
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/Arm64/"));
 #else
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/x64/Runtime/"));
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/x64/"));
 #endif
 
 	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.dylib", CoreRuntimeLib);
 
 #elif PLATFORM_LINUX || PLATFORM_LINUXARM64
-#if PLATFORM_LINUX
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/x64/Runtime/"));
-#elif PLATFORM_LINUXARM64
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/Arm64/Runtime/"));
+#if PLATFORM_LINUXARM64
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/Arm64/"));
+#else
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/x64/"));
 #endif
 
 	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.so", CoreRuntimeLib);
