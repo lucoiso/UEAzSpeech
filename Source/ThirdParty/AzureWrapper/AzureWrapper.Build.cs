@@ -10,7 +10,7 @@ public class AzureWrapper : ModuleRules
 {
 	private bool isArm()
 	{
-		return Target.Architecture.ToLower().Contains("arm");
+		return Target.Architecture.ToLower().Contains("arm") || Target.Architecture.ToLower().Contains("aarch");
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
