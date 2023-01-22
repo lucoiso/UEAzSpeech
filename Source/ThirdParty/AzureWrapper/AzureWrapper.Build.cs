@@ -24,6 +24,8 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
+        Console.WriteLine($"Initializing AzSpeech build for target: Platform: {Target.Platform.ToString()}; Architecture: {Target.Architecture.ToString()};");
+
         if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Microsoft.CognitiveServices.Speech.core.lib"));
@@ -93,14 +95,12 @@ public class AzureWrapper : ModuleRules
 		{
 			string libPath = isArm() ? "Arm64" : "x64";
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
-
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.core.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "Runtime", "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
 		}
 	}
 }
