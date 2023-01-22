@@ -24,7 +24,7 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		Console.WriteLine($"Initializing AzSpeech build for target: Platform: {Target.Platform.ToString()}; Architecture: {Target.Architecture.ToString()};");
+		Console.WriteLine("Initializing AzSpeech build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString() + ";");
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
