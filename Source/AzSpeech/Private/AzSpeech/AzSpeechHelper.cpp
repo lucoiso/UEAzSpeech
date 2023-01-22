@@ -17,7 +17,9 @@
 #endif
 
 #if PLATFORM_HOLOLENS
+#include <AllowWindowsPlatformTypes.h>
 #include <fileapi.h>
+#include <HideWindowsPlatformTypes.h>
 #endif
 
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)

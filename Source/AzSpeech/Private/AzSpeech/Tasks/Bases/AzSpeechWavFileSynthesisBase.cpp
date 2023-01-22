@@ -8,7 +8,9 @@
 #include <HAL/PlatformFileManager.h>
 
 #if PLATFORM_HOLOLENS
+#include <AllowWindowsPlatformTypes.h>
 #include <fileapi.h>
+#include <HideWindowsPlatformTypes.h>
 #endif
 
 void UAzSpeechWavFileSynthesisBase::Activate()
