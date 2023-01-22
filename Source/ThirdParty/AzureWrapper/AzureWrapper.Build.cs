@@ -65,7 +65,7 @@ public class AzureWrapper : ModuleRules
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
-			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty ._.
+			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty when building for Android ._.
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
