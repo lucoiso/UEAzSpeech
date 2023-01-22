@@ -4,7 +4,12 @@
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
+
+#if ENGINE_MAJOR_VERSION < 5
+#include <HAL/PlatformFilemanager.h>
+#else
 #include <HAL/PlatformFileManager.h>
+#endif
 
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {

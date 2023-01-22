@@ -8,10 +8,15 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
-#include <HAL/PlatformFileManager.h>
 #include <Misc/FileHelper.h>
 #include <Async/Async.h>
 #include <chrono>
+
+#if ENGINE_MAJOR_VERSION < 5
+#include <HAL/PlatformFilemanager.h>
+#else
+#include <HAL/PlatformFileManager.h>
+#endif
 
 FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
 {
