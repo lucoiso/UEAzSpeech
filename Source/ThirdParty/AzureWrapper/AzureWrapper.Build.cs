@@ -48,15 +48,15 @@ public class AzureWrapper : ModuleRules
 
             PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
 			
-            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtimes", "Microsoft.CognitiveServices.Speech.core.dll"));
-            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtimes", "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
-            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtimes", "Microsoft.CognitiveServices.Speech.extension.kws.dll"));
-            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtimes", "Microsoft.CognitiveServices.Speech.extension.lu.dll"));
-            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtimes", "Microsoft.CognitiveServices.Speech.extension.mas.dll"));
+            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.core.dll"));
+            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
+            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.kws.dll"));
+            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.lu.dll"));
+            RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.mas.dll"));
 
 			if (!isArm())
             {
-                RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtimes", "Microsoft.CognitiveServices.Speech.extension.codec.dll"));
+                RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.codec.dll"));
             }
         }
 		else if (Target.Platform == UnrealTargetPlatform.Android)
