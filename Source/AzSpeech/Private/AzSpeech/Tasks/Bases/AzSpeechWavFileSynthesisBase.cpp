@@ -7,6 +7,10 @@
 #include "LogAzSpeech.h"
 #include <HAL/PlatformFileManager.h>
 
+#if PLATFORM_HOLOLENS
+#include <fileapi.h>
+#endif
+
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
 #if PLATFORM_ANDROID

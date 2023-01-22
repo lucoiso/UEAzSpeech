@@ -16,6 +16,10 @@
 #include <AndroidPermissionFunctionLibrary.h>
 #endif
 
+#if PLATFORM_HOLOLENS
+#include <fileapi.h>
+#endif
+
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
