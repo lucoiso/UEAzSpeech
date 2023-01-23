@@ -36,6 +36,8 @@ bool FAzSpeechRunnableBase::IsPendingStop() const
 
 bool FAzSpeechRunnableBase::Init()
 {
+	StoreThreadInformation();
+
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing runnable thread"), *GetThreadName(), *FString(__func__));
 	
 	return CanInitializeTask();
@@ -390,5 +392,11 @@ const int32 FAzSpeechRunnableBase::GetTimeout() const
 
 const FString FAzSpeechRunnableBase::GetThreadName() const
 {
-	return FThreadManager::Get().GetThreadName(FPlatformTLS::GetCurrentThreadId());
+	return ThreadName.ToString();
+}
+
+void FAzSpeechRunnableBase::StoreThreadInformation()
+{
+	const FString& ThreadNameRef = FThreadManager::Get().GetThreadName(FPlatformTLS::GetCurrentThreadId());
+	ThreadName = *ThreadNameRef;
 }

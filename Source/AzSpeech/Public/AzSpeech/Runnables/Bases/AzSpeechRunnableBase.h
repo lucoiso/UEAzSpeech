@@ -130,6 +130,10 @@ protected:
 #endif
 
 private:
+	FName ThreadName;
+
+	void StoreThreadInformation();
+
 	bool bStopTask = false;
 	TUniquePtr<FRunnableThread> Thread;
 	UAzSpeechTaskBase* OwningTask;
