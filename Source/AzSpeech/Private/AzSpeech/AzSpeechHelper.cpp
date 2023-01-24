@@ -311,5 +311,5 @@ const bool UAzSpeechHelper::IsAudioInputDeviceIDValid(const FString& DeviceID)
 
 const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()
 {
-	return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+	return FPaths::Combine(*FPaths::ProjectSavedDir(), TEXT("Logs/UEAzSpeech"));
 }

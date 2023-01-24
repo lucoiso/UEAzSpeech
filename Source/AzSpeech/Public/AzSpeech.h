@@ -24,16 +24,5 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
-	void* CoreRuntimeLib = nullptr;
-
-#if !PLATFORM_MAC
-	void* AudioRuntimeLib = nullptr;
-	void* KwsRuntimeLib = nullptr;
-	void* LuRuntimeLib = nullptr;
-	void* MasRuntimeLib = nullptr;
-	void* CodecRuntimeLib = nullptr;
-#endif
-
-	static void FreeDependency(void*& Handle);
-	static void LoadDependency(const FString& Path, void*& Handle);
+	static void RegisterDependencies(const FString& Path, const TArray<FString> Libs);
 };

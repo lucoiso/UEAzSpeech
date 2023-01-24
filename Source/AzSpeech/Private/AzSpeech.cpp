@@ -18,96 +18,108 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
+FString GetLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
+{
+	const FString LibsRootDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs"));
+	FString LibsDirectory;
+
+#if PLATFORM_WINDOWS
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Win/Runtime"));
+
+#elif PLATFORM_HOLOLENS
+#ifdef PLATFORM_HOLOLENS_ARM64
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/Arm64/Runtime"));
+#else
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/x64/Runtime"));
+#endif
+
+#elif PLATFORM_MAC || PLATFORM_MAC_ARM64
+#if PLATFORM_MAC_ARM64
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Mac/Arm64"));
+#else
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Mac/x64"));
+#endif
+
+#elif PLATFORM_LINUX || PLATFORM_LINUXARM64
+#if PLATFORM_LINUXARM64
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Linux/Arm64"));
+#else
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Linux/x64"));
+#endif
+#endif
+
+	FPaths::MakePathRelativeTo(LibsDirectory, *FPaths::RootDir());
+
+	return LibsDirectory;
+}
+
 void FAzSpeechModule::StartupModule()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-#if PLATFORM_WINDOWS
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Win/Runtime/"));
+	const FString LibsDirectory = GetLibsDirectory(PluginInterface);
 
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.kws.dll", KwsRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
-	
-#elif PLATFORM_HOLOLENS
-#if PLATFORM_HOLOLENS_ARM64
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/HoloLens/Arm64/Runtime/"));
-#else
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/HoloLens/x64/Runtime/"));
-	
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
+#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
+	const TArray<FString> Libs
+	{
+		"Microsoft.CognitiveServices.Speech.core.dll",
+		"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
+		"Microsoft.CognitiveServices.Speech.extension.kws.dll",
+		"Microsoft.CognitiveServices.Speech.extension.lu.dll",
+		"Microsoft.CognitiveServices.Speech.extension.mas.dll",
+
+#ifndef PLATFORM_HOLOLENS_ARM64
+		"Microsoft.CognitiveServices.Speech.extension.codec.dll"
 #endif
+	};
 
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.kws.dll", KwsRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
-	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
-	
+	RegisterDependencies(LibsDirectory, Libs);
+
 #elif PLATFORM_MAC || PLATFORM_MAC_ARM64
-#if PLATFORM_MAC_ARM64
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/Arm64/"));
-#else
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/x64/"));
+	RegisterDependencies(LibsDirectory, TArray<FString> { "libMicrosoft.CognitiveServices.Speech.core.dylib" });
+
+#elif PLATFORM_LINUX || PLATFORM_LINUXARM64	
+	const TArray<FString> Libs
+	{
+		"libMicrosoft.CognitiveServices.Speech.core.so",
+		"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
+		"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
+		"libMicrosoft.CognitiveServices.Speech.extension.lu.so",
+		"libMicrosoft.CognitiveServices.Speech.extension.mas.so",
+		"libMicrosoft.CognitiveServices.Speech.extension.codec.so"
+	};
+
+	RegisterDependencies(LibsDirectory, Libs);
 #endif
 
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.dylib", CoreRuntimeLib);
-
-#elif PLATFORM_LINUX || PLATFORM_LINUXARM64
-#if PLATFORM_LINUXARM64
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/Arm64/"));
-#else
-	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/x64/"));
-#endif
-
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.so", CoreRuntimeLib);
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so", AudioRuntimeLib);
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.kws.so", KwsRuntimeLib);
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.lu.so", LuRuntimeLib);
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.mas.so", MasRuntimeLib);
-	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.codec.so", CodecRuntimeLib);
-#endif
-
+#if !PLATFORM_HOLOLENS && !PLATFORM_ANDROID && !PLATFORM_IOS
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
 		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
 	}
+#endif
 }
 
 void FAzSpeechModule::ShutdownModule()
 {
-	FreeDependency(CoreRuntimeLib);
-	
-#if !PLATFORM_MAC
-	FreeDependency(AudioRuntimeLib);
-	FreeDependency(KwsRuntimeLib);
-	FreeDependency(LuRuntimeLib);
-	FreeDependency(MasRuntimeLib);
-	FreeDependency(CodecRuntimeLib);
-#endif
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 }
 
-void FAzSpeechModule::FreeDependency(void*& Handle)
+void FAzSpeechModule::RegisterDependencies(const FString& Path, const TArray<FString> Libs)
 {
-	if (Handle != nullptr)
-	{
-		FPlatformProcess::FreeDllHandle(Handle);
-		Handle = nullptr;
-	}
-}
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in path \"%s\"."), *FString(__func__), *Path);
 
-void FAzSpeechModule::LoadDependency(const FString& Path, void*& Handle)
-{
-	Handle = FPlatformProcess::GetDllHandle(*Path);
-
-	if (Handle == nullptr)
+	FPlatformProcess::PushDllDirectory(*Path);
+	for (const FString& Lib : Libs)
 	{
-		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load library %s."), *FString(__func__), *Path);
+		if (!FPlatformProcess::GetDllHandle(*Lib))
+		{
+			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *Lib);
+		}
 	}
+	FPlatformProcess::PopDllDirectory(*Path);
 }
 
 #undef LOCTEXT_NAMESPACE
