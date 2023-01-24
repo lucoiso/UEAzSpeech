@@ -48,7 +48,7 @@ public class AzureWrapper : ModuleRules
 			return Path.Combine(ModuleDirectory, "libs", "Linux", libPath);
 		}
 
-		return ModuleDirectory;
+		return "UNDEFINED_DIRECTORY";
 	}
 
 	private List<string> GetLibsList()
