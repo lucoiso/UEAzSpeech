@@ -24,5 +24,5 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
-	static void RegisterDependencies(const FString& Path, const TArray<FString> Libs);
+	static void LoadRuntimeLibraries(const FString& Path, const TArray<FString> Libs);
 };

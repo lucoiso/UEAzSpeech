@@ -4,13 +4,105 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using UnrealBuildTool;
 
 public class AzureWrapper : ModuleRules
 {
-	private bool isArm()
+	private bool isArmArch()
 	{
 		return Target.Architecture.ToLower().Contains("arm") || Target.Architecture.ToLower().Contains("aarch");
+	}
+
+	private string GetPlatformLibsDirectory()
+	{
+		if (Target.Platform == UnrealTargetPlatform.Win64)
+		{
+			return Path.Combine(ModuleDirectory, "libs", "Win");
+		}
+
+		if (Target.Platform == UnrealTargetPlatform.Android)
+		{
+			return Path.Combine(ModuleDirectory, "libs", "Android");
+		}
+
+		string libPath = isArmArch() ? "Arm64" : "x64";
+
+		if (Target.Platform == UnrealTargetPlatform.HoloLens)
+		{
+			return Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath);
+		}
+
+		if (Target.Platform == UnrealTargetPlatform.IOS)
+		{
+			return Path.Combine(ModuleDirectory, "libs", "iOS", libPath);
+		}
+
+		if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			return Path.Combine(ModuleDirectory, "libs", "Mac", libPath);
+		}
+
+		if (Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			return Path.Combine(ModuleDirectory, "libs", "Linux", libPath);
+		}
+
+		return ModuleDirectory;
+	}
+
+	private List<string> GetLibsList()
+	{
+		List<string> Output = new List<string>();
+
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		{
+			Output.AddRange(new[]
+			{
+				"Microsoft.CognitiveServices.Speech.core.dll",
+				"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
+				"Microsoft.CognitiveServices.Speech.extension.kws.dll",
+				"Microsoft.CognitiveServices.Speech.extension.lu.dll",
+				"Microsoft.CognitiveServices.Speech.extension.mas.dll"
+			});
+
+			if (!isArmArch())
+			{
+				Output.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+			}
+		}
+
+		else if (Target.Platform == UnrealTargetPlatform.Android || Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			Output.AddRange(new[]
+			{
+				"libMicrosoft.CognitiveServices.Speech.core.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.lu.so"
+			});
+
+			if (Target.Platform.ToString().ToLower().Contains("linux"))
+			{
+				Output.AddRange(new[]
+				{
+					"libMicrosoft.CognitiveServices.Speech.extension.codec.so",
+					"libMicrosoft.CognitiveServices.Speech.extension.mas.so"
+				});
+			}
+		}
+
+		else if (Target.Platform == UnrealTargetPlatform.IOS)
+		{
+			Output.Add("libMicrosoft.CognitiveServices.Speech.core.a");
+		}
+
+		else if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			Output.Add("libMicrosoft.CognitiveServices.Speech.core.dylib");
+		}
+
+		return Output;
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -24,50 +116,20 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		Console.WriteLine("Initializing AzSpeech build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString() + ";");
+		Console.WriteLine("AzSpeech: Initializing build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString() + ";");
+		Console.WriteLine("AzSpeech: Getting plugin dependencies in directory: \"" + GetPlatformLibsDirectory() + "\"");
 
-		if (Target.Platform == UnrealTargetPlatform.Win64)
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Microsoft.CognitiveServices.Speech.core.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "Microsoft.CognitiveServices.Speech.core.lib"));
 
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.core.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
-
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.core.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.kws.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.lu.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.mas.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.codec.dll"));
-		}
-		else if (Target.Platform == UnrealTargetPlatform.HoloLens)
-		{
-			string libPath = isArm() ? "Arm64" : "x64";
-
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Microsoft.CognitiveServices.Speech.core.lib"));
-
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.core.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
-			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
-
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.core.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.kws.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.lu.dll"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.mas.dll"));
-
-			if (!isArm())
+			foreach (string Lib in GetLibsList())
 			{
-				PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
-				RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath, "Runtime", "Microsoft.CognitiveServices.Speech.extension.codec.dll"));
+				PublicDelayLoadDLLs.Add(Lib);
+				RuntimeDependencies.Add(Path.Combine(GetPlatformLibsDirectory(), "Runtime", Lib));
 			}
-			else
+
+			if (Target.Platform == UnrealTargetPlatform.HoloLens && isArmArch())
 			{
 				PublicDefinitions.Add("PLATFORM_HOLOLENS_ARM64=1");
 			}
@@ -77,48 +139,28 @@ public class AzureWrapper : ModuleRules
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
 			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty when building for Android ._.
-
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			foreach (string Lib in GetLibsList())
+			{
+				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "arm64-v8a", Lib));
+				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "armeabi-v7a", Lib));
+			}
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
 
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "iOS", "libMicrosoft.CognitiveServices.Speech.core.a"));
+			foreach (string Lib in GetLibsList())
+			{
+				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), Lib));
+			}
 		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac)
+		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			string libPath = isArm() ? "Arm64" : "x64";
-			string fullLibPath = Path.Combine(ModuleDirectory, "libs", "Mac", libPath, "libMicrosoft.CognitiveServices.Speech.core.dylib");
-
-			PublicAdditionalLibraries.Add(fullLibPath);
-			RuntimeDependencies.Add(fullLibPath);
-		}
-		else if (Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			string libPath = isArm() ? "Arm64" : "x64";
-
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
-
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.core.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", libPath, "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
+			foreach (string Lib in GetLibsList())
+			{
+				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), Lib));
+				RuntimeDependencies.Add(Path.Combine(GetPlatformLibsDirectory(), Lib));
+			}
 		}
 	}
 }

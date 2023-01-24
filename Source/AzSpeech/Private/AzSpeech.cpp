@@ -18,7 +18,7 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-FString GetLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
+FString GetRuntimeLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
 {
 	const FString LibsRootDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs"));
 	FString LibsDirectory;
@@ -32,6 +32,8 @@ FString GetLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
 #else
 	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/x64/Runtime"));
 #endif
+
+	FPaths::MakePathRelativeTo(LibsDirectory, *FPaths::RootDir());
 
 #elif PLATFORM_MAC || PLATFORM_MAC_ARM64
 #if PLATFORM_MAC_ARM64
@@ -48,8 +50,6 @@ FString GetLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
 #endif
 #endif
 
-	FPaths::MakePathRelativeTo(LibsDirectory, *FPaths::RootDir());
-
 	return LibsDirectory;
 }
 
@@ -58,11 +58,11 @@ void FAzSpeechModule::StartupModule()
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-	const FString LibsDirectory = GetLibsDirectory(PluginInterface);
+	const FString LibsDirectory = GetRuntimeLibsDirectory(PluginInterface);
+	TArray<FString> LibsArray;
 
 #if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-	const TArray<FString> Libs
-	{
+	LibsArray = {
 		"Microsoft.CognitiveServices.Speech.core.dll",
 		"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
 		"Microsoft.CognitiveServices.Speech.extension.kws.dll",
@@ -74,14 +74,11 @@ void FAzSpeechModule::StartupModule()
 #endif
 	};
 
-	RegisterDependencies(LibsDirectory, Libs);
-
 #elif PLATFORM_MAC || PLATFORM_MAC_ARM64
-	RegisterDependencies(LibsDirectory, TArray<FString> { "libMicrosoft.CognitiveServices.Speech.core.dylib" });
+	LibsArray = { "libMicrosoft.CognitiveServices.Speech.core.dylib" };
 
 #elif PLATFORM_LINUX || PLATFORM_LINUXARM64	
-	const TArray<FString> Libs
-	{
+	LibsArray = {
 		"libMicrosoft.CognitiveServices.Speech.core.so",
 		"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
 		"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
@@ -89,9 +86,9 @@ void FAzSpeechModule::StartupModule()
 		"libMicrosoft.CognitiveServices.Speech.extension.mas.so",
 		"libMicrosoft.CognitiveServices.Speech.extension.codec.so"
 	};
-
-	RegisterDependencies(LibsDirectory, Libs);
 #endif
+
+	LoadRuntimeLibraries(LibsDirectory, LibsArray);
 
 #if !PLATFORM_HOLOLENS && !PLATFORM_ANDROID && !PLATFORM_IOS
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
@@ -107,7 +104,7 @@ void FAzSpeechModule::ShutdownModule()
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 }
 
-void FAzSpeechModule::RegisterDependencies(const FString& Path, const TArray<FString> Libs)
+void FAzSpeechModule::LoadRuntimeLibraries(const FString& Path, const TArray<FString> Libs)
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in path \"%s\"."), *FString(__func__), *Path);
 
