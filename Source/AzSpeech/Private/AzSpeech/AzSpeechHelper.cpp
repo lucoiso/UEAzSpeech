@@ -22,9 +22,9 @@
 #endif
 
 #if PLATFORM_HOLOLENS
-#include <AllowWindowsPlatformTypes.h>
+#include <Windows/AllowWindowsPlatformTypes.h>
 #include <fileapi.h>
-#include <HideWindowsPlatformTypes.h>
+#include <Windows/HideWindowsPlatformTypes.h>
 #endif
 
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)

@@ -32,7 +32,22 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
+	
+#elif PLATFORM_HOLOLENS
+#if PLATFORM_HOLOLENS_ARM64
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/HoloLens/Arm64/Runtime/"));
+#else
+	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/HoloLens/x64/Runtime/"));
+	
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
+#endif
 
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.kws.dll", KwsRuntimeLib);
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
+	
 #elif PLATFORM_MAC || PLATFORM_MAC_ARM64
 #if PLATFORM_MAC_ARM64
 	const FString PreDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs/Mac/Arm64/"));
