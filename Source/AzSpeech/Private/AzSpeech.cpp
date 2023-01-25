@@ -23,17 +23,17 @@ FString GetRuntimeLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
 	const FString LibsRootDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs"));
 	FString LibsDirectory;
 
-#if PLATFORM_WINDOWS
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Win/Runtime"));
-
-#elif PLATFORM_HOLOLENS
+#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
+#if PLATFORM_HOLOLENS
 #ifdef PLATFORM_HOLOLENS_ARM64
 	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/Arm64/Runtime"));
 #else
 	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/x64/Runtime"));
 #endif
-
 	FPaths::MakePathRelativeTo(LibsDirectory, *FPaths::RootDir());
+#else
+	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Win/Runtime"));
+#endif
 
 #elif PLATFORM_MAC || PLATFORM_MAC_ARM64
 #if PLATFORM_MAC_ARM64
