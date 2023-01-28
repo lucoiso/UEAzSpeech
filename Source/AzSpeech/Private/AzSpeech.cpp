@@ -16,6 +16,7 @@
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
+// Testing only: https://github.com/lucoiso/UEAzSpeech/issues/2
 #if PLATFORM_HOLOLENS
 #include <Misc/MessageDialog.h>
 #endif
@@ -100,7 +101,8 @@ void FAzSpeechModule::StartupModule()
 		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
 	}
 #endif
-	
+
+// Testing only: https://github.com/lucoiso/UEAzSpeech/issues/2
 #if PLATFORM_HOLOLENS
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Logs Directory: " + FPaths::ProjectLogDir()));
 #endif
