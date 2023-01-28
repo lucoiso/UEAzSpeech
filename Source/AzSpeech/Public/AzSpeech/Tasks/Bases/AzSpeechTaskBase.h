@@ -25,31 +25,31 @@ class AZSPEECH_API UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
-		friend class FAzSpeechRunnableBase;
+	friend class FAzSpeechRunnableBase;
 
 public:
 	virtual void Activate() override;
 
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
-		virtual void StopAzSpeechTask();
+	virtual void StopAzSpeechTask();
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-		bool IsTaskActive() const;
+	bool IsTaskActive() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 		bool IsTaskReadyToDestroy() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-		static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
+	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-		const bool IsUsingAutoLanguage() const;
+	const bool IsUsingAutoLanguage() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-		const FString GetTaskName() const;
+	const FString GetTaskName() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-		const FString GetLanguageID() const;
+	const FString GetLanguageID() const;
 
 	virtual void SetReadyToDestroy() override;
 
