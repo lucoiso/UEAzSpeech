@@ -156,7 +156,7 @@ public class AzureWrapper : ModuleRules
 		}
 	}
 
-	private void DefineBinariesDirectory(string SubDirectory)
+	private void DefineBinariesSubDirectory(string SubDirectory)
 	{
 		if (Target.Platform == UnrealTargetPlatform.Win64 ||
 			Target.Platform == UnrealTargetPlatform.HoloLens ||
@@ -188,7 +188,7 @@ public class AzureWrapper : ModuleRules
 		Directory.CreateDirectory(BinariesDirectory);
 
 		// Add the definition of the Binaries Sub Directory
-		DefineBinariesDirectory(BinariesSubDirectory);
+		DefineBinariesSubDirectory(BinariesSubDirectory);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
