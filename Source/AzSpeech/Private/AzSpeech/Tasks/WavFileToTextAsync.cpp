@@ -14,7 +14,9 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldCont
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
+	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

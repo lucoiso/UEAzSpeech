@@ -165,7 +165,12 @@ void UAzSpeechSynthesizerTaskBase::LogSynthesisResultStatus(const bool bSuccess)
 }
 
 void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
-{	
+{
+	if (bIsSSMLBased)
+	{
+		return;
+	}
+
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
 	if (HasEmptyParameters(VoiceName) || VoiceName.Equals("Default", ESearchCase::IgnoreCase))
 	{
