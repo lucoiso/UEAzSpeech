@@ -35,7 +35,7 @@ FString GetRuntimeLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
 #else
 	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/x64/Runtime"));
 #endif
-	// FPaths::MakePathRelativeTo(LibsDirectory, *(FPaths::RootDir() + TEXT("/")));
+	FPaths::MakePathRelativeTo(LibsDirectory, *(FPaths::RootDir() + TEXT("/")));
 #else
 	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Win/Runtime"));
 #endif
