@@ -37,7 +37,7 @@ public:
 	bool IsTaskActive() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-		bool IsTaskReadyToDestroy() const;
+	bool IsTaskReadyToDestroy() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
