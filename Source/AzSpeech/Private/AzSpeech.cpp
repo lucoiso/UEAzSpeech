@@ -90,11 +90,15 @@ void FAzSpeechModule::StartupModule()
 
 	LoadRuntimeLibraries(LibsDirectory, LibsArray);
 
-#if !PLATFORM_HOLOLENS && !PLATFORM_ANDROID && !PLATFORM_IOS
+#if !PLATFORM_ANDROID && !PLATFORM_IOS
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
 		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
 	}
+#endif
+	
+#if PLATFORM_HOLOLENS
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Logs Directory: " + FPaths::ProjectLogDir()));
 #endif
 }
 
