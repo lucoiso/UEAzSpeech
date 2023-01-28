@@ -18,11 +18,11 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-#ifdef AZSPEECH_BINARIES_DIRECTORY
+#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
 FString GetRuntimeLibsDirectory()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	FString LibsDirectory = FPaths::Combine(*PluginInterface->GetBaseDir(), AZSPEECH_BINARIES_DIRECTORY);
+	FString LibsDirectory = FPaths::Combine(*PluginInterface->GetBaseDir(), AZSPEECH_BINARIES_SUBDIRECTORY);
 
 #if PLATFORM_HOLOLENS
 	FPaths::MakePathRelativeTo(LibsDirectory, *(FPaths::RootDir() + TEXT("/")));
@@ -96,7 +96,7 @@ void FAzSpeechModule::StartupModule()
 	}
 #endif
 
-#ifdef AZSPEECH_BINARIES_DIRECTORY
+#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
 	LoadRuntimeLibraries();
 #endif
 }

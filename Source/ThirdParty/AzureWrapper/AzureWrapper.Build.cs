@@ -158,7 +158,7 @@ public class AzureWrapper : ModuleRules
 
 	private void DefineBinariesDirectory(string SubDirectory)
 	{
-		PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_DIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"/")));
+		PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"/")));
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
