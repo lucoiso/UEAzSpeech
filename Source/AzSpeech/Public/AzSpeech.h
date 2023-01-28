@@ -22,7 +22,4 @@ class FAzSpeechModule : public IModuleInterface
 public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-
-private:
-	static void LoadRuntimeLibraries(const FString& Path, const TArray<FString> Libs);
 };

@@ -16,54 +16,23 @@
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
-// Testing only: https://github.com/lucoiso/UEAzSpeech/issues/2
-#if PLATFORM_HOLOLENS
-#include <Misc/MessageDialog.h>
-#endif
-
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-FString GetRuntimeLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
+#ifdef AZSPEECH_BINARIES_DIRECTORY
+FString GetRuntimeLibsDirectory()
 {
-	const FString LibsRootDir = FPaths::Combine(*PluginInterface->GetBaseDir(), TEXT("Source/ThirdParty/AzureWrapper/libs"));
-	FString LibsDirectory;
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
+	FString LibsDirectory = FPaths::Combine(*PluginInterface->GetBaseDir(), AZSPEECH_BINARIES_DIRECTORY);
 
-#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
 #if PLATFORM_HOLOLENS
-#ifdef PLATFORM_HOLOLENS_ARM64
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/Arm64/Runtime"));
-#else
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("HoloLens/x64/Runtime"));
-#endif
 	FPaths::MakePathRelativeTo(LibsDirectory, *(FPaths::RootDir() + TEXT("/")));
-#else
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Win/Runtime"));
-#endif
-
-#elif PLATFORM_MAC || PLATFORM_MAC_ARM64
-#if PLATFORM_MAC_ARM64
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Mac/Arm64"));
-#else
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Mac/x64"));
-#endif
-
-#elif PLATFORM_LINUX || PLATFORM_LINUXARM64
-#if PLATFORM_LINUXARM64
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Linux/Arm64"));
-#else
-	LibsDirectory = FPaths::Combine(*LibsRootDir, TEXT("Linux/x64"));
-#endif
 #endif
 
 	return LibsDirectory;
 }
 
-void FAzSpeechModule::StartupModule()
+TArray<FString> GetRuntimeLibraries()
 {
-	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
-
-	const FString LibsDirectory = GetRuntimeLibsDirectory(PluginInterface);
 	TArray<FString> LibsArray;
 
 #if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
@@ -93,29 +62,14 @@ void FAzSpeechModule::StartupModule()
 	};
 #endif
 
-	LoadRuntimeLibraries(LibsDirectory, LibsArray);
-
-#if !PLATFORM_ANDROID && !PLATFORM_IOS
-	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
-	{
-		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
-	}
-#endif
-
-// Testing only: https://github.com/lucoiso/UEAzSpeech/issues/2
-#if PLATFORM_HOLOLENS
-	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Logs Directory: " + FPaths::ProjectLogDir()));
-#endif
+	return LibsArray;
 }
 
-void FAzSpeechModule::ShutdownModule()
+void LoadRuntimeLibraries()
 {
-	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
-}
+	const FString Path = GetRuntimeLibsDirectory();
+	const TArray<FString> Libs = GetRuntimeLibraries();
 
-void FAzSpeechModule::LoadRuntimeLibraries(const FString& Path, const TArray<FString> Libs)
-{
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in path \"%s\"."), *FString(__func__), *Path);
 
 	FPlatformProcess::PushDllDirectory(*Path);
@@ -127,6 +81,30 @@ void FAzSpeechModule::LoadRuntimeLibraries(const FString& Path, const TArray<FSt
 		}
 	}
 	FPlatformProcess::PopDllDirectory(*Path);
+}
+#endif
+
+void FAzSpeechModule::StartupModule()
+{
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
+
+#if !PLATFORM_ANDROID && !PLATFORM_IOS
+	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
+	{
+		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
+	}
+#endif
+
+#ifdef AZSPEECH_BINARIES_DIRECTORY
+	LoadRuntimeLibraries();
+#endif
+}
+
+void FAzSpeechModule::ShutdownModule()
+{
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 }
 
 #undef LOCTEXT_NAMESPACE
