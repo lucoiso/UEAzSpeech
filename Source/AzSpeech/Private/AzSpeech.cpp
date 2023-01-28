@@ -16,6 +16,10 @@
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
+#if PLATFORM_HOLOLENS
+#include <Misc/MessageDialog.h>
+#endif
+
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
 FString GetRuntimeLibsDirectory(const TSharedPtr<IPlugin>& PluginInterface)
