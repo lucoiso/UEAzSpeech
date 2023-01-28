@@ -158,7 +158,13 @@ public class AzureWrapper : ModuleRules
 
 	private void DefineBinariesDirectory(string SubDirectory)
 	{
-		PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"/")));
+		if (Target.Platform == UnrealTargetPlatform.Win64 ||
+			Target.Platform == UnrealTargetPlatform.HoloLens ||
+			Target.Platform == UnrealTargetPlatform.Mac ||
+			Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"/")));
+		}
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -181,6 +187,9 @@ public class AzureWrapper : ModuleRules
 		// Ensure that the Binaries directory exists
 		Directory.CreateDirectory(BinariesDirectory);
 
+		// Add the definition of the Binaries Sub Directory
+		DefineBinariesDirectory(BinariesSubDirectory);
+
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
 			string StaticLibFilename = "Microsoft.CognitiveServices.Speech.core.lib";
@@ -198,17 +207,11 @@ public class AzureWrapper : ModuleRules
 			{
 				PublicDefinitions.Add("PLATFORM_HOLOLENS_ARM64=1");
 			}
-
-			// Add the definition of the Binaries Sub Directory
-			DefineBinariesDirectory(BinariesSubDirectory);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
 		{
 			// Copy & Link the Dependencies
 			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, true, false);
-
-			// Add the definition of the Binaries Sub Directory
-			DefineBinariesDirectory(BinariesSubDirectory);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
