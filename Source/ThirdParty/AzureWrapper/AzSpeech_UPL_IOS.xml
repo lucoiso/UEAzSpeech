@@ -16,7 +16,7 @@
 
 
 	<soLoadLibrary>
-		<loadLibrary name="libMicrosoft.CognitiveServices.Speech.core.a"
-                     failmsg="libMicrosoft.CognitiveServices.Speech.core.a library not loaded and may be required for AzSpeech." />
+		<loadLibrary name="Microsoft.CognitiveServices.Speech.core"
+                     failmsg="Microsoft.CognitiveServices.Speech.core library not loaded and may be required for AzSpeech." />
 	</soLoadLibrary>
 </root>
