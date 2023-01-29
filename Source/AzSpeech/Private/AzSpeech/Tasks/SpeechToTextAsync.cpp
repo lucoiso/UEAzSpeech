@@ -22,7 +22,11 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToText(UObject* WorldContextObject
 void USpeechToTextAsync::Activate()
 {
 #if PLATFORM_ANDROID
-	UAzSpeechHelper::CheckAndroidPermission("android.permission.RECORD_AUDIO");
+	if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.RECORD_AUDIO"))
+	{
+		SetReadyToDestroy();
+		return;
+	}
 #endif
 
 	Super::Activate();
