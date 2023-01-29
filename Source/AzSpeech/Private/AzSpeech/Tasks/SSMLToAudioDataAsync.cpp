@@ -4,7 +4,7 @@
 
 #include "AzSpeech/Tasks/SSMLToAudioDataAsync.h"
 
-USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* WorldContextObject, const FString& SynthesisSSML)
+USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(UObject* WorldContextObject, const FString& SynthesisSSML)
 {
 	USSMLToAudioDataAsync* const NewAsyncTask = NewObject<USSMLToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
