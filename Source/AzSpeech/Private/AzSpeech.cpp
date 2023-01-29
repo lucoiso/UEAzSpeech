@@ -91,7 +91,7 @@ void LogLastMicrosoftError()
 	const std::wstring message(MsgBuffer, BufferSize);	
 	LocalFree(MsgBuffer);
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: An error has occurred with message: %s"), *FString(__func__), *FString(message.c_str()));
+	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: An error has occurred with message: %s"), *FString(__func__), *FString(message.c_str()));
 }
 #endif
 
