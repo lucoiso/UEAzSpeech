@@ -16,6 +16,12 @@
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
+#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
+#include <Windows/AllowWindowsPlatformTypes.h>
+#include <errhandlingapi.h>
+#include <Windows/HideWindowsPlatformTypes.h>
+#endif
+
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
 #ifdef AZSPEECH_BINARIES_SUBDIRECTORY
@@ -65,6 +71,47 @@ TArray<FString> GetRuntimeLibraries()
 	return LibsArray;
 }
 
+#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
+void OutputLastMicrosoftError()
+{
+	DWORD ErrorID = GetLastError();
+	if (ErrorID == 0)
+	{
+		return;
+	}
+
+	LPWSTR MsgBuffer = nullptr;
+	const size_t BufferSize = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, ErrorID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&MsgBuffer, 0, nullptr);
+	
+	if (BufferSize == 0)
+	{
+		return;
+	}
+	
+	const std::wstring message(MsgBuffer, BufferSize);	
+	LocalFree(MsgBuffer);
+
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: An error has occurred with message: %s"), *FString(__func__), *FString(message.c_str()));
+}
+#endif
+
+void OutputExistingLibsInDirectory(const FString& Directory)
+{
+	if (!FPaths::DirectoryExists(Directory))
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Directory \"%s\" does not exist."), *FString(__func__), *Directory);
+		return;
+	}
+
+	TArray<FString> ExistingLibs;
+	IFileManager::Get().FindFiles(ExistingLibs, *Directory);
+
+	for (const FString& Lib : ExistingLibs)
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: File \"%s\" found in directory \"%s\"."), *FString(__func__), *Lib, *Directory);
+	}
+}
+
 void LoadRuntimeLibraries()
 {
 	const FString Path = GetRuntimeLibsDirectory();
@@ -72,12 +119,18 @@ void LoadRuntimeLibraries()
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in path \"%s\"."), *FString(__func__), *Path);
 
+	OutputExistingLibsInDirectory(Path);
+
 	FPlatformProcess::PushDllDirectory(*Path);
 	for (const FString& Lib : Libs)
 	{
 		if (!FPlatformProcess::GetDllHandle(*Lib))
 		{
 			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *Lib);
+
+#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
+			OutputLastMicrosoftError();
+#endif
 		}
 	}
 	FPlatformProcess::PopDllDirectory(*Path);
