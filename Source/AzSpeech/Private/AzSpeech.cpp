@@ -15,150 +15,71 @@
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
-#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-#include <Windows/AllowWindowsPlatformTypes.h>
-#include <errhandlingapi.h>
-#include <Windows/HideWindowsPlatformTypes.h>
-#if ENGINE_MAJOR_VERSION < 5
-#include <string>
-#endif
-#endif
-
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
 #ifdef AZSPEECH_BINARIES_SUBDIRECTORY
 FString GetRuntimeLibsDirectory()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	FString LibsDirectory = PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
-
-#if PLATFORM_HOLOLENS
-	FPaths::MakePathRelativeTo(LibsDirectory, *(FPaths::RootDir() + TEXT("/")));
-#endif
-
-	return LibsDirectory;
+	return PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
 }
 
-TArray<FString> GetRuntimeLibraries()
+FString GetRuntimeLibsType()
 {
-	TArray<FString> LibsArray;
-
 #if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-	LibsArray = {
-		"Microsoft.CognitiveServices.Speech.core.dll",
-		"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
-		"Microsoft.CognitiveServices.Speech.extension.kws.dll",
-		"Microsoft.CognitiveServices.Speech.extension.lu.dll",
-		"Microsoft.CognitiveServices.Speech.extension.mas.dll",
-
-#ifndef PLATFORM_HOLOLENS_ARM64
-		"Microsoft.CognitiveServices.Speech.extension.codec.dll"
-#endif
-	};
+	return "*.dll";
 
 #elif PLATFORM_MAC || PLATFORM_MAC_ARM64
-	LibsArray = { "libMicrosoft.CognitiveServices.Speech.core.dylib" };
+	return "*.dylib";
 
-#elif PLATFORM_LINUX || PLATFORM_LINUXARM64	
-	LibsArray = {
-		"libMicrosoft.CognitiveServices.Speech.core.so",
-		"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
-		"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
-		"libMicrosoft.CognitiveServices.Speech.extension.lu.so",
-		"libMicrosoft.CognitiveServices.Speech.extension.mas.so",
-		"libMicrosoft.CognitiveServices.Speech.extension.codec.so"
-	};
+#elif PLATFORM_LINUX || PLATFORM_LINUXARM64
+	return "*.so";
 #endif
 
-	return LibsArray;
+	return FString();
 }
 
-#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-void LogLastMicrosoftError()
+void FAzSpeechModule::LoadRuntimeLibraries()
 {
-	DWORD ErrorID = GetLastError();
-	if (ErrorID == 0)
+	const FString BinDir = GetRuntimeLibsDirectory();
+	const FString LibType = GetRuntimeLibsType();
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Searching for runtime libraries with extension \"%s\" in directory \"%s\"."), *FString(__func__), *LibType, *BinDir);
+
+	TArray<FString> Libs;
+	IFileManager::Get().FindFilesRecursive(Libs, *BinDir, *LibType, true, false);
+
+	for (const FString& FoundLib : Libs)
 	{
-		return;
-	}
+		void* Handle = FPlatformProcess::GetDllHandle(*FoundLib);
 
-	LPWSTR MsgBuffer = nullptr;
-	const size_t BufferSize = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, ErrorID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&MsgBuffer, 0, nullptr);
-	
-	if (BufferSize <= 0)
-	{
-		return;
-	}
-	
-	const std::wstring message(MsgBuffer, BufferSize);	
-	LocalFree(MsgBuffer);
-
-	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: An error has occurred with message: %s"), *FString(__func__), *FString(message.c_str()));
-}
-#endif
-
-void LogExistingFilesInDirectory(const FString& Directory)
-{
-	if (!FPaths::DirectoryExists(Directory))
-	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Directory \"%s\" does not exist."), *FString(__func__), *Directory);
-		return;
-	}
-
-	TArray<FString> ExistingLibs;
-	IFileManager::Get().FindFiles(ExistingLibs, *Directory);
-
-	for (const FString& Lib : ExistingLibs)
-	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: File \"%s\" found in directory \"%s\"."), *FString(__func__), *Lib, *Directory);
-	}
-}
-
-void PerformRecursiveLibsSearch()
-{
-	TArray<FString> FilesFound;
-	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	const FString RootDirectory = PluginInterface->GetBaseDir();
-	const FString SearchFile = GetRuntimeLibraries()[0];
-	IFileManager::Get().FindFilesRecursive(FilesFound, *RootDirectory, *SearchFile, true, false, false);
-
-	FString RelativeRoot = RootDirectory;
-	FPaths::MakePathRelativeTo(RelativeRoot, *(FPaths::RootDir() + TEXT("/")));
-
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a recursive search for the file \"%s\" in root directory \"%s\" | Rel.: \"%s\"."), *FString(__func__), *SearchFile, *RootDirectory, *RelativeRoot);
-	for (const FString& MatchingFile : FilesFound)
-	{
-		FString RelativeFile = MatchingFile;
-		FPaths::MakePathRelativeTo(RelativeFile, *(FPaths::RootDir() + TEXT("/")));
-
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Found file \"%s\" | Rel.: \"%s\"."), *FString(__func__), *MatchingFile, *RelativeFile);
-	}
-}
-
-void LoadRuntimeLibraries()
-{
-	const FString Path = GetRuntimeLibsDirectory();
-	const TArray<FString> Libs = GetRuntimeLibraries();
-
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in path \"%s\"."), *FString(__func__), *Path);
-
-	LogExistingFilesInDirectory(Path);
-
-	FPlatformProcess::PushDllDirectory(*Path);
-	for (const FString& Lib : Libs)
-	{
-		if (!FPlatformProcess::GetDllHandle(*Lib))
+		if (!Handle)
 		{
-			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *Lib);
-
-#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-			LogLastMicrosoftError();
-#endif
+			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *FoundLib);
+			continue;
 		}
-	}
-	FPlatformProcess::PopDllDirectory(*Path);
 
-	PerformRecursiveLibsSearch();
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *FoundLib);
+		RuntimeLibraries.Add(Handle);
+	}
+}
+
+void FAzSpeechModule::UnloadRuntimeLibraries()
+{
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Unloading runtime libraries."), *FString(__func__));
+
+	for (void*& Handle : RuntimeLibraries)
+	{
+		if (!Handle)
+		{
+			continue;
+		}
+
+		FPlatformProcess::FreeDllHandle(Handle);
+		Handle = nullptr;
+	}
+
+	RuntimeLibraries.Empty();
 }
 #endif
 
@@ -183,6 +104,10 @@ void FAzSpeechModule::ShutdownModule()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
+
+#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
+	UnloadRuntimeLibraries();
+#endif
 }
 
 #undef LOCTEXT_NAMESPACE

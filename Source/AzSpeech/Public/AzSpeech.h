@@ -22,4 +22,12 @@ class FAzSpeechModule : public IModuleInterface
 public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
+private:
+	void LoadRuntimeLibraries();
+	void UnloadRuntimeLibraries();
+
+	TArray<void*> RuntimeLibraries;
+#endif
 };
