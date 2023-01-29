@@ -214,6 +214,13 @@ public class AzureWrapper : ModuleRules
 			// Copy & Link the Dependencies
 			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, true, false);
 		}
+		else if (Target.Platform == UnrealTargetPlatform.IOS)
+		{
+			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
+
+			// Copy & Link the Dependencies
+			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, false, false);
+		}
 		else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
 			// We don't need the 'CopyAndLinkDependencies' here, The UPL file will copy the libs to the Android libs folder
@@ -224,16 +231,6 @@ public class AzureWrapper : ModuleRules
 			{
 				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "arm64-v8a", Lib));
 				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "armeabi-v7a", Lib));
-			}
-		}
-		else if (Target.Platform == UnrealTargetPlatform.IOS)
-		{
-			// We don't need the 'CopyAndLinkDependencies' here, The UPL file will copy the libs to the iOS libs folder
-			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
-
-			foreach (string Lib in GetLibsList())
-			{
-				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), Lib));
 			}
 		}
 	}

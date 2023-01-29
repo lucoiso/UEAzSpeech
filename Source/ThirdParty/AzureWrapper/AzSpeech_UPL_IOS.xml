@@ -2,10 +2,9 @@
 
 <root>
 	<init>
-		<copyFile src="$S(PluginDir)/libs/iOS/libMicrosoft.CognitiveServices.Speech.core.a"
-                  dst="$S(BuildDir)/libs/libMicrosoft.CognitiveServices.Speech.core.a" />
+		<log text="AzSpeech is adding permission requests to iOS PList"/>
 	</init>
-	
+
 	<iosPListUpdates>
 		<addElements tag="dict" once="true">
 			<!-- Allow microphone access -->
@@ -13,10 +12,4 @@
 			<string>Microphone access is required by AzSpeech to perform Speech to Text tasks</string>
 		</addElements>
 	</iosPListUpdates>
-
-
-	<soLoadLibrary>
-		<loadLibrary name="Microsoft.CognitiveServices.Speech.core"
-                     failmsg="Microsoft.CognitiveServices.Speech.core library not loaded and may be required for AzSpeech." />
-	</soLoadLibrary>
 </root>
