@@ -72,7 +72,7 @@ TArray<FString> GetRuntimeLibraries()
 }
 
 #if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-void OutputLastMicrosoftError()
+void LogLastMicrosoftError()
 {
 	DWORD ErrorID = GetLastError();
 	if (ErrorID == 0)
@@ -95,7 +95,7 @@ void OutputLastMicrosoftError()
 }
 #endif
 
-void OutputExistingLibsInDirectory(const FString& Directory)
+void LogExistingFilesInDirectory(const FString& Directory)
 {
 	if (!FPaths::DirectoryExists(Directory))
 	{
@@ -119,7 +119,7 @@ void LoadRuntimeLibraries()
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in path \"%s\"."), *FString(__func__), *Path);
 
-	OutputExistingLibsInDirectory(Path);
+	LogExistingFilesInDirectory(Path);
 
 	FPlatformProcess::PushDllDirectory(*Path);
 	for (const FString& Lib : Libs)
@@ -129,7 +129,7 @@ void LoadRuntimeLibraries()
 			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *Lib);
 
 #if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-			OutputLastMicrosoftError();
+			LogLastMicrosoftError();
 #endif
 		}
 	}
