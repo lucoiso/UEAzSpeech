@@ -19,7 +19,7 @@ FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* In
 
 const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> FAzSpeechRecognitionRunnable::GetRecognizer() const
 {
-	if (!SpeechRecognizer)
+	if (!IsSpeechRecognizerValid())
 	{
 		return nullptr;
 	}
@@ -35,25 +35,23 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 
 	if (Super::Run() == 0u)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Run returned 0"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
 		return 0u;
 	}
 	
-	if (!SpeechRecognizer)
+	if (!IsSpeechRecognizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid recognizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return 0u;
 	}
 
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
 	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return 0u;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting recognition"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting recognition"), *GetThreadName(), *FString(__func__));
 	SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
 	
 	if (RecognizerTask->RecognitionStarted.IsBound())
@@ -94,13 +92,32 @@ void FAzSpeechRecognitionRunnable::Exit()
 	SpeechRecognizer = nullptr;
 }
 
+const bool FAzSpeechRecognitionRunnable::IsSpeechRecognizerValid() const
+{
+	if (!SpeechRecognizer)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid recognizer"), *GetThreadName(), *FString(__func__));
+	}
+
+	return SpeechRecognizer != nullptr;
+}
+
+UAzSpeechRecognizerTaskBase* FAzSpeechRecognitionRunnable::GetOwningRecognizerTask() const
+{
+	if (!GetOwningTask())
+	{
+		return nullptr;
+	}
+
+	return Cast<UAzSpeechRecognizerTaskBase>(GetOwningTask());
+}
+
 void FAzSpeechRecognitionRunnable::ClearSignals()
 {
 	Super::ClearSignals();
 
-	if (!SpeechRecognizer)
+	if (!IsSpeechRecognizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid recognizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return;
 	}
 	
@@ -112,11 +129,10 @@ void FAzSpeechRecognitionRunnable::RemoveBindings()
 {
 	Super::RemoveBindings();
 	
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
-		
-	if (!IsValid(RecognizerTask))
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return;
 	}
 
@@ -131,14 +147,14 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 		return false;
 	}
 	
-	if (OwningTask->IsUsingAutoLanguage())
+	if (GetOwningTask()->IsUsingAutoLanguage())
 	{
 		return true;
 	}
 	
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *OwningTask->GetLanguageID());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *GetOwningTask()->GetLanguageID());
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*OwningTask->GetLanguageID());
+	const std::string UsedLang = TCHAR_TO_UTF8(*GetOwningTask()->GetLanguageID());
 	InConfig->SetSpeechRecognitionLanguage(UsedLang);
 
 	return !AzSpeech::Internal::HasEmptyParam(UsedLang);
@@ -151,21 +167,20 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 		return false;
 	}
 
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
-	if (!IsValid(RecognizerTask))
+	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Creating recognizer object"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating recognizer object"), *GetThreadName(), *FString(__func__));
 
 	const auto SpeechConfig = CreateSpeechConfig();
 
 	if (!SpeechConfig)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid speech config"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
 		return false;
 	}
 
@@ -176,16 +191,16 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 		const std::vector<std::string> Candidates = GetCandidateLanguages();
 		if (Candidates.empty())
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Result: Invalid candidate languages"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Result: Invalid candidate languages"), *GetThreadName(), *FString(__func__));
 			
 			return false;
 		}
 
-		SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromLanguages(Candidates), AudioConfig);
+		SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromLanguages(Candidates), GetAudioConfig());
 	}
 	else
 	{
-		SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, AudioConfig);
+		SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, GetAudioConfig());
 	}
 
 	return InsertPhraseList() && ConnectRecognitionSignals();
@@ -193,23 +208,21 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 
 bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 {
-	if (!SpeechRecognizer)
+	if (!IsSpeechRecognizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid recognizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
-	
-	if (!IsValid(RecognizerTask))
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));	
 		return false;
 	}
 	
 	const auto RecognitionUpdate_Lambda = [this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 	{
-		if (!IsValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
+		if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
 		{
 			StopAzSpeechRunnableTask();
 			return;
@@ -226,17 +239,15 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 
 bool FAzSpeechRecognitionRunnable::InsertPhraseList()
 {
-	if (!SpeechRecognizer)
+	if (!IsSpeechRecognizerValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid recognizer"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = Cast<UAzSpeechRecognizerTaskBase>(OwningTask);
-	
-	if (!IsValid(RecognizerTask))
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
+
+	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid owning task"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
 		return false;
 	}
 
@@ -245,18 +256,18 @@ bool FAzSpeechRecognitionRunnable::InsertPhraseList()
 		return true;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Inserting Phrase List Data in Recognition Object"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Inserting Phrase List Data in Recognition Object"), *GetThreadName(), *FString(__func__));
 
 	const auto PhraseListGrammar = Microsoft::CognitiveServices::Speech::PhraseListGrammar::FromRecognizer(SpeechRecognizer);
 	if (!PhraseListGrammar)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid phrase list grammar"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid phrase list grammar"), *GetThreadName(), *FString(__func__));
 		return false;
 	}
 
 	for (const FString& PhraseListData : GetPhraseListFromGroup(RecognizerTask->PhraseListGroup))
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Inserting Phrase List Data %s to Phrase List Grammar"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *PhraseListData);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Inserting Phrase List Data %s to Phrase List Grammar"), *GetThreadName(), *FString(__func__), *PhraseListData);
 
 		PhraseListGrammar->AddPhrase(TCHAR_TO_UTF8(*PhraseListData));
 	}
@@ -273,19 +284,19 @@ bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_pt
 	switch (LastResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task running. Reason: RecognizingSpeech"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task running. Reason: RecognizingSpeech"), *GetThreadName(), *FString(__func__));
 			bOutput = true;
 			bFinishTask = false;
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Reason: RecognizedSpeech"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task completed. Reason: RecognizedSpeech"), *GetThreadName(), *FString(__func__));
 			bOutput = true;
 			bFinishTask = true;
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::NoMatch:
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Reason: NoMatch"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: NoMatch"), *GetThreadName(), *FString(__func__));
 			bOutput = false;
 			bFinishTask = true;
 			break;
@@ -299,11 +310,11 @@ bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_pt
 		bOutput = false;
 		bFinishTask = true;
 
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Reason: Canceled"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: Canceled"), *GetThreadName(), *FString(__func__));
 
 		const auto CancellationDetails = Microsoft::CognitiveServices::Speech::CancellationDetails::FromResult(LastResult);
 
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Cancellation Reason: %s"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Cancellation Reason: %s"), *GetThreadName(), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
 
 		if (CancellationDetails->Reason == Microsoft::CognitiveServices::Speech::CancellationReason::Error)
 		{
@@ -321,7 +332,7 @@ bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_pt
 
 const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguages() const
 {
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Getting candidate languages"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Getting candidate languages"), *GetThreadName(), *FString(__func__));
 
 	std::vector<std::string> Output;
 
@@ -334,7 +345,7 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 			continue;
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using language %s as candidate"), *OwningTask->GetTaskName(), OwningTask->GetUniqueID(), *FString(__func__), *Iterator);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language %s as candidate"), *GetThreadName(), *FString(__func__), *Iterator);
 
 		Output.push_back(TCHAR_TO_UTF8(*Iterator));
 

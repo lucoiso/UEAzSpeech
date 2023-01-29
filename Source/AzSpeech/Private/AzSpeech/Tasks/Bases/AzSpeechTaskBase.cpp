@@ -151,7 +151,12 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 #endif
 
 void UAzSpeechTaskBase::ValidateLanguageID()
-{	
+{
+	if (bIsSSMLBased)
+	{
+		return;
+	}
+
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
 	if (HasEmptyParameters(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
 	{

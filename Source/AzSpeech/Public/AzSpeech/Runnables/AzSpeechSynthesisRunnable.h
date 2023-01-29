@@ -30,6 +30,10 @@ private:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SpeechSynthesizer;
 
 protected:
+	const bool IsSpeechSynthesizerValid() const;
+
+	class UAzSpeechSynthesizerTaskBase* GetOwningSynthesizerTask() const;
+
 	virtual void ClearSignals() override;
 	virtual void RemoveBindings() override;
 

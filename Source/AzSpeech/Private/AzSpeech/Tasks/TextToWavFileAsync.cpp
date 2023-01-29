@@ -8,13 +8,14 @@ UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile(const UObject* WorldCont
 {
 	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SynthesisText ;
+	NewAsyncTask->SynthesisText = SynthesisText;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->VoiceName = VoiceName;
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

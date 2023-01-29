@@ -16,6 +16,7 @@ URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(c
 	NewAsyncTask->GroupName = GroupName;
 	NewAsyncTask->bStopAtFirstTrigger = bStopAtFirstTrigger;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }
