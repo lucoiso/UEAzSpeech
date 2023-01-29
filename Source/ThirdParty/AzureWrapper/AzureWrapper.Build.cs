@@ -158,10 +158,11 @@ public class AzureWrapper : ModuleRules
 
 	private void DefineBinariesSubDirectory(string SubDirectory)
 	{
-		if (Target.Platform == UnrealTargetPlatform.Win64 ||
-			Target.Platform == UnrealTargetPlatform.HoloLens ||
-			Target.Platform == UnrealTargetPlatform.Mac ||
-			Target.Platform.ToString().ToLower().Contains("linux"))
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"\\")));
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
 		{
 			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"/")));
 		}

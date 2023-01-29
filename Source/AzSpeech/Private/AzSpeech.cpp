@@ -22,7 +22,7 @@
 FString GetRuntimeLibsDirectory()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	FString LibsDirectory = FPaths::Combine(*PluginInterface->GetBaseDir(), AZSPEECH_BINARIES_SUBDIRECTORY);
+	FString LibsDirectory = PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
 
 #if PLATFORM_HOLOLENS
 	FPaths::MakePathRelativeTo(LibsDirectory, *(FPaths::RootDir() + TEXT("/")));
