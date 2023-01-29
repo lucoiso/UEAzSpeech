@@ -5,7 +5,7 @@
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContextObject, const FString& LanguageID, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText(UObject* WorldContextObject, const FString& LanguageID, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

@@ -23,7 +23,7 @@ public:
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToSoundWaveAsync* TextToSoundWave(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
+	static UTextToSoundWaveAsync* TextToSoundWave(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
 
 protected:
 	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;

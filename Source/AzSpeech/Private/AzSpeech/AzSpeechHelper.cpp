@@ -11,6 +11,12 @@
 #include <Kismet/GameplayStatics.h>
 #include <AudioCaptureCore.h>
 
+#if PLATFORM_HOLOLENS
+#include <Windows/AllowWindowsPlatformTypes.h>
+#include <fileapi.h>
+#include <Windows/HideWindowsPlatformTypes.h>
+#endif
+
 #if ENGINE_MAJOR_VERSION < 5
 #include <HAL/PlatformFilemanager.h>
 #else
@@ -19,12 +25,6 @@
 
 #if PLATFORM_ANDROID
 #include <AndroidPermissionFunctionLibrary.h>
-#endif
-
-#if PLATFORM_HOLOLENS
-#include <Windows/AllowWindowsPlatformTypes.h>
-#include <fileapi.h>
-#include <Windows/HideWindowsPlatformTypes.h>
 #endif
 
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
