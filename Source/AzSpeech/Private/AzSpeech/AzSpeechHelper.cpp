@@ -7,13 +7,18 @@
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
-#include <HAL/PlatformFileManager.h>
 #include <DesktopPlatformModule.h>
 #include <Kismet/GameplayStatics.h>
 #include <AudioCaptureCore.h>
 
 #if PLATFORM_ANDROID
 #include <AndroidPermissionFunctionLibrary.h>
+#endif
+
+#if ENGINE_MAJOR_VERSION < 5
+#include <HAL/PlatformFilemanager.h>
+#else
+#include <HAL/PlatformFileManager.h>
 #endif
 
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
