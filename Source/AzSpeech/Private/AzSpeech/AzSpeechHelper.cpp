@@ -75,7 +75,10 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
 #if PLATFORM_ANDROID
-		CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
+		if (!CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE"))
+		{
+			return nullptr;
+		}
 #endif
 
 		if (TArray<uint8> RawData;
@@ -210,13 +213,14 @@ const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FStrin
 	if (!UAndroidPermissionFunctionLibrary::CheckPermission(InPermission))
 	{
 		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermission });
+		return false;
 	}
 
-	return UAndroidPermissionFunctionLibrary::CheckPermission(InPermission);
 #else
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
-	return true;
 #endif
+	
+	return true;
 }
 
 const bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)

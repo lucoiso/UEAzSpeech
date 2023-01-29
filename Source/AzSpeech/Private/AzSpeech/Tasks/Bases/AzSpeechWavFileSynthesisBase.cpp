@@ -21,7 +21,11 @@
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
 #if PLATFORM_ANDROID
-	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+	if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
+	{
+		SetReadyToDestroy();
+		return;
+	}
 #endif
 
 	Super::Activate();
