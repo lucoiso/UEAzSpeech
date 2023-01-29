@@ -9,7 +9,7 @@
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <HAL/PlatformFileManager.h>
-#include "HAL/ThreadManager.h"
+#include <HAL/ThreadManager.h>
 #include <Misc/FileHelper.h>
 #include <Async/Async.h>
 #include <chrono>
