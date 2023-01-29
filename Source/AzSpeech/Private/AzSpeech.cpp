@@ -114,7 +114,7 @@ void LogExistingFilesInDirectory(const FString& Directory)
 	}
 }
 
-void SearchLibsDirectory()
+void PerformRecursiveLibsSearch()
 {
 	TArray<FString> FilesFound;
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
@@ -122,10 +122,16 @@ void SearchLibsDirectory()
 	const FString SearchFile = GetRuntimeLibraries()[0];
 	IFileManager::Get().FindFilesRecursive(FilesFound, *RootDirectory, *SearchFile, true, false, false);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a recursive search for the file \"%s\" in root directory \"%s\"."), *FString(__func__), *SearchFile, *RootDirectory);
+	FString RelativeRoot = RootDirectory;
+	FPaths::MakePathRelativeTo(RelativeRoot, *(FPaths::RootDir() + TEXT("/")));
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a recursive search for the file \"%s\" in root directory \"%s\" | Rel.: \"%s\"."), *FString(__func__), *SearchFile, *RootDirectory, *RelativeRoot);
 	for (const FString& MatchingFile : FilesFound)
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Found file \"%s\"."), *FString(__func__), *MatchingFile);
+		FString RelativeFile = MatchingFile;
+		FPaths::MakePathRelativeTo(RelativeFile, *(FPaths::RootDir() + TEXT("/")));
+
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Found file \"%s\" | Rel.: \"%s\"."), *FString(__func__), *MatchingFile, *RelativeFile);
 	}
 }
 
@@ -152,7 +158,7 @@ void LoadRuntimeLibraries()
 	}
 	FPlatformProcess::PopDllDirectory(*Path);
 
-	SearchLibsDirectory();
+	PerformRecursiveLibsSearch();
 }
 #endif
 
