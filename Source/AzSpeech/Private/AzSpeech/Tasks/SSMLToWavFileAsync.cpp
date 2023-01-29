@@ -13,6 +13,7 @@ USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile(const UObject* WorldCont
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

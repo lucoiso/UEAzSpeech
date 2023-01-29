@@ -8,11 +8,12 @@ UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(const UObject* WorldContext
 {
 	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SynthesisText ;
+	NewAsyncTask->SynthesisText = SynthesisText;
 	NewAsyncTask->VoiceName = VoiceName;
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

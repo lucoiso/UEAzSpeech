@@ -12,7 +12,9 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToText(const UObject* WorldContext
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
+	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

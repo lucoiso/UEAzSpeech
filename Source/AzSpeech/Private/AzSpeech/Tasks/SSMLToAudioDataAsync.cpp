@@ -11,6 +11,7 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData(const UObject* Wor
 	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

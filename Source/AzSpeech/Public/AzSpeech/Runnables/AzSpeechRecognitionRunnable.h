@@ -35,6 +35,10 @@ private:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> SpeechRecognizer;
 
 protected:
+	const bool IsSpeechRecognizerValid() const;
+
+	class UAzSpeechRecognizerTaskBase* GetOwningRecognizerTask() const;
+
 	virtual void ClearSignals() override;
 	virtual void RemoveBindings() override;
 

@@ -95,7 +95,6 @@ public:
 protected:
 	FString VoiceName;
 	FString SynthesisText;
-	bool bIsSSMLBased;
 	
 	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	
