@@ -114,6 +114,21 @@ void LogExistingFilesInDirectory(const FString& Directory)
 	}
 }
 
+void SearchLibsDirectory()
+{
+	TArray<FString> FilesFound;
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
+	const FString RootDirectory = PluginInterface->GetBaseDir();
+	const FString SearchFile = GetRuntimeLibraries()[0];
+	IFileManager::Get().FindFilesRecursive(FilesFound, *RootDirectory, *SearchFile, true, false, false);
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a recursive search for the file \"%s\" in root directory \"%s\"."), *FString(__func__), *SearchFile, *RootDirectory);
+	for (const FString& MatchingFile : FilesFound)
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Found file \"%s\"."), *FString(__func__), *MatchingFile);
+	}
+}
+
 void LoadRuntimeLibraries()
 {
 	const FString Path = GetRuntimeLibsDirectory();
@@ -136,6 +151,8 @@ void LoadRuntimeLibraries()
 		}
 	}
 	FPlatformProcess::PopDllDirectory(*Path);
+
+	SearchLibsDirectory();
 }
 #endif
 
