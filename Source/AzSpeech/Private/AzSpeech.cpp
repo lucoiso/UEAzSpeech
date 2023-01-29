@@ -12,7 +12,6 @@
 
 #if ENGINE_MAJOR_VERSION < 5
 #include <GenericPlatform/GenericPlatformProcess.h>
-
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
@@ -20,6 +19,9 @@
 #include <Windows/AllowWindowsPlatformTypes.h>
 #include <errhandlingapi.h>
 #include <Windows/HideWindowsPlatformTypes.h>
+#if ENGINE_MAJOR_VERSION < 5
+#include <string>
+#endif
 #endif
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
