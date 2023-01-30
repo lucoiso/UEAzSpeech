@@ -40,18 +40,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FAzSpeechTaskGenericDelegate RecognitionStarted;
 
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
-	void EnableContinuousRecognition();
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
-	void DisableContinuousRecognition();	
-
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetRecognizedString() const;
 	
 protected:
 	FName PhraseListGroup = NAME_None;
-	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> GetRecognizer() const;
 	
 	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 

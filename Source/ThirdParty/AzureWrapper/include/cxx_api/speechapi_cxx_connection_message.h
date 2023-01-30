@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_connection_message.h: Public API declarations for ConnectionMessage C++ class
 //
@@ -80,7 +80,7 @@ public:
     /// <returns>An std::string containing the message path.</returns>
     std::string GetPath() const
     {
-        SPX_IFTRUE_THROW_HR(m_hcm == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hcm == SPXHANDLE_INVALID);
         return m_properties.GetProperty("connection.message.path");
     }
 
@@ -91,7 +91,7 @@ public:
     /// <returns>A bool indicated if the message payload is text.</returns>
     bool IsTextMessage() const
     {
-        SPX_IFTRUE_THROW_HR(m_hcm == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hcm == SPXHANDLE_INVALID);
         return m_properties.GetProperty("connection.message.type") == "text";
     }
 
@@ -102,7 +102,7 @@ public:
     /// <returns>A bool indicated if the message payload is binary.</returns>
     bool IsBinaryMessage() const
     {
-        SPX_IFTRUE_THROW_HR(m_hcm == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hcm == SPXHANDLE_INVALID);
         return m_properties.GetProperty("connection.message.type") == "binary";
     }
 
@@ -114,7 +114,7 @@ public:
     /// <returns>An std::string containing the text message.</returns>
     std::string GetTextMessage() const
     {
-        SPX_IFTRUE_THROW_HR(m_hcm == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hcm == SPXHANDLE_INVALID);
         return m_properties.GetProperty("connection.message.text.message");
     }
 
@@ -124,7 +124,7 @@ public:
     /// <returns>An std::vector<uint8_t> containing the binary message.</returns>
     std::vector<uint8_t> GetBinaryMessage() const
     {
-        SPX_IFTRUE_THROW_HR(m_hcm == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hcm == SPXHANDLE_INVALID);
         auto size = ::connection_message_get_data_size(m_hcm);
 
         std::vector<uint8_t> message(size);

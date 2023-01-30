@@ -18,7 +18,7 @@
 
 void FAzSpeechModule::StartupModule()
 {
-	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");	
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
 #if PLATFORM_WINDOWS
@@ -27,6 +27,7 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.core.dll", CoreRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll", AudioRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.kws.dll", KwsRuntimeLib);
+	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.kws.ort.dll", KwsOrtRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.lu.dll", LuRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
@@ -43,6 +44,7 @@ void FAzSpeechModule::ShutdownModule()
 	FreeDependency(CoreRuntimeLib);
 	FreeDependency(AudioRuntimeLib);
 	FreeDependency(KwsRuntimeLib);
+	FreeDependency(KwsOrtRuntimeLib);
 	FreeDependency(LuRuntimeLib);
 	FreeDependency(MasRuntimeLib);
 	FreeDependency(CodecRuntimeLib);

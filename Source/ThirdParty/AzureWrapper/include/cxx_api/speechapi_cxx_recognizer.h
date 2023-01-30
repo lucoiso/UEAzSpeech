@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_recognizer.h: Public API declarations for Recognizer C++ base class
 //
@@ -29,38 +29,6 @@ public:
     /// </summary>
     /// <returns>A handle.</returns>
     explicit operator SPXRECOHANDLE() const { return m_hreco; }
-
-    /// <summary>
-    /// Returns true if the recognizer is enabled.
-    /// </summary>
-    /// <returns>A Boolean indicating whether the recognizer is enabled.</returns>
-    virtual bool IsEnabled()
-    {
-        bool enabled = false;
-        SPX_INIT_HR(hr);
-        SPX_THROW_ON_FAIL(hr = recognizer_is_enabled(m_hreco, &enabled));
-        return enabled;
-    };
-
-    /// <summary>
-    /// Enables the recognizer.
-    /// </summary>
-    /// <returns></returns>
-    virtual void Enable()
-    {
-        SPX_INIT_HR(hr);
-        SPX_THROW_ON_FAIL(hr = recognizer_enable(m_hreco));
-    };
-
-    /// <summary>
-    /// Disables the recognizer.
-    /// </summary>
-    /// <returns></returns>
-    virtual void Disable()
-    {
-        SPX_INIT_HR(hr);
-        SPX_THROW_ON_FAIL(hr = recognizer_disable(m_hreco));
-    };
 
 protected:
 

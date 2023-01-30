@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_c_property_bag.h: Public API declarations for Property Bag related C methods
 //
@@ -62,8 +62,7 @@ enum  PropertyId
     SpeechServiceConnection_InitialSilenceTimeoutMs = 3200,
     SpeechServiceConnection_EndSilenceTimeoutMs = 3201,
     SpeechServiceConnection_EnableAudioLogging = 3202,
-    SpeechServiceConnection_SingleLanguageIdPriority = 3203,
-    SpeechServiceConnection_ContinuousLanguageIdPriority = 3204,
+    SpeechServiceConnection_LanguageIdMode = 3205,
 
     SpeechServiceConnection_AutoDetectSourceLanguages = 3300,
     SpeechServiceConnection_AutoDetectSourceLanguageResult = 3301,

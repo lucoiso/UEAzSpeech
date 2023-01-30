@@ -17,16 +17,6 @@ FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* In
 {
 }
 
-const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> FAzSpeechRecognitionRunnable::GetRecognizer() const
-{
-	if (!IsSpeechRecognizerValid())
-	{
-		return nullptr;
-	}
-
-	return SpeechRecognizer->shared_from_this();
-}
-
 uint32 FAzSpeechRecognitionRunnable::Run()
 {
 #if !UE_BUILD_SHIPPING

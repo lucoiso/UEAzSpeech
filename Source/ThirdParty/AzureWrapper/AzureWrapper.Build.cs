@@ -35,6 +35,7 @@ public class AzureWrapper : ModuleRules
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.core.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.audio.sys.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.dll");
+			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.kws.ort.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.lu.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.mas.dll");
 			PublicDelayLoadDLLs.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
@@ -42,6 +43,7 @@ public class AzureWrapper : ModuleRules
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.core.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.kws.dll"));
+			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.kws.ort.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.lu.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.mas.dll"));
 			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Win", "Runtime", "Microsoft.CognitiveServices.Speech.extension.codec.dll"));
@@ -55,11 +57,13 @@ public class AzureWrapper : ModuleRules
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
 
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"));
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android", "armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
 		}
 	}

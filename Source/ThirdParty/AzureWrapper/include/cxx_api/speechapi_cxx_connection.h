@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 
 #pragma once
@@ -44,7 +44,7 @@ public:
     static std::shared_ptr<Connection> FromRecognizer(std::shared_ptr<Recognizer> recognizer)
     {
         SPX_INIT_HR(hr);
-        SPX_IFTRUE_THROW_HR(recognizer == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, recognizer == nullptr);
 
         SPXCONNECTIONHANDLE handle = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(hr = ::connection_from_recognizer(recognizer->m_hreco, &handle));
@@ -59,7 +59,7 @@ public:
     /// <returns>The Connection instance of the conversation translator.</returns>
     static std::shared_ptr<Connection> FromConversationTranslator(std::shared_ptr<Transcription::ConversationTranslator> convTrans)
     {
-        SPX_IFTRUE_THROW_HR(convTrans == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, convTrans == nullptr);
 
         SPXCONNECTIONHANDLE handle = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(::connection_from_conversation_translator(convTrans->m_handle, &handle));
@@ -75,7 +75,7 @@ public:
     /// <returns>The Connection instance of the dialog service connector.</returns>
     static std::shared_ptr<Connection> FromDialogServiceConnector(std::shared_ptr<Dialog::DialogServiceConnector> dialogServiceConnector)
     {
-        SPX_IFTRUE_THROW_HR(dialogServiceConnector == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, dialogServiceConnector == nullptr);
 
         SPXCONNECTIONHANDLE handle = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(::connection_from_dialog_service_connector(dialogServiceConnector->m_handle, &handle));
@@ -91,7 +91,7 @@ public:
     /// <returns>The Connection instance of the speech synthesizer.</returns>
     static std::shared_ptr<Connection> FromSpeechSynthesizer(std::shared_ptr<SpeechSynthesizer> synthesizer)
     {
-        SPX_IFTRUE_THROW_HR(synthesizer == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, synthesizer == nullptr);
 
         SPXCONNECTIONHANDLE handle = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(::connection_from_speech_synthesizer(synthesizer->m_hsynth, &handle));
@@ -110,7 +110,7 @@ public:
     /// <param name="forContinuousRecognition">Indicates whether the connection is used for continuous recognition or single-shot recognition. It takes no effect if the connection is from SpeechSynthsizer.</param>
     void Open(bool forContinuousRecognition)
     {
-        SPX_IFTRUE_THROW_HR(m_connectionHandle == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
         SPX_THROW_ON_FAIL(::connection_open(m_connectionHandle, forContinuousRecognition));
     }
 
@@ -122,7 +122,7 @@ public:
     /// </summary>
     void Close()
     {
-        SPX_IFTRUE_THROW_HR(m_connectionHandle == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
         SPX_THROW_ON_FAIL(::connection_close(m_connectionHandle));
     }
 
@@ -137,7 +137,7 @@ public:
     /// <returns>void.</returns>
     void SetMessageProperty(const SPXSTRING& path, const SPXSTRING& propertyName, const SPXSTRING& propertyValue)
     {
-            SPX_IFTRUE_THROW_HR(m_connectionHandle == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+            SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
             SPX_THROW_ON_FAIL(::connection_set_message_property(m_connectionHandle, Utils::ToUTF8(path).c_str(), Utils::ToUTF8(propertyName).c_str(), Utils::ToUTF8(propertyValue).c_str()));
     }
 
@@ -153,7 +153,7 @@ public:
     {
         auto keep_alive = this->shared_from_this();
         auto future = std::async(std::launch::async, [keep_alive, this, path, payload]() -> void {
-            SPX_IFTRUE_THROW_HR(m_connectionHandle == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+            SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
             SPX_THROW_ON_FAIL(::connection_send_message(m_connectionHandle, Utils::ToUTF8(path.c_str()), Utils::ToUTF8(payload.c_str())));
         });
         return future;
@@ -172,7 +172,7 @@ public:
     {
         auto keep_alive = this->shared_from_this();
         auto future = std::async(std::launch::async, [keep_alive, this, path, payload, size]() -> void {
-            SPX_IFTRUE_THROW_HR(m_connectionHandle == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+            SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
             SPX_THROW_ON_FAIL(::connection_send_message_data(m_connectionHandle, Utils::ToUTF8(path.c_str()), payload, size));
         });
         return future;

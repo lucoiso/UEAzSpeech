@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_c_recognizer.h: Public API declarations for Recognizer related C methods and typedefs
 //
@@ -20,10 +20,6 @@ SPXAPI recognizer_result_handle_release(SPXRESULTHANDLE hresult);
 
 SPXAPI_(bool) recognizer_event_handle_is_valid(SPXEVENTHANDLE hevent);
 SPXAPI recognizer_event_handle_release(SPXEVENTHANDLE hevent);
-
-SPXAPI recognizer_enable(SPXRECOHANDLE hreco);
-SPXAPI recognizer_disable(SPXRECOHANDLE hreco);
-SPXAPI recognizer_is_enabled(SPXRECOHANDLE hreco, bool* pfEnabled);
 
 SPXAPI recognizer_get_property_bag(SPXRECOHANDLE hreco, SPXPROPERTYBAGHANDLE* hpropbag);
 

@@ -27,6 +27,7 @@ private:
 	void* CoreRuntimeLib = nullptr;
 	void* AudioRuntimeLib = nullptr;
 	void* KwsRuntimeLib = nullptr;
+	void* KwsOrtRuntimeLib = nullptr;
 	void* LuRuntimeLib = nullptr;
 	void* MasRuntimeLib = nullptr;
 	void* CodecRuntimeLib = nullptr;

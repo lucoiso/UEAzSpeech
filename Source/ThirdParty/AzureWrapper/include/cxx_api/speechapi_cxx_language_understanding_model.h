@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_language_understanding_model.h: Public API declarations for LanguageUnderstandingModel C++ class
 //
@@ -25,14 +25,12 @@ public:
     enum class LanguageUnderstandingModelType
     {
         PatternMatchingModel,
-        LanguageUnderstandingModel
+        LanguageUnderstandingModel,
+        ConversationalLanguageUnderstandingModel
     };
 
     /// <summary>
     /// Creates a language understanding (LUIS) model using the specified endpoint url.
-    ///
-    /// The Speech SDK only supports LUIS v2.0 endpoints, see
-    /// https://docs.microsoft.com/azure/cognitive-services/speech-service/quickstarts/intent-recognition for more details.
     /// </summary>
     /// <param name="uri">The endpoint url of a language understanding model.</param>
     /// <returns>A shared pointer to language understanding model.</returns>
