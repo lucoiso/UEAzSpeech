@@ -33,7 +33,7 @@ public class AzureWrapper : ModuleRules
 
 		if (Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "HoloLens", isArmArch() ? : "Arm" : "x64");
+			return Path.Combine(ModuleDirectory, "libs", "HoloLens", isArmArch() ? "Arm" : "x64");
 		}
 
 		if (Target.Platform == UnrealTargetPlatform.Mac)
@@ -201,11 +201,6 @@ public class AzureWrapper : ModuleRules
 		{
 			CopyAndLinkStaticLibrary("Microsoft.CognitiveServices.Speech.core.lib", BinariesDirectory);
 			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, false, true, true);
-
-			if (Target.Platform == UnrealTargetPlatform.HoloLens && isArmArch())
-			{
-				PublicDefinitions.Add("PLATFORM_HOLOLENS_ARM64=1");
-			}
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
