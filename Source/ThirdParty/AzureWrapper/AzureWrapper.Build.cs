@@ -31,19 +31,21 @@ public class AzureWrapper : ModuleRules
 			return Path.Combine(ModuleDirectory, "libs", "iOS");
 		}
 
+		string ArchSubDir = isArmArch() ? "Arm64" : "x64";
+
 		if (Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "HoloLens", isArmArch() ? "Arm" : "x64");
+			return Path.Combine(ModuleDirectory, "libs", "HoloLens", ArchSubDir);
 		}
 
 		if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "Mac", isArmArch() ? "Arm64" : "x64");
+			return Path.Combine(ModuleDirectory, "libs", "Mac", ArchSubDir);
 		}
 
 		if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			return Path.Combine(ModuleDirectory, "libs", "Linux", isArmArch() ? "Arm64" : "x64");
+			return Path.Combine(ModuleDirectory, "libs", "Linux", ArchSubDir);
 		}
 
 		return "UNDEFINED_DIRECTORY";
