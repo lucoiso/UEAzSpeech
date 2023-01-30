@@ -21,7 +21,10 @@
 FString GetRuntimeLibsDirectory()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	return PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
+	FString Directory = PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
+	FPaths::NormalizeDirectoryName(Directory);
+
+	return Directory;
 }
 
 FString GetRuntimeLibsType()
@@ -51,15 +54,22 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 
 	for (const FString& FoundLib : Libs)
 	{
-		void* Handle = FPlatformProcess::GetDllHandle(*FoundLib);
+		FString LocalLibDir = FoundLib;
+		FPaths::NormalizeFilename(LocalLibDir);
+
+#if PLATFORM_HOLOLENS
+		FPaths::MakePathRelativeTo(LocalLibDir, *(FPaths::RootDir() + TEXT("/")));
+#endif
+
+		void* Handle = FPlatformProcess::GetDllHandle(*LocalLibDir);
 
 		if (!Handle)
 		{
-			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *FoundLib);
+			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *LocalLibDir);
 			continue;
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *FoundLib);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *LocalLibDir);
 		RuntimeLibraries.Add(Handle);
 	}
 }
