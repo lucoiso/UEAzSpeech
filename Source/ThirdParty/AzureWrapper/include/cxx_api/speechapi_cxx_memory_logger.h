@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 
 #pragma once
@@ -80,7 +80,7 @@ public:
     /// <remarks>This does not reset (clear) the memory buffer.</remarks>
     static void Dump(const SPXSTRING& filePath)
     {
-        SPX_IFTRUE_THROW_HR(filePath.empty(), SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, filePath.empty());
 
         SPX_THROW_ON_FAIL(diagnostics_log_memory_dump(Utils::ToUTF8(filePath).c_str(), nullptr, false, false));
     }

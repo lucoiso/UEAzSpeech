@@ -26,16 +26,16 @@ public class AzureWrapper : ModuleRules
 			return Path.Combine(ModuleDirectory, "libs", "Android");
 		}
 
+		if (Target.Platform == UnrealTargetPlatform.IOS)
+		{
+			return Path.Combine(ModuleDirectory, "libs", "iOS");
+		}
+
 		string libPath = isArmArch() ? "Arm64" : "x64";
 
 		if (Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
 			return Path.Combine(ModuleDirectory, "libs", "HoloLens", libPath);
-		}
-
-		if (Target.Platform == UnrealTargetPlatform.IOS)
-		{
-			return Path.Combine(ModuleDirectory, "libs", "iOS", libPath);
 		}
 
 		if (Target.Platform == UnrealTargetPlatform.Mac)
@@ -62,6 +62,7 @@ public class AzureWrapper : ModuleRules
 				"Microsoft.CognitiveServices.Speech.core.dll",
 				"Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
 				"Microsoft.CognitiveServices.Speech.extension.kws.dll",
+				"Microsoft.CognitiveServices.Speech.extension.kws.ort.dll",
 				"Microsoft.CognitiveServices.Speech.extension.lu.dll",
 				"Microsoft.CognitiveServices.Speech.extension.mas.dll"
 			});
@@ -79,6 +80,7 @@ public class AzureWrapper : ModuleRules
 				"libMicrosoft.CognitiveServices.Speech.core.so",
 				"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
 				"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so",
 				"libMicrosoft.CognitiveServices.Speech.extension.lu.so"
 			});
 
@@ -168,6 +170,15 @@ public class AzureWrapper : ModuleRules
 		}
 	}
 
+	private void CopyAndLinkStaticLibrary(string LibFilename, string DestinationDirectory)
+	{
+		string SourceStaticDir = Path.Combine(GetPlatformLibsDirectory(), LibFilename);
+		string DestinationStaticDir = Path.Combine(DestinationDirectory, LibFilename);
+
+		CopyFile(SourceStaticDir, DestinationStaticDir);
+		PublicAdditionalLibraries.Add(DestinationStaticDir);
+	}
+
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
 	{
 		Type = ModuleType.External;
@@ -185,23 +196,12 @@ public class AzureWrapper : ModuleRules
 		string BinariesSubDirectory = Path.Combine("Binaries", Target.Platform.ToString(), "ThirdParty", Target.Architecture);
 		string BinariesDirectory = Path.Combine(PluginDirectory, BinariesSubDirectory);
 
-		// Ensure that the Binaries directory exists
 		Directory.CreateDirectory(BinariesDirectory);
-
-		// Add the definition of the Binaries Sub Directory
 		DefineBinariesSubDirectory(BinariesSubDirectory);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			string StaticLibFilename = "Microsoft.CognitiveServices.Speech.core.lib";
-			string SourceStaticDir = Path.Combine(GetPlatformLibsDirectory(), StaticLibFilename);
-			string DestinationStaticDir = Path.Combine(BinariesDirectory, StaticLibFilename);
-
-			// Copy & Link the static library
-			CopyFile(SourceStaticDir, DestinationStaticDir);
-			PublicAdditionalLibraries.Add(DestinationStaticDir);
-
-			// Copy & Link the Runtime Libraries
+			CopyAndLinkStaticLibrary("Microsoft.CognitiveServices.Speech.core.lib", BinariesDirectory);
 			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, false, true, true);
 
 			if (Target.Platform == UnrealTargetPlatform.HoloLens && isArmArch())
@@ -209,16 +209,18 @@ public class AzureWrapper : ModuleRules
 				PublicDefinitions.Add("PLATFORM_HOLOLENS_ARM64=1");
 			}
 		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
+		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			// Copy & Link the Dependencies
+			CopyAndLinkStaticLibrary("libMicrosoft.CognitiveServices.Speech.core.a", BinariesDirectory);
+			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, true, true, false);
+		}
+		else if (Target.Platform.ToString().ToLower().Contains("linux"))
+		{
 			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, true, false);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
-
-			// Copy & Link the Dependencies
 			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, false, false);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Android)

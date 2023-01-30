@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_audio_config.h: Public API declarations for AudioConfig C++ class
 //
@@ -23,7 +23,7 @@ namespace Audio {
 
 
 /// <summary>
-/// Represents audio input or output configuration. Audio input can be from a microphone, file, 
+/// Represents audio input or output configuration. Audio input can be from a microphone, file,
 /// or input stream. Audio output can be to a speaker, audio file output in WAV format, or output
 /// stream.
 /// </summary>
@@ -57,7 +57,7 @@ public:
     /// <returns>A shared pointer to the AudioConfig object</returns>
     static std::shared_ptr<AudioConfig> FromDefaultMicrophoneInput(std::shared_ptr<AudioProcessingOptions> audioProcessingOptions)
     {
-        SPX_IFTRUE_THROW_HR(audioProcessingOptions == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, audioProcessingOptions == nullptr);
 
         SPXAUDIOCONFIGHANDLE haudioConfig = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(audio_config_create_audio_input_from_default_microphone(&haudioConfig));
@@ -90,7 +90,7 @@ public:
     /// <returns>A shared pointer to the AudioConfig object</returns>
     static std::shared_ptr<AudioConfig> FromMicrophoneInput(const SPXSTRING& deviceName, std::shared_ptr<AudioProcessingOptions> audioProcessingOptions)
     {
-        SPX_IFTRUE_THROW_HR(audioProcessingOptions == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, audioProcessingOptions == nullptr);
 
         SPXAUDIOCONFIGHANDLE haudioConfig = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(audio_config_create_audio_input_from_a_microphone(&haudioConfig, Utils::ToUTF8(deviceName).c_str()));
@@ -122,7 +122,7 @@ public:
     /// <returns>A shared pointer to the AudioConfig object</returns>
     static std::shared_ptr<AudioConfig> FromWavFileInput(const SPXSTRING& fileName, std::shared_ptr<AudioProcessingOptions> audioProcessingOptions)
     {
-        SPX_IFTRUE_THROW_HR(audioProcessingOptions == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, audioProcessingOptions == nullptr);
 
         SPXAUDIOCONFIGHANDLE haudioConfig = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(audio_config_create_audio_input_from_wav_file_name(&haudioConfig, Utils::ToUTF8(fileName).c_str()));
@@ -139,7 +139,7 @@ public:
     /// <returns>A shared pointer to the AudioConfig object</returns>
     static std::shared_ptr<AudioConfig> FromStreamInput(std::shared_ptr<AudioInputStream> stream)
     {
-        SPX_IFTRUE_THROW_HR(stream == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, stream == nullptr);
 
         SPXAUDIOCONFIGHANDLE haudioConfig = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(audio_config_create_audio_input_from_stream(&haudioConfig, GetStreamHandle(stream)));
@@ -156,8 +156,8 @@ public:
     /// <returns>A shared pointer to the AudioConfig object</returns>
     static std::shared_ptr<AudioConfig> FromStreamInput(std::shared_ptr<AudioInputStream> stream, std::shared_ptr<AudioProcessingOptions> audioProcessingOptions)
     {
-        SPX_IFTRUE_THROW_HR(stream == nullptr, SPXERR_INVALID_ARG);
-        SPX_IFTRUE_THROW_HR(audioProcessingOptions == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, stream == nullptr);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, audioProcessingOptions == nullptr);
 
         SPXAUDIOCONFIGHANDLE haudioConfig = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(audio_config_create_audio_input_from_stream(&haudioConfig, GetStreamHandle(stream)));
@@ -219,7 +219,7 @@ public:
     /// <returns>A shared pointer to the AudioConfig object</returns>
     static std::shared_ptr<AudioConfig> FromStreamOutput(std::shared_ptr<AudioOutputStream> stream)
     {
-        SPX_IFTRUE_THROW_HR(stream == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, stream == nullptr);
 
         SPXAUDIOCONFIGHANDLE haudioConfig = SPXHANDLE_INVALID;
         SPX_THROW_ON_FAIL(audio_config_create_audio_output_from_stream(&haudioConfig, GetOutputStreamHandle(stream)));

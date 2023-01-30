@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 
 #pragma once
@@ -50,7 +50,7 @@ public:
     {
         SPXPROPERTYBAGHANDLE hpropbag = SPXHANDLE_INVALID;
 
-        SPX_IFTRUE_THROW_HR(filePath.empty(), SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, filePath.empty());
 
         SPX_THROW_ON_FAIL(property_bag_create(&hpropbag));
         SPX_THROW_ON_FAIL(property_bag_set_string(hpropbag, -1, "SPEECH-LogFilename", Utils::ToUTF8(filePath).c_str()));

@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_recognition_result.h: Public API declarations for RecognitionResult C++ base class and related enum class
 //
@@ -128,7 +128,7 @@ private:
         SPX_INIT_HR(hr);
 
         const size_t maxCharCount = 2048;
-        char sz[maxCharCount + 1];
+        char sz[maxCharCount + 1] = {};
 
         if (resultId != nullptr)
         {
@@ -267,7 +267,7 @@ public:
     static std::shared_ptr<NoMatchDetails> FromResult(std::shared_ptr<RecognitionResult> result)
     {
         // VSTS 1407221
-        // SPX_IFTRUE_THROW_HR(result->Reason != ResultReason::NoMatch, SPXERR_INVALID_ARG);
+        // SPX_THROW_HR_IF(SPXERR_INVALID_ARG, result->Reason != ResultReason::NoMatch);
         auto ptr = new NoMatchDetails(result.get());
         auto noMatch = std::shared_ptr<NoMatchDetails>(ptr);
         return noMatch;
@@ -296,7 +296,7 @@ private:
 
     Speech::NoMatchReason GetNoMatchReason(RecognitionResult* result)
     {
-        Result_NoMatchReason reason;
+        Result_NoMatchReason reason = NoMatchReason_NotRecognized;
 
         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
         SPX_IFFAILED_THROW_HR(result_get_no_match_reason(hresult, &reason));

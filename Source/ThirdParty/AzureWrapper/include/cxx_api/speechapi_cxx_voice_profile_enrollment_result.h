@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_voice_profile_enrollment_result.h: Public API declarations for VoiceProfileEnrollmentResult C++ class
 //
@@ -228,7 +228,7 @@ private:
 
     CancellationErrorCode GetCancellationErrorCode(VoiceProfileEnrollmentResult* result)
     {
-        Result_CancellationErrorCode errorCode;
+        Result_CancellationErrorCode errorCode = CancellationErrorCode_NoError;
 
         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
         SPX_IFFAILED_THROW_HR(result_get_canceled_error_code(hresult, &errorCode));

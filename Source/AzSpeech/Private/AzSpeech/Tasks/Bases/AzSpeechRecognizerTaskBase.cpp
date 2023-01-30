@@ -6,59 +6,6 @@
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "LogAzSpeech.h"
 
-const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> UAzSpeechRecognizerTaskBase::GetRecognizer() const
-{
-	if (!RunnableTask)
-	{
-		return nullptr;
-	}
-
-	FAzSpeechRecognitionRunnable* const RecognitionRunnable = static_cast<FAzSpeechRecognitionRunnable*>(RunnableTask.Get());
-
-	if (!RecognitionRunnable)
-	{
-		return nullptr;
-	}
-
-	return RecognitionRunnable->GetRecognizer();
-}
-
-void UAzSpeechRecognizerTaskBase::EnableContinuousRecognition()
-{
-	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> RecognizerObj = GetRecognizer();
-	if (!RecognizerObj)
-	{
-		SetReadyToDestroy();
-		return;
-	}
-	
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Enabling continuous recognition"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
-	if (RecognizerObj->IsEnabled())
-	{
-		return;
-	}
-	
-	RecognizerObj->Enable();
-}
-
-void UAzSpeechRecognizerTaskBase::DisableContinuousRecognition()
-{
-	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> RecognizerObj = GetRecognizer();
-	if (!RecognizerObj)
-	{
-		SetReadyToDestroy();
-		return;
-	}
-
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Disabling continuous recognition"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
-	if (!RecognizerObj->IsEnabled())
-	{
-		return;
-	}
-
-	RecognizerObj->Disable();
-}
-
 const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {
 	FScopeLock Lock(&Mutex);
