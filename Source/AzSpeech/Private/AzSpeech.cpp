@@ -51,10 +51,10 @@ FString GetRuntimeLibsType()
 void LogLastError(const FString& FailLib)
 {
 	const uint32 ErrorID = FGenericPlatformMisc::GetLastError();
-	TCHAR ErrorBuffer[1024];
-	FPlatformMisc::GetSystemErrorMessage(ErrorBuffer, 1024, ErrorID);
+	TCHAR ErrorBuffer[MAX_SPRINTF];
+	FPlatformMisc::GetSystemErrorMessage(ErrorBuffer, MAX_SPRINTF, ErrorID);
 
-	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\": %u (%s)"), *FString(__func__), *FailLib, ErrorID, ErrorBuffer);
+	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\": %u (%s)."), *FString(__func__), *FailLib, ErrorID, ErrorBuffer);
 }
 
 void FAzSpeechModule::LoadRuntimeLibraries()
@@ -76,7 +76,23 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 		FPaths::MakePathRelativeTo(LocalLibDir, *(FPaths::RootDir() + TEXT("/")));
 #endif
 
-		void* Handle = FPlatformProcess::GetDllHandle(*LocalLibDir);
+		void* Handle = nullptr;
+
+		// Attempt to load the file more than one time in case of a temporary lock
+		constexpr unsigned int MaxAttempt = 5u;
+		constexpr float AttemptSleepDelay = 0.5f;
+		for (unsigned int Attempt = 1u; !Handle && Attempt <= MaxAttempt; ++Attempt)
+		{
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__func__), *LocalLibDir, Attempt, MaxAttempt);
+			Handle = FPlatformProcess::GetDllHandle(*LocalLibDir);
+			if (Handle)
+			{
+				break;
+			}
+
+			FPlatformProcess::Sleep(AttemptSleepDelay);
+		}
+
 		if (!Handle)
 		{
 			LogLastError(LocalLibDir);
