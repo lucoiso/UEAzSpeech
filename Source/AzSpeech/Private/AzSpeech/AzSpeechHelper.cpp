@@ -4,18 +4,19 @@
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
-#include <Sound/SoundWave.h>
-#include <Misc/FileHelper.h>
-#include <Misc/Paths.h>
-#include <DesktopPlatformModule.h>
-#include <Kismet/GameplayStatics.h>
-#include <AudioCaptureCore.h>
 
 #if PLATFORM_HOLOLENS
 #include <Windows/AllowWindowsPlatformTypes.h>
 #include <fileapi.h>
 #include <Windows/HideWindowsPlatformTypes.h>
 #endif
+
+#include <Sound/SoundWave.h>
+#include <Misc/FileHelper.h>
+#include <Misc/Paths.h>
+#include <DesktopPlatformModule.h>
+#include <Kismet/GameplayStatics.h>
+#include <AudioCaptureCore.h>
 
 #if ENGINE_MAJOR_VERSION < 5
 #include <HAL/PlatformFilemanager.h>

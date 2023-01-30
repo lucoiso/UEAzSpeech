@@ -48,7 +48,7 @@ void LogLastError(const FString& FailLib)
 	TCHAR ErrorBuffer[1024];
 	FPlatformMisc::GetSystemErrorMessage(ErrorBuffer, 1024, ErrorID);
 
-	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: An error has occurred while trying to load the runtime library \"%s\": %u (%s)"), *FString(__func__), *FailLib, ErrorID, ErrorBuffer);
+	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\": %u (%s)"), *FString(__func__), *FailLib, ErrorID, ErrorBuffer);
 }
 
 void FAzSpeechModule::LoadRuntimeLibraries()
@@ -74,9 +74,7 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 
 		if (!Handle)
 		{
-			UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\"."), *FString(__func__), *LocalLibDir);
 			LogLastError(LocalLibDir);
-
 			continue;
 		}
 
