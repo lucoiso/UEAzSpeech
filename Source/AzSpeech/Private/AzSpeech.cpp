@@ -15,6 +15,12 @@
 #define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
 #endif
 
+#define AZSPEECH_SUPPORTED_PLATFORM (PLATFORM_WINDOWS || PLATFORM_ANDROID)
+
+#if WITH_EDITOR
+#include <Misc/MessageDialog.h>
+#endif
+
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
 #ifdef AZSPEECH_BINARIES_SUBDIRECTORY
@@ -71,7 +77,6 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 #endif
 
 		void* Handle = FPlatformProcess::GetDllHandle(*LocalLibDir);
-
 		if (!Handle)
 		{
 			LogLastError(LocalLibDir);
@@ -117,6 +122,10 @@ void FAzSpeechModule::StartupModule()
 #ifdef AZSPEECH_BINARIES_SUBDIRECTORY
 	LoadRuntimeLibraries();
 #endif
+
+#if WITH_EDITOR && !AZSPEECH_SUPPORTED_PLATFORM
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Currently, AzSpeech does not officially support the platform you're using/targeting. If you encounter any issue and can/want to contribute, get in touch! :)\n\nRepository Link: github.com/lucoiso/UEAzSpeech"));
+#endif
 }
 
 void FAzSpeechModule::ShutdownModule()
@@ -130,5 +139,6 @@ void FAzSpeechModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
+#undef AZSPEECH_SUPPORTED_PLATFORM
 
 IMPLEMENT_MODULE(FAzSpeechModule, AzSpeech)
