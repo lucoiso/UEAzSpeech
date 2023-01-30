@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx.h: Master include header for public C++ API declarations
 //
@@ -37,6 +37,7 @@
 #include <speechapi_cxx_speech_recognizer.h>
 #include <speechapi_cxx_speech_recognition_model.h>
 
+#include <speechapi_cxx_conversational_language_understanding_model.h>
 #include <speechapi_cxx_intent_recognition_result.h>
 #include <speechapi_cxx_intent_recognition_eventargs.h>
 #include <speechapi_cxx_intent_recognizer.h>

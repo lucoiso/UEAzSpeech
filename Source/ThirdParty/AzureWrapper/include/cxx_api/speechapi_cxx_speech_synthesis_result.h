@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_speech_synthesis_result.h: Public API declarations for SpeechSynthesisResult C++ class
 //
@@ -150,15 +150,6 @@ public:
     /// </summary>
     const PropertyCollection& Properties;
 
-#ifdef SWIG
-    /// <summary>
-    /// Audio duration in milliseconds.
-    /// </summary>
-    int64_t GetAudioDurationMilliseconds()
-    {
-        return m_audioDuration.count();
-    }
-#endif
 private:
 
     DISABLE_DEFAULT_CTORS(SpeechSynthesisResult);
@@ -262,7 +253,7 @@ private:
 
     Speech::CancellationReason GetCancellationReason(SpeechSynthesisResult* result)
     {
-        Result_CancellationReason reason;
+        Result_CancellationReason reason = CancellationReason_Error;
 
         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
         SPX_IFFAILED_THROW_HR(synth_result_get_reason_canceled(hresult, &reason));

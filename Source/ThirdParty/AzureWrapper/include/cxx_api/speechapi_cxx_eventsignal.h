@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_eventsignal.h: Public API declarations for the EventSignal<T> class. This derives from
 // EventSignalBase<T> and uses runtime type information (RTTI) to facilitate management and disconnection of handlers

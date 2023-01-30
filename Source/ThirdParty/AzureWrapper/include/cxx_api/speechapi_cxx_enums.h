@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_enums.h: Public API declarations for C++ enumerations
 //
@@ -287,14 +287,12 @@ enum class PropertyId
     SpeechServiceConnection_EnableAudioLogging = 3202,
 
     /// <summary>
-    /// The single language id priority property
+    /// The speech service connection language identifier mode.
+    /// Can be "AtStart" (the default), or "Continuous". See [Language
+    /// Identification](https://aka.ms/speech/lid?pivots=programming-language-cpp) document.
+    /// Added in 1.25.0
     /// </summary>
-    SpeechServiceConnection_SingleLanguageIdPriority = 3203,
-
-    /// <summary>
-    /// The continuous language id priority property
-    /// </summary>
-    SpeechServiceConnection_ContinuousLanguageIdPriority = 3204,
+    SpeechServiceConnection_LanguageIdMode = 3205,
 
     /// <summary>
     /// The auto detect source languages

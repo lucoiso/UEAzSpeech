@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_translation_recognizer.h: Public API declarations for translation recognizer in C++.
 //
@@ -193,7 +193,7 @@ public:
     /// <param name="language">Translation target language to add.</param>
     void AddTargetLanguage(const SPXSTRING& language)
     {
-        SPX_IFTRUE_THROW_HR(m_hreco == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hreco == SPXHANDLE_INVALID);
         SPX_THROW_ON_FAIL(::translator_add_target_language(m_hreco, Utils::ToUTF8(language).c_str()));
     }
 
@@ -204,7 +204,7 @@ public:
     /// <param name="language">Translation target language to remove.</param>
     void RemoveTargetLanguage(const SPXSTRING& language)
     {
-        SPX_IFTRUE_THROW_HR(m_hreco == SPXHANDLE_INVALID, SPXERR_INVALID_HANDLE);
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_hreco == SPXHANDLE_INVALID);
         SPX_THROW_ON_FAIL(::translator_remove_target_language(m_hreco, Utils::ToUTF8(language).c_str()));
     }
 

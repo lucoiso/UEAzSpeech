@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_speech_voice_profile_result.h: Public API declarations for VoiceProfileResult C++ class
 //
@@ -95,7 +95,7 @@ private:
         SPX_INIT_HR(hr);
 
         const size_t maxCharCount = 2048;
-        char sz[maxCharCount + 1];
+        char sz[maxCharCount + 1] = {};
 
         if (resultId != nullptr)
         {
