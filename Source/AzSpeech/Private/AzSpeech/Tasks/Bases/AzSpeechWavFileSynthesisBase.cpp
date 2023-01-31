@@ -6,6 +6,12 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "LogAzSpeech.h"
 
+#if PLATFORM_HOLOLENS
+#include <Windows/AllowWindowsPlatformTypes.h>
+#include <fileapi.h>
+#include <Windows/HideWindowsPlatformTypes.h>
+#endif
+
 #if ENGINE_MAJOR_VERSION < 5
 #include <HAL/PlatformFilemanager.h>
 #else

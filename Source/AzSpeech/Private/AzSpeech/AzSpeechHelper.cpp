@@ -4,6 +4,13 @@
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
+
+#if PLATFORM_HOLOLENS
+#include <Windows/AllowWindowsPlatformTypes.h>
+#include <fileapi.h>
+#include <Windows/HideWindowsPlatformTypes.h>
+#endif
+
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
@@ -11,14 +18,14 @@
 #include <Kismet/GameplayStatics.h>
 #include <AudioCaptureCore.h>
 
-#if PLATFORM_ANDROID
-#include <AndroidPermissionFunctionLibrary.h>
-#endif
-
 #if ENGINE_MAJOR_VERSION < 5
 #include <HAL/PlatformFilemanager.h>
 #else
 #include <HAL/PlatformFileManager.h>
+#endif
+
+#if PLATFORM_ANDROID
+#include <AndroidPermissionFunctionLibrary.h>
 #endif
 
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
@@ -309,5 +316,5 @@ const bool UAzSpeechHelper::IsAudioInputDeviceIDValid(const FString& DeviceID)
 
 const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()
 {
-	return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+	return FPaths::Combine(*FPaths::ProjectLogDir(), TEXT("UEAzSpeech"));
 }
