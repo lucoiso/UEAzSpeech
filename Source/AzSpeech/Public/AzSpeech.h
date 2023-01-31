@@ -23,14 +23,11 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
+#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
 private:
-	void* CoreRuntimeLib = nullptr;
-	void* AudioRuntimeLib = nullptr;
-	void* KwsRuntimeLib = nullptr;
-	void* LuRuntimeLib = nullptr;
-	void* MasRuntimeLib = nullptr;
-	void* CodecRuntimeLib = nullptr;
+	void LoadRuntimeLibraries();
+	void UnloadRuntimeLibraries();
 
-	static void FreeDependency(void*& Handle);
-	static void LoadDependency(const FString& Path, void*& Handle);
+	TArray<void*> RuntimeLibraries;
+#endif
 };

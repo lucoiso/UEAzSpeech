@@ -1,12 +1,13 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_pattern_matching_model.h: Public API declarations for PatternMatchingModel C++ class
 //
 
 #pragma once
 #include <speechapi_cxx_common.h>
+#include <speechapi_cxx_language_understanding_model.h>
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_pattern_matching_intent.h>
 #include <speechapi_cxx_pattern_matching_entity.h>
@@ -18,9 +19,9 @@ namespace CognitiveServices {
 namespace Speech {
 namespace Intent {
 
-/// <summary>
-/// Represents a pattern matching model used for intent recognition.
-/// </summary>
+    /// <summary>
+    /// Represents a pattern matching model used for intent recognition.
+    /// </summary>
     class PatternMatchingModel : public LanguageUnderstandingModel
     {
     public:
@@ -61,7 +62,7 @@ namespace Intent {
 #endif
             if (err == 0 && fp != NULL)
             {
-                char buffer[1024];
+                char buffer[1024] = {};
                 size_t numread = 0;
                 std::string fileContents = "";
 #ifdef _MSC_VER

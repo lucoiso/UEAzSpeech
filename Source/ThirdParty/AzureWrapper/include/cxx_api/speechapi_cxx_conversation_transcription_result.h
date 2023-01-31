@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_conversation_transcriber_result.h: Public API declarations for ConversationTranscription C++ class
 //
@@ -66,7 +66,7 @@ private:
         SPX_INIT_HR(hr);
 
         const size_t maxCharCount = 1024;
-        char sz[maxCharCount+1];
+        char sz[maxCharCount + 1] = {};
 
         if (puserId != nullptr && recognizer_result_handle_is_valid(hresult))
         {
@@ -80,7 +80,7 @@ private:
         SPX_INIT_HR(hr);
 
         const size_t maxCharCount = 1024;
-        char sz[maxCharCount + 1];
+        char sz[maxCharCount + 1] = {};
 
         if (putteranceId != nullptr && recognizer_result_handle_is_valid(hresult))
         {

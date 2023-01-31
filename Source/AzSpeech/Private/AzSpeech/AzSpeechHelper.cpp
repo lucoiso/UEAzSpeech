@@ -4,13 +4,25 @@
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
+
+#if PLATFORM_HOLOLENS
+#include <Windows/AllowWindowsPlatformTypes.h>
+#include <fileapi.h>
+#include <Windows/HideWindowsPlatformTypes.h>
+#endif
+
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
-#include <HAL/PlatformFileManager.h>
 #include <DesktopPlatformModule.h>
 #include <Kismet/GameplayStatics.h>
 #include <AudioCaptureCore.h>
+
+#if ENGINE_MAJOR_VERSION < 5
+#include <HAL/PlatformFilemanager.h>
+#else
+#include <HAL/PlatformFileManager.h>
+#endif
 
 #if PLATFORM_ANDROID
 #include <AndroidPermissionFunctionLibrary.h>
@@ -64,7 +76,10 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
 	{
 #if PLATFORM_ANDROID
-		CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
+		if (!CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE"))
+		{
+			return nullptr;
+		}
 #endif
 
 		if (TArray<uint8> RawData;
@@ -199,13 +214,14 @@ const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FStrin
 	if (!UAndroidPermissionFunctionLibrary::CheckPermission(InPermission))
 	{
 		UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermission });
+		return false;
 	}
 
-	return UAndroidPermissionFunctionLibrary::CheckPermission(InPermission);
 #else
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
-	return true;
 #endif
+	
+	return true;
 }
 
 const bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
@@ -300,5 +316,5 @@ const bool UAzSpeechHelper::IsAudioInputDeviceIDValid(const FString& DeviceID)
 
 const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()
 {
-	return FPaths::ProjectSavedDir() + "Logs/UEAzSpeech";
+	return FPaths::Combine(*FPaths::ProjectLogDir(), TEXT("UEAzSpeech"));
 }

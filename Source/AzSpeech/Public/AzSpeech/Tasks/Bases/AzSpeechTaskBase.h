@@ -56,13 +56,14 @@ public:
 protected:
 	TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
 	FName TaskName = NAME_None;
-	
+
 	FString LanguageID;
 	const UObject* WorldContextObject;
+	bool bIsSSMLBased = false;
 
 	virtual bool StartAzureTaskWork();
 	virtual void BroadcastFinalResult();
-	
+
 	mutable FCriticalSection Mutex;
 
 #if WITH_EDITOR
@@ -86,6 +87,6 @@ protected:
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
-	
+
 	void ValidateLanguageID();
 };

@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_dialog_service_connector.h: Public API declarations for DialogServiceConnector C++ base class
 //

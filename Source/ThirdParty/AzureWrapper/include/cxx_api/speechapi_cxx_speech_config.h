@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_speech_config.h: Public API declarations for SpeechConfig C++ class
 //
@@ -370,8 +370,8 @@ public:
     /// <param name="proxyPassword">The password of the proxy server</param>
     void SetProxy(const SPXSTRING& proxyHostName, uint32_t proxyPort, const SPXSTRING& proxyUserName = SPXSTRING(), const SPXSTRING& proxyPassword = SPXSTRING())
     {
-        SPX_IFTRUE_THROW_HR(proxyHostName.empty(), SPXERR_INVALID_ARG);
-        SPX_IFTRUE_THROW_HR(proxyPort == 0, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, proxyHostName.empty());
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, proxyPort == 0);
 
         property_bag_set_string(m_propertybag, static_cast<int>(PropertyId::SpeechServiceConnection_ProxyHostName), nullptr,
             Utils::ToUTF8(proxyHostName).c_str());

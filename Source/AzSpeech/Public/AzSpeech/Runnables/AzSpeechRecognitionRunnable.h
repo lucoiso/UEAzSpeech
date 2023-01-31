@@ -22,8 +22,6 @@ class FAzSpeechRecognitionRunnable : public FAzSpeechRunnableBase
 public:
 	FAzSpeechRecognitionRunnable() = delete;
 	FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
-	
-	const std::shared_ptr<Microsoft::CognitiveServices::Speech::Recognizer> GetRecognizer() const;
 
 protected:
 	// FRunnable interface
@@ -35,6 +33,10 @@ private:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> SpeechRecognizer;
 
 protected:
+	const bool IsSpeechRecognizerValid() const;
+
+	class UAzSpeechRecognizerTaskBase* GetOwningRecognizerTask() const;
+
 	virtual void ClearSignals() override;
 	virtual void RemoveBindings() override;
 

@@ -4,9 +4,14 @@
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include <HAL/PlatformFileManager.h>
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
+#if ENGINE_MAJOR_VERSION < 5
+#include <HAL/PlatformFilemanager.h>
+#else
+#include <HAL/PlatformFileManager.h>
+#endif
+
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
@@ -14,7 +19,9 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldCont
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
+	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }
@@ -22,7 +29,11 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(const UObject* WorldCont
 void UWavFileToTextAsync::Activate()
 {
 #if PLATFORM_ANDROID
-	UAzSpeechHelper::CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE");
+	if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE"))
+	{
+		SetReadyToDestroy();
+		return;
+	}
 #endif
 
 	Super::Activate();

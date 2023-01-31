@@ -6,15 +6,16 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Sound/SoundWave.h>
 
-UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
+UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SynthesisText ;
+	NewAsyncTask->SynthesisText = SynthesisText;
 	NewAsyncTask->VoiceName = VoiceName;
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

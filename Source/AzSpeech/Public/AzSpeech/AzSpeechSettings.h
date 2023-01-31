@@ -82,7 +82,7 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001"))
 	float ThreadUpdateInterval;
 
-	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails [Currently disabled for Android] */
+	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails [Currently disabled for Android & iOS] */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
 
@@ -110,7 +110,7 @@ protected:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif // WITH_EDITOR
+#endif
 
 	virtual void PostInitProperties() override;
 

@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_audio_stream.h: Public API declarations for AudioInputStream / AudioOutputStream and related C++ classes
 //
@@ -46,12 +46,10 @@ class AudioInputStream
 {
 public:
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     using ReadCallbackFunction_Type = ::std::function<int(uint8_t*, uint32_t)>;
     using CloseCallbackFunction_Type = ::std::function<void()>;
     /// Added in version 1.5.0.
     using GetPropertyCallbackFunction_Type = std::function<SPXSTRING(PropertyId)>;
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Internal operator used to get underlying handle value.
@@ -72,7 +70,6 @@ public:
     /// <returns>A shared pointer to PushAudioInputStream</returns>
     static std::shared_ptr<PushAudioInputStream> CreatePushStream(std::shared_ptr<AudioStreamFormat> format);
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     /// <summary>
     /// Creates a PullAudioInputStream that delegates to the specified callback functions for Read() and Close() methods, using the default format (16 kHz, 16 bit, mono PCM).
     /// </summary>
@@ -110,7 +107,6 @@ public:
     /// <returns>A shared pointer to PullAudioInputStream</returns>
     static std::shared_ptr<PullAudioInputStream> CreatePullStream(ReadCallbackFunction_Type readCallback, CloseCallbackFunction_Type closeCallback, GetPropertyCallbackFunction_Type getPropertyCallback);
 
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Creates a PullAudioInputStream that delegates to the specified callback interface for the Read() and Close() methods, using the default format (16 kHz, 16 bit, mono PCM).
@@ -119,7 +115,6 @@ public:
     /// <returns>A shared pointer to PullAudioInputStream</returns>
     static std::shared_ptr<PullAudioInputStream> CreatePullStream(std::shared_ptr<PullAudioInputStreamCallback> callback);
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     /// <summary>
     /// Creates a PullAudioInputStream that delegates to the specified callback functions for Read() and Close() methods.
     /// </summary>
@@ -161,7 +156,6 @@ public:
     /// <returns>A shared pointer to PullAudioInputStream</returns>
     static std::shared_ptr<PullAudioInputStream> CreatePullStream(std::shared_ptr<AudioStreamFormat> format, ReadCallbackFunction_Type readCallback, CloseCallbackFunction_Type closeCallback, GetPropertyCallbackFunction_Type getPropertyCallback);
 
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Creates a PullAudioInputStream that delegates to the specified callback interface for the Read() and Close() methods, using the specified format.
@@ -389,7 +383,6 @@ class PullAudioInputStream : public AudioInputStream
 {
 public:
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     /// <summary>
     /// Creates a PullAudioInputStream utilizing the specified Read() and Close() "C" callback functions pointers
     /// Note: The dataBuffer returned by Read() should not contain any audio header.
@@ -442,7 +435,6 @@ public:
     {
         return Create(nullptr, readCallback, closeCallback, getPropertyCallback);
     }
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Creates a PullAudioInputStream utilizing the specified Close() callback function.
@@ -454,7 +446,6 @@ public:
         return Create(nullptr, callback);
     }
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     /// <summary>
     /// Creates a PullAudioInputStream utilizing the specified Read() and Close() "C" callback functions pointers
     /// Note: The dataBuffer returned by Read() should not contain any audio header.
@@ -523,7 +514,6 @@ public:
         auto wrapper = std::make_shared<FunctionCallbackWrapper>(readCallback, closeCallback, getPropertyCallback);
         return Create(format, wrapper);
     }
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Creates a PullAudioInputStream utilizing the specified Read() and Close() callback functions.
@@ -556,7 +546,6 @@ protected:
     /// </summary>
     explicit PullAudioInputStream(SPXAUDIOSTREAMHANDLE haudioStream) : AudioInputStream(haudioStream) { }
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     class FunctionCallbackWrapper : public PullAudioInputStreamCallback
     {
     public:
@@ -592,7 +581,6 @@ protected:
         GetPropertyCallbackFunction_Type m_getPropertyCallback;
 
     };
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /*! \endcond */
 
@@ -636,7 +624,6 @@ inline std::shared_ptr<PushAudioInputStream> AudioInputStream::CreatePushStream(
     return PushAudioInputStream::Create(format);
 }
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 inline std::shared_ptr<PullAudioInputStream> AudioInputStream::CreatePullStream(void* pvContext, CUSTOM_AUDIO_PULL_STREAM_READ_CALLBACK readCallback, CUSTOM_AUDIO_PULL_STREAM_CLOSE_CALLBACK closeCallback)
 {
     return PullAudioInputStream::Create(pvContext, readCallback, closeCallback);
@@ -656,14 +643,12 @@ inline std::shared_ptr<PullAudioInputStream> AudioInputStream::CreatePullStream(
 {
     return PullAudioInputStream::Create(readCallback, closeCallback, getPropertyCallback);
 }
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
 inline std::shared_ptr<PullAudioInputStream> AudioInputStream::CreatePullStream(std::shared_ptr<PullAudioInputStreamCallback> callback)
 {
     return PullAudioInputStream::Create(callback);
 }
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 inline std::shared_ptr<PullAudioInputStream> AudioInputStream::CreatePullStream(std::shared_ptr<AudioStreamFormat> format, void* pvContext, CUSTOM_AUDIO_PULL_STREAM_READ_CALLBACK readCallback, CUSTOM_AUDIO_PULL_STREAM_CLOSE_CALLBACK closeCallback)
 {
     return PullAudioInputStream::Create(format, pvContext, readCallback, closeCallback);
@@ -683,7 +668,6 @@ inline std::shared_ptr<PullAudioInputStream> AudioInputStream::CreatePullStream(
 {
     return PullAudioInputStream::Create(format, readCallback, closeCallback, getPropertyCallback);
 }
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
 inline std::shared_ptr<PullAudioInputStream> AudioInputStream::CreatePullStream(std::shared_ptr<AudioStreamFormat> format, std::shared_ptr<PullAudioInputStreamCallback> callback)
 {
@@ -699,10 +683,8 @@ class AudioOutputStream
 {
 public:
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     using WriteCallbackFunction_Type = ::std::function<int(uint8_t*, uint32_t)>;
     using CloseCallbackFunction_Type = ::std::function<void()>;
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Internal operator used to get underlying handle value.
@@ -716,7 +698,6 @@ public:
     /// <returns>A shared pointer to PullAudioOutputStream</returns>
     static std::shared_ptr<PullAudioOutputStream> CreatePullStream();
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     /// <summary>
     /// Creates a PushAudioOutputStream that delegates to the specified callback functions for Write() and Close() methods.
     /// </summary>
@@ -733,7 +714,6 @@ public:
     /// <param name="closeCallback">Close callback.</param>
     /// <returns>A shared pointer to PushAudioOutputStream</returns>
     static std::shared_ptr<PushAudioOutputStream> CreatePushStream(WriteCallbackFunction_Type writeCallback, CloseCallbackFunction_Type closeCallback = nullptr);
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Creates a PushAudioOutputStream that delegates to the specified callback interface for Write() and Close() methods.
@@ -895,7 +875,6 @@ class PushAudioOutputStream : public AudioOutputStream
 {
 public:
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     /// <summary>
     /// Creates a PushAudioOutputStream utilizing the specified Write() and Close() "C" callback functions pointers
     /// </summary>
@@ -921,7 +900,6 @@ public:
         auto wrapper = std::make_shared<FunctionCallbackWrapper>(writeCallback, closeCallback);
         return Create(wrapper);
     }
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /// <summary>
     /// Creates a PushAudioOutputStream utilizing the specified callback interface with Write() and Close() callback function.
@@ -949,7 +927,6 @@ protected:
     /// </summary>
     explicit PushAudioOutputStream(SPXAUDIOSTREAMHANDLE haudioStream) : AudioOutputStream(haudioStream) { }
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
     class FunctionCallbackWrapper : public PushAudioOutputStreamCallback
     {
     public:
@@ -970,7 +947,6 @@ protected:
         WriteCallbackFunction_Type m_writeCallback;
         CloseCallbackFunction_Type m_closeCallback;
     };
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
     /*! \endcond */
 
@@ -1000,7 +976,6 @@ inline std::shared_ptr<PullAudioOutputStream> AudioOutputStream::CreatePullStrea
     return PullAudioOutputStream::Create();
 }
 
-#if defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 inline std::shared_ptr<PushAudioOutputStream> AudioOutputStream::CreatePushStream(void* pvContext, CUSTOM_AUDIO_PUSH_STREAM_WRITE_CALLBACK writeCallback, CUSTOM_AUDIO_PUSH_STREAM_CLOSE_CALLBACK closeCallback)
 {
     return PushAudioOutputStream::Create(pvContext, writeCallback, closeCallback);
@@ -1010,7 +985,6 @@ inline std::shared_ptr<PushAudioOutputStream> AudioOutputStream::CreatePushStrea
 {
     return PushAudioOutputStream::Create(writeCallback, closeCallback);
 }
-#endif // defined(BINDING_OBJECTIVE_C) || !defined(SWIG)
 
 inline std::shared_ptr<PushAudioOutputStream> AudioOutputStream::CreatePushStream(std::shared_ptr<PushAudioOutputStreamCallback> callback)
 {

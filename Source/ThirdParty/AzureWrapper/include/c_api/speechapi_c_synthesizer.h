@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_c_synthesizer.h: Public API declarations for Synthesizer related C methods and typedefs
 //
@@ -29,10 +29,6 @@ SPXAPI synthesizer_result_handle_release(SPXRESULTHANDLE hresult);
 
 SPXAPI_(bool) synthesizer_event_handle_is_valid(SPXEVENTHANDLE hevent);
 SPXAPI synthesizer_event_handle_release(SPXEVENTHANDLE hevent);
-
-SPXAPI synthesizer_enable(SPXSYNTHHANDLE hsynth);
-SPXAPI synthesizer_disable(SPXSYNTHHANDLE hsynth);
-SPXAPI synthesizer_is_enabled(SPXSYNTHHANDLE hsynth, bool* pfEnabled);
 
 SPXAPI synthesizer_get_property_bag(SPXSYNTHHANDLE hsynth, SPXPROPERTYBAGHANDLE* hpropbag);
 
@@ -67,6 +63,7 @@ SPXAPI synthesizer_connection_disconnected_set_callback(SPXCONNECTIONHANDLE hCon
 SPXAPI synthesizer_synthesis_event_get_result(SPXEVENTHANDLE hevent, SPXRESULTHANDLE* phresult);
 SPXAPI synthesizer_word_boundary_event_get_values(SPXEVENTHANDLE hevent, uint64_t *pAudioOffset, uint64_t *pDuration,
                                                   uint32_t *pTextOffset, uint32_t *pWordLength, SpeechSynthesis_BoundaryType *pBoundaryType);
+SPXAPI synthesizer_event_get_result_id(SPXEVENTHANDLE hEvent, char* resultId, uint32_t resultIdLength);
 SPXAPI__(const char*) synthesizer_event_get_text(SPXEVENTHANDLE hEvent);
 SPXAPI synthesizer_viseme_event_get_values(SPXEVENTHANDLE hevent, uint64_t* pAudioOffset, uint32_t* pVisemeId);
 SPXAPI__(const char*) synthesizer_viseme_event_get_animation(SPXEVENTHANDLE hEvent);

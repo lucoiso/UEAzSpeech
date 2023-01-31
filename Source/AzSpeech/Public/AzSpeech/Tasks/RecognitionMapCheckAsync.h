@@ -8,6 +8,8 @@
 #include <Kismet/BlueprintAsyncActionBase.h>
 #include "RecognitionMapCheckAsync.generated.h"
 
+struct FAzSpeechRecognitionMap;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAzSpeechMapCheckDelegate_Generic);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAzSpeechMapCheckDelegate_WithValue, const int32, RecognitionResult);
 
@@ -30,7 +32,7 @@ public:
 
 	/* Search in the recognition map for the key that best matches with the input string and return the registered value (See Project Settings -> AzSpeech: Recognition Map) */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Check Return from Recognition Map"))
-	static URecognitionMapCheckAsync* RecognitionMapCheckAsync(const UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger = false);
+	static URecognitionMapCheckAsync* RecognitionMapCheckAsync(UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger = false);
 
 	virtual void Activate() override;
 	virtual void SetReadyToDestroy() override;

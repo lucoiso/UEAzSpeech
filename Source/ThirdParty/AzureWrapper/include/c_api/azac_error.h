@@ -409,16 +409,9 @@ typedef uintptr_t AZACHR;
 #define AZAC_ERR_COULD_NOT_CREATE_ENGINE_ADAPTER __AZAC_ERRCODE_FAILED(0x070)
 
 /// <summary>
-/// The input media file is missing a file name extension (e.g. my-file.jpg)
+/// The input file has a size of 0 bytes.
 /// </summary>
-#define AZAC_ERR_MISSING_INPUT_FILE_NAME_EXTENSION __AZAC_ERRCODE_FAILED(0x071)
-
-/// <summary>
-/// The input media file extension indicates an unsupported format.
-/// This is the list of supported file extensions:
-/// {"mp4", "bmp", "jpg", "jpeg", "png", "gif", "webp", "ico", "tif", "tiff", "mpo", "heif", "heic"}
-/// </summary>
-#define AZAC_ERR_UNSUPPORTED_INPUT_FILE_NAME_EXTENSION __AZAC_ERRCODE_FAILED(0x072)
+#define AZAC_ERR_INPUT_FILE_SIZE_IS_ZERO_BYTES __AZAC_ERRCODE_FAILED(0x072)
 
 /// <summary>
 /// Cannot open the input media file for reading. Does it exist?
@@ -450,3 +443,13 @@ typedef uintptr_t AZACHR;
 /// is specified by the regular expression `^(latest|\d{4}-\d{2}-\d{2})(-preview)?$`.
 /// </summary>
 #define AZAC_ERR_INVALID_MODEL_VERSION_FORMAT __AZAC_ERRCODE_FAILED(0x078)
+
+/// <summary>
+/// Malformed network message
+/// </summary>
+#define AZAC_ERR_NETWORK_MALFORMED __AZAC_ERRCODE_FAILED(0x090)
+
+/// <summary>
+/// Unexpected message received
+/// </summary>
+#define AZAC_ERR_NETWORK_PROTOCOL_VIOLATION __AZAC_ERRCODE_FAILED(0x091)

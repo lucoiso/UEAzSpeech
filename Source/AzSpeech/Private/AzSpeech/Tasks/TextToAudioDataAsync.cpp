@@ -4,15 +4,16 @@
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(const UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {
 	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SynthesisText ;
+	NewAsyncTask->SynthesisText = SynthesisText;
 	NewAsyncTask->VoiceName = VoiceName;
 	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

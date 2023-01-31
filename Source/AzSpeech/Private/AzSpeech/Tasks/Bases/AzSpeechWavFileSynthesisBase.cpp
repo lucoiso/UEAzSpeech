@@ -5,12 +5,27 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "LogAzSpeech.h"
+
+#if PLATFORM_HOLOLENS
+#include <Windows/AllowWindowsPlatformTypes.h>
+#include <fileapi.h>
+#include <Windows/HideWindowsPlatformTypes.h>
+#endif
+
+#if ENGINE_MAJOR_VERSION < 5
+#include <HAL/PlatformFilemanager.h>
+#else
 #include <HAL/PlatformFileManager.h>
+#endif
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
 #if PLATFORM_ANDROID
-	UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+	if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
+	{
+		SetReadyToDestroy();
+		return;
+	}
 #endif
 
 	Super::Activate();
@@ -73,7 +88,8 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 
-	if (HasEmptyParameters(SynthesisText, VoiceName, LanguageID, FilePath, FileName))
+	if (HasEmptyParameters(SynthesisText, FilePath, FileName) ||
+		(!bIsSSMLBased && HasEmptyParameters(VoiceName, LanguageID)))
 	{
 		return false;
 	}

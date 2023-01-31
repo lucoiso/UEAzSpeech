@@ -7,7 +7,7 @@
 
 #if WITH_EDITOR
 #include <Misc/MessageDialog.h>
-#endif // WITH_EDITOR
+#endif
 
 UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TimeOutInSeconds(10.f), bEnableViseme(true), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
@@ -50,7 +50,7 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	{
 		if (AutoCandidateLanguages.Num() > MaxCandidateLanguages)
 		{
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));			
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));
 			AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
 		}
 	}
@@ -61,7 +61,7 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 		ToggleInternalLogs();
 	}
 }
-#endif // WITH_EDITOR
+#endif
 
 void UAzSpeechSettings::PostInitProperties()
 {

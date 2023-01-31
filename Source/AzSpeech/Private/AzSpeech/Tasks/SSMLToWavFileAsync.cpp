@@ -4,7 +4,7 @@
 
 #include "AzSpeech/Tasks/SSMLToWavFileAsync.h"
 
-USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile(const UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
+USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
 {
 	USSMLToWavFileAsync* const NewAsyncTask = NewObject<USSMLToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
@@ -13,6 +13,7 @@ USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile(const UObject* WorldCont
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
 }

@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_speech_synthesizer.h: Public API declarations for SpeechSynthesizer C++ class
 //
@@ -224,7 +224,6 @@ public:
         return std::make_shared<SpeechSynthesisResult>(hresult);
     }
 
-#ifndef SWIG
     /// <summary>
     /// Execute the speech synthesis on plain text, synchronously.
     /// Added in 1.9.0
@@ -235,7 +234,6 @@ public:
     {
         return SpeakText(Utils::ToUTF8(text));
     }
-#endif
 
     /// <summary>
     /// Execute the speech synthesis on SSML, synchronously.
@@ -250,7 +248,6 @@ public:
         return std::make_shared<SpeechSynthesisResult>(hresult);
     }
 
-#ifndef SWIG
     /// <summary>
     /// Execute the speech synthesis on SSML, synchronously.
     /// Added in version 1.9.0
@@ -261,7 +258,6 @@ public:
     {
         return SpeakSsml(Utils::ToUTF8(ssml));
     }
-#endif
 
     /// <summary>
     /// Execute the speech synthesis on plain text, asynchronously.
@@ -288,7 +284,6 @@ public:
         return future;
     }
 
-#ifndef SWIG
     /// <summary>
     /// Execute the speech synthesis on plain text, asynchronously.
     /// Added in version 1.9.0
@@ -299,7 +294,6 @@ public:
     {
         return SpeakTextAsync(Utils::ToUTF8(text));
     }
-#endif
 
     /// <summary>
     /// Execute the speech synthesis on SSML, asynchronously.
@@ -326,7 +320,6 @@ public:
         return future;
     }
 
-#ifndef SWIG
     /// <summary>
     /// Execute the speech synthesis on SSML, asynchronously.
     /// Added in version 1.9.0
@@ -337,7 +330,6 @@ public:
     {
         return SpeakSsmlAsync(Utils::ToUTF8(ssml));
     }
-#endif
 
     /// <summary>
     /// Start the speech synthesis on plain text, synchronously.
@@ -352,7 +344,6 @@ public:
         return std::make_shared<SpeechSynthesisResult>(hresult);
     }
 
-#ifndef SWIG
     /// <summary>
     /// Start the speech synthesis on plain text, synchronously.
     /// Added in version 1.9.0
@@ -363,7 +354,6 @@ public:
     {
         return StartSpeakingText(Utils::ToUTF8(text));
     }
-#endif
 
     /// <summary>
     /// Start the speech synthesis on SSML, synchronously.
@@ -378,7 +368,6 @@ public:
         return std::make_shared<SpeechSynthesisResult>(hresult);
     }
 
-#ifndef SWIG
     /// <summary>
     /// Start the speech synthesis on SSML, synchronously.
     /// Added in version 1.9.0
@@ -389,7 +378,6 @@ public:
     {
         return StartSpeakingSsml(Utils::ToUTF8(ssml));
     }
-#endif
 
     /// <summary>
     /// Start the speech synthesis on plain text, asynchronously.
@@ -416,7 +404,6 @@ public:
         return future;
     }
 
-#ifndef SWIG
     /// <summary>
     /// Start the speech synthesis on plain text, asynchronously.
     /// Added in version 1.9.0
@@ -427,7 +414,6 @@ public:
     {
         return StartSpeakingTextAsync(Utils::ToUTF8(text));
     }
-#endif
 
     /// <summary>
     /// Start the speech synthesis on SSML, asynchronously.
@@ -454,7 +440,6 @@ public:
         return future;
     }
 
-#ifndef SWIG
     /// <summary>
     /// Start the speech synthesis on SSML, asynchronously.
     /// Added in version 1.9.0
@@ -465,7 +450,6 @@ public:
     {
         return StartSpeakingSsmlAsync(Utils::ToUTF8(ssml));
     }
-#endif
 
     /// <summary>
     /// Stop the speech synthesis, asynchronously.

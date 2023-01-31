@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_intent_recognition_eventargs.h: Public API declarations for IntentRecognitionEventArgs C++ class
 //
@@ -50,7 +50,7 @@ public:
         SPX_THROW_ON_FAIL(recognizer_event_handle_release(m_hevent));
     };
 
-#if defined(SWIG) || defined(BINDING_OBJECTIVE_C)
+#if defined(BINDING_OBJECTIVE_C)
 private:
 #endif
     /// <summary>
@@ -58,7 +58,7 @@ private:
     /// </summary>
     std::shared_ptr<IntentRecognitionResult> Result;
 
-#if defined(SWIG) || defined(BINDING_OBJECTIVE_C)
+#if defined(BINDING_OBJECTIVE_C)
 public:
 #else
 protected:
@@ -121,7 +121,7 @@ public:
         SPX_DBG_TRACE_VERBOSE("%s (this=0x%p)", __FUNCTION__, (void*)this);
     };
 
-#if defined(SWIG) || defined(BINDING_OBJECTIVE_C)
+#if defined(BINDING_OBJECTIVE_C)
 private:
 #endif
 
@@ -150,7 +150,7 @@ private:
     /// </summary>
     const SPXSTRING ErrorDetails;
 
-#if defined(SWIG) || defined(BINDING_OBJECTIVE_C)
+#if defined(BINDING_OBJECTIVE_C)
 public:
 #else
 private:

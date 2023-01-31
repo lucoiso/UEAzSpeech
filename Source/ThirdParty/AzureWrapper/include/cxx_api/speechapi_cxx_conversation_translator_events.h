@@ -1,6 +1,6 @@
 
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // speechapi_cxx_conversation_translator_events.h: Public C++ class API declarations for ConversationTranslator related events
 //
@@ -180,7 +180,7 @@ namespace Transcription {
                     // special here
                 }
             }
-            
+
             return list;
         }
 
@@ -213,7 +213,7 @@ namespace Transcription {
         {
         }
 
-#if defined(SWIG) || defined(BINDING_OBJECTIVE_C)
+#if defined(BINDING_OBJECTIVE_C)
     private:
 #endif
         /// <summary>
@@ -222,7 +222,7 @@ namespace Transcription {
         /// </summary>
         std::shared_ptr<const ConversationTranslationResult> Result;
 
-#if defined(SWIG) || defined(BINDING_OBJECTIVE_C)
+#if defined(BINDING_OBJECTIVE_C)
     public:
 #else
     protected:

@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 
 #pragma once
@@ -60,7 +60,6 @@ public:
         return std::shared_ptr<PronunciationAssessmentConfig>(ptr);
     }
 
-#ifndef SWIG
     /// <summary>
     /// Creates an instance of the PronunciationAssessmentConfig
     /// For the parameters details, see
@@ -80,7 +79,6 @@ public:
     {
         return Create(Utils::ToUTF8(referenceText), gradingSystem, granularity, enableMiscue);
     }
-#endif
 
     /// <summary>
     /// Creates an instance of the PronunciationAssessmentConfig from json.
@@ -127,7 +125,6 @@ public:
         property_bag_set_string(m_propertybag, static_cast<int>(PropertyId::PronunciationAssessment_ReferenceText), nullptr, referenceText.c_str());
     }
 
-#ifndef SWIG
     /// <summary>
     /// Sets the reference text.
     /// </summary>
@@ -136,7 +133,6 @@ public:
     {
         SetReferenceText(Utils::ToUTF8(referenceText));
     }
-#endif
 
     /// <summary>
     /// Sets phoneme alphabet. Valid values are: "SAPI" (default) and "IPA".
@@ -165,7 +161,7 @@ public:
     void ApplyTo(std::shared_ptr<Recognizer> recognizer) const
     {
         SPX_INIT_HR(hr);
-        SPX_IFTRUE_THROW_HR(recognizer == nullptr, SPXERR_INVALID_ARG);
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, recognizer == nullptr);
 
         SPX_THROW_ON_FAIL(hr =::pronunciation_assessment_config_apply_to_recognizer(m_hconfig, recognizer->m_hreco));
     }

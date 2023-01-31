@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/csspeech/license201809 for the full license information.
+// See https://aka.ms/csspeech/license for the full license information.
 //
 // spxdebug.h: Public API definitions for global C Trace/Debug methods and related #defines
 //
@@ -188,7 +188,7 @@
 #endif // SPX_CONFIG_TRACE_ALL
 
 //-------------------------------------------------------
-//  #include section ... 
+//  #include section ...
 //  (must come after everything above)
 //-------------------------------------------------------
 
@@ -536,8 +536,6 @@
 #define SPX_THROW_HR(hr)                           __SPX_THROW_HR(hr)
 #endif
 
-#define SPX_IFTRUE_THROW_HR(cond, hr)               SPX_THROW_HR_IF(hr, cond)
-#define SPX_IFFALSE_THROW_HR(cond, hr)              SPX_THROW_HR_IF(hr, !(cond))
 #define SPX_IFFAILED_THROW_HR(hr)                   SPX_THROW_ON_FAIL(hr)
 #define SPX_IFFAILED_THROW_HR_IFNOT(hr, hrNot)      SPX_THROW_ON_FAIL_IF_NOT(hr, hrNot)
 
@@ -549,8 +547,6 @@
 #define SPX_THROW_ON_FAIL_IF_NOT(hr, hrNot)        static_assert(false)
 #define SPX_THROW_HR_IF(hr, cond)                  static_assert(false)
 #define SPX_THROW_HR(hr)                           static_assert(false)
-#define SPX_IFTRUE_THROW_HR(cond, hr)              static_assert(false)
-#define SPX_IFFALSE_THROW_HR(cond, hr)             static_assert(false)
 #define SPX_IFFAILED_THROW_HR(hr)                  static_assert(false)
 #define SPX_IFFAILED_THROW_HR_IFNOT(hr, hrNot)     static_assert(false)
 

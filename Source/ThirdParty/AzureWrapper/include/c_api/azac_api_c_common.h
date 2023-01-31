@@ -23,13 +23,6 @@
 #define AZAC_API_RESULTTYPE     AZACHR
 #define AZAC_API_CALLTYPE       __stdcall
 #define AZAC_API_VCALLTYPE      __cdecl
-#elif defined(SWIG)
-#define AZAC_DLL_EXPORT
-#define AZAC_DLL_IMPORT
-#define AZAC_API_NOTHROW
-#define AZAC_API_RESULTTYPE     AZACHR
-#define AZAC_API_CALLTYPE
-#define AZAC_API_VCALLTYPE
 #else
 #define AZAC_DLL_EXPORT         __attribute__ ((__visibility__("default")))
 #define AZAC_DLL_IMPORT

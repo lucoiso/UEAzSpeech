@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
-// See https://aka.ms/azai/vision/license202012 for the full license information.
+// See https://aka.ms/azai/vision/license for the full license information.
 //
 
 #pragma once
