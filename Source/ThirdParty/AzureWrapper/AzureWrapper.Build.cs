@@ -206,6 +206,7 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
+			// Experimental UPL usage for MacOS to add the required PList data
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_MacOS.xml"));
 
 			CopyAndLinkStaticLibrary("libMicrosoft.CognitiveServices.Speech.core.a", BinariesDirectory);
