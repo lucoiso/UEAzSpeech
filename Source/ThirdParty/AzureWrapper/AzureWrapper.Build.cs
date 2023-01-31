@@ -170,6 +170,15 @@ public class AzureWrapper : ModuleRules
 		}
 	}
 
+	private void DefineWhitelistedBinaries(string JoinedBinaries)
+	{
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens ||
+			Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", JoinedBinaries));
+		}
+	}
+
 	private void CopyAndLinkStaticLibrary(string LibFilename, string DestinationDirectory)
 	{
 		string SourceStaticDir = Path.Combine(GetPlatformLibsDirectory(), LibFilename);
@@ -199,6 +208,8 @@ public class AzureWrapper : ModuleRules
 		Directory.CreateDirectory(BinariesDirectory);
 		DefineBinariesSubDirectory(BinariesSubDirectory);
 
+		DefineWhitelistedBinaries(string.Join(";", GetLibsList()));
+
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
 			CopyAndLinkStaticLibrary("Microsoft.CognitiveServices.Speech.core.lib", BinariesDirectory);
@@ -206,6 +217,9 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
+			// Experimental UPL usage for MacOS to add the required PList data
+			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_MacOS.xml"));
+
 			CopyAndLinkStaticLibrary("libMicrosoft.CognitiveServices.Speech.core.a", BinariesDirectory);
 			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, true, true, false);
 		}
