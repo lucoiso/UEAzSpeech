@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+	<init>
+		<log text="AzSpeech is adding permission requests to MacOS PList"/>
+	</init>
+
+	<iosPListUpdates>
+		<addElements tag="dict" once="true">
+			<!-- Allow microphone access -->
+			<key>NSMicrophoneUsageDescription</key>
+			<string>Microphone access is required by AzSpeech to perform Speech to Text tasks</string>
+		</addElements>
+
+		<addElements tag="dict" once="true">
+			<!-- Allow files access through an file provider -->
+			<key>NSFileProviderDomainUsageDescription</key>
+			<string>Files saving and loading are required to perform some tasks</string>
+		</addElements>
+	</iosPListUpdates>
+</root>

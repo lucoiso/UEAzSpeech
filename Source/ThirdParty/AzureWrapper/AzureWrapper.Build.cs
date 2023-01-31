@@ -206,6 +206,8 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
+			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_MacOS.xml"));
+
 			CopyAndLinkStaticLibrary("libMicrosoft.CognitiveServices.Speech.core.a", BinariesDirectory);
 			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, true, true, false);
 		}
