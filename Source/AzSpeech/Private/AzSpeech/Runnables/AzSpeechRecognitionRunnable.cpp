@@ -62,7 +62,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	while (!IsPendingStop())
 	{
 #if !UE_BUILD_SHIPPING
-		FAzSpeechRunnableBase::PrintDebugInformation(RecognizerTask, StartTime, ActivationDelay, SleepTime);
+		PrintDebugInformation(StartTime, ActivationDelay, SleepTime);
 #endif
 		FPlatformProcess::Sleep(SleepTime);
 	}

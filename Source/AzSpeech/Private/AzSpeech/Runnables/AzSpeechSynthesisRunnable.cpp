@@ -61,7 +61,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	while (!IsPendingStop())
 	{
 #if !UE_BUILD_SHIPPING
-		FAzSpeechRunnableBase::PrintDebugInformation(SynthesizerTask, StartTime, ActivationDelay, SleepTime);
+		PrintDebugInformation(StartTime, ActivationDelay, SleepTime);
 #endif
 		FPlatformProcess::Sleep(SleepTime);
 	}
