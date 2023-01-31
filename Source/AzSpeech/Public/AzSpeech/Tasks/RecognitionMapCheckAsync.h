@@ -8,6 +8,8 @@
 #include <Kismet/BlueprintAsyncActionBase.h>
 #include "RecognitionMapCheckAsync.generated.h"
 
+struct FAzSpeechRecognitionMap;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAzSpeechMapCheckDelegate_Generic);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAzSpeechMapCheckDelegate_WithValue, const int32, RecognitionResult);
 
