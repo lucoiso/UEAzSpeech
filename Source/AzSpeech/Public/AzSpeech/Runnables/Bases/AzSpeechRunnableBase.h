@@ -15,6 +15,7 @@ THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_eventsignal.h>
 THIRD_PARTY_INCLUDES_END
 
+class UAzSpeechTaskBase;
 /**
  *
  */
