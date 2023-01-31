@@ -30,22 +30,23 @@ FString GetRuntimeLibsDirectory()
 	FString Directory = PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
 	FPaths::NormalizeDirectoryName(Directory);
 
+#if PLATFORM_HOLOLENS
+	FPaths::MakePathRelativeTo(Directory, *(FPaths::RootDir() + TEXT("/")));
+#endif
+
 	return Directory;
 }
 
-FString GetRuntimeLibsType()
+TArray<FString> GetWhitelistedRuntimeLibs()
 {
-#if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
-	return "*.dll";
+	TArray<FString> WhitelistedLibs;
 
-#elif PLATFORM_MAC || PLATFORM_MAC_ARM64
-	return "*.dylib";
-
-#elif PLATFORM_LINUX || PLATFORM_LINUXARM64
-	return "*.so";
+#ifdef AZSPEECH_WHITELISTED_BINARIES
+	const FString WhitelistedLibsDef(AZSPEECH_WHITELISTED_BINARIES);
+	WhitelistedLibsDef.ParseIntoArray(WhitelistedLibs, TEXT(";"));
 #endif
 
-	return FString();
+	return WhitelistedLibs;
 }
 
 void LogLastError(const FString& FailLib)
@@ -59,28 +60,15 @@ void LogLastError(const FString& FailLib)
 
 void FAzSpeechModule::LoadRuntimeLibraries()
 {
-	const FString BinDir = GetRuntimeLibsDirectory();
-	const FString LibType = GetRuntimeLibsType();
+	const FString BinariesDirectory = GetRuntimeLibsDirectory();
+	const TArray<FString> WhitelistedLibs = GetWhitelistedRuntimeLibs();
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Searching for runtime libraries with extension \"%s\" in directory \"%s\"."), *FString(__func__), *LibType, *BinDir);
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in directory \"%s\"."), *FString(__func__), *BinariesDirectory);
 
-	TArray<FString> Libs;
-	IFileManager::Get().FindFilesRecursive(Libs, *BinDir, *LibType, true, false);
+	FPlatformProcess::PushDllDirectory(*BinariesDirectory);
 
-	for (const FString& FoundLib : Libs)
+	for (const FString& RuntimeLib : WhitelistedLibs)
 	{
-		FString LocalLibDirectory = FoundLib;
-		FPaths::NormalizeFilename(LocalLibDirectory);
-
-#if PLATFORM_HOLOLENS
-		FPaths::MakePathRelativeTo(LocalLibDirectory, *(FPaths::RootDir() + TEXT("/")));
-#endif
-
-		const FString LibPath = FPaths::GetPath(LocalLibDirectory);
-		const FString LibFilename = FPaths::GetCleanFilename(LocalLibDirectory);
-
-		FPlatformProcess::PushDllDirectory(*LibPath);
-
 		void* Handle = nullptr;
 
 		// Attempt to load the file more than one time in case of a temporary lock
@@ -93,8 +81,8 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 				FPlatformProcess::Sleep(AttemptSleepDelay);
 			}
 
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__func__), *LocalLibDirectory, Attempt, MaxAttempt);
-			if (Handle = FPlatformProcess::GetDllHandle(*LibFilename); Handle)
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__func__), *RuntimeLib, Attempt, MaxAttempt);
+			if (Handle = FPlatformProcess::GetDllHandle(*RuntimeLib); Handle)
 			{
 				break;
 			}
@@ -102,16 +90,16 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 
 		if (!Handle)
 		{
-			LogLastError(LocalLibDirectory);
+			LogLastError(FPaths::Combine(BinariesDirectory, RuntimeLib));
 		}
 		else
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *LocalLibDirectory);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *RuntimeLib);
 			RuntimeLibraries.Add(Handle);
 		}
-
-		FPlatformProcess::PopDllDirectory(*LibPath);
 	}
+
+	FPlatformProcess::PopDllDirectory(*BinariesDirectory);
 }
 
 void FAzSpeechModule::UnloadRuntimeLibraries()
