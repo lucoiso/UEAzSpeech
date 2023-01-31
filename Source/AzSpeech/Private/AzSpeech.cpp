@@ -50,7 +50,7 @@ FString GetRuntimeLibsType()
 
 void LogLastError(const FString& FailLib)
 {
-	const uint32 ErrorID = FGenericPlatformMisc::GetLastError();
+	const uint32 ErrorID = FPlatformMisc::GetLastError();
 	TCHAR ErrorBuffer[MAX_SPRINTF];
 	FPlatformMisc::GetSystemErrorMessage(ErrorBuffer, MAX_SPRINTF, ErrorID);
 
@@ -69,12 +69,17 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 
 	for (const FString& FoundLib : Libs)
 	{
-		FString LocalLibDir = FoundLib;
-		FPaths::NormalizeFilename(LocalLibDir);
+		FString LocalLibDirectory = FoundLib;
+		FPaths::NormalizeFilename(LocalLibDirectory);
 
 #if PLATFORM_HOLOLENS
-		FPaths::MakePathRelativeTo(LocalLibDir, *(FPaths::RootDir() + TEXT("/")));
+		FPaths::MakePathRelativeTo(LocalLibDirectory, *(FPaths::RootDir() + TEXT("/")));
 #endif
+
+		const FString LibPath = FPaths::GetPath(LocalLibDirectory);
+		const FString LibFilename = FPaths::GetCleanFilename(LocalLibDirectory);
+
+		FPlatformProcess::PushDllDirectory(*LibPath);
 
 		void* Handle = nullptr;
 
@@ -83,24 +88,29 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 		constexpr float AttemptSleepDelay = 0.5f;
 		for (unsigned int Attempt = 1u; !Handle && Attempt <= MaxAttempt; ++Attempt)
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__func__), *LocalLibDir, Attempt, MaxAttempt);
-			Handle = FPlatformProcess::GetDllHandle(*LocalLibDir);
-			if (Handle)
+			if (Attempt > 1u)
+			{
+				FPlatformProcess::Sleep(AttemptSleepDelay);
+			}
+
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__func__), *LocalLibDirectory, Attempt, MaxAttempt);
+			if (Handle = FPlatformProcess::GetDllHandle(*LibFilename); Handle)
 			{
 				break;
 			}
-
-			FPlatformProcess::Sleep(AttemptSleepDelay);
 		}
 
 		if (!Handle)
 		{
-			LogLastError(LocalLibDir);
-			continue;
+			LogLastError(LocalLibDirectory);
+		}
+		else
+		{
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *LocalLibDirectory);
+			RuntimeLibraries.Add(Handle);
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *LocalLibDir);
-		RuntimeLibraries.Add(Handle);
+		FPlatformProcess::PopDllDirectory(*LibPath);
 	}
 }
 
