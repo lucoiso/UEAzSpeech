@@ -91,12 +91,11 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 		if (!Handle)
 		{
 			LogLastError(FPaths::Combine(BinariesDirectory, RuntimeLib));
+			continue;
 		}
-		else
-		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *RuntimeLib);
-			RuntimeLibraries.Add(Handle);
-		}
+
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *RuntimeLib);
+		RuntimeLibraries.Add(Handle);
 	}
 
 	FPlatformProcess::PopDllDirectory(*BinariesDirectory);
