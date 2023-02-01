@@ -67,9 +67,13 @@ public class AzureWrapper : ModuleRules
 				"Microsoft.CognitiveServices.Speech.extension.mas.dll"
 			});
 
-			if (!isArmArch())
+			if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
 				Output.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+			}
+			else if (Target.Platform == UnrealTargetPlatform.HoloLens && !isArmArch())
+			{
+				Output.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
 			}
 		}
 
