@@ -107,43 +107,15 @@ public class AzureWrapper : ModuleRules
 		return Output;
 	}
 
-	private void CopyFile(string Source, string Destination)
-	{
-		if (!File.Exists(Source))
-		{
-			Console.WriteLine("AzSpeech: File \"" + Source + "\" not found.");
-			return;
-		}
-
-		try
-		{
-			Console.WriteLine("AzSpeech: Copying file \"" + Source + "\" to \"" + Destination + "\"");
-			File.Copy(Source, Destination, true);
-		}
-		catch (IOException ex)
-		{
-			if (File.Exists(Destination))
-			{
-				// File is already being used. We'll use the existing.
-				return;
-			}
-
-			Console.WriteLine("AzSpeech: Failed to copy file \"" + Destination + "\" with exception: " + ex.Message);
-		}
-	}
-
-	private void CopyAndLinkDependencies(string SourceDir, string DestinationDir, bool bAddAsPublicAdditionalLib, bool bAddAsRuntimeDependency, bool bDelayLoadDLL)
+	private void LinkDependenciesList(string SubDirectory, bool bAddAsPublicAdditionalLib, bool bAddAsRuntimeDependency, bool bDelayLoadDLL)
 	{
 		foreach (string Lib in GetLibsList())
 		{
-			string Source = Path.Combine(SourceDir, Lib);
-			string Destination = Path.Combine(DestinationDir, Lib);
-
-			CopyFile(Source, Destination);
+			string Dependency = Path.Combine(GetPlatformLibsDirectory(), SubDirectory, Lib);
 
 			if (bAddAsPublicAdditionalLib)
 			{
-				PublicAdditionalLibraries.Add(Destination);
+				PublicAdditionalLibraries.Add(Dependency);
 			}
 
 			if (bDelayLoadDLL)
@@ -153,39 +125,45 @@ public class AzureWrapper : ModuleRules
 
 			if (bAddAsRuntimeDependency)
 			{
-				RuntimeDependencies.Add(Destination);
+				RuntimeDependencies.Add(Path.Combine(GetBinariesDirectory(), Lib), Dependency);
 			}
 		}
 	}
 
-	private void DefineBinariesSubDirectory(string SubDirectory)
+	private string GetBinariesSubDirectory()
+	{
+		return Path.Combine("Binaries", Target.Platform.ToString(), Target.Architecture);
+	}
+
+	private string GetBinariesDirectory()
+	{
+		return Path.Combine(PluginDirectory, GetBinariesSubDirectory());
+	}
+
+	private void LinkSingleStaticDependency(string Directory, string Filename)
+	{
+		PublicAdditionalLibraries.Add(Path.Combine(Directory, Filename));
+	}
+
+	private void DefineDependenciesSubDirectory()
 	{
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"\\")));
+			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", GetBinariesSubDirectory().Replace(@"\", @"\\")));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", SubDirectory.Replace(@"\", @"/")));
+			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", GetBinariesSubDirectory().Replace(@"\", @"/")));
 		}
 	}
 
-	private void DefineWhitelistedBinaries(string JoinedBinaries)
+	private void DefineWhitelistedDependencies()
 	{
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens ||
 			Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", JoinedBinaries));
+			PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", string.Join(";", GetLibsList())));
 		}
-	}
-
-	private void CopyAndLinkStaticLibrary(string LibFilename, string DestinationDirectory)
-	{
-		string SourceStaticDir = Path.Combine(GetPlatformLibsDirectory(), LibFilename);
-		string DestinationStaticDir = Path.Combine(DestinationDirectory, LibFilename);
-
-		CopyFile(SourceStaticDir, DestinationStaticDir);
-		PublicAdditionalLibraries.Add(DestinationStaticDir);
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -202,46 +180,44 @@ public class AzureWrapper : ModuleRules
 		Console.WriteLine("AzSpeech: Initializing build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString() + ";");
 		Console.WriteLine("AzSpeech: Getting plugin dependencies in directory: \"" + GetPlatformLibsDirectory() + "\"");
 
-		string BinariesSubDirectory = Path.Combine("Binaries", Target.Platform.ToString(), "ThirdParty", Target.Architecture);
-		string BinariesDirectory = Path.Combine(PluginDirectory, BinariesSubDirectory);
-
-		Directory.CreateDirectory(BinariesDirectory);
-		DefineBinariesSubDirectory(BinariesSubDirectory);
-
-		DefineWhitelistedBinaries(string.Join(";", GetLibsList()));
+		DefineDependenciesSubDirectory();
+		DefineWhitelistedDependencies();
 
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			CopyAndLinkStaticLibrary("Microsoft.CognitiveServices.Speech.core.lib", BinariesDirectory);
-			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, false, true, true);
+			LinkSingleStaticDependency(GetPlatformLibsDirectory(), "Microsoft.CognitiveServices.Speech.core.lib");
+			LinkDependenciesList("Runtime", false, true, true);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
 			// Experimental UPL usage for MacOS to add the required PList data
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_MacOS.xml"));
 
-			CopyAndLinkStaticLibrary("libMicrosoft.CognitiveServices.Speech.core.a", BinariesDirectory);
-			CopyAndLinkDependencies(Path.Combine(GetPlatformLibsDirectory(), "Runtime"), BinariesDirectory, true, true, false);
+			LinkSingleStaticDependency(GetPlatformLibsDirectory(), "libMicrosoft.CognitiveServices.Speech.core.a");
+			LinkDependenciesList("Runtime", false, true, true);
 		}
 		else if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, true, false);
+			LinkDependenciesList("", true, true, true);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
-			CopyAndLinkDependencies(GetPlatformLibsDirectory(), BinariesDirectory, true, false, false);
+
+			foreach (string Lib in GetLibsList())
+			{
+				LinkSingleStaticDependency(GetPlatformLibsDirectory(), Lib);
+			}
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
-			// We don't need the 'CopyAndLinkDependencies' here, The UPL file will copy the libs to the Android libs folder
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
 
 			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty when building for Android ._.
 			foreach (string Lib in GetLibsList())
 			{
-				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "arm64-v8a", Lib));
-				PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsDirectory(), "armeabi-v7a", Lib));
+				LinkSingleStaticDependency(Path.Combine(GetPlatformLibsDirectory(), "arm64-v8a"), Lib);
+				LinkSingleStaticDependency(Path.Combine(GetPlatformLibsDirectory(), "armeabi-v7a"), Lib);
 			}
 		}
 	}
