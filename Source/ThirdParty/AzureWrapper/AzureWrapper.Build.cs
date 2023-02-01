@@ -69,7 +69,7 @@ public class AzureWrapper : ModuleRules
 
 			if (!isArmArch())
 			{
-				Output.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+				Output.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
 			}
 		}
 
