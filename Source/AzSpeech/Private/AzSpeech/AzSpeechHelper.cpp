@@ -4,25 +4,14 @@
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
-
-#if PLATFORM_HOLOLENS
-#include <Windows/AllowWindowsPlatformTypes.h>
-#include <fileapi.h>
-#include <Windows/HideWindowsPlatformTypes.h>
-#endif
-
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
 #include <DesktopPlatformModule.h>
 #include <Kismet/GameplayStatics.h>
 #include <AudioCaptureCore.h>
-
-#if ENGINE_MAJOR_VERSION < 5
-#include <HAL/PlatformFilemanager.h>
-#else
-#include <HAL/PlatformFileManager.h>
-#endif
+#include <Misc/Paths.h>
+#include <HAL/FileManager.h>
 
 #if PLATFORM_ANDROID
 #include <AndroidPermissionFunctionLibrary.h>
@@ -31,6 +20,8 @@
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
+	FPaths::NormalizeDirectoryName(Output);
+	
 	if (!Output.EndsWith("/") && !Output.EndsWith("\""))
 	{
 		Output += '/';
@@ -58,7 +49,8 @@ const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const F
 		LocalName += LocalExtension;
 	}
 
-	const FString QualifiedName = LocalPath + LocalName;
+	FString QualifiedName = LocalPath + LocalName;
+	FPaths::NormalizeFilename(QualifiedName);
 
 	UE_LOG(LogAzSpeech_Internal, Log, TEXT("%s: Qualified %s file path: %s"), *FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
 
@@ -72,8 +64,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath or Filename is empty"), *FString(__func__));
 	}
 
-	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName);
-		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
+	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName); IFileManager::Get().FileExists(*Full_FileName))
 	{
 #if PLATFORM_ANDROID
 		if (!CheckAndroidPermission("android.permission.READ_EXTERNAL_STORAGE"))
@@ -82,8 +73,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		}
 #endif
 
-		if (TArray<uint8> RawData;
-			FFileHelper::LoadFileToArray(RawData, *Full_FileName))
+		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
 			return ConvertAudioDataToSoundWave(RawData);
@@ -140,11 +130,9 @@ const FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FS
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: FilePath or FileName is empty"), *FString(__func__));
 	}
-	else if (const FString Full_FileName = QualifyXMLFileName(FilePath, FileName);
-		FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
+	else if (const FString Full_FileName = QualifyXMLFileName(FilePath, FileName); IFileManager::Get().FileExists(*Full_FileName))
 	{
-		if (FString OutputStr;
-			FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
+		if (FString OutputStr; FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: '%s' loaded"), *FString(__func__), *Full_FileName);
 			return OutputStr;
@@ -157,20 +145,20 @@ const FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FS
 
 const bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool bCreateParents)
 {
-	bool bOutput = FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*Path);
+	FString LocalPath = Path;
+	FPaths::NormalizeDirectoryName(LocalPath);
+	
+	bool bOutput = FPaths::DirectoryExists(LocalPath);
 
 	if (!bOutput)
 	{
 		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
-
-		bOutput = bCreateParents
-			          ? FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*Path)
-			          : FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*Path);
+		IFileManager::Get().MakeDirectory(*LocalPath, bCreateParents);
 	}
 
 	if (bOutput)
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success. Output path: %s"), *FString(__func__), *Path);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success. Output path: %s"), *FString(__func__), *LocalPath);
 	}
 	else
 	{
@@ -240,8 +228,7 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 	TArray<FAzSpeechAudioInputDeviceInfo> Output;
 	TArray<Audio::FCaptureDeviceInfo> Internal_Devices;
 	
-	if (Audio::FAudioCapture AudioCapture;
-		AudioCapture.GetCaptureDevicesAvailable(Internal_Devices) <= 0)
+	if (Audio::FAudioCapture AudioCapture; AudioCapture.GetCaptureDevicesAvailable(Internal_Devices) <= 0)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));		
 	}

@@ -82,7 +82,7 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001"))
 	float ThreadUpdateInterval;
 
-	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails [Currently disabled for Android & iOS] */
+	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
 

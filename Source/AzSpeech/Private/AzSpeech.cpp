@@ -17,7 +17,7 @@
 
 #define AZSPEECH_SUPPORTED_PLATFORM (PLATFORM_WINDOWS || PLATFORM_ANDROID || PLATFORM_HOLOLENS)
 
-#if WITH_EDITOR
+#if WITH_EDITOR && !AZSPEECH_SUPPORTED_PLATFORM
 #include <Misc/MessageDialog.h>
 #endif
 
@@ -27,7 +27,7 @@
 FString GetRuntimeLibsDirectory()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	FString Directory = PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
+	FString Directory = FPaths::Combine(PluginInterface->GetBaseDir(), AZSPEECH_BINARIES_SUBDIRECTORY);
 	FPaths::NormalizeDirectoryName(Directory);
 
 #if PLATFORM_HOLOLENS
@@ -124,13 +124,11 @@ void FAzSpeechModule::StartupModule()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
-
-#if !PLATFORM_ANDROID && !PLATFORM_IOS
+	
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
-		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
+		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), false, true);
 	}
-#endif
 
 #ifdef AZSPEECH_BINARIES_SUBDIRECTORY
 	LoadRuntimeLibraries();
