@@ -5,18 +5,7 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "LogAzSpeech.h"
-
-#if PLATFORM_HOLOLENS
-#include <Windows/AllowWindowsPlatformTypes.h>
-#include <fileapi.h>
-#include <Windows/HideWindowsPlatformTypes.h>
-#endif
-
-#if ENGINE_MAJOR_VERSION < 5
-#include <HAL/PlatformFilemanager.h>
-#else
-#include <HAL/PlatformFileManager.h>
-#endif
+#include <HAL/FileManager.h>
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
@@ -47,15 +36,15 @@ void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 	
 	const FString Full_FileName = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
 
-	if (IsLastResultValid() && FPlatformFileManager::Get().GetPlatformFile().FileSize(*Full_FileName) > 0)
+	if (IsLastResultValid() && IFileManager::Get().FileSize(*Full_FileName) > 0)
 	{
 		return;
 	}
 
 	// If the task was cancelled due to SDK errors, we need to delete the generated invalid file
-	if (FPlatformFileManager::Get().GetPlatformFile().FileExists(*Full_FileName))
+	if (IFileManager::Get().FileExists(*Full_FileName))
 	{
-		const bool bDeleteResult = FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*Full_FileName);
+		const bool bDeleteResult = IFileManager::Get().Delete(*Full_FileName);
 
 		if (bDeleteResult)
 		{
