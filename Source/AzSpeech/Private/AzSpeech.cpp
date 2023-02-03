@@ -42,13 +42,14 @@ FString GetRuntimeLibsDirectory()
 	const FString PluginBaseDir = PluginInterface->GetBaseDir();
 	const FString LastPluginBinary = GetWhitelistedRuntimeLibs().Top();
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a search for the AzSpeech runtime dependencies. Root Directory: \"%s\"; Bait File: \"%s\"."), *FString(__func__), *PluginBaseDir, *LastPluginBinary);
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a search for the AzSpeech runtime libraries. Root Directory: \"%s\"; Bait File: \"%s\"."), *FString(__func__), *PluginBaseDir, *LastPluginBinary);
 
 	TArray<FString> FoundFiles;
 	IFileManager::Get().FindFilesRecursive(FoundFiles, *PluginBaseDir, *LastPluginBinary, true, false, false);
 
 	if (AzSpeech::Internal::HasEmptyParam(FoundFiles))
 	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to get the location of the runtime libraries. Please check and validate your installation."), *FString(__func__));
 		return FString();
 	}
 
