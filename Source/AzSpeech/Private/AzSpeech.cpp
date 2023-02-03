@@ -17,7 +17,7 @@
 
 #define AZSPEECH_SUPPORTED_PLATFORM (PLATFORM_WINDOWS || PLATFORM_ANDROID || PLATFORM_HOLOLENS)
 
-#if WITH_EDITOR
+#if WITH_EDITOR && !AZSPEECH_SUPPORTED_PLATFORM
 #include <Misc/MessageDialog.h>
 #endif
 
@@ -128,7 +128,7 @@ void FAzSpeechModule::StartupModule()
 #if !PLATFORM_ANDROID && !PLATFORM_IOS
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
-		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), true, true);
+		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), false, true);
 	}
 #endif
 
