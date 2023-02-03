@@ -153,7 +153,7 @@ const bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool b
 	if (!bOutput)
 	{
 		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
-		IFileManager::Get().MakeDirectory(*LocalPath, bCreateParents);
+		bOutput = IFileManager::Get().MakeDirectory(*LocalPath, bCreateParents);
 	}
 
 	if (bOutput)
