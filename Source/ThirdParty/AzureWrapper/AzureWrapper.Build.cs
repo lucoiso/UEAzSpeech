@@ -149,15 +149,14 @@ public class AzureWrapper : ModuleRules
 		PublicAdditionalLibraries.Add(Path.Combine(Directory, Filename));
 	}
 
-	private void DefineDependenciesSubDirectory()
+	private void DefineRuntimePlatform()
 	{
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		if (Target.Platform == UnrealTargetPlatform.Win64 ||
+			Target.Platform == UnrealTargetPlatform.HoloLens ||
+			Target.Platform == UnrealTargetPlatform.Mac ||
+			Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", GetBinariesSubDirectory().Replace(@"\", @"\\")));
-		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_BINARIES_SUBDIRECTORY=\"{0}\"", GetBinariesSubDirectory().Replace(@"\", @"/")));
+			PublicDefinitions.Add("AZSPEECH_RUNTIME_PLATFORM=1");
 		}
 	}
 
@@ -184,7 +183,7 @@ public class AzureWrapper : ModuleRules
 		Console.WriteLine("AzSpeech: Initializing build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString() + ";");
 		Console.WriteLine("AzSpeech: Getting plugin dependencies in directory: \"" + GetPlatformLibsDirectory() + "\"");
 
-		DefineDependenciesSubDirectory();
+		DefineRuntimePlatform();
 		DefineWhitelistedDependencies();
 
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)

@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech.h"
-#include "LogAzSpeech.h"
+#include "AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Modules/ModuleManager.h>
 #include <Interfaces/IPluginManager.h>
@@ -23,20 +23,7 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
-FString GetRuntimeLibsDirectory()
-{
-	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	FString Directory = PluginInterface->GetBaseDir() / AZSPEECH_BINARIES_SUBDIRECTORY;
-	FPaths::NormalizeDirectoryName(Directory);
-
-#if PLATFORM_HOLOLENS
-	FPaths::MakePathRelativeTo(Directory, *(FPaths::RootDir() + TEXT("/")));
-#endif
-
-	return Directory;
-}
-
+#ifdef AZSPEECH_RUNTIME_PLATFORM
 TArray<FString> GetWhitelistedRuntimeLibs()
 {
 	TArray<FString> WhitelistedLibs;
@@ -47,6 +34,30 @@ TArray<FString> GetWhitelistedRuntimeLibs()
 #endif
 
 	return WhitelistedLibs;
+}
+
+FString GetRuntimeLibsDirectory()
+{
+	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
+	const FString PluginBaseDir = PluginInterface->GetBaseDir();
+	const FString& LastPluginBinary = GetWhitelistedRuntimeLibs().Top();
+
+	TArray<FString> FoundFiles;
+	IFileManager::Get().FindFilesRecursive(FoundFiles, *PluginBaseDir, *LastPluginBinary, true, false, false);
+
+	if (AzSpeech::Internal::HasEmptyParam(FoundFiles))
+	{
+		return FString();
+	}
+
+	FString Directory = FPaths::GetPath(FoundFiles.Top());
+	FPaths::NormalizeDirectoryName(Directory);
+
+#if PLATFORM_HOLOLENS
+	FPaths::MakePathRelativeTo(Directory, *(FPaths::RootDir() + TEXT("/")));
+#endif
+
+	return Directory;
 }
 
 void LogLastError(const FString& FailLib)
@@ -132,7 +143,7 @@ void FAzSpeechModule::StartupModule()
 	}
 #endif
 
-#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
+#ifdef AZSPEECH_RUNTIME_PLATFORM
 	LoadRuntimeLibraries();
 #endif
 
@@ -146,7 +157,7 @@ void FAzSpeechModule::ShutdownModule()
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-#ifdef AZSPEECH_BINARIES_SUBDIRECTORY
+#ifdef AZSPEECH_RUNTIME_PLATFORM
 	UnloadRuntimeLibraries();
 #endif
 }
