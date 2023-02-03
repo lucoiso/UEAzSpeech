@@ -40,7 +40,9 @@ FString GetRuntimeLibsDirectory()
 {
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	const FString PluginBaseDir = PluginInterface->GetBaseDir();
-	const FString& LastPluginBinary = GetWhitelistedRuntimeLibs().Top();
+	const FString LastPluginBinary = GetWhitelistedRuntimeLibs().Top();
+
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a search for the AzSpeech runtime dependencies. Root Directory: \"%s\"; Bait File: \"%s\"."), *FString(__func__), *PluginBaseDir, *LastPluginBinary);
 
 	TArray<FString> FoundFiles;
 	IFileManager::Get().FindFilesRecursive(FoundFiles, *PluginBaseDir, *LastPluginBinary, true, false, false);
