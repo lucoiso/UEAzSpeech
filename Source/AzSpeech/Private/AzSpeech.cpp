@@ -46,9 +46,10 @@ FString GetRuntimeLibsDirectory()
 	BinariesDirectory = PluginInterface->GetBaseDir() / AZSPEECH_THIRDPARTY_BINARY_SUBDIR;
 #endif
 #else
-	BinariesDirectory = FPaths::Combine(FPaths::ProjectDir(), "Binaries", FPlatformProcess::GetBinariesSubdirectory(), "ThirdParty", "AzSpeech");
+	BinariesDirectory = FPaths::GetPath(FPlatformProcess::ExecutablePath());
+	BinariesDirectory = FPaths::Combine(BinariesDirectory, "ThirdParty", "AzSpeech");
 #endif
-			
+
 	if (AzSpeech::Internal::HasEmptyParam(BinariesDirectory))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to get the location of the runtime libraries. Please check and validate your installation."), *FString(__func__));
