@@ -14,6 +14,45 @@ public class AzureWrapper : ModuleRules
 		return Target.Architecture.ToLower().Contains("arm") || Target.Architecture.ToLower().Contains("aarch");
 	}
 
+	private bool IsRuntimePlatform()
+	{
+		return Target.Platform == UnrealTargetPlatform.Win64 ||
+			Target.Platform == UnrealTargetPlatform.HoloLens ||
+			Target.Platform == UnrealTargetPlatform.Mac ||
+			Target.Platform.ToString().ToLower().Contains("linux");
+	}
+
+	private void InitializeRuntimeDefinitions()
+	{
+		if (!IsRuntimePlatform())
+		{
+			return;
+		}
+
+		PublicDefinitions.Add("AZSPEECH_RUNTIME_PLATFORM=1");
+		PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", string.Join(";", GetLibsList())));
+	}
+
+	private void DefineBinariesSubDirectory(string SubDirectory)
+	{
+		if (!IsRuntimePlatform() || Target.Type != TargetType.Editor)
+		{
+			return;
+		}
+
+		string EditorBinariesSubDirectory = Path.Combine(GetPlatformLibsDirectory(), SubDirectory);
+		EditorBinariesSubDirectory = EditorBinariesSubDirectory.Replace(PluginDirectory, "");
+
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", EditorBinariesSubDirectory.Replace(@"\", @"\\")));
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", EditorBinariesSubDirectory.Replace(@"\", @"/")));
+		}
+	}
+
 	private string GetPlatformLibsDirectory()
 	{
 		if (Target.Platform == UnrealTargetPlatform.Win64)
@@ -113,6 +152,8 @@ public class AzureWrapper : ModuleRules
 
 	private void LinkDependenciesList(string SubDirectory, bool bAddAsPublicAdditionalLib, bool bAddAsRuntimeDependency, bool bDelayLoadDLL)
 	{
+		DefineBinariesSubDirectory(SubDirectory);
+
 		foreach (string Lib in GetLibsList())
 		{
 			string Dependency = Path.Combine(GetPlatformLibsDirectory(), SubDirectory, Lib);
@@ -129,44 +170,14 @@ public class AzureWrapper : ModuleRules
 
 			if (bAddAsRuntimeDependency)
 			{
-				RuntimeDependencies.Add(Path.Combine(GetBinariesDirectory(), Lib), Dependency);
+				RuntimeDependencies.Add(Path.Combine(@"$(TargetOutputDir)", "ThirdParty", "AzSpeech", Lib), Dependency);
 			}
 		}
-	}
-
-	private string GetBinariesSubDirectory()
-	{
-		return Path.Combine("Binaries", Target.Platform.ToString(), Target.Architecture);
-	}
-
-	private string GetBinariesDirectory()
-	{
-		return Path.Combine(PluginDirectory, GetBinariesSubDirectory());
 	}
 
 	private void LinkSingleStaticDependency(string Directory, string Filename)
 	{
 		PublicAdditionalLibraries.Add(Path.Combine(Directory, Filename));
-	}
-
-	private void DefineRuntimePlatform()
-	{
-		if (Target.Platform == UnrealTargetPlatform.Win64 ||
-			Target.Platform == UnrealTargetPlatform.HoloLens ||
-			Target.Platform == UnrealTargetPlatform.Mac ||
-			Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			PublicDefinitions.Add("AZSPEECH_RUNTIME_PLATFORM=1");
-		}
-	}
-
-	private void DefineWhitelistedDependencies()
-	{
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens ||
-			Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", string.Join(";", GetLibsList())));
-		}
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -180,11 +191,10 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		Console.WriteLine("AzSpeech: Initializing build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString() + ";");
+		Console.WriteLine("AzSpeech: Initializing build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString());
 		Console.WriteLine("AzSpeech: Getting plugin dependencies in directory: \"" + GetPlatformLibsDirectory() + "\"");
 
-		DefineRuntimePlatform();
-		DefineWhitelistedDependencies();
+		InitializeRuntimeDefinitions();
 
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
