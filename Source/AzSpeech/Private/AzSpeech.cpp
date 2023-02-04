@@ -38,29 +38,31 @@ TArray<FString> GetWhitelistedRuntimeLibs()
 
 FString GetRuntimeLibsDirectory()
 {
+	FString BinariesDirectory;
+
+#if WITH_EDITOR
+#ifdef AZSPEECH_THIRDPARTY_BINARY_SUBDIR
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	const FString PluginBaseDir = PluginInterface->GetBaseDir();
-	const FString LastPluginBinary = GetWhitelistedRuntimeLibs().Top();
+	BinariesDirectory = PluginInterface->GetBaseDir() / AZSPEECH_THIRDPARTY_BINARY_SUBDIR;
+#endif
+#else
+	BinariesDirectory = FPaths::GetPath(FPlatformProcess::ExecutablePath());
+	BinariesDirectory = FPaths::Combine(BinariesDirectory, "ThirdParty", "AzSpeech");
+#endif
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Performing a search for the AzSpeech runtime libraries. Root Directory: \"%s\"; Bait File: \"%s\"."), *FString(__func__), *PluginBaseDir, *LastPluginBinary);
-
-	TArray<FString> FoundFiles;
-	IFileManager::Get().FindFilesRecursive(FoundFiles, *PluginBaseDir, *LastPluginBinary, true, false, false);
-
-	if (AzSpeech::Internal::HasEmptyParam(FoundFiles))
+	if (AzSpeech::Internal::HasEmptyParam(BinariesDirectory))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to get the location of the runtime libraries. Please check and validate your installation."), *FString(__func__));
 		return FString();
 	}
 
-	FString Directory = FPaths::GetPath(FoundFiles.Top());
-	FPaths::NormalizeDirectoryName(Directory);
+	FPaths::NormalizeDirectoryName(BinariesDirectory);
 
 #if PLATFORM_HOLOLENS
 	FPaths::MakePathRelativeTo(Directory, *(FPaths::RootDir() + TEXT("/")));
 #endif
 
-	return Directory;
+	return BinariesDirectory;
 }
 
 void LogLastError(const FString& FailLib)
