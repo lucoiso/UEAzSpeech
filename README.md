@@ -2,7 +2,7 @@
 
 ![19201080](https://user-images.githubusercontent.com/77353979/205382052-055d1c2f-421a-4472-ac26-fd75dcf8ddb1.png)
 
-An Unreal Engine plugin that integrates Azure Speech Cognitive Services to the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.
+An Unreal Engine plugin that integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.
 
 ## Links
 
