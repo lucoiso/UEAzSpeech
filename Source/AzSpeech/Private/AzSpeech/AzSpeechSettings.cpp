@@ -25,6 +25,26 @@ const UAzSpeechSettings* UAzSpeechSettings::Get()
 	return Instance;
 }
 
+TArray<FString> UAzSpeechSettings::GetCandidateLanguages()
+{
+	return UAzSpeechSettings::Get()->AutoCandidateLanguages;
+}
+
+TArray<FAzSpeechPhraseListMap> UAzSpeechSettings::GetPhraseListMap()
+{
+	return UAzSpeechSettings::Get()->PhraseListMap;
+}
+
+TArray<FAzSpeechRecognitionMap> UAzSpeechSettings::GetRecognitionMap()
+{
+	return UAzSpeechSettings::Get()->RecognitionMap;
+}
+
+FString UAzSpeechSettings::GetStringDelimiters()
+{
+	return UAzSpeechSettings::Get()->StringDelimiters;
+}
+
 #if WITH_EDITOR
 void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 {
