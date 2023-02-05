@@ -196,8 +196,8 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		Console.WriteLine("AzSpeech: Target Informations: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString());
-		Console.WriteLine("AzSpeech: Dependencies Directory for Current Platform: \"" + GetPlatformLibsDirectory() + "\"");
+		Console.WriteLine("AzSpeech: Target info: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString());
+		Console.WriteLine("AzSpeech: Directory containing the dependencies for current platform: \"" + GetPlatformLibsDirectory() + "\"");
 
 		InitializeRuntimeDefinitions();
 
