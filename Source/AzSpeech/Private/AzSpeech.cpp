@@ -43,7 +43,7 @@ FString GetRuntimeLibsDirectory()
 #if WITH_EDITOR
 #ifdef AZSPEECH_THIRDPARTY_BINARY_SUBDIR
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
-	BinariesDirectory = PluginInterface->GetBaseDir() / AZSPEECH_THIRDPARTY_BINARY_SUBDIR;
+	BinariesDirectory = FPaths::Combine(PluginInterface->GetBaseDir(), "Source", "ThirdParty", "AzureWrapper") / AZSPEECH_THIRDPARTY_BINARY_SUBDIR;
 #endif
 #else
 	BinariesDirectory = FPaths::GetPath(FPlatformProcess::ExecutablePath());

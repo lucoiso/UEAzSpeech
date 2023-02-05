@@ -106,6 +106,18 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Candidate Languages"))
+	static TArray<FString> GetCandidateLanguages();
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Phrase List Map"))
+	static TArray<FAzSpeechPhraseListMap> GetPhraseListMap();
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Recognition Map"))
+	static TArray<FAzSpeechRecognitionMap> GetRecognitionMap();
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: String Delimiters"))
+	static FString GetStringDelimiters();
+
 protected:
 #if WITH_EDITOR
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
