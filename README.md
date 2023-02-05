@@ -12,3 +12,4 @@ An Unreal Engine plugin that integrates Azure Speech Cognitive Services to the E
 * [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 * [Supported languages](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support)  
 * [Email](mailto:contatolukevboas@gmail.com)  
+* [Example Project: SpeechGPT](https://github.com/lucoiso/UESpeechGPT)  
