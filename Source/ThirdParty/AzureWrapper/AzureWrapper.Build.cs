@@ -40,8 +40,8 @@ public class AzureWrapper : ModuleRules
 			return;
 		}
 
-		string EditorBinariesSubDirectory = Path.Combine(GetPlatformLibsDirectory(), SubDirectory);
-		EditorBinariesSubDirectory = EditorBinariesSubDirectory.Replace(PluginDirectory, "");
+		string EditorBinariesSubDirectory = Path.Combine(GetPlatformLibsSubDirectory(), SubDirectory);
+		Console.WriteLine("AzSpeech: Defining Binaries Subdirectory for Runtime Editor Target: \"" + EditorBinariesSubDirectory + "\"");
 
 		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
@@ -53,41 +53,46 @@ public class AzureWrapper : ModuleRules
 		}
 	}
 
-	private string GetPlatformLibsDirectory()
+	private string GetPlatformLibsSubDirectory()
 	{
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "Win");
+			return Path.Combine("libs", "Win");
 		}
 
 		if (Target.Platform == UnrealTargetPlatform.Android)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "Android");
+			return Path.Combine("libs", "Android");
 		}
 
 		if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "iOS");
+			return Path.Combine("libs", "iOS");
 		}
 
 		string ArchSubDir = isArmArch() ? "Arm64" : "x64";
 
 		if (Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "HoloLens", ArchSubDir);
+			return Path.Combine("libs", "HoloLens", ArchSubDir);
 		}
 
 		if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			return Path.Combine(ModuleDirectory, "libs", "Mac", ArchSubDir);
+			return Path.Combine("libs", "Mac", ArchSubDir);
 		}
 
 		if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
-			return Path.Combine(ModuleDirectory, "libs", "Linux", ArchSubDir);
+			return Path.Combine("libs", "Linux", ArchSubDir);
 		}
 
 		return "UNDEFINED_DIRECTORY";
+	}
+
+	private string GetPlatformLibsDirectory()
+	{
+		return Path.Combine(ModuleDirectory, GetPlatformLibsSubDirectory());
 	}
 
 	private List<string> GetLibsList()
@@ -191,8 +196,8 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		Console.WriteLine("AzSpeech: Initializing build for target: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString());
-		Console.WriteLine("AzSpeech: Getting plugin dependencies in directory: \"" + GetPlatformLibsDirectory() + "\"");
+		Console.WriteLine("AzSpeech: Target Informations: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString());
+		Console.WriteLine("AzSpeech: Dependencies Directory for Current Platform: \"" + GetPlatformLibsDirectory() + "\"");
 
 		InitializeRuntimeDefinitions();
 
