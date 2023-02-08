@@ -4,6 +4,10 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechAudioDataSynthesisBase)
+#endif
+
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 {	
 	if (!Super::StartAzureTaskWork())
