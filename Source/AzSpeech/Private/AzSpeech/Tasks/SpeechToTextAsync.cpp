@@ -5,6 +5,10 @@
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(SpeechToTextAsync)
+#endif
+
 USpeechToTextAsync* USpeechToTextAsync::SpeechToText(UObject* WorldContextObject, const FString& LanguageID, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();

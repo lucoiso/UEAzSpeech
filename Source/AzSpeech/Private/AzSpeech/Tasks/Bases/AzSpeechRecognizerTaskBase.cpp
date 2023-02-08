@@ -6,6 +6,10 @@
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "LogAzSpeech.h"
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechRecognizerTaskBase)
+#endif
+
 const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {
 	FScopeLock Lock(&Mutex);

@@ -8,6 +8,10 @@
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSynthesizerTaskBase)
+#endif
+
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
 	ValidateVoiceName();

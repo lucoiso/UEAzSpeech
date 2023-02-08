@@ -4,6 +4,10 @@
 
 #include "AzSpeech/Tasks/SSMLToSpeechAsync.h"
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToSpeechAsync)
+#endif
+
 USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech(UObject* WorldContextObject, const FString& SynthesisSSML)
 {
 	USSMLToSpeechAsync* const NewAsyncTask = NewObject<USSMLToSpeechAsync>();

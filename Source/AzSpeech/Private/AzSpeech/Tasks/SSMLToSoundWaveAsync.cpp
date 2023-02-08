@@ -6,6 +6,10 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Sound/SoundWave.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToSoundWaveAsync)
+#endif
+
 USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(UObject* WorldContextObject, const FString& SynthesisSSML)
 {
 	USSMLToSoundWaveAsync* const NewAsyncTask = NewObject<USSMLToSoundWaveAsync>();

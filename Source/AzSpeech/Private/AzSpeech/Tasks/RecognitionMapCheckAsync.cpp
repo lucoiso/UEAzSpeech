@@ -8,6 +8,10 @@
 #include "AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(RecognitionMapCheckAsync)
+#endif
+
 URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
 {
 	URecognitionMapCheckAsync* const NewAsyncTask = NewObject<URecognitionMapCheckAsync>();

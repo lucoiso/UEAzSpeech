@@ -7,6 +7,10 @@
 #include <Misc/Paths.h>
 #include <HAL/FileManager.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WavFileToTextAsync)
+#endif
+
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();

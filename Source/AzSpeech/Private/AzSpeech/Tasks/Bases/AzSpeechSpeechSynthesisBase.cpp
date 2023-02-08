@@ -7,6 +7,10 @@
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSpeechSynthesisBase)
+#endif
+
 void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
 {
 	Super::StopAzSpeechTask();

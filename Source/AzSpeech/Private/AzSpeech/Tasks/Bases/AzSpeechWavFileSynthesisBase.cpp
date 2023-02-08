@@ -7,6 +7,10 @@
 #include "LogAzSpeech.h"
 #include <HAL/FileManager.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechWavFileSynthesisBase)
+#endif
+
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
 #if PLATFORM_ANDROID
