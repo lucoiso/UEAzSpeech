@@ -10,11 +10,6 @@
 #include <Misc/Paths.h>
 #include <HAL/FileManager.h>
 
-#if ENGINE_MAJOR_VERSION < 5
-#include <GenericPlatform/GenericPlatformProcess.h>
-#define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
-#endif
-
 #define AZSPEECH_SUPPORTED_PLATFORM (PLATFORM_WINDOWS || PLATFORM_ANDROID || PLATFORM_HOLOLENS)
 
 #if WITH_EDITOR && !AZSPEECH_SUPPORTED_PLATFORM
@@ -23,15 +18,13 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 TArray<FString> GetWhitelistedRuntimeLibs()
 {
 	TArray<FString> WhitelistedLibs;
 
-#ifdef AZSPEECH_WHITELISTED_BINARIES
 	const FString WhitelistedLibsDef(AZSPEECH_WHITELISTED_BINARIES);
 	WhitelistedLibsDef.ParseIntoArray(WhitelistedLibs, TEXT(";"));
-#endif
 
 	return WhitelistedLibs;
 }
@@ -148,7 +141,7 @@ void FAzSpeechModule::StartupModule()
 	}
 #endif
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 	LoadRuntimeLibraries();
 #endif
 
@@ -162,7 +155,7 @@ void FAzSpeechModule::ShutdownModule()
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 	UnloadRuntimeLibraries();
 #endif
 }

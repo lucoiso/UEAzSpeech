@@ -14,45 +14,6 @@ public class AzureWrapper : ModuleRules
 		return Target.Architecture.ToLower().Contains("arm") || Target.Architecture.ToLower().Contains("aarch");
 	}
 
-	private bool IsRuntimePlatform()
-	{
-		return Target.Platform == UnrealTargetPlatform.Win64 ||
-			Target.Platform == UnrealTargetPlatform.HoloLens ||
-			Target.Platform == UnrealTargetPlatform.Mac ||
-			Target.Platform.ToString().ToLower().Contains("linux");
-	}
-
-	private void InitializeRuntimeDefinitions()
-	{
-		if (!IsRuntimePlatform())
-		{
-			return;
-		}
-
-		PublicDefinitions.Add("AZSPEECH_RUNTIME_PLATFORM=1");
-		PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", string.Join(";", GetLibsList())));
-	}
-
-	private void DefineBinariesSubDirectory(string SubDirectory)
-	{
-		if (!IsRuntimePlatform() || Target.Type != TargetType.Editor)
-		{
-			return;
-		}
-
-		string EditorBinariesSubDirectory = Path.Combine(GetPlatformLibsSubDirectory(), SubDirectory);
-		Console.WriteLine("AzSpeech: Defining Binaries Subdirectory for Runtime Editor Target: \"" + EditorBinariesSubDirectory + "\"");
-
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
-		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", EditorBinariesSubDirectory.Replace(@"\", @"\\")));
-		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", EditorBinariesSubDirectory.Replace(@"\", @"/")));
-		}
-	}
-
 	private string GetPlatformLibsSubDirectory()
 	{
 		if (Target.Platform == UnrealTargetPlatform.Win64)
@@ -90,12 +51,81 @@ public class AzureWrapper : ModuleRules
 		return "UNDEFINED_DIRECTORY";
 	}
 
-	private string GetPlatformLibsDirectory()
+	private string GetPlatformLibsAbsoluteDirectory()
 	{
 		return Path.Combine(ModuleDirectory, GetPlatformLibsSubDirectory());
 	}
 
-	private List<string> GetLibsList()
+	private string GetRuntimesSubDirectory()
+	{
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens || Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			return Path.Combine(GetPlatformLibsSubDirectory(), "Runtime");
+		}
+
+		return GetPlatformLibsSubDirectory();
+	}
+
+	private string GetRuntimesAbsoluteDirectory()
+	{
+		return Path.Combine(ModuleDirectory, GetRuntimesSubDirectory());
+	}
+
+	private List<string> GetStaticLibraries()
+	{
+		List<string> Output = new List<string>();
+
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		{
+			Output.AddRange(new[]
+			{
+				"Microsoft.CognitiveServices.Speech.core.lib"
+			});
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Android)
+		{
+			Output.AddRange(new[]
+			{
+				// arm64-v8a
+                Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"),
+				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
+				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
+				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
+				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"),
+
+				// armeabi-v7a
+                Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"),
+				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
+				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
+				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
+				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so")
+			});
+		}
+		else if (Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			Output.AddRange(new[]
+			{
+				"libMicrosoft.CognitiveServices.Speech.core.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.lu.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.codec.so",
+				"libMicrosoft.CognitiveServices.Speech.extension.mas.so"
+			});
+		}
+		else if (Target.Platform == UnrealTargetPlatform.IOS || Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			Output.AddRange(new[]
+			{
+				"libMicrosoft.CognitiveServices.Speech.core.a"
+			});
+		}
+
+		return Output;
+	}
+
+	private List<string> GetDynamicLibraries()
 	{
 		List<string> Output = new List<string>();
 
@@ -113,76 +143,69 @@ public class AzureWrapper : ModuleRules
 
 			if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
-				Output.Add("Microsoft.CognitiveServices.Speech.extension.codec.dll");
+				Output.AddRange(new[]
+				{
+					"Microsoft.CognitiveServices.Speech.extension.codec.dll"
+				});
 			}
 			else if (Target.Platform == UnrealTargetPlatform.HoloLens && !isArmArch())
 			{
-				Output.Add("Microsoft.CognitiveServices.Speech.extension.silk_codec.dll");
-			}
-		}
-
-		else if (Target.Platform == UnrealTargetPlatform.Android || Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			Output.AddRange(new[]
-			{
-				"libMicrosoft.CognitiveServices.Speech.core.so",
-				"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so",
-				"libMicrosoft.CognitiveServices.Speech.extension.kws.so",
-				"libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so",
-				"libMicrosoft.CognitiveServices.Speech.extension.lu.so"
-			});
-
-			if (Target.Platform.ToString().ToLower().Contains("linux"))
-			{
 				Output.AddRange(new[]
 				{
-					"libMicrosoft.CognitiveServices.Speech.extension.codec.so",
-					"libMicrosoft.CognitiveServices.Speech.extension.mas.so"
+					"Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"
 				});
 			}
 		}
-
+		else if (Target.Platform == UnrealTargetPlatform.Android || Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			// Using the same list as for static libraries
+			Output = GetStaticLibraries();
+		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
-			Output.Add("libMicrosoft.CognitiveServices.Speech.core.a");
+			// Empty
 		}
-
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			Output.Add("libMicrosoft.CognitiveServices.Speech.core.dylib");
+			Output.AddRange(new[]
+			{
+				"libMicrosoft.CognitiveServices.Speech.core.dylib"
+			});
 		}
 
 		return Output;
 	}
 
-	private void LinkDependenciesList(string SubDirectory, bool bAddAsPublicAdditionalLib, bool bAddAsRuntimeDependency, bool bDelayLoadDLL)
+	private bool IsRuntimePlatform()
 	{
-		DefineBinariesSubDirectory(SubDirectory);
-
-		foreach (string Lib in GetLibsList())
-		{
-			string Dependency = Path.Combine(GetPlatformLibsDirectory(), SubDirectory, Lib);
-
-			if (bAddAsPublicAdditionalLib)
-			{
-				PublicAdditionalLibraries.Add(Dependency);
-			}
-
-			if (bDelayLoadDLL)
-			{
-				PublicDelayLoadDLLs.Add(Lib);
-			}
-
-			if (bAddAsRuntimeDependency)
-			{
-				RuntimeDependencies.Add(Path.Combine(@"$(TargetOutputDir)", "ThirdParty", "AzSpeech", Lib), Dependency);
-			}
-		}
+		return Target.Platform == UnrealTargetPlatform.Win64 ||
+			Target.Platform == UnrealTargetPlatform.HoloLens ||
+			Target.Platform == UnrealTargetPlatform.Mac ||
+			Target.Platform.ToString().ToLower().Contains("linux");
 	}
 
-	private void LinkSingleStaticDependency(string Directory, string Filename)
+	private void InitializeRuntimeDefinitions()
 	{
-		PublicAdditionalLibraries.Add(Path.Combine(Directory, Filename));
+		if (!IsRuntimePlatform() || GetDynamicLibraries().Count <= 0)
+		{
+			return;
+		}
+
+		PublicDefinitions.Add(string.Format("AZSPEECH_WHITELISTED_BINARIES=\"{0}\"", string.Join(";", GetDynamicLibraries())));
+
+		if (Target.Type != TargetType.Editor)
+		{
+			return;
+		}
+
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", GetRuntimesSubDirectory().Replace(@"\", @"\\")));
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform.ToString().ToLower().Contains("linux"))
+		{
+			PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", GetRuntimesSubDirectory().Replace(@"\", @"/")));
+		}
 	}
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
@@ -196,47 +219,31 @@ public class AzureWrapper : ModuleRules
 			Path.Combine(ModuleDirectory, "include", "cxx_api")
 		});
 
-		Console.WriteLine("AzSpeech: Target info: Platform: " + Target.Platform.ToString() + "; Architecture: " + Target.Architecture.ToString());
-		Console.WriteLine("AzSpeech: Directory containing the dependencies for current platform: \"" + GetPlatformLibsDirectory() + "\"");
-
 		InitializeRuntimeDefinitions();
 
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		foreach (string StaticLib in GetStaticLibraries())
 		{
-			LinkSingleStaticDependency(GetPlatformLibsDirectory(), "Microsoft.CognitiveServices.Speech.core.lib");
-			LinkDependenciesList("Runtime", false, true, true);
+			PublicAdditionalLibraries.Add(Path.Combine(GetPlatformLibsAbsoluteDirectory(), StaticLib));
 		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac)
+
+		foreach (string DynamicLib in GetDynamicLibraries())
+		{
+			PublicDelayLoadDLLs.Add(DynamicLib);
+			RuntimeDependencies.Add(Path.Combine(@"$(TargetOutputDir)", "ThirdParty", "AzSpeech", DynamicLib), Path.Combine(GetRuntimesAbsoluteDirectory(), DynamicLib));
+		}
+
+		if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
 			// Experimental UPL usage for MacOS to add the required PList data
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_MacOS.xml"));
-
-			LinkSingleStaticDependency(GetPlatformLibsDirectory(), "libMicrosoft.CognitiveServices.Speech.core.a");
-			LinkDependenciesList("Runtime", false, true, true);
-		}
-		else if (Target.Platform.ToString().ToLower().Contains("linux"))
-		{
-			LinkDependenciesList("", true, true, true);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			AdditionalPropertiesForReceipt.Add("IOSPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
-
-			foreach (string Lib in GetLibsList())
-			{
-				LinkSingleStaticDependency(GetPlatformLibsDirectory(), Lib);
-			}
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
 			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "AzSpeech_UPL_Android.xml"));
-
-			// Linking both architectures: For some reason (or bug?) Target.Architecture is always empty when building for Android ._.
-			foreach (string Lib in GetLibsList())
-			{
-				LinkSingleStaticDependency(Path.Combine(GetPlatformLibsDirectory(), "arm64-v8a"), Lib);
-				LinkSingleStaticDependency(Path.Combine(GetPlatformLibsDirectory(), "armeabi-v7a"), Lib);
-			}
 		}
 	}
 }
