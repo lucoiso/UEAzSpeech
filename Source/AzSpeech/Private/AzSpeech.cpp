@@ -23,15 +23,13 @@
 
 #define LOCTEXT_NAMESPACE "FAzSpeechModule"
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 TArray<FString> GetWhitelistedRuntimeLibs()
 {
 	TArray<FString> WhitelistedLibs;
 
-#ifdef AZSPEECH_WHITELISTED_BINARIES
 	const FString WhitelistedLibsDef(AZSPEECH_WHITELISTED_BINARIES);
 	WhitelistedLibsDef.ParseIntoArray(WhitelistedLibs, TEXT(";"));
-#endif
 
 	return WhitelistedLibs;
 }
@@ -141,14 +139,14 @@ void FAzSpeechModule::StartupModule()
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-#if !PLATFORM_ANDROID && !PLATFORM_IOS
+#if !PLATFORM_ANDROID && !UE_BUILD_SHIPPING
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
 		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), false, true);
 	}
 #endif
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 	LoadRuntimeLibraries();
 #endif
 
@@ -162,7 +160,7 @@ void FAzSpeechModule::ShutdownModule()
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Shutting down plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 	UnloadRuntimeLibraries();
 #endif
 }

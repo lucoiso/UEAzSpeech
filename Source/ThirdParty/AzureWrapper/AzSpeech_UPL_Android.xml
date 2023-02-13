@@ -2,6 +2,7 @@
 
 <root xmlns:android="http://schemas.android.com/apk/res/android">
 	<androidManifestUpdates>
+		<addPermission android:name="android.permission.INTERNET" />
 		<addPermission android:name="android.permission.RECORD_AUDIO" />
 		<addPermission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 		<addPermission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

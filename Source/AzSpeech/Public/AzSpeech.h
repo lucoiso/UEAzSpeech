@@ -23,7 +23,7 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 private:
 	void LoadRuntimeLibraries();
 	void UnloadRuntimeLibraries();
