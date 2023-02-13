@@ -136,7 +136,13 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 	{
 		return false;
 	}
-	
+
+	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
+	const std::string SegmentationSilenceTO = TCHAR_TO_UTF8(*FString::FromInt(Settings->SegmentationSilenceTimeoutMs));
+	const std::string InitialSilenceTO = TCHAR_TO_UTF8(*FString::FromInt(Settings->InitialSilenceTimeoutMs));
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, SegmentationSilenceTO);
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, InitialSilenceTO);
+
 	if (GetOwningTask()->IsUsingAutoLanguage())
 	{
 		return true;

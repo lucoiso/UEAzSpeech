@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
+#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 
@@ -17,6 +18,14 @@
 
 void UAzSpeechTaskBase::Activate()
 {
+#if PLATFORM_ANDROID
+	if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.INTERNET"))
+	{
+		SetReadyToDestroy();
+		return;
+	}
+#endif
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
 	ValidateLanguageID();

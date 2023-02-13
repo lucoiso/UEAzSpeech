@@ -139,7 +139,7 @@ void FAzSpeechModule::StartupModule()
 	const TSharedPtr<IPlugin> PluginInterface = IPluginManager::Get().FindPlugin("AzSpeech");
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Initializing plugin %s version %s."), *PluginInterface->GetFriendlyName(), *PluginInterface->GetDescriptor().VersionName);
 
-#if !PLATFORM_ANDROID && !PLATFORM_IOS
+#if !PLATFORM_ANDROID && !UE_BUILD_SHIPPING
 	if (FPaths::DirectoryExists(UAzSpeechHelper::GetAzSpeechLogsBaseDir()))
 	{
 		IFileManager::Get().DeleteDirectory(*UAzSpeechHelper::GetAzSpeechLogsBaseDir(), false, true);
