@@ -10,6 +10,11 @@
 #include <Misc/Paths.h>
 #include <HAL/FileManager.h>
 
+#if ENGINE_MAJOR_VERSION < 5
+#include <GenericPlatform/GenericPlatformProcess.h>
+#define PLATFORM_LINUXARM64 PLATFORM_LINUXAARCH64
+#endif
+
 #define AZSPEECH_SUPPORTED_PLATFORM (PLATFORM_WINDOWS || PLATFORM_ANDROID || PLATFORM_HOLOLENS)
 
 #if WITH_EDITOR && !AZSPEECH_SUPPORTED_PLATFORM

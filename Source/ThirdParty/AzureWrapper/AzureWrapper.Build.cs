@@ -98,7 +98,7 @@ public class AzureWrapper : ModuleRules
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
-				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so")
+				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"),
 
 				// x86_x64
                 Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.core.so"),
