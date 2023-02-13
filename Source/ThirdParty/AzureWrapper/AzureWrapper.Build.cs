@@ -102,11 +102,11 @@ public class AzureWrapper : ModuleRules
 
 				// x86_x64
                 Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.core.so"),
-                Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
-                Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
-                Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
-                Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.lu.so")
-            });
+				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
+				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
+				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
+				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.lu.so")
+			});
 		}
 		else if (Target.Platform.ToString().ToLower().Contains("linux"))
 		{
