@@ -26,7 +26,7 @@ void UAzSpeechWavFileSynthesisBase::Activate()
 
 void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 {
-	if (IsTaskReadyToDestroy())
+	if (IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
