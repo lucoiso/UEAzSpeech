@@ -57,7 +57,7 @@ FString GetRuntimeLibsDirectory()
 	FPaths::NormalizeDirectoryName(BinariesDirectory);
 
 #if PLATFORM_HOLOLENS
-	FPaths::MakePathRelativeTo(Directory, *(FPaths::RootDir() + TEXT("/")));
+	FPaths::MakePathRelativeTo(BinariesDirectory, *(FPaths::RootDir() + TEXT("/")));
 #endif
 
 	return BinariesDirectory;
