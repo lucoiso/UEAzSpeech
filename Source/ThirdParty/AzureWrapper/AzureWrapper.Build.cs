@@ -87,25 +87,25 @@ public class AzureWrapper : ModuleRules
 			Output.AddRange(new[]
 			{
 				// arm64-v8a
-                Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"),
+				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"),
 				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
 				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
 				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
 				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"),
 
 				// armeabi-v7a
-                Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"),
+				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"),
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
 				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"),
 
 				// x86_x64
-                Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.core.so"),
-				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
-				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
-				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
-				Path.Combine("x86_x64", "libMicrosoft.CognitiveServices.Speech.extension.lu.so")
+				Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.core.so"),
+				Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
+				Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
+				Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
+				Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.lu.so")
 			});
 		}
 		else if (Target.Platform.ToString().ToLower().Contains("linux"))
