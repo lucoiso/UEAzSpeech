@@ -49,7 +49,7 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	if (!IsTaskActive() || IsTaskReadyToDestroy())
+	if (!IsTaskActive(this) || IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -69,19 +69,19 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	SetReadyToDestroy();
 }
 
-bool UAzSpeechTaskBase::IsTaskActive() const
+const bool UAzSpeechTaskBase::IsTaskActive(const UAzSpeechTaskBase* Test)
 {
-	return bIsTaskActive;
+	return IsValid(Test) && Test->bIsTaskActive;
 }
 
-bool UAzSpeechTaskBase::IsTaskReadyToDestroy() const
+const bool UAzSpeechTaskBase::IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
 {
-	return bIsReadyToDestroy;
+	return IsValid(Test) && Test->bIsReadyToDestroy;
 }
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 {
-	bool bOutput = IsValid(Test) && !Test->IsTaskReadyToDestroy();
+	bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
 
 #if WITH_EDITOR
 	bOutput = bOutput && !Test->bEndingPIE;
@@ -107,7 +107,7 @@ const FString UAzSpeechTaskBase::GetLanguageID() const
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
-	if (IsTaskReadyToDestroy())
+	if (IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
