@@ -40,13 +40,13 @@ public:
 		return QualifyFileExtension(Path, Name, "xml");
 	}
 
-	/* Convert .wav file to USoundWave */
+	/* Convert .wav file to USoundWave - [OutputModuleName, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", Meta = (DisplayName = "Convert .wav file to USoundWave"))
-	static USoundWave* ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName);
+	static USoundWave* ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModuleName = "", const FString& RelativeOutputDirectory = "", const FString& OutputAssetName = "");
 
-	/* Convert audio data (TArray<uint8>) to USoundWave */
+	/* Convert audio data (TArray<uint8>) to USoundWave - [OutputModuleName, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
-	static USoundWave* ConvertAudioDataToSoundWave(const TArray<uint8>& RawData);
+	static USoundWave* ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModuleName = "", const FString& RelativeOutputDirectory = "", const FString& OutputAssetName = "");
 
 	/* Load a given .xml file and return the content as string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Load XML to String"))
