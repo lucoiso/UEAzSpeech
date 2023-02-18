@@ -219,9 +219,9 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
 		}
-#endif
 
 		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
+#endif
 
 		if (bCreatedNewPackage)
 		{
