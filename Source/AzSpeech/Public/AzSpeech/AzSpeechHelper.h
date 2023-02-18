@@ -19,7 +19,7 @@ class AZSPEECH_API UAzSpeechHelper final : public UBlueprintFunctionLibrary
 
 public:
 	/* Helper function to qualify a Module Name string to a single string like /ModulePath/ */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify Path"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (DisplayName = "Qualify Module Path"))
 	static const FString QualifyModulePath(const FString& ModuleName);
 
 	/* Helper function to qualify a path string to a single string like Full/File/Path/ */
