@@ -31,6 +31,22 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechHelper)
 #endif
 
+const FString UAzSpeechHelper::QualifyModulePath(const FString& ModuleName)
+{
+	FString Output = ModuleName;
+
+	if (!Output.StartsWith("/"))
+	{
+		Output = "/" + Output;
+	}
+	if (!Output.EndsWith("/"))
+	{
+		Output += '/';
+	}
+
+	return Output;
+}
+
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
@@ -71,7 +87,7 @@ const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const F
 	return QualifiedName;
 }
 
-USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModuleName, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
+USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModulePath, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
@@ -90,7 +106,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
-			if (USoundWave* const SoundWave = ConvertAudioDataToSoundWave(RawData, OutputModuleName, RelativeOutputDirectory, OutputAssetName))
+			if (USoundWave* const SoundWave = ConvertAudioDataToSoundWave(RawData, OutputModulePath, RelativeOutputDirectory, OutputAssetName))
 			{
 #if WITH_EDITORONLY_DATA
 				SoundWave->AssetImportData->Update(Full_FileName);
@@ -106,7 +122,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModuleName, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
+USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModulePath, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
 {
 #if PLATFORM_ANDROID
 	if (!CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
@@ -134,14 +150,14 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 	bool bCreatedNewPackage = false;
 
-	if (OutputModuleName.IsEmpty() || OutputAssetName.IsEmpty())
+	if (OutputModulePath.IsEmpty() || OutputAssetName.IsEmpty())
 	{
 		//Create a new object from the transient package
 		SoundWave = NewObject<USoundWave>(GetTransientPackage(), *OutputAssetName);
 	}
 	else
 	{
-		FString TargetFilename = FPaths::Combine(OutputModuleName, RelativeOutputDirectory, OutputAssetName);
+		FString TargetFilename = FPaths::Combine(QualifyModulePath(OutputModulePath), RelativeOutputDirectory, OutputAssetName);
 		FPaths::NormalizeFilename(TargetFilename);
 
 		UPackage* const Package = CreatePackage(*TargetFilename);
@@ -180,7 +196,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
 #endif
 
-		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
+		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::ProjectDefined);
 
 		SoundWave->CuePoints.Reset(WaveInfo.WaveCues.Num());
 
