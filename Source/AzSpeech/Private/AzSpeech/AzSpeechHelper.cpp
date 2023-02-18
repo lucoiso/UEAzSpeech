@@ -14,12 +14,13 @@
 #include <HAL/FileManager.h>
 #include <AssetRegistry/AssetRegistryModule.h>
 #include <Components/AudioComponent.h>
+#include <AudioThread.h>
 
 #if WITH_EDITORONLY_DATA
 #include <EditorFramework/AssetImportData.h>
 #endif
 
-#if WITH_EDITOR && ENGINE_MAJOR_VERSION >= 5
+#if ENGINE_MAJOR_VERSION >= 5
 #include <UObject/SavePackage.h>
 #endif
 
@@ -169,7 +170,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 				AudioDeviceManager->StopSoundsUsingResource(ExistingSoundWave, &AudioComponentsToRestart);
 			}
 
-			ExistingSoundWave->FreeResources();
+			FAudioThread::RunCommandOnAudioThread([ExistingSoundWave]() { ExistingSoundWave->FreeResources(); });
 			SoundWave = ExistingSoundWave;
 		}
 		else
@@ -182,7 +183,10 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 	if (SoundWave)
 	{
+#if WITH_EDITORONLY_DATA
 		SoundWave->RawData.UpdatePayload(FSharedBuffer::Clone(RawData.GetData(), RawData.Num()));
+#endif
+
 		SoundWave->RawPCMDataSize = WaveInfo.SampleDataSize;
 		SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
 		FMemory::Memcpy(SoundWave->RawPCMData, WaveInfo.SampleDataStart, WaveInfo.SampleDataSize);
@@ -210,28 +214,29 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 			SoundWave->CuePoints.Add(NewCuePoint);
 		}
 
+#if WITH_EDITORONLY_DATA
 		if (WaveInfo.TimecodeInfo.IsValid())
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
 		}
+#endif
 
-		SoundWave->InvalidateCompressedData(true, false);
+		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
 
 		if (bCreatedNewPackage)
 		{
 			SoundWave->MarkPackageDirty();
 			FAssetRegistryModule::AssetCreated(SoundWave);
 
-#if WITH_EDITOR
 			const FString TempPackageName = SoundWave->GetPackage()->GetName();
 			const FString TempPackageFilename = FPackageName::LongPackageNameToFilename(TempPackageName, FPackageName::GetAssetPackageExtension());
+
 #if ENGINE_MAJOR_VERSION >= 5
 			FSavePackageArgs SaveArgs;
 			SaveArgs.SaveFlags = RF_Public | RF_Standalone;
 			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, *TempPackageFilename, SaveArgs);
 #else
 			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, RF_Public | RF_Standalone, *TempPackageFilename);
-#endif
 #endif
 		}
 
