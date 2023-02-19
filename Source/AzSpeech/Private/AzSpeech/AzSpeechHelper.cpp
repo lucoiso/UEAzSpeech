@@ -12,6 +12,17 @@
 #include <AudioCaptureCore.h>
 #include <Misc/Paths.h>
 #include <HAL/FileManager.h>
+#include <AssetRegistry/AssetRegistryModule.h>
+#include <Components/AudioComponent.h>
+#include <AudioThread.h>
+
+#if WITH_EDITORONLY_DATA
+#include <EditorFramework/AssetImportData.h>
+#endif
+
+#if ENGINE_MAJOR_VERSION >= 5
+#include <UObject/SavePackage.h>
+#endif
 
 #if PLATFORM_ANDROID
 #include <AndroidPermissionFunctionLibrary.h>
@@ -21,11 +32,27 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechHelper)
 #endif
 
+const FString UAzSpeechHelper::QualifyModulePath(const FString& ModuleName)
+{
+	FString Output = ModuleName;
+
+	if (!Output.StartsWith("/"))
+	{
+		Output = "/" + Output;
+	}
+	if (!Output.EndsWith("/"))
+	{
+		Output += '/';
+	}
+
+	return Output;
+}
+
 const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
 	FPaths::NormalizeDirectoryName(Output);
-	
+
 	if (!Output.EndsWith("/") && !Output.EndsWith("\""))
 	{
 		Output += '/';
@@ -61,7 +88,7 @@ const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const F
 	return QualifiedName;
 }
 
-USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName)
+USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModulePath, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
@@ -80,7 +107,13 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
-			return ConvertAudioDataToSoundWave(RawData);
+			if (USoundWave* const SoundWave = ConvertAudioDataToSoundWave(RawData, OutputModulePath, RelativeOutputDirectory, OutputAssetName))
+			{
+#if WITH_EDITORONLY_DATA
+				SoundWave->AssetImportData->Update(Full_FileName);
+#endif
+				return SoundWave;
+			}
 		}
 		// else
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file '%s'"), *FString(__func__), *Full_FileName);
@@ -90,35 +123,134 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData)
+USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModulePath, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
 {
+#if PLATFORM_ANDROID
+	if (!CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
+	{
+		return nullptr;
+	}
+#endif
+
 	if (!IsAudioDataValid(RawData))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: RawData is empty"), *FString(__func__));
+		return nullptr;
 	}
-	else if (USoundWave* const SoundWave = NewObject<USoundWave>())
+
+	USoundWave* SoundWave = nullptr;
+	TArray<UAudioComponent*> AudioComponentsToRestart;
+
+	FWaveModInfo WaveInfo;
+	WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
+
+	const int32 ChannelCount = *WaveInfo.pChannels;
+	const int32 SizeOfSample = *WaveInfo.pBitsPerSample / 8;
+	const int32 NumSamples = WaveInfo.SampleDataSize / SizeOfSample;
+	const int32 NumFrames = NumSamples / ChannelCount;
+
+	bool bCreatedNewPackage = false;
+
+	if (OutputModulePath.IsEmpty() || OutputAssetName.IsEmpty())
 	{
-		FWaveModInfo WaveInfo;
-		WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
+		//Create a new object from the transient package
+		SoundWave = NewObject<USoundWave>(GetTransientPackage(), *OutputAssetName);
+	}
+	else
+	{
+		FString TargetFilename = FPaths::Combine(QualifyModulePath(OutputModulePath), RelativeOutputDirectory, OutputAssetName);
+		FPaths::NormalizeFilename(TargetFilename);
 
-		const int32 ChannelCount = *WaveInfo.pChannels;
-		const int32 SizeOfSample = *WaveInfo.pBitsPerSample / 8;
-		const int32 NumSamples = WaveInfo.SampleDataSize / SizeOfSample;
-		const int32 NumFrames = NumSamples / ChannelCount;
+		UPackage* const Package = CreatePackage(*TargetFilename);
 
-		SoundWave->Duration = NumFrames / *WaveInfo.pSamplesPerSec;
-		SoundWave->NumChannels = ChannelCount;
-		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
-		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
+		if (USoundWave* const ExistingSoundWave = FindObject<USoundWave>(Package, *OutputAssetName))
+		{
+			if (FAudioDeviceManager* const AudioDeviceManager = GEngine->GetAudioDeviceManager())
+			{
+				AudioDeviceManager->StopSoundsUsingResource(ExistingSoundWave, &AudioComponentsToRestart);
+			}
 
-#if ENGINE_MAJOR_VERSION >= 5
-		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
+			FAudioThread::RunCommandOnAudioThread([ExistingSoundWave]() { ExistingSoundWave->FreeResources(); });
+			SoundWave = ExistingSoundWave;
+		}
+		else
+		{
+			SoundWave = NewObject<USoundWave>(Package, *OutputAssetName, RF_Public | RF_Standalone);
+		}
+
+		bCreatedNewPackage = true;
+	}
+
+	if (SoundWave)
+	{
+#if WITH_EDITORONLY_DATA
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+		SoundWave->RawData.UpdatePayload(FSharedBuffer::Clone(RawData.GetData(), RawData.Num()));
+#else
+		SoundWave->RawData.Lock(LOCK_READ_WRITE);
+		void* LockedData = SoundWave->RawData.Realloc(RawData.Num());
+		FMemory::Memcpy(LockedData, RawData.GetData(), RawData.Num());
+		SoundWave->RawData.Unlock();
+#endif
 #endif
 
 		SoundWave->RawPCMDataSize = WaveInfo.SampleDataSize;
 		SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
-
 		FMemory::Memcpy(SoundWave->RawPCMData, WaveInfo.SampleDataStart, WaveInfo.SampleDataSize);
+
+		SoundWave->Duration = NumFrames / *WaveInfo.pSamplesPerSec;
+		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
+		SoundWave->NumChannels = ChannelCount;
+		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
+
+#if ENGINE_MAJOR_VERSION >= 5
+		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
+		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
+
+		SoundWave->CuePoints.Reset(WaveInfo.WaveCues.Num());
+		for (FWaveCue& WaveCue : WaveInfo.WaveCues)
+		{
+			FSoundWaveCuePoint NewCuePoint;
+			NewCuePoint.CuePointID = static_cast<int32>(WaveCue.CuePointID);
+			NewCuePoint.FrameLength = static_cast<int32>(WaveCue.SampleLength);
+			NewCuePoint.FramePosition = static_cast<int32>(WaveCue.Position);
+			NewCuePoint.Label = WaveCue.Label;
+			SoundWave->CuePoints.Add(NewCuePoint);
+		}
+#endif
+
+#if WITH_EDITORONLY_DATA
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+		if (WaveInfo.TimecodeInfo.IsValid())
+		{
+			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
+		}
+#endif
+
+		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
+#endif
+
+		if (bCreatedNewPackage)
+		{
+			SoundWave->MarkPackageDirty();
+			FAssetRegistryModule::AssetCreated(SoundWave);
+
+			const FString TempPackageName = SoundWave->GetPackage()->GetName();
+			const FString TempPackageFilename = FPackageName::LongPackageNameToFilename(TempPackageName, FPackageName::GetAssetPackageExtension());
+
+#if ENGINE_MAJOR_VERSION >= 5
+			FSavePackageArgs SaveArgs;
+			SaveArgs.SaveFlags = RF_Public | RF_Standalone;
+			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, *TempPackageFilename, SaveArgs);
+#else
+			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, RF_Public | RF_Standalone, *TempPackageFilename);
+#endif
+		}
+
+		for (UAudioComponent* const& AudioComponent : AudioComponentsToRestart)
+		{
+			AudioComponent->Play();
+		}
 
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
 		return SoundWave;
@@ -151,7 +283,7 @@ const bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool b
 {
 	FString LocalPath = Path;
 	FPaths::NormalizeDirectoryName(LocalPath);
-	
+
 	bool bOutput = FPaths::DirectoryExists(LocalPath);
 
 	if (!bOutput)
@@ -212,7 +344,7 @@ const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FStrin
 #else
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
-	
+
 	return true;
 }
 
@@ -231,15 +363,15 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 {
 	TArray<FAzSpeechAudioInputDeviceInfo> Output;
 	TArray<Audio::FCaptureDeviceInfo> Internal_Devices;
-	
+
 	if (Audio::FAudioCapture AudioCapture; AudioCapture.GetCaptureDevicesAvailable(Internal_Devices) <= 0)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));		
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
-		
+
 		for (const Audio::FCaptureDeviceInfo& DeviceInfo : Internal_Devices)
 		{
 			Output.Add(FAzSpeechAudioInputDeviceInfo(DeviceInfo.DeviceName, DeviceInfo.DeviceId));

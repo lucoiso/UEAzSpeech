@@ -29,7 +29,8 @@ public class AzSpeech : ModuleRules
 			"Projects",
 			"AndroidPermission",
 			"DeveloperSettings",
-			"AudioCaptureCore"
+			"AudioCaptureCore",
+			"AssetRegistry"
 		});
 
 		if (Target.bBuildEditor)
