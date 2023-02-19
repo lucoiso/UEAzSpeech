@@ -19,6 +19,7 @@ public class AzSpeechEditor : ModuleRules
         PrivateDependencyModuleNames.AddRange(new[]
         {
             "AzSpeech",
+            "UnrealEd",
             "CoreUObject",
             "ToolMenus",
             "Engine",
@@ -26,7 +27,7 @@ public class AzSpeechEditor : ModuleRules
             "ToolMenus",
             "Slate",
             "SlateCore",
-            "Projects"
+            "WorkspaceMenuStructure",
         });
     }
 }

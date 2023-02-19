@@ -3,8 +3,11 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeechEditor.h"
+#include "SAzSpeechAudioGenerator.h"
 #include <ToolMenus.h>
 #include <Widgets/Docking/SDockTab.h>
+#include <WorkspaceMenuStructure.h>
+#include <WorkspaceMenuStructureModule.h>
 
 static const FName AzSpeechEditorTabName("AzSpeechEditor");
 
@@ -26,18 +29,10 @@ void FAzSpeechEditorModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAzSpeechEditorModule::OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs) const
 {
-	FText WidgetText = LOCTEXT("WindowWidgetText", "Work in Progress! :)");
-
 	return SNew(SDockTab)
-		.TabRole(ETabRole::NomadTab)
+		.TabRole(NomadTab)
 		[
-			SNew(SBox)
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			[
-				SNew(STextBlock)
-				.Text(WidgetText)
-			]
+			SNew(SAzSpeechAudioGenerator)
 		];
 }
 
@@ -46,10 +41,13 @@ void FAzSpeechEditorModule::RegisterMenus()
 	FToolMenuOwnerScoped OwnerScoped(this);
 	const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FAzSpeechEditorModule::OnSpawnTab);
 
+	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("AzSpeechCategory", "AzSpeech"), LOCTEXT("AzSpeechCategoryTooltip", "AzSpeech Plugin Tabs"), FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Package"));
+
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AzSpeechEditorTabName, EditorTabSpawnerDelegate)
 		.SetDisplayName(FText::FromString("AzSpeech Audio Generator"))
-		.SetTooltipText(FText::FromString("Open Audio Generator Window"))
-		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Package"));
+		.SetTooltipText(FText::FromString("Open AzSpeech Audio Generator"))
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Plus"))
+		.SetGroup(Menu.ToSharedRef());
 }
 
 #undef LOCTEXT_NAMESPACE

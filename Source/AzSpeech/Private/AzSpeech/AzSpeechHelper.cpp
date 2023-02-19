@@ -246,6 +246,12 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 #else
 			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, RF_Public | RF_Standalone, *TempPackageFilename);
 #endif
+
+#if WITH_EDITOR
+			TArray<FAssetData> SyncAssets;
+			SyncAssets.Add(FAssetData(SoundWave));
+			GEditor->SyncBrowserToObjects(SyncAssets);
+#endif
 		}
 
 		for (UAudioComponent* const& AudioComponent : AudioComponentsToRestart)
