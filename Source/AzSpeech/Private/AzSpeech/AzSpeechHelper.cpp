@@ -52,7 +52,7 @@ const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 {
 	FString Output = Path;
 	FPaths::NormalizeDirectoryName(Output);
-	
+
 	if (!Output.EndsWith("/") && !Output.EndsWith("\""))
 	{
 		Output += '/';
@@ -184,7 +184,14 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 	if (SoundWave)
 	{
 #if WITH_EDITORONLY_DATA
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
 		SoundWave->RawData.UpdatePayload(FSharedBuffer::Clone(RawData.GetData(), RawData.Num()));
+#else
+		SoundWave->RawData.Lock(LOCK_READ_WRITE);
+		void* LockedData = SoundWave->RawData.Realloc(RawData.Num());
+		FMemory::Memcpy(LockedData, RawData.GetData(), RawData.Num());
+		SoundWave->RawData.Unlock();
+#endif
 #endif
 
 		SoundWave->RawPCMDataSize = WaveInfo.SampleDataSize;
@@ -198,12 +205,9 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 #if ENGINE_MAJOR_VERSION >= 5
 		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
-#endif
-
-		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::ProjectDefined);
+		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
 
 		SoundWave->CuePoints.Reset(WaveInfo.WaveCues.Num());
-
 		for (FWaveCue& WaveCue : WaveInfo.WaveCues)
 		{
 			FSoundWaveCuePoint NewCuePoint;
@@ -213,12 +217,15 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 			NewCuePoint.Label = WaveCue.Label;
 			SoundWave->CuePoints.Add(NewCuePoint);
 		}
+#endif
 
 #if WITH_EDITORONLY_DATA
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
 		if (WaveInfo.TimecodeInfo.IsValid())
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
 		}
+#endif
 
 		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
 #endif
@@ -276,7 +283,7 @@ const bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool b
 {
 	FString LocalPath = Path;
 	FPaths::NormalizeDirectoryName(LocalPath);
-	
+
 	bool bOutput = FPaths::DirectoryExists(LocalPath);
 
 	if (!bOutput)
@@ -337,7 +344,7 @@ const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FStrin
 #else
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
 #endif
-	
+
 	return true;
 }
 
@@ -356,15 +363,15 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 {
 	TArray<FAzSpeechAudioInputDeviceInfo> Output;
 	TArray<Audio::FCaptureDeviceInfo> Internal_Devices;
-	
+
 	if (Audio::FAudioCapture AudioCapture; AudioCapture.GetCaptureDevicesAvailable(Internal_Devices) <= 0)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));		
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
-		
+
 		for (const Audio::FCaptureDeviceInfo& DeviceInfo : Internal_Devices)
 		{
 			Output.Add(FAzSpeechAudioInputDeviceInfo(DeviceInfo.DeviceName, DeviceInfo.DeviceId));
