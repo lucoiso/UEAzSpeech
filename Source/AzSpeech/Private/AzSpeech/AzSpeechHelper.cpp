@@ -1,9 +1,10 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
