@@ -16,6 +16,8 @@
 #include <AssetRegistry/AssetRegistryModule.h>
 #include <Components/AudioComponent.h>
 #include <AudioThread.h>
+#include <AudioDeviceManager.h>
+#include <Engine/Engine.h>
 
 #if WITH_EDITORONLY_DATA
 #include <EditorFramework/AssetImportData.h>
