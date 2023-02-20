@@ -66,34 +66,36 @@ void UAzSpeechPropertiesGetter::Destroy()
 void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 {
 	constexpr float Slot_Padding = 1.f;
+	constexpr float Margin_Spacing = Slot_Padding * 4.f;
+
 	const ISlateStyle& AppStyle = FAppStyle::Get();
 
-	const auto CenterTextCreator_Lambda = [&AppStyle](const FString& InStr) -> const TSharedRef<STextBlock>
+	const auto CenterTextCreator_Lambda = [&AppStyle, &Margin_Spacing](const FString& InStr) -> const TSharedRef<STextBlock>
 	{
 		return SNew(STextBlock)
 			.Text(FText::FromString(InStr))
 			.TextStyle(AppStyle, "PropertyEditor.AssetClass")
 			.Font(AppStyle.GetFontStyle("PropertyWindow.NormalFont"))
 			.Justification(ETextJustify::Left)
-			.Margin(4.f);
+			.Margin(Margin_Spacing);
 	};
 
-	const auto ContentPairCreator_Lambda = [this, &AppStyle](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
+	const auto ContentPairCreator_Lambda = [this, &AppStyle, &Slot_Padding](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
 		return SNew(SBorder)
 			.BorderImage(AppStyle.GetBrush("ToolPanel.GroupBorder"))
 			[
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
-				.FillWidth(0.35f)
+				.FillWidth(0.4f)
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Center)
 				[
 					Content1
 				]
 				+ SHorizontalBox::Slot()
-				.FillWidth(0.65f)
-				.MaxWidth(400.f)
+				.FillWidth(0.6f)
+				.MaxWidth(400)
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Center)
 				[
@@ -136,6 +138,7 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 	ChildSlot
 	[
 		SNew(SBorder)
+		.Padding(Margin_Spacing)
 		[
 			SNew(SScrollBox)
 			+ SScrollBox::Slot()
@@ -220,7 +223,7 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					}))
 				]
 				+ SVerticalBox::Slot()
-				.Padding(Slot_Padding * 2.f)
+				.Padding(Margin_Spacing)
 				.HAlign(HAlign_Center)
 				.AutoHeight()
 				[
