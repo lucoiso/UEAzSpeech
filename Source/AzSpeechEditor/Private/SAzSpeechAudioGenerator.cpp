@@ -115,6 +115,8 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 	AvailableVoices = { SelectVoice };
 
 	GameModule = MakeShareable(new FString("Game"));
+	Module = *GameModule.Get();
+
 	AvailableModules = { GameModule };
 	AvailableModules.Append(GetAvailableContentModules());
 
