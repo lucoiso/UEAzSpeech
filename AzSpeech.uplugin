@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 10,
-	"VersionName": "1.3.13",
+	"VersionName": "1.4.0",
 	"FriendlyName": "AzSpeech - Voice and Text",
 	"Description": "Integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.",
 	"Category": "Game Features",
@@ -23,6 +23,16 @@
 				"Win64",
 				"Android",
 				"HoloLens"
+			]
+		},
+		{
+			"Name": "AzSpeechEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac",
+				"Linux"
 			]
 		}
 	],

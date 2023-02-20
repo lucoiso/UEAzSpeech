@@ -1,9 +1,10 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
@@ -244,6 +245,12 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, *TempPackageFilename, SaveArgs);
 #else
 			UPackage::SavePackage(SoundWave->GetPackage(), SoundWave, RF_Public | RF_Standalone, *TempPackageFilename);
+#endif
+
+#if WITH_EDITOR
+			TArray<FAssetData> SyncAssets;
+			SyncAssets.Add(FAssetData(SoundWave));
+			GEditor->SyncBrowserToObjects(SyncAssets);
 #endif
 		}
 
