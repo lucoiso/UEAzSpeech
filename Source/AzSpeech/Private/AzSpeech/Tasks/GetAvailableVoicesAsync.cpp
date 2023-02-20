@@ -28,6 +28,12 @@ UGetAvailableVoicesAsync* UGetAvailableVoicesAsync::GetAvailableVoicesAsync(UObj
 
 void UGetAvailableVoicesAsync::Activate()
 {
+	if (!UAzSpeechSettings::CheckAzSpeechSettings())
+	{
+		SetReadyToDestroy();
+		return;
+	}
+
 	Super::Activate();
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
@@ -50,14 +56,14 @@ void UGetAvailableVoicesAsync::BroadcastResult(const TArray<FString>& Result)
 {
 	check(IsInGameThread());
 
-	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Broadcasting result num: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), Result.Num());
-
 	if (Result.Num() <= 0)
 	{
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Broadcasting failure"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 		Fail.Broadcast();
 	}
 	else
 	{
+		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Broadcasting result with size: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), Result.Num());
 		Success.Broadcast(Result);
 	}
 

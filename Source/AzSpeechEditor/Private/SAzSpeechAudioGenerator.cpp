@@ -4,6 +4,7 @@
 
 #include "SAzSpeechAudioGenerator.h"
 #include <AzSpeechInternalFuncs.h>
+#include <AzSpeech/AzSpeechSettings.h>
 #include <AzSpeech/AzSpeechHelper.h>
 #include <AzSpeech/Tasks/GetAvailableVoicesAsync.h>
 #include <AzSpeech/Tasks/TextToAudioDataAsync.h>
@@ -14,7 +15,7 @@
 #include <Widgets/Layout/SScrollBox.h>
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
-#include <Algo/RemoveIf.h>
+#include <Interfaces/IPluginManager.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SAzSpeechAudioGenerator)
@@ -113,23 +114,9 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 
 	AvailableVoices = { SelectVoice };
 
-	TArray<FModuleStatus> ModuleStatusArray;
-	FModuleManager::Get().QueryModules(ModuleStatusArray);
-
-	const int32 Index = Algo::RemoveIf(ModuleStatusArray, [](const FModuleStatus& ModuleStatus) {
-		return ModuleStatus.bIsGameModule || !ModuleStatus.bIsLoaded || !FPaths::IsUnderDirectory(ModuleStatus.FilePath, FPaths::ProjectDir()) || AzSpeech::Internal::HasEmptyParam(ModuleStatus.Name);
-	});
-
-	ModuleStatusArray.RemoveAt(Index, ModuleStatusArray.Num() - Index);
-
-	TArray<FString> ModuleNames;
-	for (const FModuleStatus& ModuleStatus : ModuleStatusArray)
-	{
-		ModuleNames.Add(ModuleStatus.Name);
-	}
-
-	AvailableModules = GetStringArrayAsSharedPtr(ModuleNames);
-	AvailableModules.Insert(MakeShareable(new FString("Game")), 0);
+	GameModule = MakeShareable(new FString("Game"));
+	AvailableModules = { GameModule };
+	AvailableModules.Append(GetAvailableContentModules());
 
 	VoiceComboBox = SNew(STextComboBox)
 					.OptionsSource(&AvailableVoices)
@@ -176,14 +163,21 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Locale"), SNew(SEditableTextBox)
 					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
 					{
-						Locale = InText.ToString().TrimStartAndEnd();
+						const FString NewValue = FText::TrimPrecedingAndTrailing(InText).ToString();
+
+						if (Locale.Equals(NewValue, ESearchCase::IgnoreCase))
+						{
+							return;
+						}
+
+						Locale = NewValue;
 						VoiceComboBox->SetSelectedItem(SelectVoice);
 
 						if (Locale.Equals("Auto", ESearchCase::IgnoreCase))
 						{
 							AvailableVoices = { SelectVoice };
 						}
-						else if (!InText.IsEmpty())
+						else if (!Locale.IsEmpty())
 						{
 							UpdateAvailableVoices();
 						}
@@ -201,6 +195,7 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Module"), SNew(STextComboBox)
 					.OptionsSource(&AvailableModules)
+					.InitiallySelectedItem(GameModule)
 					.OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
 					{
 						Module = InStr->TrimStartAndEnd();
@@ -213,7 +208,7 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Relative Path"), SNew(SEditableTextBox)
 					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
 					{
-						RelativePath = InText.ToString().TrimStartAndEnd();
+						RelativePath = FText::TrimPrecedingAndTrailing(InText).ToString();
 					}))
 				]
 				+ SVerticalBox::Slot()
@@ -223,7 +218,7 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"), SNew(SEditableTextBox)
 					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
 					{
-						AssetName = InText.ToString().TrimStartAndEnd();
+						AssetName = FText::TrimPrecedingAndTrailing(InText).ToString();
 					}))
 				]
 				+ SVerticalBox::Slot()
@@ -254,6 +249,11 @@ void SAzSpeechAudioGenerator::UpdateAvailableVoices()
 
 FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 {
+	if (!UAzSpeechSettings::CheckAzSpeechSettings())
+	{
+		FReply::Handled();
+	}
+
 	UAzSpeechPropertiesGetter* const InternalGetter = NewObject<UAzSpeechPropertiesGetter>();
 	InternalGetter->OwningWidget = this;
 
@@ -301,4 +301,24 @@ TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetStringArrayAsSharedPtr(c
 	}
 
 	return Output;
+}
+
+TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetAvailableContentModules() const
+{
+	TArray<FString> Output;
+
+	IPluginManager& PluginManager = IPluginManager::Get();
+	const TArray<TSharedRef<IPlugin>> PluginsArray = PluginManager.GetEnabledPluginsWithContent();
+
+	for (const TSharedRef<IPlugin>& Plugin : PluginsArray)
+	{
+		if (Plugin->GetLoadedFrom() != EPluginLoadedFrom::Project)
+		{
+			continue;
+		}
+
+		Output.Add(Plugin->GetName());
+	}
+
+	return GetStringArrayAsSharedPtr(Output);
 }

@@ -28,6 +28,7 @@ public class AzSpeechEditor : ModuleRules
             "Slate",
             "SlateCore",
             "WorkspaceMenuStructure",
+            "Projects"
         });
     }
 }
