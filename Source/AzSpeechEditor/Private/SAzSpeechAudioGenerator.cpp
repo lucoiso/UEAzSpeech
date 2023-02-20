@@ -68,6 +68,10 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 	constexpr float Slot_Padding = 1.f;
 	constexpr float Margin_Spacing = Slot_Padding * 4.f;
 
+#if ENGINE_MAJOR_VERSION < 5
+	using FAppStyle = FEditorStyle;
+#endif
+
 	const ISlateStyle& AppStyle = FAppStyle::Get();
 
 	const auto CenterTextCreator_Lambda = [&AppStyle, &Margin_Spacing](const FString& InStr) -> const TSharedRef<STextBlock>
@@ -274,10 +278,10 @@ bool SAzSpeechAudioGenerator::IsGenerationEnabled() const
 {
 	if (bIsSSMLBased)
 	{
-		return !AzSpeech::Internal::HasEmptyParam(Module, AssetName, SynthesisText);
+		return !AzSpeech::Internal::HasEmptyParam(Module, AssetName, SynthesisText.ToString());
 	}
 
-	return !Voice.Equals(*SelectVoice.Get()) && !AzSpeech::Internal::HasEmptyParam(Voice, Module, AssetName, SynthesisText);
+	return !Voice.Equals(*SelectVoice.Get()) && !AzSpeech::Internal::HasEmptyParam(Voice, Module, AssetName, SynthesisText.ToString());
 }
 
 void SAzSpeechAudioGenerator::OnAvailableVoicesChanged(const TArray<FString>& Voices)

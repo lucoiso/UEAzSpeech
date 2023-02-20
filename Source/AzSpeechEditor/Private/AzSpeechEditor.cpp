@@ -41,12 +41,18 @@ void FAzSpeechEditorModule::RegisterMenus()
 	FToolMenuOwnerScoped OwnerScoped(this);
 	const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FAzSpeechEditorModule::OnSpawnTab);
 
-	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("AzSpeechCategory", "AzSpeech"), LOCTEXT("AzSpeechCategoryTooltip", "AzSpeech Plugin Tabs"), FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Package"));
+#if ENGINE_MAJOR_VERSION < 5
+	const FName AppStyleName = FEditorStyle::GetStyleSetName();
+#else
+	const FName AppStyleName = FAppStyle::GetAppStyleSetName();
+#endif
 
+	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("AzSpeechCategory", "AzSpeech"), LOCTEXT("AzSpeechCategoryTooltip", "AzSpeech Plugin Tabs"), FSlateIcon(AppStyleName, "Icons.Package"));
+	
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AzSpeechEditorTabName, EditorTabSpawnerDelegate)
 		.SetDisplayName(FText::FromString("AzSpeech Audio Generator"))
 		.SetTooltipText(FText::FromString("Open AzSpeech Audio Generator"))
-		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Plus"))
+		.SetIcon(FSlateIcon(AppStyleName, "Icons.Plus"))
 		.SetGroup(Menu.ToSharedRef());
 }
 

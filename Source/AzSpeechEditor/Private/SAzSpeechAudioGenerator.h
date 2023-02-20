@@ -14,7 +14,11 @@ class UAzSpeechPropertiesGetter : public UObject
 
 public:
 	explicit UAzSpeechPropertiesGetter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+#if ENGINE_MAJOR_VERSION >= 5
 	TObjectPtr<class SAzSpeechAudioGenerator> OwningWidget;
+#else
+	class SAzSpeechAudioGenerator* OwningWidget;
+#endif
 
 	UFUNCTION()
 	void OnAvailableVoicesChanged(const TArray<FString>& Voices);
