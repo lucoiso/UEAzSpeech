@@ -59,6 +59,7 @@ private:
 	FText SynthesisText;
 
 	TSharedPtr<FString> SelectVoice;
+	TSharedPtr<FString> GameModule;
 
 	TArray<TSharedPtr<FString>> AvailableVoices;
 	TArray<TSharedPtr<FString>> TextTypes;
@@ -66,6 +67,7 @@ private:
 
 	void OnAvailableVoicesChanged(const TArray<FString>& Voices);
 	TArray<TSharedPtr<FString>> GetStringArrayAsSharedPtr(const TArray<FString>& Input) const;
+	TArray<TSharedPtr<FString>> GetAvailableContentModules() const;
 
 	TSharedPtr<STextComboBox> VoiceComboBox;
 };
