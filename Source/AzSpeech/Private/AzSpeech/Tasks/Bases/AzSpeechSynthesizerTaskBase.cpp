@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
@@ -7,6 +7,10 @@
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSynthesizerTaskBase)
+#endif
 
 void UAzSpeechSynthesizerTaskBase::Activate()
 {
@@ -145,7 +149,7 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio length: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioLength());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current stream size: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioData().get()->size());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *FString(UTF8_TO_TCHAR(LastResult->ResultId.c_str())));
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
 }
 
 void UAzSpeechSynthesizerTaskBase::LogSynthesisResultStatus(const bool bSuccess) const

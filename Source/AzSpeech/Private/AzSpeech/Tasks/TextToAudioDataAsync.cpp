@@ -1,8 +1,12 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(TextToAudioDataAsync)
+#endif
 
 UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {

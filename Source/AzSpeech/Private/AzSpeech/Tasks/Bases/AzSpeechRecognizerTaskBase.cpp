@@ -1,10 +1,14 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "LogAzSpeech.h"
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechRecognizerTaskBase)
+#endif
 
 const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {
@@ -67,7 +71,7 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__),LastResult->Duration());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current offset: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->Offset());
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *FString(UTF8_TO_TCHAR(LastResult->ResultId.c_str())));
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
 
 	switch (LastResult->Reason)
 	{

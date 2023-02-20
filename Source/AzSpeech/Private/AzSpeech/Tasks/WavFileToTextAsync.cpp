@@ -1,11 +1,15 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Misc/Paths.h>
 #include <HAL/FileManager.h>
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WavFileToTextAsync)
+#endif
 
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {

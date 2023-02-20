@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #pragma once
@@ -66,6 +66,14 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Azure Speech SDK Auto Candidate Languages"))
 	TArray<FString> AutoCandidateLanguages;
 
+	/* Silence time limit in miliseconds to consider the task as Completed */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
+	int32 SegmentationSilenceTimeoutMs;
+
+	/* Silence time limit in miliseconds at the start of the task to consider the result as Canceled/NoMatch */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
+	int32 InitialSilenceTimeoutMs;
+
 	/* Time limit in seconds to wait for related asynchronous tasks to complete */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Tasks Timeout in Seconds", ClampMin = "1", UIMin = "1"))
 	int32 TimeOutInSeconds;
@@ -82,7 +90,7 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001"))
 	float ThreadUpdateInterval;
 
-	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails [Disabled for Android & iOS] */
+	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
 

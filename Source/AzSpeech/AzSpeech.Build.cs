@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 using System.IO;
@@ -29,7 +29,8 @@ public class AzSpeech : ModuleRules
 			"Projects",
 			"AndroidPermission",
 			"DeveloperSettings",
-			"AudioCaptureCore"
+			"AudioCaptureCore",
+			"AssetRegistry"
 		});
 
 		if (Target.bBuildEditor)

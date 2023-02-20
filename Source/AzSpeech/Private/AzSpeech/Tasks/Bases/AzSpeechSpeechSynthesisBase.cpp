@@ -1,11 +1,15 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSpeechSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSpeechSynthesisBase)
+#endif
 
 void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
 {

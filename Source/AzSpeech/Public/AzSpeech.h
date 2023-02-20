@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #pragma once
@@ -23,7 +23,7 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-#ifdef AZSPEECH_RUNTIME_PLATFORM
+#ifdef AZSPEECH_WHITELISTED_BINARIES
 private:
 	void LoadRuntimeLibraries();
 	void UnloadRuntimeLibraries();

@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
@@ -82,14 +82,14 @@ void FAzSpeechRunnableBase::Exit()
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
-	if (GetOwningTask()->IsTaskActive())
+	if (UAzSpeechTaskBase::IsTaskActive(GetOwningTask()))
 	{
 		AsyncTask(ENamedThreads::GameThread, [this] { GetOwningTask()->BroadcastFinalResult(); });
 	}
 
 	RemoveBindings();
 
-	if (!GetOwningTask()->IsTaskReadyToDestroy())
+	if (!UAzSpeechTaskBase::IsTaskReadyToDestroy(GetOwningTask()))
 	{
 		GetOwningTask()->SetReadyToDestroy();
 	}
@@ -201,10 +201,9 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
 
 const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
-#if PLATFORM_ANDROID || PLATFORM_IOS
+#if PLATFORM_ANDROID || UE_BUILD_SHIPPING
 	return true;
-#endif
-	
+#else
 	if (!InSpeechConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
@@ -220,7 +219,8 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 	if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir(); IFileManager::Get().MakeDirectory(*AzSpeechLogPath, true))
 	{
-		AzSpeechLogPath += "/UEAzSpeech " + FDateTime::Now().ToString() + ".log";
+		const FString LogFilename = "UEAzSpeech " + FDateTime::Now().ToString() + ".log";
+		AzSpeechLogPath = FPaths::Combine(AzSpeechLogPath, LogFilename);
 		FPaths::NormalizeFilename(AzSpeechLogPath);
 
 		if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
@@ -232,6 +232,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 	}
 
 	return false;
+#endif
 }
 
 const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBase::GetProfanityFilter() const

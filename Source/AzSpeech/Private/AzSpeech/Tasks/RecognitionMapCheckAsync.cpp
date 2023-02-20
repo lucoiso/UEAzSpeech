@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/RecognitionMapCheckAsync.h"
@@ -7,6 +7,10 @@
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(RecognitionMapCheckAsync)
+#endif
 
 URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
 {

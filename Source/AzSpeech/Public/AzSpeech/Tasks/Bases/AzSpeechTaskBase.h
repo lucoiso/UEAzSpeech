@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #pragma once
@@ -33,11 +33,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
 	virtual void StopAzSpeechTask();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	bool IsTaskActive() const;
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Test"))
+	static const bool IsTaskActive(const UAzSpeechTaskBase* Test);
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	bool IsTaskReadyToDestroy() const;
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Test"))
+	static const bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Test"))
 	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);

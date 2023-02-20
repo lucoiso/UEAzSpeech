@@ -1,11 +1,15 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechWavFileSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "LogAzSpeech.h"
 #include <HAL/FileManager.h>
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechWavFileSynthesisBase)
+#endif
 
 void UAzSpeechWavFileSynthesisBase::Activate()
 {
@@ -22,7 +26,7 @@ void UAzSpeechWavFileSynthesisBase::Activate()
 
 void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 {
-	if (IsTaskReadyToDestroy())
+	if (IsTaskReadyToDestroy(this))
 	{
 		return;
 	}

@@ -1,9 +1,10 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
+#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 
@@ -11,8 +12,20 @@
 #include <Editor.h>
 #endif
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechTaskBase)
+#endif
+
 void UAzSpeechTaskBase::Activate()
 {
+#if PLATFORM_ANDROID
+	if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.INTERNET"))
+	{
+		SetReadyToDestroy();
+		return;
+	}
+#endif
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
 	ValidateLanguageID();
@@ -36,7 +49,7 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	if (!IsTaskActive() || IsTaskReadyToDestroy())
+	if (!IsTaskActive(this) || IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -56,19 +69,19 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	SetReadyToDestroy();
 }
 
-bool UAzSpeechTaskBase::IsTaskActive() const
+const bool UAzSpeechTaskBase::IsTaskActive(const UAzSpeechTaskBase* Test)
 {
-	return bIsTaskActive;
+	return IsValid(Test) && Test->bIsTaskActive;
 }
 
-bool UAzSpeechTaskBase::IsTaskReadyToDestroy() const
+const bool UAzSpeechTaskBase::IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
 {
-	return bIsReadyToDestroy;
+	return IsValid(Test) && Test->bIsReadyToDestroy;
 }
 
 const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
 {
-	bool bOutput = IsValid(Test) && !Test->IsTaskReadyToDestroy();
+	bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
 
 #if WITH_EDITOR
 	bOutput = bOutput && !Test->bEndingPIE;
@@ -94,7 +107,7 @@ const FString UAzSpeechTaskBase::GetLanguageID() const
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
-	if (IsTaskReadyToDestroy())
+	if (IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
