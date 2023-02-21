@@ -39,7 +39,7 @@ void UTextToAudioDataAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::C
 {
 	Super::OnSynthesisUpdate(LastResult);
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}

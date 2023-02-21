@@ -6,6 +6,7 @@
 
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
+#include <Kismet/BlueprintFunctionLibrary.h>
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
@@ -26,21 +27,13 @@ class AZSPEECH_API UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 
 	friend class FAzSpeechRunnableBase;
+	friend class UAzSpeechTaskStatus;
 
 public:
 	virtual void Activate() override;
 
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (DisplayName = "Stop AzSpeech Task"))
 	virtual void StopAzSpeechTask();
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Test"))
-	static const bool IsTaskActive(const UAzSpeechTaskBase* Test);
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Test"))
-	static const bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Test"))
-	static const bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsUsingAutoLanguage() const;
@@ -89,4 +82,35 @@ private:
 	bool bIsReadyToDestroy = false;
 
 	void ValidateLanguageID();
+};
+
+UCLASS(NotPlaceable, Category = "AzSpeech")
+class AZSPEECH_API UAzSpeechTaskStatus final : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static FORCEINLINE bool IsTaskActive(const UAzSpeechTaskBase* Test)
+	{
+		return IsValid(Test) && Test->bIsTaskActive;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static FORCEINLINE bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
+	{
+		return IsValid(Test) && Test->bIsReadyToDestroy;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static FORCEINLINE bool IsTaskStillValid(const UAzSpeechTaskBase* Test)
+	{
+		bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
+
+#if WITH_EDITOR
+		bOutput = bOutput && !Test->bEndingPIE;
+#endif
+
+		return bOutput;
+	}
 };

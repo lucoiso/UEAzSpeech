@@ -31,7 +31,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return 0u;
 	}
@@ -123,7 +123,7 @@ void FAzSpeechSynthesisRunnable::RemoveBindings()
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return;
 	}
@@ -142,7 +142,7 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
 	}
@@ -175,7 +175,7 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
 	}
@@ -215,7 +215,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
 	}
@@ -224,7 +224,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	{
 		SpeechSynthesizer->VisemeReceived.Connect([this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 		{
-			if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 			{
 				StopAzSpeechRunnableTask();
 				return;
@@ -241,7 +241,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 
 	const auto SynthesisUpdate_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
-		if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
+		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
 		{
 			StopAzSpeechRunnableTask();
 			return;
@@ -256,7 +256,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisSignals()
 	
 	const auto SynthesisStarted_Lambda = [this, SynthesizerTask]([[maybe_unused]] const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
-		if (!UAzSpeechTaskBase::IsTaskStillValid(SynthesizerTask))
+		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 		{
 			StopAzSpeechRunnableTask();
 			return;
