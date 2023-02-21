@@ -69,5 +69,9 @@ private:
 	TArray<TSharedPtr<FString>> GetStringArrayAsSharedPtr(const TArray<FString>& Input) const;
 	TArray<TSharedPtr<FString>> GetAvailableContentModules() const;
 
+	void OnFileInfoCommited(const FText& InText, FString& Member, TSharedPtr<SEditableTextBox>& InputRef);
+
 	TSharedPtr<STextComboBox> VoiceComboBox;
+	TSharedPtr<SEditableTextBox> PathInput;
+	TSharedPtr<SEditableTextBox> AssetNameInput;
 };

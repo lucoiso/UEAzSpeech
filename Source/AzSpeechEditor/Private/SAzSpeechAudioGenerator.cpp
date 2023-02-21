@@ -120,14 +120,6 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 	AvailableModules = { GameModule };
 	AvailableModules.Append(GetAvailableContentModules());
 
-	VoiceComboBox = SNew(STextComboBox)
-					.OptionsSource(&AvailableVoices)
-					.InitiallySelectedItem(SelectVoice)
-					.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
-					{
-						Voice = InStr->TrimStartAndEnd();
-					});
-
 	ChildSlot
 	[
 		SNew(SBorder)
@@ -142,10 +134,10 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 				.AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Synthesis Text/SSML"), SNew(SMultiLineEditableTextBox)
-					.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
+					.OnTextChanged_Lambda([this](const FText& InText)
 					{
 						SynthesisText = InText;
-					})))
+					}))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
@@ -189,7 +181,13 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 				.Padding(Slot_Padding)
 				.AutoHeight()
 				[
-					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Voice"), VoiceComboBox.ToSharedRef())
+					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Voice"), SAssignNew(VoiceComboBox, STextComboBox)
+					.OptionsSource(&AvailableVoices)
+					.InitiallySelectedItem(SelectVoice)
+					.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+					{
+						Voice = InStr->TrimStartAndEnd();
+					}))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
@@ -198,29 +196,29 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Module"), SNew(STextComboBox)
 					.OptionsSource(&AvailableModules)
 					.InitiallySelectedItem(GameModule)
-					.OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+					.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
 					{
 						Module = InStr->TrimStartAndEnd();
-					})))
-				]
-				+ SVerticalBox::Slot()
-				.Padding(Slot_Padding)
-				.AutoHeight()
-				[
-					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Relative Path"), SNew(SEditableTextBox)
-					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
-					{
-						RelativePath = FText::TrimPrecedingAndTrailing(InText).ToString();
 					}))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
 				.AutoHeight()
 				[
-					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"), SNew(SEditableTextBox)
+					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Relative Path"), SAssignNew(PathInput, SEditableTextBox)
 					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
 					{
-						AssetName = FText::TrimPrecedingAndTrailing(InText).ToString();
+						OnFileInfoCommited(InText, RelativePath, PathInput);
+					}))
+				]
+				+ SVerticalBox::Slot()
+				.Padding(Slot_Padding)
+				.AutoHeight()
+				[
+					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"), SAssignNew(AssetNameInput, SEditableTextBox)
+					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
+					{
+						OnFileInfoCommited(InText, AssetName, AssetNameInput);
 					}))
 				]
 				+ SVerticalBox::Slot()
@@ -323,4 +321,12 @@ TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetAvailableContentModules(
 	}
 
 	return GetStringArrayAsSharedPtr(Output);
+}
+
+void SAzSpeechAudioGenerator::OnFileInfoCommited(const FText& InText, FString& Member, TSharedPtr<SEditableTextBox>& InputRef)
+{
+	const FString NewValue = FText::TrimPrecedingAndTrailing(InText).ToString();
+	Member = FPaths::MakeValidFileName(NewValue);
+
+	InputRef->SetText(FText::FromString(Member));
 }
