@@ -49,7 +49,7 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	if (!IsTaskActive(this) || IsTaskReadyToDestroy(this))
+	if (!UAzSpeechTaskStatus::IsTaskActive(this) || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -69,27 +69,6 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	SetReadyToDestroy();
 }
 
-const bool UAzSpeechTaskBase::IsTaskActive(const UAzSpeechTaskBase* Test)
-{
-	return IsValid(Test) && Test->bIsTaskActive;
-}
-
-const bool UAzSpeechTaskBase::IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
-{
-	return IsValid(Test) && Test->bIsReadyToDestroy;
-}
-
-const bool UAzSpeechTaskBase::IsTaskStillValid(const UAzSpeechTaskBase* Test)
-{
-	bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
-
-#if WITH_EDITOR
-	bOutput = bOutput && !Test->bEndingPIE;
-#endif
-
-	return bOutput;
-}
-
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
 	return LanguageID.Equals("Auto", ESearchCase::IgnoreCase);
@@ -107,7 +86,7 @@ const FString UAzSpeechTaskBase::GetLanguageID() const
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
-	if (IsTaskReadyToDestroy(this))
+	if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -136,7 +115,7 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	return UAzSpeechSettings::CheckAzSpeechSettings() && IsTaskStillValid(this);
+	return UAzSpeechSettings::CheckAzSpeechSettings() && UAzSpeechTaskStatus::IsTaskStillValid(this);
 }
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
@@ -151,7 +130,7 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 #if WITH_EDITOR
 void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 {
-	if (!IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}

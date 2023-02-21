@@ -57,7 +57,7 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 {	
 	Super::OnSynthesisUpdate(LastResult);
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}
@@ -87,7 +87,7 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)
 {
-	if (!IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}

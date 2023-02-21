@@ -125,7 +125,7 @@ void UAzSpeechSettings::ValidateRecognitionMap()
 	{
 		if (AzSpeech::Internal::HasEmptyParam(RecognitionMapGroup.GroupName))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map has a group with invalid name."));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map has a group with invalid name."), *FString(__func__));
 		}
 
 		for (const FAzSpeechRecognitionData& Data : RecognitionMapGroup.Data)
@@ -160,14 +160,14 @@ void UAzSpeechSettings::ValidatePhraseList()
 	{
 		if (AzSpeech::Internal::HasEmptyParam(PhraseListData.GroupName))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map has a group with invalid name."));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map has a group with invalid name."), *FString(__func__));
 		}
 
 		for (const FString& Data : PhraseListData.Data)
 		{
 			if (AzSpeech::Internal::HasEmptyParam(Data))
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map Group %s contains empty objects"));
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map Group %s contains empty objects"), *FString(__func__));
 				break;
 			}
 		}

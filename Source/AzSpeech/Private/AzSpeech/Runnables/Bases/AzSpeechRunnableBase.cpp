@@ -82,14 +82,14 @@ void FAzSpeechRunnableBase::Exit()
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
-	if (UAzSpeechTaskBase::IsTaskActive(GetOwningTask()))
+	if (UAzSpeechTaskStatus::IsTaskActive(GetOwningTask()))
 	{
 		AsyncTask(ENamedThreads::GameThread, [this] { GetOwningTask()->BroadcastFinalResult(); });
 	}
 
 	RemoveBindings();
 
-	if (!UAzSpeechTaskBase::IsTaskReadyToDestroy(GetOwningTask()))
+	if (!UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
 	{
 		GetOwningTask()->SetReadyToDestroy();
 	}

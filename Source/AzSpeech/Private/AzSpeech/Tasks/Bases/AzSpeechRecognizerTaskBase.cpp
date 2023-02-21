@@ -52,7 +52,7 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 {
 	check(IsInGameThread());
 
-	if (!IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}
