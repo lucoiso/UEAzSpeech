@@ -36,7 +36,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return 0u;
 	}
@@ -121,7 +121,7 @@ void FAzSpeechRecognitionRunnable::RemoveBindings()
 	
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return;
 	}
@@ -165,7 +165,7 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return false;
 	}
@@ -211,14 +211,14 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return false;
 	}
 	
 	const auto RecognitionUpdate_Lambda = [this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 	{
-		if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
+		if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
 		{
 			StopAzSpeechRunnableTask();
 			return;
@@ -242,7 +242,7 @@ bool FAzSpeechRecognitionRunnable::InsertPhraseList()
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(RecognizerTask))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return false;
 	}

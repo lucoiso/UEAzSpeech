@@ -26,7 +26,7 @@ void UAzSpeechWavFileSynthesisBase::Activate()
 
 void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 {
-	if (IsTaskReadyToDestroy(this))
+	if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -102,7 +102,7 @@ void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micr
 {
 	Super::OnSynthesisUpdate(LastResult);
 
-	if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}

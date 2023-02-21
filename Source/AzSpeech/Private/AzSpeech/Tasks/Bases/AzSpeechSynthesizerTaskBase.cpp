@@ -95,7 +95,7 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 {
 	check(IsInGameThread());
 
-	if (!IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}
@@ -118,7 +118,7 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 {
 	check(IsInGameThread());
 
-	if (!IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;
 	}
@@ -158,7 +158,7 @@ void UAzSpeechSynthesizerTaskBase::LogSynthesisResultStatus(const bool bSuccess)
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: Success"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	}
-	else if (!UAzSpeechTaskBase::IsTaskStillValid(this))
+	else if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: Canceled"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	}
