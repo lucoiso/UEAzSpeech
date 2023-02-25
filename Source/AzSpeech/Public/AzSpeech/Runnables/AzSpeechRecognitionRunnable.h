@@ -52,4 +52,6 @@ private:
 
 	const std::vector<std::string> GetCandidateLanguages() const;
 	const TArray<FString> GetPhraseListFromGroup(const FName& InGroup) const;
+
+	const Microsoft::CognitiveServices::Speech::OutputFormat GetOutputFormat() const;
 };

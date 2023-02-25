@@ -148,6 +148,7 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 	}
 
 	InConfig->SetProperty("SpeechSynthesis_KeepConnectionAfterStopping", "false");
+	InConfig->SetSpeechSynthesisOutputFormat(GetOutputFormat());
 
 	if (SynthesizerTask->IsUsingAutoLanguage())
 	{
@@ -327,4 +328,36 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 	}
 
 	return bOutput;
+}
+
+const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat FAzSpeechSynthesisRunnable::GetOutputFormat() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		switch (Settings->SpeechSynthesisOutputFormat)
+		{
+			case EAzSpeechSynthesisOutputFormat::Riff8Khz16BitMonoPcm:
+				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff8Khz16BitMonoPcm;
+
+			case EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm:
+				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
+
+			case EAzSpeechSynthesisOutputFormat::Riff24Khz16BitMonoPcm:
+				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff24Khz16BitMonoPcm;
+
+			case EAzSpeechSynthesisOutputFormat::Riff48Khz16BitMonoPcm:
+				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff48Khz16BitMonoPcm;
+
+			case EAzSpeechSynthesisOutputFormat::Riff22050Hz16BitMonoPcm:
+				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff22050Hz16BitMonoPcm;
+
+			case EAzSpeechSynthesisOutputFormat::Riff44100Hz16BitMonoPcm:
+				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff44100Hz16BitMonoPcm;
+
+			default:
+				break;
+		}
+	}
+
+	return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
 }

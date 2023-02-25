@@ -143,6 +143,8 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, SegmentationSilenceTO);
 	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, InitialSilenceTO);
 
+	InConfig->SetOutputFormat(GetOutputFormat());
+
 	if (GetOwningTask()->IsUsingAutoLanguage())
 	{
 		return true;
@@ -363,4 +365,24 @@ const TArray<FString> FAzSpeechRecognitionRunnable::GetPhraseListFromGroup(const
 	}
 
 	return TArray<FString>();
+}
+
+const Microsoft::CognitiveServices::Speech::OutputFormat FAzSpeechRecognitionRunnable::GetOutputFormat() const
+{
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		switch (Settings->SpeechRecognitionOutputFormat)
+		{
+			case EAzSpeechRecognitionOutputFormat::Simple:
+				return Microsoft::CognitiveServices::Speech::OutputFormat::Simple;
+
+			case EAzSpeechRecognitionOutputFormat::Detailed:
+				return Microsoft::CognitiveServices::Speech::OutputFormat::Detailed;
+
+			default:
+				break;
+		}
+	}
+
+	return Microsoft::CognitiveServices::Speech::OutputFormat::Detailed;
 }

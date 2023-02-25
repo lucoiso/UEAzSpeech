@@ -13,7 +13,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettings)
 #endif
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), TimeOutInSeconds(10.f), bEnableViseme(true), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), APIAccessKey(FString()), RegionID(FString()), LanguageID(FString()), VoiceName(FString()), ProfanityFilter(EAzSpeechProfanityFilter::Raw), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bEnableViseme(true), SpeechSynthesisOutputFormat(EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm), SpeechRecognitionOutputFormat(EAzSpeechRecognitionOutputFormat::Detailed), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
 	CategoryName = TEXT("Plugins");
 
