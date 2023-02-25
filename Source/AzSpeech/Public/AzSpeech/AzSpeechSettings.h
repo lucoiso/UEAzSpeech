@@ -62,25 +62,25 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Azure Speech SDK API Access Key"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "API Access Key"))
 	FString APIAccessKey;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Azure Speech SDK Region ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Region ID"))
 	FString RegionID;
 
 	/* It will be used if no value is specified or "Default" is passed as Language ID parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Default Language ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Language ID"))
 	FString LanguageID;
 
 	/* It will be used if no value is specified or "Default" is passed as Voice Name parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Default Voice Name"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Voice Name"))
 	FString VoiceName;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Profanity Filter"))
 	EAzSpeechProfanityFilter ProfanityFilter;
 
 	/* It will be used if "Auto" is passed as Language ID parameter - Will use Azure SDK Language Identification */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Auto Candidate Languages"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Auto Candidate Languages"))
 	TArray<FString> AutoCandidateLanguages;
 
 	/* Silence time limit in miliseconds to consider the task as Completed */
