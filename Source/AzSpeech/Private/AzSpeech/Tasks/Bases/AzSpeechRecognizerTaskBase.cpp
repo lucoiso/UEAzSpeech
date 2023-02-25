@@ -52,14 +52,13 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 {
 	check(IsInGameThread());
 
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this) || !LastResult)
 	{
-		return;
-	}
+		if (!UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
+		{
+			SetReadyToDestroy();
+		}
 
-	if (!LastResult)
-	{
-		SetReadyToDestroy();
 		return;
 	}
 	
@@ -73,26 +72,23 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
 
+	if (LastResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech)
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetRecognizedString());
+		BroadcastFinalResult();
+	}
+
 	switch (LastResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed with result: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetRecognizedString());
-
-			BroadcastFinalResult();
-
-			// Also broadcast the final result on update delegate
-			if (RecognitionUpdated.IsBound())
-			{
-				RecognitionUpdated.Broadcast(GetRecognizedString());
-			}
-
-			break;
-
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
 			if (RecognitionUpdated.IsBound())
 			{
 				RecognitionUpdated.Broadcast(GetRecognizedString());
 			}
+
 			break;
+
+		default: break;
 	}
 }

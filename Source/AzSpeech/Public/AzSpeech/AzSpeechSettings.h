@@ -63,81 +63,81 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | API", Meta = (DisplayName = "Azure Speech SDK API Access Key"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Azure Speech SDK API Access Key"))
 	FString APIAccessKey;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | API", Meta = (DisplayName = "Azure Speech SDK Region ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Azure Speech SDK Region ID"))
 	FString RegionID;
 
 	/* It will be used if no value is specified or "Default" is passed as Language ID parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Azure Speech SDK Default Language ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Default Language ID"))
 	FString LanguageID;
 
 	/* It will be used if no value is specified or "Default" is passed as Voice Name parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Azure Speech SDK Default Voice Name"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Default Voice Name"))
 	FString VoiceName;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Profanity Filter"))
 	EAzSpeechProfanityFilter ProfanityFilter;
 
 	/* It will be used if "Auto" is passed as Language ID parameter - Will use Azure SDK Language Identification */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Azure Speech SDK Auto Candidate Languages"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Azure Speech SDK Auto Candidate Languages"))
 	TArray<FString> AutoCandidateLanguages;
 
 	/* Silence time limit in miliseconds to consider the task as Completed */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
 	int32 SegmentationSilenceTimeoutMs;
 
 	/* Silence time limit in miliseconds at the start of the task to consider the result as Canceled/NoMatch */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
 	int32 InitialSilenceTimeoutMs;
 
 	/* If enabled, synthesizers tasks will generate Viseme data */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Enable Viseme"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Enable Viseme"))
 	bool bEnableViseme;
 
 	/* Synthesis audio output format */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Synthesis Output Format"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Synthesis Output Format"))
 	EAzSpeechSynthesisOutputFormat SpeechSynthesisOutputFormat;
 
 	/* Recognition output format */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Tasks", Meta = (DisplayName = "Recognition Output Format"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Recognition Output Format"))
 	EAzSpeechRecognitionOutputFormat SpeechRecognitionOutputFormat;
 
 	/* Time limit in seconds to wait for related asynchronous tasks to complete */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Thread", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
 	int32 TimeOutInSeconds;
 
 	/* CPU thread priority to use in created runnable threads */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Thread", Meta = (DisplayName = "Thread Priority"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Priority"))
 	EAzSpeechThreadPriority TasksThreadPriority;
 
 	/* Thread update interval: Sleep time between task update checks */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Thread", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001", ClampMax = "1", UIMax = "1"))
 	float ThreadUpdateInterval;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Logging", Meta = (DisplayName = "Enable Azure SDK Logs"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
 
 	/* Will print extra internal informations in log */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Logging", Meta = (DisplayName = "Enable Internal Logs"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Internal Logs"))
 	bool bEnableInternalLogs;
 
 	/* Will print extra debugging informations in log */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Logging", Meta = (DisplayName = "Enable Debugging Logs"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Debugging Logs"))
 	bool bEnableDebuggingLogs;
 
 	/* Map of Phrase Lists used to improve recognition accuracy */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Extras", Meta = (DisplayName = "Phrase List Map", TitleProperty = "Group: {GroupName}"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "Phrase List Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechPhraseListMap> PhraseListMap;
 
 	/* String delimiters to use in recognition checks */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Extras", Meta = (DisplayName = "String Delimiters"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "String Delimiters"))
 	FString StringDelimiters;
 
 	/* Map of keywords to trigger or ignore in recognition interactions: Used by CheckReturnFromRecognitionMap task */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Settings | Extras", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Candidate Languages"))

@@ -19,6 +19,8 @@ FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* In
 
 uint32 FAzSpeechRecognitionRunnable::Run()
 {
+	FScopeLock Lock(&Mutex);
+
 #if !UE_BUILD_SHIPPING
 	const int64 StartTime = GetTimeInMilliseconds();
 #endif
@@ -41,8 +43,18 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		return 0u;
 	}
 
+	const std::future<void> Future = SpeechRecognizer->StartContinuousRecognitionAsync();
+
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting recognition"), *GetThreadName(), *FString(__func__));
-	SpeechRecognizer->StartContinuousRecognitionAsync().wait_for(GetTaskTimeout());
+	if (Future.wait_for(GetTaskTimeout()); Future.valid())
+	{
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Recognition started."), *GetThreadName(), *FString(__func__));
+	}
+	else
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Recognition failed to start."), *GetThreadName(), *FString(__func__));
+		return 0u;
+	}
 	
 	if (RecognizerTask->RecognitionStarted.IsBound())
 	{
@@ -72,6 +84,8 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 
 void FAzSpeechRecognitionRunnable::Exit()
 {
+	FScopeLock Lock(&Mutex);
+
 	Super::Exit();
 
 	if (SpeechRecognizer)
@@ -104,6 +118,8 @@ UAzSpeechRecognizerTaskBase* FAzSpeechRecognitionRunnable::GetOwningRecognizerTa
 
 void FAzSpeechRecognitionRunnable::ClearSignals()
 {
+	FScopeLock Lock(&Mutex);
+
 	Super::ClearSignals();
 
 	if (!IsSpeechRecognizerValid())
@@ -117,6 +133,8 @@ void FAzSpeechRecognitionRunnable::ClearSignals()
 
 void FAzSpeechRecognitionRunnable::RemoveBindings()
 {
+	FScopeLock Lock(&Mutex);
+
 	Super::RemoveBindings();
 	
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
@@ -132,16 +150,18 @@ void FAzSpeechRecognitionRunnable::RemoveBindings()
 
 const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!Super::ApplySDKSettings(InConfig))
 	{
 		return false;
 	}
 
-	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	const std::string SegmentationSilenceTO = TCHAR_TO_UTF8(*FString::FromInt(Settings->SegmentationSilenceTimeoutMs));
-	const std::string InitialSilenceTO = TCHAR_TO_UTF8(*FString::FromInt(Settings->InitialSilenceTimeoutMs));
-	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, SegmentationSilenceTO);
-	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, InitialSilenceTO);
+	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	{
+		InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(Settings->SegmentationSilenceTimeoutMs)));
+		InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(Settings->InitialSilenceTimeoutMs)));
+	}
 
 	InConfig->SetOutputFormat(GetOutputFormat());
 
@@ -160,6 +180,8 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 
 bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!Super::InitializeAzureObject())
 	{
 		return false;
@@ -206,14 +228,10 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 
 bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 {
-	if (!IsSpeechRecognizerValid())
-	{
-		return false;
-	}
+	FScopeLock Lock(&Mutex);
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+	if (!IsSpeechRecognizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return false;
 	}
@@ -235,16 +253,12 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	return true;
 }
 
-bool FAzSpeechRecognitionRunnable::InsertPhraseList()
+bool FAzSpeechRecognitionRunnable::InsertPhraseList() const
 {
-	if (!IsSpeechRecognizerValid())
-	{
-		return false;
-	}
+	FScopeLock Lock(&Mutex);
 
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+	if (!IsSpeechRecognizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return false;
 	}

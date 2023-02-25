@@ -44,7 +44,7 @@ protected:
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
 
 	virtual bool InitializeAzureObject();
-	virtual bool CanInitializeTask();
+	virtual bool CanInitializeTask() const;
 
 	virtual void ClearSignals();
 	virtual void RemoveBindings();
@@ -97,10 +97,11 @@ private:
 	TUniquePtr<FRunnableThread> Thread;
 	UAzSpeechTaskBase* OwningTask;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
+
+protected:
 	mutable FCriticalSection Mutex;
 
 #if !UE_BUILD_SHIPPING
-protected:
 	void PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const;
 #endif
 };

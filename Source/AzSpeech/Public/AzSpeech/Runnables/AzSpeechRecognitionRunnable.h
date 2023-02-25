@@ -46,7 +46,7 @@ protected:
 
 private:
 	bool ConnectRecognitionSignals();
-	bool InsertPhraseList();
+	bool InsertPhraseList() const;
 
 	bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
