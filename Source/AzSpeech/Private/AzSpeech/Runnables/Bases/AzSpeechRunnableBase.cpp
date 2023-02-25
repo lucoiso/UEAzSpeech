@@ -70,26 +70,18 @@ void FAzSpeechRunnableBase::Stop()
 void FAzSpeechRunnableBase::Exit()
 {
 	FScopeLock Lock_Runnable(&Mutex);
-
-	ClearSignals();
-
-	if (!IsValid(GetOwningTask()))
-	{
-		return;
-	}
-
-	FScopeLock Lock_Task(&GetOwningTask()->Mutex);
-
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
 	if (UAzSpeechTaskStatus::IsTaskActive(GetOwningTask()))
 	{
+		FScopeLock Lock_Task(&GetOwningTask()->Mutex);
 		AsyncTask(ENamedThreads::GameThread, [this] { GetOwningTask()->BroadcastFinalResult(); });
 	}
 
+	ClearSignals();
 	RemoveBindings();
 
-	if (!UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()) && !UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
 	{
 		GetOwningTask()->SetReadyToDestroy();
 	}
@@ -122,7 +114,7 @@ bool FAzSpeechRunnableBase::InitializeAzureObject()
 	return true;
 }
 
-bool FAzSpeechRunnableBase::CanInitializeTask()
+bool FAzSpeechRunnableBase::CanInitializeTask() const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Checking if can initialize task in current context"), *GetThreadName(), *FString(__func__));
 	
@@ -177,6 +169,8 @@ const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
 
 const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!InSpeechConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
@@ -201,18 +195,21 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
 
 const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
-#if PLATFORM_ANDROID || UE_BUILD_SHIPPING
-	return true;
-#else
-	if (!InSpeechConfig)
-	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
-		return false;
-	}
+	FScopeLock Lock(&Mutex);
 
 	if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
 	{
 		return true;
+	}
+
+#if PLATFORM_ANDROID || UE_BUILD_SHIPPING
+	return true;
+#else
+
+	if (!InSpeechConfig)
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
+		return false;
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Enabling Azure SDK log"), *GetThreadName(), *FString(__func__));
@@ -226,7 +223,6 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 		if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
 		{
 			InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
-
 			return true;
 		}
 	}
@@ -241,16 +237,16 @@ const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBas
 	{
 		switch (Settings->ProfanityFilter)
 		{
-		case EAzSpeechProfanityFilter::Raw:
-			return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
+			case EAzSpeechProfanityFilter::Raw:
+				return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
 
-		case EAzSpeechProfanityFilter::Removed:
-			return Microsoft::CognitiveServices::Speech::ProfanityOption::Removed;
+			case EAzSpeechProfanityFilter::Removed:
+				return Microsoft::CognitiveServices::Speech::ProfanityOption::Removed;
 
-		case EAzSpeechProfanityFilter::Masked:
-			return Microsoft::CognitiveServices::Speech::ProfanityOption::Masked;
+			case EAzSpeechProfanityFilter::Masked:
+				return Microsoft::CognitiveServices::Speech::ProfanityOption::Masked;
 
-		default: break;
+			default: break;
 		}
 	}
 
@@ -416,14 +412,10 @@ void FAzSpeechRunnableBase::StoreThreadInformation()
 #if !UE_BUILD_SHIPPING
 void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const
 {
-	UAzSpeechTaskBase* const Task = GetOwningTask();
-	if (!IsValid(Task))
-	{
-		return;
-	}
+	FScopeLock Lock(&Mutex);
 
-	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	if (!IsValid(Settings) || !Settings->bEnableDebuggingLogs)
+	UAzSpeechTaskBase* const Task = GetOwningTask();
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(Task) || !UAzSpeechSettings::Get()->bEnableDebuggingLogs)
 	{
 		return;
 	}
@@ -437,7 +429,7 @@ void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const i
 	}
 	else if (Task->GetClass()->IsChildOf<UAzSpeechSynthesizerTaskBase>())
 	{
-		SpecificDataStr = FString::Printf(TEXT("Current synthesis buffer size: %d"), Cast<UAzSpeechSynthesizerTaskBase>(Task)->GetAudioData().Num());
+		SpecificDataStr = FString::Printf(TEXT("Current synthesis buffer allocated size: %d"), Cast<UAzSpeechSynthesizerTaskBase>(Task)->GetAudioData().GetAllocatedSize());
 	}
 
 	GEngine->AddOnScreenDebugMessage((int32)Task->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\n%s\nNote: Disable Debugging Logs to avoid this Print"), *Task->GetTaskName(), Task->GetUniqueID(), ActivationDelay, InSeconds, *SpecificDataStr));

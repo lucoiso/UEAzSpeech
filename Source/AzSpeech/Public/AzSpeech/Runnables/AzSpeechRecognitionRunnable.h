@@ -46,10 +46,12 @@ protected:
 
 private:
 	bool ConnectRecognitionSignals();
-	bool InsertPhraseList();
+	bool InsertPhraseList() const;
 
 	bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
 	const std::vector<std::string> GetCandidateLanguages() const;
 	const TArray<FString> GetPhraseListFromGroup(const FName& InGroup) const;
+
+	const Microsoft::CognitiveServices::Speech::OutputFormat GetOutputFormat() const;
 };

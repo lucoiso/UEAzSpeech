@@ -42,6 +42,10 @@ protected:
 	virtual bool InitializeAzureObject() override;
 
 private:
-	bool ConnectSynthesisSignals();
+	bool ConnectVisemeSignal();
+	bool ConnectSynthesisStartedSignal();
+	bool ConnectSynthesisUpdateSignals();
 	bool ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
+
+	const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat GetOutputFormat() const;
 };
