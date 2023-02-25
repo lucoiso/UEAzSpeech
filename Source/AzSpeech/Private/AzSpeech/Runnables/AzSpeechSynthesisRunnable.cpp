@@ -380,9 +380,6 @@ const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat FAzSpeec
 	{
 		switch (Settings->SpeechSynthesisOutputFormat)
 		{
-			case EAzSpeechSynthesisOutputFormat::Riff8Khz16BitMonoPcm:
-				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff8Khz16BitMonoPcm;
-
 			case EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm:
 				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
 

@@ -33,7 +33,6 @@ enum class EAzSpeechThreadPriority : uint8
 UENUM(BlueprintType, Category = "AzSpeech")
 enum class EAzSpeechSynthesisOutputFormat : uint8
 {
-	Riff8Khz16BitMonoPcm,
 	Riff16Khz16BitMonoPcm,
 	Riff24Khz16BitMonoPcm,
 	Riff48Khz16BitMonoPcm,
