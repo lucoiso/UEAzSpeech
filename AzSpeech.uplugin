@@ -21,8 +21,7 @@
 			"LoadingPhase": "Default",
 			"PlatformAllowList": [
 				"Win64",
-				"Android",
-				"HoloLens"
+				"Android"
 			]
 		},
 		{
