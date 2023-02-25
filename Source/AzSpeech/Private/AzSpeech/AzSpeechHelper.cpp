@@ -17,6 +17,7 @@
 #include <Components/AudioComponent.h>
 #include <AudioThread.h>
 #include <AudioDeviceManager.h>
+#include <Sound/AudioSettings.h>
 #include <Engine/Engine.h>
 
 #if WITH_EDITORONLY_DATA
@@ -208,7 +209,6 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 #if ENGINE_MAJOR_VERSION >= 5
 		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
-		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
 
 		SoundWave->CuePoints.Reset(WaveInfo.WaveCues.Num());
 		for (FWaveCue& WaveCue : WaveInfo.WaveCues)
@@ -227,6 +227,17 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		if (WaveInfo.TimecodeInfo.IsValid())
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
+		}
+#endif
+
+#if ENGINE_MAJOR_VERSION >= 5
+		if (const UAudioSettings* const AudioSettings = GetDefault<UAudioSettings>())
+		{
+			SoundWave->SetSoundAssetCompressionType(Audio::ToSoundAssetCompressionType(AudioSettings->DefaultAudioCompressionType));
+		}
+		else
+		{
+			SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
 		}
 #endif
 

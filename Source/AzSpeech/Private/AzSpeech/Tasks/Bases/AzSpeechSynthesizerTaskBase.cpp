@@ -118,14 +118,13 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 {
 	check(IsInGameThread());
 
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this) || !LastResult)
 	{
-		return;
-	}
+		if (!UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
+		{
+			SetReadyToDestroy();
+		}
 
-	if (!LastResult)
-	{
-		SetReadyToDestroy();
 		return;
 	}
 
