@@ -228,9 +228,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
 		}
-#endif
 
-#if ENGINE_MAJOR_VERSION >= 5
 		if (const UAudioSettings* const AudioSettings = GetDefault<UAudioSettings>())
 		{
 			SoundWave->SetSoundAssetCompressionType(Audio::ToSoundAssetCompressionType(AudioSettings->DefaultAudioCompressionType));
@@ -239,6 +237,9 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		{
 			SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
 		}
+
+#elif ENGINE_MAJOR_VERSION == 5
+		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
 #endif
 
 		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
