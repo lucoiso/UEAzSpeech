@@ -53,6 +53,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Recognition failed to start."), *GetThreadName(), *FString(__func__));
+		AsyncTask(ENamedThreads::GameThread, [RecognizerTask] { RecognizerTask->RecognitionFailed.Broadcast(); });
 		return 0u;
 	}
 	
@@ -238,8 +239,14 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 	
 	const auto RecognitionUpdate_Lambda = [this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 	{
-		if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask) || !ProcessRecognitionResult(RecognitionEventArgs.Result))
+		const bool bValidResult = ProcessRecognitionResult(RecognitionEventArgs.Result);
+		if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask) || !bValidResult)
 		{
+			if (!bValidResult)
+			{
+				AsyncTask(ENamedThreads::GameThread, [RecognizerTask] { RecognizerTask->RecognitionFailed.Broadcast(); });
+			}
+
 			StopAzSpeechRunnableTask();
 			return;
 		}

@@ -72,13 +72,14 @@ void FAzSpeechRunnableBase::Exit()
 	FScopeLock Lock_Runnable(&Mutex);
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
+	ClearSignals();
+
 	if (UAzSpeechTaskStatus::IsTaskActive(GetOwningTask()))
 	{
 		FScopeLock Lock_Task(&GetOwningTask()->Mutex);
 		AsyncTask(ENamedThreads::GameThread, [this] { GetOwningTask()->BroadcastFinalResult(); });
 	}
 
-	ClearSignals();
 	RemoveBindings();
 
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()) && !UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
@@ -216,7 +217,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 	if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir(); IFileManager::Get().MakeDirectory(*AzSpeechLogPath, true))
 	{
-		const FString LogFilename = "UEAzSpeech " + FDateTime::Now().ToString() + ".log";
+		const FString LogFilename = "AzSpeech " + FDateTime::Now().ToString() + ".log";
 		AzSpeechLogPath = FPaths::Combine(AzSpeechLogPath, LogFilename);
 		FPaths::NormalizeFilename(AzSpeechLogPath);
 

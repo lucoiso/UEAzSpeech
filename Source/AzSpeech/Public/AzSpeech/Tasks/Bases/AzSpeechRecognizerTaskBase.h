@@ -40,6 +40,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FAzSpeechTaskGenericDelegate RecognitionStarted;
 
+	/* Task delegate that will be called when failed */
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+	FAzSpeechTaskGenericDelegate RecognitionFailed;
+
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetRecognizedString() const;
 	
