@@ -67,6 +67,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FAzSpeechTaskGenericDelegate SynthesisStarted;
 
+	/* Task delegate that will be called when failed */
+	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+	FAzSpeechTaskGenericDelegate SynthesisFailed;
+
 	/* Task delegate that will be called when receive a new viseme data */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;

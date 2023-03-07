@@ -19,6 +19,7 @@
 #include <AudioDeviceManager.h>
 #include <Sound/AudioSettings.h>
 #include <Engine/Engine.h>
+#include <Interfaces/IPluginManager.h>
 
 #if WITH_EDITORONLY_DATA
 #include <EditorFramework/AssetImportData.h>
@@ -162,6 +163,12 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 	}
 	else
 	{
+		if (!GetAvailableContentModules().Contains(OutputModulePath))
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Module '%s' is not available"), *FString(__func__), *OutputModulePath);
+			return nullptr;
+		}
+
 		FString TargetFilename = FPaths::Combine(QualifyModulePath(OutputModulePath), RelativeOutputDirectory, OutputAssetName);
 		FPaths::NormalizeFilename(TargetFilename);
 
@@ -456,6 +463,26 @@ const bool UAzSpeechHelper::IsAudioInputDeviceAvailable(const FString& DeviceID)
 const bool UAzSpeechHelper::IsAudioInputDeviceIDValid(const FString& DeviceID)
 {
 	return !(DeviceID.Contains(FAzSpeechAudioInputDeviceInfo::InvalidDeviceID) || DeviceID.Len() < std::strlen(FAzSpeechAudioInputDeviceInfo::PlaceholderDeviceID));
+}
+
+const TArray<FString> UAzSpeechHelper::GetAvailableContentModules()
+{
+	TArray<FString> Output{ "Game" };
+
+	IPluginManager& PluginManager = IPluginManager::Get();
+	const TArray<TSharedRef<IPlugin>> PluginsArray = PluginManager.GetEnabledPluginsWithContent();
+
+	for (const TSharedRef<IPlugin>& Plugin : PluginsArray)
+	{
+		if (Plugin->GetLoadedFrom() != EPluginLoadedFrom::Project)
+		{
+			continue;
+		}
+
+		Output.Add(Plugin->GetName());
+	}
+
+	return Output;
 }
 
 const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()

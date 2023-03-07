@@ -95,6 +95,10 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Enable Viseme"))
 	bool bEnableViseme;
 
+	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Filter Viseme Facial Expression"))
+	bool bFilterVisemeFacialExpression;
+
 	/* Synthesis audio output format */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Synthesis Output Format"))
 	EAzSpeechSynthesisOutputFormat SpeechSynthesisOutputFormat;

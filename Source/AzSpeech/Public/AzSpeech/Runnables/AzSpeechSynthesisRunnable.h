@@ -48,4 +48,6 @@ private:
 	bool ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
 
 	const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat GetOutputFormat() const;
+
+	bool bFilterVisemeData = false;
 };

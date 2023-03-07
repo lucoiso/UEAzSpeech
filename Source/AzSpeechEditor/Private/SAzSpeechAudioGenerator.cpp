@@ -15,7 +15,6 @@
 #include <Widgets/Layout/SScrollBox.h>
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
-#include <Interfaces/IPluginManager.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SAzSpeechAudioGenerator)
@@ -305,21 +304,8 @@ TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetStringArrayAsSharedPtr(c
 
 TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetAvailableContentModules() const
 {
-	TArray<FString> Output;
-
-	IPluginManager& PluginManager = IPluginManager::Get();
-	const TArray<TSharedRef<IPlugin>> PluginsArray = PluginManager.GetEnabledPluginsWithContent();
-
-	for (const TSharedRef<IPlugin>& Plugin : PluginsArray)
-	{
-		if (Plugin->GetLoadedFrom() != EPluginLoadedFrom::Project)
-		{
-			continue;
-		}
-
-		Output.Add(Plugin->GetName());
-	}
-
+	TArray<FString> Output = UAzSpeechHelper::GetAvailableContentModules();
+	Output.Remove("Game");
 	return GetStringArrayAsSharedPtr(Output);
 }
 
