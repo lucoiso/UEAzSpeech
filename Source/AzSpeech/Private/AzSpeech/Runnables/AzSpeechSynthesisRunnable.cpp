@@ -243,11 +243,18 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 		return false;
 	}
 
+	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && UAzSpeechSettings::Get()->bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
+
 	SpeechSynthesizer->VisemeReceived.Connect([this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 	{
 		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 		{
 			StopAzSpeechRunnableTask();
+			return;
+		}
+
+		if (bFilterVisemeData && VisemeEventArgs.Animation.empty())
+		{
 			return;
 		}
 
