@@ -44,11 +44,31 @@ public:
 		return QualifyFileExtension(Path, Name, "xml");
 	}
 
-	/* Convert .wav file to USoundWave - [OutputModuleName, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content */
+	/* 
+		Convert .wav file to USoundWave.
+
+		[OutputModuleName, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content. Set empty values to generate a transient Sound Wave
+
+		OutputModuleName: Name of the module that will be used to save the generated audio data in project's content. Example: Game. 
+		RelativeOutputDirectory: Directory where the sound wave will be saved
+		OutputAssetName: Name of the generated Sound Wave
+
+		Use GetAvailableContentModules or look at the Audio Generator tool to check available modules
+	*/
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", Meta = (DisplayName = "Convert .wav file to USoundWave"))
 	static USoundWave* ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModulePath = "", const FString& RelativeOutputDirectory = "", const FString& OutputAssetName = "");
 
-	/* Convert audio data (TArray<uint8>) to USoundWave - [OutputModuleName, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content */
+	/* 
+		Convert audio data (TArray<uint8>) to USoundWave.
+
+		[OutputModuleName, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content. Set empty values to generate a transient Sound Wave
+
+		OutputModuleName: Name of the module that will be used to save the generated audio data in project's content. Example: Game. 
+		RelativeOutputDirectory: Directory where the sound wave will be saved
+		OutputAssetName: Name of the generated Sound Wave
+
+		Use GetAvailableContentModules or look at the Audio Generator tool to check available modules
+	*/
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static USoundWave* ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModulePath = "", const FString& RelativeOutputDirectory = "", const FString& OutputAssetName = "");
 
@@ -83,6 +103,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is Audio Input Device ID Valid"))
 	static const bool IsAudioInputDeviceIDValid(const FString& DeviceID);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static const TArray<FString> GetAvailableContentModules();
 
 	static const FString GetAzSpeechLogsBaseDir();
 };

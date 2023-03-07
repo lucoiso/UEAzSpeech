@@ -59,6 +59,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Synthesis failed to start."), *GetThreadName(), *FString(__func__));
+		AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisFailed.Broadcast(); });
 		return 0u;
 	}
 	
@@ -304,8 +305,14 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 
 	const auto SynthesisUpdate_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
-		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask) || !ProcessSynthesisResult(SynthesisEventArgs.Result))
+		const bool bValidResult = ProcessSynthesisResult(SynthesisEventArgs.Result);
+		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask) || !bValidResult)
 		{
+			if (!bValidResult)
+			{
+				AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisFailed.Broadcast(); });
+			}
+
 			StopAzSpeechRunnableTask();
 			return;
 		}
