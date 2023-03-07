@@ -217,7 +217,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 	if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir(); IFileManager::Get().MakeDirectory(*AzSpeechLogPath, true))
 	{
-		const FString LogFilename = "UEAzSpeech " + FDateTime::Now().ToString() + ".log";
+		const FString LogFilename = "AzSpeech " + FDateTime::Now().ToString() + ".log";
 		AzSpeechLogPath = FPaths::Combine(AzSpeechLogPath, LogFilename);
 		FPaths::NormalizeFilename(AzSpeechLogPath);
 
