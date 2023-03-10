@@ -37,15 +37,16 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Mic
 
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 {
+	FScopeLock Lock(&Mutex);
+
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
+	{
+		return;
+	}
+
 	Super::BroadcastFinalResult();
 
-	FScopeLock Lock(&Mutex);
-	
-	if (RecognitionCompleted.IsBound())
-	{
-		RecognitionCompleted.Broadcast(GetRecognizedString());
-		RecognitionCompleted.Clear();
-	}
+	RecognitionCompleted.Broadcast(GetRecognizedString());
 }
 
 void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult)

@@ -38,7 +38,7 @@ void USpeechToTextAsync::Activate()
 
 bool USpeechToTextAsync::IsUsingDefaultAudioInputDevice() const
 {
-	return HasEmptyParameters(AudioInputDeviceID) || AudioInputDeviceID.Equals("Default", ESearchCase::IgnoreCase);
+	return AzSpeech::Internal::HasEmptyParam(AudioInputDeviceID) || AudioInputDeviceID.Equals("Default", ESearchCase::IgnoreCase);
 }
 
 bool USpeechToTextAsync::StartAzureTaskWork()
@@ -48,7 +48,7 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (HasEmptyParameters(LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(LanguageID))
 	{
 		return false;
 	}

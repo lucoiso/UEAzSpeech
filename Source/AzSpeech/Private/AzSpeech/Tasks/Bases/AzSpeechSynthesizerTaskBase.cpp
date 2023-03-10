@@ -45,10 +45,7 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 	}
 
 	TArray<uint8> OutputArr;
-	for (const uint8_t& i : AudioData)
-	{
-		OutputArr.Add(static_cast<uint8>(i));
-	}
+	OutputArr.Append(reinterpret_cast<const uint8*>(AudioData.data()), AudioData.size());
 
 	return OutputArr;
 }
@@ -103,11 +100,7 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 	FScopeLock Lock(&Mutex);
 
 	VisemeDataArray.Add(VisemeData);
-
-	if (VisemeReceived.IsBound())
-	{
-		VisemeReceived.Broadcast(VisemeData);
-	}
+	VisemeReceived.Broadcast(VisemeData);
 
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Id: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.VisemeID);
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Audio Offset: %dms"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.AudioOffsetMilliseconds);
@@ -175,7 +168,7 @@ void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
 	}
 
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (HasEmptyParameters(VoiceName) || VoiceName.Equals("Default", ESearchCase::IgnoreCase))
+	if (AzSpeech::Internal::HasEmptyParam(VoiceName) || VoiceName.Equals("Default", ESearchCase::IgnoreCase))
 	{
 		VoiceName = UTF8_TO_TCHAR(Settings.at(3).c_str());
 	}

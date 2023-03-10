@@ -14,8 +14,6 @@ FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwni
 
 uint32 FAzSpeechSynthesisRunnable::Run()
 {
-	FScopeLock Lock(&Mutex);
-
 #if !UE_BUILD_SHIPPING
 	const int64 StartTime = GetTimeInMilliseconds();
 #endif
@@ -71,10 +69,11 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	
 	while (!IsPendingStop())
 	{
+		FPlatformProcess::Sleep(SleepTime);
+
 #if !UE_BUILD_SHIPPING
 		PrintDebugInformation(StartTime, ActivationDelay, SleepTime);
 #endif
-		FPlatformProcess::Sleep(SleepTime);
 	}
 
 	return 1u;
@@ -82,8 +81,6 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 void FAzSpeechSynthesisRunnable::Exit()
 {
-	FScopeLock Lock(&Mutex);
-
 	Super::Exit();
 	
 	if (SpeechSynthesizer)
@@ -116,8 +113,6 @@ UAzSpeechSynthesizerTaskBase* FAzSpeechSynthesisRunnable::GetOwningSynthesizerTa
 
 void FAzSpeechSynthesisRunnable::ClearSignals()
 {
-	FScopeLock Lock(&Mutex);
-
 	Super::ClearSignals();
 	
 	if (!IsSpeechSynthesizerValid())
@@ -134,8 +129,6 @@ void FAzSpeechSynthesisRunnable::ClearSignals()
 
 void FAzSpeechSynthesisRunnable::RemoveBindings()
 {
-	FScopeLock Lock(&Mutex);
-
 	Super::RemoveBindings();
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
@@ -148,12 +141,11 @@ void FAzSpeechSynthesisRunnable::RemoveBindings()
 	DelegateDisconnecter_T(SynthesizerTask->VisemeReceived);
 	DelegateDisconnecter_T(SynthesizerTask->SynthesisUpdated);
 	DelegateDisconnecter_T(SynthesizerTask->SynthesisStarted);
+	DelegateDisconnecter_T(SynthesizerTask->SynthesisFailed);
 }
 
 const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!Super::ApplySDKSettings(InConfig))
 	{
 		return false;
@@ -188,8 +180,6 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 
 bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!Super::InitializeAzureObject())
 	{
 		return false;
@@ -230,8 +220,6 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 
 bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!UAzSpeechSettings::Get()->bEnableViseme)
 	{
 		return true;
@@ -271,8 +259,6 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 
 bool FAzSpeechSynthesisRunnable::ConnectSynthesisStartedSignal()
 {
-	FScopeLock Lock(&Mutex);
-
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 	if (!IsSpeechSynthesizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
@@ -284,15 +270,11 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisStartedSignal()
 		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 		{
 			StopAzSpeechRunnableTask();
-			return;
 		}
-
-		if (SynthesizerTask->SynthesisStarted.IsBound())
+		else
 		{
 			AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisStarted.Broadcast(); });
 		}
-
-		SignalDisconnecter_T(SpeechSynthesizer->SynthesisStarted);
 	};
 
 	SpeechSynthesizer->SynthesisStarted.Connect(SynthesisStarted_Lambda);
@@ -302,34 +284,49 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisStartedSignal()
 
 bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 {
-	FScopeLock Lock(&Mutex);
-
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 	if (!IsSpeechSynthesizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
 	}
 
-	const auto SynthesisUpdate_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+	SpeechSynthesizer->Synthesizing.Connect(
+		[this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
+		{
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
+			{
+				StopAzSpeechRunnableTask();
+			}
+			else
+			{
+				AsyncTask(ENamedThreads::GameThread, [SynthesizerTask, Result = SynthesisEventArgs.Result] { SynthesizerTask->OnSynthesisUpdate(Result); });
+			}
+		}
+	);
+
+	const auto TaskResultReach_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
 		const bool bValidResult = ProcessSynthesisResult(SynthesisEventArgs.Result);
 		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask) || !bValidResult)
 		{
-			if (!bValidResult)
-			{
-				AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisFailed.Broadcast(); });
-			}
-
-			StopAzSpeechRunnableTask();
-			return;
+			AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisFailed.Broadcast(); });
 		}
-		
-		AsyncTask(ENamedThreads::GameThread, [SynthesizerTask, Result = SynthesisEventArgs.Result] { SynthesizerTask->OnSynthesisUpdate(Result); });
+		else
+		{
+			AsyncTask(ENamedThreads::GameThread, 
+				[SynthesizerTask, Result = SynthesisEventArgs.Result]
+				{ 
+					SynthesizerTask->OnSynthesisUpdate(Result);
+					SynthesizerTask->BroadcastFinalResult(); 
+				}
+			);
+		}
+
+		StopAzSpeechRunnableTask();
 	};
 
-	SpeechSynthesizer->Synthesizing.Connect(SynthesisUpdate_Lambda);
-	SpeechSynthesizer->SynthesisCompleted.Connect(SynthesisUpdate_Lambda);
-	SpeechSynthesizer->SynthesisCanceled.Connect(SynthesisUpdate_Lambda);	
+	SpeechSynthesizer->SynthesisCanceled.Connect(TaskResultReach_Lambda);
+	SpeechSynthesizer->SynthesisCompleted.Connect(TaskResultReach_Lambda);
 	
 	return true;
 }
@@ -337,26 +334,19 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
 	bool bOutput = true;
-	bool bFinishTask = false;
 
 	switch (LastResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudio:
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task running. Reason: SynthesizingAudio"), *GetThreadName(), *FString(__func__));
-			bOutput = true;
-			bFinishTask = false;
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioCompleted:
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task completed. Reason: SynthesizingAudioCompleted"), *GetThreadName(), *FString(__func__));
-			bOutput = true;
-			bFinishTask = true;
 			break;
 			
 		case Microsoft::CognitiveServices::Speech::ResultReason::SynthesizingAudioStarted:
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task started. Reason: SynthesizingAudioStarted"), *GetThreadName(), *FString(__func__));
-			bOutput = true;
-			bFinishTask = false;
 			break;
 
 		default:
@@ -366,7 +356,6 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 	if (LastResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::Canceled)
 	{
 		bOutput = false;
-		bFinishTask = true;
 		
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: Canceled"), *GetThreadName(), *FString(__func__));
 		
@@ -378,11 +367,6 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 		{
 			ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
 		}		
-	}
-	
-	if (bFinishTask)
-	{
-		StopAzSpeechRunnableTask();
 	}
 
 	return bOutput;

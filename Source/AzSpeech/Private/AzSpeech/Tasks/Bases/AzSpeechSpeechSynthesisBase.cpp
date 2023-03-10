@@ -42,15 +42,24 @@ void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
 
 void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult();
-
 	FScopeLock Lock(&Mutex);
 
-	if (SynthesisCompleted.IsBound())
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
-		SynthesisCompleted.Broadcast(IsLastResultValid());
-		SynthesisCompleted.Clear();
+		return;
 	}
+
+	Super::BroadcastFinalResult();
+
+	SynthesisCompleted.Broadcast(IsLastResultValid());
+
+	AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
+
+	FScriptDelegate UniqueDelegate_AudioStateChanged;
+	UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
+	AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
+
+	AudioComponent->Play();
 }
 
 void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
@@ -74,14 +83,6 @@ void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 		}
 
 		BroadcastFinalResult();
-
-		AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-
-		FScriptDelegate UniqueDelegate_AudioStateChanged;
-		UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
-		AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
-
-		AudioComponent->Play();
 	}
 }
 

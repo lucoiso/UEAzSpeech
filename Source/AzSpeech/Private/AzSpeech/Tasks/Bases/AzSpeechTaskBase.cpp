@@ -63,8 +63,6 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	{
 		RunnableTask->StopAzSpeechRunnableTask();
 	}
-
-	BroadcastFinalResult();
 	
 	SetReadyToDestroy();
 }
@@ -121,6 +119,11 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
 	check(IsInGameThread());
+
+	if (!bIsTaskActive)
+	{
+		return;
+	}
 	
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
@@ -150,7 +153,7 @@ void UAzSpeechTaskBase::ValidateLanguageID()
 	}
 
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (HasEmptyParameters(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
+	if (AzSpeech::Internal::HasEmptyParam(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
 	{
 		LanguageID = UTF8_TO_TCHAR(Settings.at(2).c_str());
 	}

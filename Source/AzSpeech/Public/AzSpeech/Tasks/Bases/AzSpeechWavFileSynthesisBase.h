@@ -21,13 +21,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FBooleanSynthesisDelegate SynthesisCompleted;
 	
-	virtual void Activate() override;
-	
+	virtual void Activate() override;	
 	virtual void SetReadyToDestroy() override;
 
 protected:
 	virtual bool StartAzureTaskWork() override;
-	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;
 	virtual void BroadcastFinalResult() override;
 
 	FString FilePath;

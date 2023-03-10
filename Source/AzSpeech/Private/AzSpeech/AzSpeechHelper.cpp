@@ -149,8 +149,8 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 	FWaveModInfo WaveInfo;
 	WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
 
-	const int32 ChannelCount = *WaveInfo.pChannels;
-	const int32 SizeOfSample = *WaveInfo.pBitsPerSample / 8;
+	const int32 ChannelCount = static_cast<int32>(*WaveInfo.pChannels);
+	const int32 SizeOfSample = (*WaveInfo.pBitsPerSample) / 8;
 	const int32 NumSamples = WaveInfo.SampleDataSize / SizeOfSample;
 	const int32 NumFrames = NumSamples / ChannelCount;
 
@@ -209,7 +209,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
 		FMemory::Memcpy(SoundWave->RawPCMData, WaveInfo.SampleDataStart, WaveInfo.SampleDataSize);
 
-		SoundWave->Duration = NumFrames / *WaveInfo.pSamplesPerSec;
+		SoundWave->Duration = static_cast<float>(NumFrames) / *WaveInfo.pSamplesPerSec;
 		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
 		SoundWave->NumChannels = ChannelCount;
 		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
@@ -225,6 +225,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 			NewCuePoint.FrameLength = static_cast<int32>(WaveCue.SampleLength);
 			NewCuePoint.FramePosition = static_cast<int32>(WaveCue.Position);
 			NewCuePoint.Label = WaveCue.Label;
+
 			SoundWave->CuePoints.Add(NewCuePoint);
 		}
 #endif
@@ -248,8 +249,6 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 #elif ENGINE_MAJOR_VERSION == 5
 		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
 #endif
-
-		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
 #endif
 
 		if (bCreatedNewPackage)

@@ -63,15 +63,16 @@ void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult();
-
 	FScopeLock Lock(&Mutex);
 
-	if (SynthesisCompleted.IsBound())
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
-		SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
-		SynthesisCompleted.Clear();
+		return;
 	}
+
+	Super::BroadcastFinalResult();
+
+	SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
@@ -81,8 +82,7 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 
-	if (HasEmptyParameters(SynthesisText, FilePath, FileName) ||
-		(!bIsSSMLBased && HasEmptyParameters(VoiceName, LanguageID)))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, FilePath, FileName) || (!bIsSSMLBased && AzSpeech::Internal::HasEmptyParam(VoiceName, LanguageID)))
 	{
 		return false;
 	}
@@ -96,21 +96,4 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 	StartSynthesisWork(AudioConfig);
 
 	return true;
-}
-
-void UAzSpeechWavFileSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
-{
-	Super::OnSynthesisUpdate(LastResult);
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
-	{
-		return;
-	}
-
-	if (CanBroadcastWithReason(LastResult->Reason))
-	{
-		FScopeLock Lock(&Mutex);
-
-		BroadcastFinalResult();
-	}
 }

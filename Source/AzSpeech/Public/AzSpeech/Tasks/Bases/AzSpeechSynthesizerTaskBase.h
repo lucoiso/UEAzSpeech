@@ -75,7 +75,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Get Last Viseme Data"))
 	const FAzSpeechVisemeData GetVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")

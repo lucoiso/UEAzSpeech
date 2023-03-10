@@ -98,10 +98,8 @@ private:
 	UAzSpeechTaskBase* OwningTask;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
 
-protected:
-	mutable FCriticalSection Mutex;
-
 #if !UE_BUILD_SHIPPING
+protected:
 	void PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const;
 #endif
 };

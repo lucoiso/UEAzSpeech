@@ -24,31 +24,15 @@ USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(UObject* WorldCont
 
 void USSMLToSoundWaveAsync::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult();
-
 	FScopeLock Lock(&Mutex);
 
-	if (SynthesisCompleted.IsBound())
-	{
-		const TArray<uint8> LastBuffer = GetAudioData();
-		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-		SynthesisCompleted.Clear();
-	}
-}
-
-void USSMLToSoundWaveAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
-{
-	Super::OnSynthesisUpdate(LastResult);
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastResult->Reason))
-	{
-		FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 
-		BroadcastFinalResult();
-	}
+	const TArray<uint8> LastBuffer = GetAudioData();
+	SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 }

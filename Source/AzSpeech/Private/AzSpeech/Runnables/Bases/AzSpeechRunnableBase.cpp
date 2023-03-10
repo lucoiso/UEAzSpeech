@@ -69,18 +69,17 @@ void FAzSpeechRunnableBase::Stop()
 
 void FAzSpeechRunnableBase::Exit()
 {
-	FScopeLock Lock_Runnable(&Mutex);
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
 	ClearSignals();
 
-	if (UAzSpeechTaskStatus::IsTaskActive(GetOwningTask()))
-	{
-		FScopeLock Lock_Task(&GetOwningTask()->Mutex);
-		AsyncTask(ENamedThreads::GameThread, [this] { GetOwningTask()->BroadcastFinalResult(); });
-	}
-
-	RemoveBindings();
+	AsyncTask(ENamedThreads::GameThread, 
+		[this] 
+		{ 
+			GetOwningTask()->BroadcastFinalResult();
+			RemoveBindings();
+		}
+	);
 
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()) && !UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
 	{
@@ -170,8 +169,6 @@ const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
 
 const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!InSpeechConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
@@ -196,8 +193,6 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
 
 const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
 	{
 		return true;
@@ -413,8 +408,6 @@ void FAzSpeechRunnableBase::StoreThreadInformation()
 #if !UE_BUILD_SHIPPING
 void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const
 {
-	FScopeLock Lock(&Mutex);
-
 	UAzSpeechTaskBase* const Task = GetOwningTask();
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(Task) || !UAzSpeechSettings::Get()->bEnableDebuggingLogs)
 	{
