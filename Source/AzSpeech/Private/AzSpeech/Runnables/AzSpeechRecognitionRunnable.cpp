@@ -65,7 +65,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 #endif
 
 	const float SleepTime = GetThreadUpdateInterval();
-	
+
 	while (!IsPendingStop())
 	{
 		FPlatformProcess::Sleep(SleepTime);
@@ -80,7 +80,9 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 
 void FAzSpeechRecognitionRunnable::Exit()
 {
-	Super::Exit();
+	FScopeLock Lock(&Mutex);
+
+	Super::Stop();
 
 	if (SpeechRecognizer)
 	{
@@ -108,35 +110,6 @@ UAzSpeechRecognizerTaskBase* FAzSpeechRecognitionRunnable::GetOwningRecognizerTa
 	}
 
 	return Cast<UAzSpeechRecognizerTaskBase>(GetOwningTask());
-}
-
-void FAzSpeechRecognitionRunnable::ClearSignals()
-{
-	Super::ClearSignals();
-
-	if (!IsSpeechRecognizerValid())
-	{
-		return;
-	}
-	
-	SignalDisconnecter_T(SpeechRecognizer->Recognizing);
-	SignalDisconnecter_T(SpeechRecognizer->Recognized);
-}
-
-void FAzSpeechRecognitionRunnable::RemoveBindings()
-{
-	Super::RemoveBindings();
-	
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
-	{
-		return;
-	}
-
-	DelegateDisconnecter_T(RecognizerTask->RecognitionStarted);
-	DelegateDisconnecter_T(RecognizerTask->RecognitionUpdated);
-	DelegateDisconnecter_T(RecognizerTask->RecognitionFailed);
 }
 
 const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const

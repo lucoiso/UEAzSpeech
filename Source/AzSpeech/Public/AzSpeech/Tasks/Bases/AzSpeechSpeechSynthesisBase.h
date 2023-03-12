@@ -28,7 +28,6 @@ public:
 	virtual void SetReadyToDestroy() override;
 
 protected:
-	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;
 	virtual void BroadcastFinalResult() override;
 
 	UFUNCTION()

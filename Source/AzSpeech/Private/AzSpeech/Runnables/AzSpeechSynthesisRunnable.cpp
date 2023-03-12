@@ -66,7 +66,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 #endif
 
 	const float SleepTime = GetThreadUpdateInterval();
-	
+
 	while (!IsPendingStop())
 	{
 		FPlatformProcess::Sleep(SleepTime);
@@ -81,6 +81,8 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 void FAzSpeechSynthesisRunnable::Exit()
 {
+	FScopeLock Lock(&Mutex);
+
 	Super::Exit();
 	
 	if (SpeechSynthesizer)
@@ -109,39 +111,6 @@ UAzSpeechSynthesizerTaskBase* FAzSpeechSynthesisRunnable::GetOwningSynthesizerTa
 	}
 
 	return Cast<UAzSpeechSynthesizerTaskBase>(GetOwningTask());
-}
-
-void FAzSpeechSynthesisRunnable::ClearSignals()
-{
-	Super::ClearSignals();
-	
-	if (!IsSpeechSynthesizerValid())
-	{
-		return;
-	}
-
-	SignalDisconnecter_T(SpeechSynthesizer->VisemeReceived);
-	SignalDisconnecter_T(SpeechSynthesizer->Synthesizing);
-	SignalDisconnecter_T(SpeechSynthesizer->SynthesisStarted);
-	SignalDisconnecter_T(SpeechSynthesizer->SynthesisCompleted);
-	SignalDisconnecter_T(SpeechSynthesizer->SynthesisCanceled);
-}
-
-void FAzSpeechSynthesisRunnable::RemoveBindings()
-{
-	Super::RemoveBindings();
-
-	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
-	{
-		return;
-	}
-
-	DelegateDisconnecter_T(SynthesizerTask->VisemeReceived);
-	DelegateDisconnecter_T(SynthesizerTask->SynthesisUpdated);
-	DelegateDisconnecter_T(SynthesizerTask->SynthesisStarted);
-	DelegateDisconnecter_T(SynthesizerTask->SynthesisFailed);
 }
 
 const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const

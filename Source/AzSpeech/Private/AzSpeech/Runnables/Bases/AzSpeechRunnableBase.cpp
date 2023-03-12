@@ -71,13 +71,10 @@ void FAzSpeechRunnableBase::Exit()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
-	ClearSignals();
-
 	AsyncTask(ENamedThreads::GameThread, 
 		[this] 
 		{ 
 			GetOwningTask()->BroadcastFinalResult();
-			RemoveBindings();
 		}
 	);
 
@@ -133,16 +130,6 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 	}
 
 	return bOutput;
-}
-
-void FAzSpeechRunnableBase::ClearSignals()
-{
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Disconnecting Azure SDK recognition signals"), *GetThreadName(), *FString(__func__));
-}
-
-void FAzSpeechRunnableBase::RemoveBindings()
-{
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Removing existing delegate bindings"), *GetThreadName(), *FString(__func__));
 }
 
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const

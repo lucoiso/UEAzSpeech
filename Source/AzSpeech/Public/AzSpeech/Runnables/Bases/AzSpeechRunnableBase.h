@@ -46,27 +46,6 @@ protected:
 	virtual bool InitializeAzureObject();
 	virtual bool CanInitializeTask() const;
 
-	virtual void ClearSignals();
-	virtual void RemoveBindings();
-
-	template<typename SignalTy>
-	void SignalDisconnecter_T(SignalTy& Signal)
-	{
-		if (Signal.IsConnected())
-		{
-			Signal.DisconnectAll();
-		}
-	};
-
-	template<typename DelegateTy>
-	void DelegateDisconnecter_T(DelegateTy& Delegate)
-	{
-		if (Delegate.IsBound())
-		{
-			Delegate.Clear();
-		}
-	};
-
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig() const;
 
 	const std::chrono::seconds GetTaskTimeout() const;
@@ -98,8 +77,10 @@ private:
 	UAzSpeechTaskBase* OwningTask;
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
 
-#if !UE_BUILD_SHIPPING
 protected:
+	mutable FCriticalSection Mutex;
+
+#if !UE_BUILD_SHIPPING
 	void PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const;
 #endif
 };

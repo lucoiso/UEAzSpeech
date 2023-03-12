@@ -62,30 +62,6 @@ void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 	AudioComponent->Play();
 }
 
-void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
-{	
-	Super::OnSynthesisUpdate(LastResult);
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
-	{
-		return;
-	}
-
-	if (CanBroadcastWithReason(LastResult->Reason))
-	{
-		FScopeLock Lock(&Mutex);
-
-		const TArray<uint8> LastBuffer = GetAudioData();
-		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
-		{
-			SetReadyToDestroy();
-			return;
-		}
-
-		BroadcastFinalResult();
-	}
-}
-
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)
 {
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
