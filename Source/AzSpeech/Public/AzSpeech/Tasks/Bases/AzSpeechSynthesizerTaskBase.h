@@ -76,7 +76,7 @@ public:
 	FVisemeReceived VisemeReceived;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Get Last Viseme Data"))
-	const FAzSpeechVisemeData GetVisemeData() const;
+	const FAzSpeechVisemeData& GetLastVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const TArray<FAzSpeechVisemeData> GetVisemeDataArray() const;

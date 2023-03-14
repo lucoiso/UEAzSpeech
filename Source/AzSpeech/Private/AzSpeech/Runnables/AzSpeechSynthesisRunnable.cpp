@@ -7,6 +7,7 @@
 #include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
+#include <Misc/ScopeTryLock.h>
 
 FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : Super(InOwningTask, InAudioConfig)
 {
@@ -57,7 +58,13 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Synthesis failed to start."), *GetThreadName(), *FString(__func__));
-		AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisFailed.Broadcast(); });
+		AsyncTask(ENamedThreads::GameThread, 
+			[SynthesizerTask] 
+			{
+				SynthesizerTask->SynthesisFailed.Broadcast();
+			}
+		);
+
 		return 0u;
 	}
 	
@@ -81,11 +88,11 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 void FAzSpeechSynthesisRunnable::Exit()
 {
-	FScopeLock Lock(&Mutex);
+	FScopeTryLock Lock(&Mutex);
 
 	Super::Exit();
 	
-	if (SpeechSynthesizer)
+	if (Lock.IsLocked() && SpeechSynthesizer)
 	{
 		SpeechSynthesizer->StopSpeakingAsync().wait_for(GetTaskTimeout());
 	}
@@ -224,7 +231,6 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 			AsyncTask(ENamedThreads::GameThread, 
 				[SynthesizerTask, LastVisemeData] 
 				{
-					FScopeLock Lock(&SynthesizerTask->Mutex);
 					SynthesizerTask->OnVisemeReceived(LastVisemeData); 
 				}
 			);
@@ -250,7 +256,12 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisStartedSignal()
 		}
 		else
 		{
-			AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisStarted.Broadcast(); });
+			AsyncTask(ENamedThreads::GameThread, 
+				[SynthesizerTask] 
+				{ 
+					SynthesizerTask->SynthesisStarted.Broadcast(); 
+				}
+			);
 		}
 	};
 
@@ -279,7 +290,6 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 				AsyncTask(ENamedThreads::GameThread, 
 					[SynthesizerTask, Result = SynthesisEventArgs.Result] 
 					{
-						FScopeLock Lock(&SynthesizerTask->Mutex);
 						SynthesizerTask->OnSynthesisUpdate(Result); 
 					}
 				);
@@ -289,17 +299,27 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 
 	const auto TaskResultReach_Lambda = [this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 	{
-		const bool bValidResult = ProcessSynthesisResult(SynthesisEventArgs.Result);
-		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask) || !bValidResult)
+		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 		{
-			AsyncTask(ENamedThreads::GameThread, [SynthesizerTask] { SynthesizerTask->SynthesisFailed.Broadcast(); });
+			StopAzSpeechRunnableTask();
+			return;
+		}
+		
+		const bool bValidResult = ProcessSynthesisResult(SynthesisEventArgs.Result);
+		if (!bValidResult)
+		{
+			AsyncTask(ENamedThreads::GameThread, 
+				[SynthesizerTask] 
+				{
+					SynthesizerTask->SynthesisFailed.Broadcast(); 
+				}
+			);
 		}
 		else
 		{
 			AsyncTask(ENamedThreads::GameThread, 
 				[SynthesizerTask, Result = SynthesisEventArgs.Result]
 				{
-					FScopeLock Lock(&SynthesizerTask->Mutex);
 					SynthesizerTask->OnSynthesisUpdate(Result);
 					SynthesizerTask->BroadcastFinalResult(); 
 				}

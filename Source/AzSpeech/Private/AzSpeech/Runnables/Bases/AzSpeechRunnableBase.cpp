@@ -10,6 +10,7 @@
 #include "LogAzSpeech.h"
 #include <HAL/ThreadManager.h>
 #include <Misc/FileHelper.h>
+#include <Misc/ScopeTryLock.h>
 #include <Async/Async.h>
 #include <chrono>
 
@@ -70,20 +71,24 @@ void FAzSpeechRunnableBase::Stop()
 void FAzSpeechRunnableBase::Exit()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
+	
+	UAzSpeechTaskBase* const Task = GetOwningTask();
+	if (!Task)
+	{
+		return;
+	}
 
-	AsyncTask(ENamedThreads::GameThread, 
-		[this] 
+	AsyncTask(ENamedThreads::GameThread,
+		[Task]
 		{
-			FScopeLock Lock(&GetOwningTask()->Mutex);
-			GetOwningTask()->BroadcastFinalResult();
+			FScopeTryLock Lock(&Task->Mutex);
+			if (Lock.IsLocked())
+			{
+				Task->BroadcastFinalResult();
+				Task->SetReadyToDestroy();
+			}
 		}
 	);
-
-	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()) && !UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
-	{
-		FScopeLock Lock(&GetOwningTask()->Mutex);
-		GetOwningTask()->SetReadyToDestroy();
-	}
 }
 
 UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const

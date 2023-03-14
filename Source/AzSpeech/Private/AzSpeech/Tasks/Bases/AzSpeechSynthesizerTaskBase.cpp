@@ -19,7 +19,7 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 	Super::Activate();
 }
 
-const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetVisemeData() const
+const FAzSpeechVisemeData& UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
 	FScopeLock Lock(&Mutex);
 
