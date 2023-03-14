@@ -78,17 +78,12 @@ void FAzSpeechRunnableBase::Exit()
 		return;
 	}
 
-	AsyncTask(ENamedThreads::GameThread,
-		[Task]
-		{
-			FScopeTryLock Lock(&Task->Mutex);
-			if (Lock.IsLocked())
-			{
-				Task->BroadcastFinalResult();
-				Task->SetReadyToDestroy();
-			}
-		}
-	);
+	FScopeTryLock Lock(&Task->Mutex);
+	if (Lock.IsLocked())
+	{
+		Task->BroadcastFinalResult();
+		Task->SetReadyToDestroy();
+	}
 }
 
 UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const
@@ -323,10 +318,8 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 			break;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__), *ErrorCodeStr);
-	
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error Details: %s"), *GetThreadName(), *FString(__func__), *UTF8_TO_TCHAR(ErrorDetails.c_str()));
-	
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__), *ErrorCodeStr);	
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error Details: %s"), *GetThreadName(), *FString(__func__), *UTF8_TO_TCHAR(ErrorDetails.c_str()));	
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Log generated in directory: %s"), *GetThreadName(), *FString(__func__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
 }
 

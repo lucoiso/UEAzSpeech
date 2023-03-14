@@ -212,12 +212,7 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 			}
 			else
 			{
-				AsyncTask(ENamedThreads::GameThread, 
-					[RecognizerTask, TaskResult = RecognitionEventArgs.Result] 
-					{
-						RecognizerTask->OnRecognitionUpdated(TaskResult); 
-					}
-				);
+				RecognizerTask->OnRecognitionUpdated(RecognitionEventArgs.Result);
 			}
 		}
 	);
@@ -243,13 +238,8 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 			}
 			else
 			{
-				AsyncTask(ENamedThreads::GameThread, 
-					[RecognizerTask, TaskResult = RecognitionEventArgs.Result] 
-					{
-						RecognizerTask->OnRecognitionUpdated(TaskResult); 
-						RecognizerTask->BroadcastFinalResult();
-					}
-				);
+				RecognizerTask->OnRecognitionUpdated(RecognitionEventArgs.Result);
+				RecognizerTask->BroadcastFinalResult();
 			}
 
 			StopAzSpeechRunnableTask();

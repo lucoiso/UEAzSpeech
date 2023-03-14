@@ -5,6 +5,7 @@
 #include "AzSpeech/Tasks/SSMLToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Sound/SoundWave.h>
+#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToSoundWaveAsync)
@@ -33,6 +34,11 @@ void USSMLToSoundWaveAsync::BroadcastFinalResult()
 
 	Super::BroadcastFinalResult();
 
-	const TArray<uint8> LastBuffer = GetAudioData();
-	SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
+		{
+			const TArray<uint8> LastBuffer = GetAudioData();
+			SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+		}
+	);
 }

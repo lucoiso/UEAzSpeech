@@ -6,6 +6,7 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
+#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSpeechSynthesisBase)
@@ -51,15 +52,20 @@ void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 
 	Super::BroadcastFinalResult();
 
-	SynthesisCompleted.Broadcast(IsLastResultValid());
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
+		{
+			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
 
-	AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
+			FScriptDelegate UniqueDelegate_AudioStateChanged;
+			UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
+			AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
 
-	FScriptDelegate UniqueDelegate_AudioStateChanged;
-	UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
-	AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
+			AudioComponent->Play();
 
-	AudioComponent->Play();
+			SynthesisCompleted.Broadcast(IsLastResultValid());
+		}
+	);
 }
 
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)

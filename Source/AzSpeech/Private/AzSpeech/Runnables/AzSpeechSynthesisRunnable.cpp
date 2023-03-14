@@ -228,12 +228,7 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 			LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
 			LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
 
-			AsyncTask(ENamedThreads::GameThread, 
-				[SynthesizerTask, LastVisemeData] 
-				{
-					SynthesizerTask->OnVisemeReceived(LastVisemeData); 
-				}
-			);
+			SynthesizerTask->OnVisemeReceived(LastVisemeData);
 		}
 	);
 
@@ -287,12 +282,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 			}
 			else
 			{
-				AsyncTask(ENamedThreads::GameThread, 
-					[SynthesizerTask, Result = SynthesisEventArgs.Result] 
-					{
-						SynthesizerTask->OnSynthesisUpdate(Result); 
-					}
-				);
+				SynthesizerTask->OnSynthesisUpdate(SynthesisEventArgs.Result);
 			}
 		}
 	);
@@ -317,13 +307,8 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
 		}
 		else
 		{
-			AsyncTask(ENamedThreads::GameThread, 
-				[SynthesizerTask, Result = SynthesisEventArgs.Result]
-				{
-					SynthesizerTask->OnSynthesisUpdate(Result);
-					SynthesizerTask->BroadcastFinalResult(); 
-				}
-			);
+			SynthesizerTask->OnSynthesisUpdate(SynthesisEventArgs.Result);
+			SynthesizerTask->BroadcastFinalResult();
 		}
 
 		StopAzSpeechRunnableTask();

@@ -49,12 +49,12 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!UAzSpeechTaskStatus::IsTaskActive(this) || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Stopping task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsTaskActive = false;
@@ -69,33 +69,27 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return LanguageID.Equals("Auto", ESearchCase::IgnoreCase);
 }
 
 const FString UAzSpeechTaskBase::GetTaskName() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return TaskName.ToString();
 }
 
 const FString UAzSpeechTaskBase::GetLanguageID() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return LanguageID;
 }
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsReadyToDestroy = true;
@@ -124,7 +118,7 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
-	check(IsInGameThread());
+	FScopeLock Lock(&Mutex);
 
 	if (!bIsTaskActive)
 	{

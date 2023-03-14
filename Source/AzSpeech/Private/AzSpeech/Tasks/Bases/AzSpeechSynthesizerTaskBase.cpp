@@ -7,6 +7,7 @@
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
+#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSynthesizerTaskBase)
@@ -19,10 +20,8 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 	Super::Activate();
 }
 
-const FAzSpeechVisemeData& UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
+const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Viseme data is empty"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
@@ -34,15 +33,11 @@ const FAzSpeechVisemeData& UAzSpeechSynthesizerTaskBase::GetLastVisemeData() con
 
 const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return VisemeDataArray;
 }
 
 const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (AudioData.empty())
 	{
 		return TArray<uint8>();
@@ -56,29 +51,21 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return bLastResultIsValid;
 }
 
 const FString UAzSpeechSynthesizerTaskBase::GetVoiceName() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return VoiceName;
 }
 
 const FString UAzSpeechSynthesizerTaskBase::GetSynthesisText() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return SynthesisText;
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsSSMLBased() const
 {
-	FScopeLock Lock(&Mutex);
-
 	return bIsSSMLBased;
 }
 
@@ -99,38 +86,47 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 {
 	FScopeLock Lock(&Mutex);
 
-	check(IsInGameThread());
-
+	{ //Logging
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Id: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.VisemeID);
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Audio Offset: %dms"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.AudioOffsetMilliseconds);
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Animation: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *VisemeData.Animation);
+	}
+	
 	VisemeDataArray.Add(VisemeData);
-	VisemeReceived.Broadcast(VisemeData);
 
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Id: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.VisemeID);
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Audio Offset: %dms"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.AudioOffsetMilliseconds);
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Animation: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *VisemeData.Animation);
+	AsyncTask(ENamedThreads::GameThread,
+		[this, VisemeData]
+		{
+			VisemeReceived.Broadcast(VisemeData);
+		}
+	);
 }
 
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
 	FScopeLock Lock(&Mutex);
 
-	check(IsInGameThread());
+	{ //Logging
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->AudioDuration.count());
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio length: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioLength());
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current stream size: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioData().get()->size());
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
+	}
 
 	AudioData = *LastResult->GetAudioData().get();
 	bLastResultIsValid = !AudioData.empty();
 
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->AudioDuration.count());
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio length: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioLength());
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current stream size: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioData().get()->size());
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
-
-	SynthesisUpdated.Broadcast();
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
+		{
+			SynthesisUpdated.Broadcast();
+		}
+	);
 }
 
 void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
 {
-	FScopeLock Lock(&Mutex);
-
 	if (bIsSSMLBased)
 	{
 		return;
