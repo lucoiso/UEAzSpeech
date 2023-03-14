@@ -203,7 +203,13 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 			}
 			else
 			{
-				AsyncTask(ENamedThreads::GameThread, [RecognizerTask, TaskResult = RecognitionEventArgs.Result] { RecognizerTask->OnRecognitionUpdated(TaskResult); });
+				AsyncTask(ENamedThreads::GameThread, 
+					[RecognizerTask, TaskResult = RecognitionEventArgs.Result] 
+					{
+						FScopeLock Lock(&RecognizerTask->Mutex);
+						RecognizerTask->OnRecognitionUpdated(TaskResult); 
+					}
+				);
 			}
 		}
 	);
@@ -220,7 +226,8 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 			{
 				AsyncTask(ENamedThreads::GameThread, 
 					[RecognizerTask, TaskResult = RecognitionEventArgs.Result] 
-					{ 
+					{
+						FScopeLock Lock(&RecognizerTask->Mutex);
 						RecognizerTask->OnRecognitionUpdated(TaskResult); 
 						RecognizerTask->BroadcastFinalResult();
 					}

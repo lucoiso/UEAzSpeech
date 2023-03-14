@@ -51,19 +51,9 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 
 void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult)
 {
-	check(IsInGameThread());
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this) || !LastResult)
-	{
-		if (!UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
-		{
-			SetReadyToDestroy();
-		}
-
-		return;
-	}
-	
 	FScopeLock Lock(&Mutex);
+
+	check(IsInGameThread());
 
 	RecognizedText = LastResult->Text;
 

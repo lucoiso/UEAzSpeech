@@ -97,14 +97,9 @@ void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<Micr
 
 void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& VisemeData)
 {
-	check(IsInGameThread());
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
-	{
-		return;
-	}
-
 	FScopeLock Lock(&Mutex);
+
+	check(IsInGameThread());
 
 	VisemeDataArray.Add(VisemeData);
 	VisemeReceived.Broadcast(VisemeData);
@@ -116,22 +111,11 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
-	check(IsInGameThread());
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this) || !LastResult)
-	{
-		if (!UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
-		{
-			SetReadyToDestroy();
-		}
-
-		return;
-	}
-
 	FScopeLock Lock(&Mutex);
 
-	AudioData = *LastResult->GetAudioData().get();
+	check(IsInGameThread());
 
+	AudioData = *LastResult->GetAudioData().get();
 	bLastResultIsValid = !AudioData.empty();
 
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->AudioDuration.count());

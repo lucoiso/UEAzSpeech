@@ -73,13 +73,15 @@ void FAzSpeechRunnableBase::Exit()
 
 	AsyncTask(ENamedThreads::GameThread, 
 		[this] 
-		{ 
+		{
+			FScopeLock Lock(&GetOwningTask()->Mutex);
 			GetOwningTask()->BroadcastFinalResult();
 		}
 	);
 
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()) && !UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
 	{
+		FScopeLock Lock(&GetOwningTask()->Mutex);
 		GetOwningTask()->SetReadyToDestroy();
 	}
 }
