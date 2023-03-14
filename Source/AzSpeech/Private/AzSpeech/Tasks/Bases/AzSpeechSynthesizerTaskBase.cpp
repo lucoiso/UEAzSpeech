@@ -22,6 +22,8 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Viseme data is empty"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
@@ -38,6 +40,8 @@ const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArr
 
 const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (AudioData.empty())
 	{
 		return TArray<uint8>();
