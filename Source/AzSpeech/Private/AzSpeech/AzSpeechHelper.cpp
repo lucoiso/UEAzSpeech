@@ -230,29 +230,29 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		}
 #endif
 
-#if WITH_EDITORONLY_DATA
-#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if WITH_EDITORONLY_DATA && (ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1))
 		if (WaveInfo.TimecodeInfo.IsValid())
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
 		}
-
-		if (const UAudioSettings* const AudioSettings = GetDefault<UAudioSettings>())
-		{
-			SoundWave->SetSoundAssetCompressionType(Audio::ToSoundAssetCompressionType(AudioSettings->DefaultAudioCompressionType));
-		}
-		else
-		{
-			SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
-		}
-
-#elif ENGINE_MAJOR_VERSION == 5
-		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
-#endif
 #endif
 
 		if (bCreatedNewPackage)
 		{
+#if WITH_EDITORONLY_DATA && ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+			if (const UAudioSettings* const AudioSettings = GetDefault<UAudioSettings>())
+			{
+				FAudioThread::RunCommandOnAudioThread([AudioSettings, SoundWave]() { SoundWave->SetSoundAssetCompressionType(Audio::ToSoundAssetCompressionType(AudioSettings->DefaultAudioCompressionType)); });
+			}
+			else
+			{
+				FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio); });
+			}
+
+#elif ENGINE_MAJOR_VERSION == 5
+			FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio); });
+#endif
+
 			SoundWave->MarkPackageDirty();
 			FAssetRegistryModule::AssetCreated(SoundWave);
 

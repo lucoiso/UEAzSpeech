@@ -38,6 +38,8 @@ void USpeechToTextAsync::Activate()
 
 bool USpeechToTextAsync::IsUsingDefaultAudioInputDevice() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return AzSpeech::Internal::HasEmptyParam(AudioInputDeviceID) || AudioInputDeviceID.Equals("Default", ESearchCase::IgnoreCase);
 }
 

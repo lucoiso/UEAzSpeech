@@ -202,26 +202,28 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 
 	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && UAzSpeechSettings::Get()->bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
 
-	SpeechSynthesizer->VisemeReceived.Connect([this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
-	{
-		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
+	SpeechSynthesizer->VisemeReceived.Connect(
+		[this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
 		{
-			StopAzSpeechRunnableTask();
-			return;
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
+			{
+				StopAzSpeechRunnableTask();
+				return;
+			}
+
+			if (bFilterVisemeData && VisemeEventArgs.Animation.empty())
+			{
+				return;
+			}
+
+			FAzSpeechVisemeData LastVisemeData;
+			LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
+			LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
+			LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
+
+			AsyncTask(ENamedThreads::GameThread, [SynthesizerTask, LastVisemeData] { SynthesizerTask->OnVisemeReceived(LastVisemeData); });
 		}
-
-		if (bFilterVisemeData && VisemeEventArgs.Animation.empty())
-		{
-			return;
-		}
-
-		FAzSpeechVisemeData LastVisemeData;
-		LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
-		LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
-		LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
-
-		AsyncTask(ENamedThreads::GameThread, [SynthesizerTask, LastVisemeData] { SynthesizerTask->OnVisemeReceived(LastVisemeData); });
-	});
+	);
 
 	return true;
 }

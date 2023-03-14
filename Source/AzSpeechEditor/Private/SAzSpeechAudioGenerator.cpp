@@ -133,10 +133,12 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 				.AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Synthesis Text/SSML"), SNew(SMultiLineEditableTextBox)
-					.OnTextChanged_Lambda([this](const FText& InText)
-					{
-						SynthesisText = InText;
-					}))
+					.OnTextChanged_Lambda(
+						[this](const FText& InText)
+						{
+							SynthesisText = InText;
+						}
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
@@ -144,37 +146,41 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("SSML"), SNew(SCheckBox)
 					.IsChecked(ECheckBoxState::Unchecked)
-					.OnCheckStateChanged_Lambda([this](const ECheckBoxState InState)
-					{
-						bIsSSMLBased = InState == ECheckBoxState::Checked;
-					}))
+					.OnCheckStateChanged_Lambda(
+						[this](const ECheckBoxState InState)
+						{
+							bIsSSMLBased = InState == ECheckBoxState::Checked;
+						}
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
 				.AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Locale"), SNew(SEditableTextBox)
-					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
-					{
-						const FString NewValue = FText::TrimPrecedingAndTrailing(InText).ToString();
-
-						if (Locale.Equals(NewValue, ESearchCase::IgnoreCase))
+					.OnTextCommitted_Lambda(
+						[this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
 						{
-							return;
-						}
+							const FString NewValue = FText::TrimPrecedingAndTrailing(InText).ToString();
 
-						Locale = NewValue;
-						VoiceComboBox->SetSelectedItem(SelectVoice);
+							if (Locale.Equals(NewValue, ESearchCase::IgnoreCase))
+							{
+								return;
+							}
 
-						if (Locale.Equals("Auto", ESearchCase::IgnoreCase))
-						{
-							AvailableVoices = { SelectVoice };
+							Locale = NewValue;
+							VoiceComboBox->SetSelectedItem(SelectVoice);
+
+							if (Locale.Equals("Auto", ESearchCase::IgnoreCase))
+							{
+								AvailableVoices = { SelectVoice };
+							}
+							else if (!Locale.IsEmpty())
+							{
+								UpdateAvailableVoices();
+							}
 						}
-						else if (!Locale.IsEmpty())
-						{
-							UpdateAvailableVoices();
-						}
-					}))
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
@@ -183,10 +189,12 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Voice"), SAssignNew(VoiceComboBox, STextComboBox)
 					.OptionsSource(&AvailableVoices)
 					.InitiallySelectedItem(SelectVoice)
-					.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
-					{
-						Voice = InStr->TrimStartAndEnd();
-					}))
+					.OnSelectionChanged_Lambda(
+						[this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+						{
+							Voice = InStr->TrimStartAndEnd();
+						}
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
@@ -195,30 +203,36 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Module"), SNew(STextComboBox)
 					.OptionsSource(&AvailableModules)
 					.InitiallySelectedItem(GameModule)
-					.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
-					{
-						Module = InStr->TrimStartAndEnd();
-					}))
+					.OnSelectionChanged_Lambda(
+						[this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+						{
+							Module = InStr->TrimStartAndEnd();
+						}
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
 				.AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Relative Path"), SAssignNew(PathInput, SEditableTextBox)
-					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
-					{
-						OnFileInfoCommited(InText, RelativePath, PathInput);
-					}))
+					.OnTextCommitted_Lambda(
+						[this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
+						{
+							OnFileInfoCommited(InText, RelativePath, PathInput);
+						}
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Slot_Padding)
 				.AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"), SAssignNew(AssetNameInput, SEditableTextBox)
-					.OnTextCommitted_Lambda([this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
-					{
-						OnFileInfoCommited(InText, AssetName, AssetNameInput);
-					}))
+					.OnTextCommitted_Lambda(
+						[this](const FText& InText, [[maybe_unused]] ETextCommit::Type InCommitType)
+						{
+							OnFileInfoCommited(InText, AssetName, AssetNameInput);
+						}
+					))
 				]
 				+ SVerticalBox::Slot()
 				.Padding(Margin_Spacing)

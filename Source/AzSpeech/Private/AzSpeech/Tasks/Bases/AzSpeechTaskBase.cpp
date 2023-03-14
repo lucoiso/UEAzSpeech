@@ -69,16 +69,22 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return LanguageID.Equals("Auto", ESearchCase::IgnoreCase);
 }
 
 const FString UAzSpeechTaskBase::GetTaskName() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return TaskName.ToString();
 }
 
 const FString UAzSpeechTaskBase::GetLanguageID() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return LanguageID;
 }
 
@@ -147,6 +153,8 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 
 void UAzSpeechTaskBase::ValidateLanguageID()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (bIsSSMLBased)
 	{
 		return;

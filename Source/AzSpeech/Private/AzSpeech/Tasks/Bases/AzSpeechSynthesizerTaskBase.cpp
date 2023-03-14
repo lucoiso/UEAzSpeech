@@ -21,6 +21,8 @@ void UAzSpeechSynthesizerTaskBase::Activate()
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetVisemeData() const
 {
+	FScopeLock Lock(&Mutex);
+
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Viseme data is empty"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
@@ -32,6 +34,8 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetVisemeData() const
 
 const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return VisemeDataArray;
 }
 
@@ -52,21 +56,29 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return bLastResultIsValid;
 }
 
 const FString UAzSpeechSynthesizerTaskBase::GetVoiceName() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return VoiceName;
 }
 
 const FString UAzSpeechSynthesizerTaskBase::GetSynthesisText() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return SynthesisText;
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsSSMLBased() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return bIsSSMLBased;
 }
 
@@ -133,6 +145,8 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 
 void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (bIsSSMLBased)
 	{
 		return;
