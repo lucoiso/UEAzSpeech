@@ -7,6 +7,8 @@
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
 #include "AzSpeech/AzSpeechAudioInputDeviceInfo.h"
+#include "AzSpeech/AzSpeechAnimationData.h"
+#include "AzSpeech/AzSpeechVisemeData.h"
 #include "AzSpeechHelper.generated.h"
 
 /**
@@ -106,6 +108,12 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const TArray<FString> GetAvailableContentModules();
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static const FAzSpeechAnimationData ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static const TArray<FAzSpeechAnimationData> ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData);
 
 	static const FString GetAzSpeechLogsBaseDir();
 };

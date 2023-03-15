@@ -20,6 +20,9 @@
 #include <Sound/AudioSettings.h>
 #include <Engine/Engine.h>
 #include <Interfaces/IPluginManager.h>
+#include <Serialization/JsonReader.h>
+#include <Serialization/JsonSerializer.h>
+#include <Dom/JsonObject.h>
 
 #if WITH_EDITORONLY_DATA
 #include <EditorFramework/AssetImportData.h>
@@ -479,6 +482,52 @@ const TArray<FString> UAzSpeechHelper::GetAvailableContentModules()
 		}
 
 		Output.Add(Plugin->GetName());
+	}
+
+	return Output;
+}
+
+const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData)
+{
+	FAzSpeechAnimationData Output;
+	if (AzSpeech::Internal::HasEmptyParam(VisemeData.Animation))
+	{
+		return Output;
+	}
+
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(VisemeData.Animation);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	FJsonSerializer::Deserialize(Reader, JsonObject);
+
+	if (!JsonObject.IsValid())
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to deserialize animation data"), *FString(__func__));
+		return Output;
+	}
+
+	Output.FrameIndex = JsonObject->GetIntegerField("FrameIndex");
+
+	for (const TSharedPtr<FJsonValue>& IteratorArray : JsonObject->GetArrayField("BlendShapes"))
+	{
+		FAzSpeechBlendShapes CurrentBlendShapes;
+		for (const TSharedPtr<FJsonValue>& IteratorValue : IteratorArray->AsArray())
+		{
+			CurrentBlendShapes.Data.Add(IteratorValue->AsNumber());
+		}
+		
+		Output.BlendShapes.Add(CurrentBlendShapes);
+	}
+
+	return Output;
+}
+
+const TArray<FAzSpeechAnimationData> UAzSpeechHelper::ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData)
+{
+	TArray<FAzSpeechAnimationData> Output;
+
+	for (const FAzSpeechVisemeData& VisemeDataElement : VisemeData)
+	{
+		Output.Add(ExtractAnimationDataFromVisemeData(VisemeDataElement));
 	}
 
 	return Output;
