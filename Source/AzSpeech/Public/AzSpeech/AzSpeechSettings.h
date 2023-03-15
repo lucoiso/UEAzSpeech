@@ -47,6 +47,12 @@ enum class EAzSpeechRecognitionOutputFormat : uint8
 	Detailed
 };
 
+constexpr int AZSPEECH_KEY_SUBSCRIPTION = 0;
+constexpr int AZSPEECH_KEY_REGION = 1;
+constexpr int AZSPEECH_KEY_ENDPOINT = 2;
+constexpr int AZSPEECH_KEY_LANGUAGE = 3;
+constexpr int AZSPEECH_KEY_VOICE = 4;
+
 /**
  * 
  */
@@ -65,8 +71,14 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "API Access Key"))
 	FString APIAccessKey;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Region ID"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Region ID", EditCondition = "!bUsePrivateEndpoint"))
 	FString RegionID;
+
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Use Private Endpoint"))
+	bool bUsePrivateEndpoint;
+
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Private Endpoint", EditCondition = "bUsePrivateEndpoint"))
+	FString PrivateEndpoint;
 
 	/* It will be used if no value is specified or "Default" is passed as Language ID parameter */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Language ID"))

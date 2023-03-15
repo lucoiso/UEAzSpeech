@@ -138,17 +138,19 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
+	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
+	const auto Keys = UAzSpeechSettings::GetAzSpeechKeys();
 
-	if (!SpeechConfig)
+	if (Settings->bUsePrivateEndpoint)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Failed to create speech configuration"), *GetThreadName(), *FString(__func__));
-		
-		return nullptr;
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Keys.at(AZSPEECH_KEY_ENDPOINT), Keys.at(AZSPEECH_KEY_SUBSCRIPTION));
+	}
+	else
+	{
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Keys.at(AZSPEECH_KEY_SUBSCRIPTION), Keys.at(AZSPEECH_KEY_REGION));
 	}
 
-	return SpeechConfig;
+	return nullptr;
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -318,8 +320,8 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 			break;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__), *ErrorCodeStr);	
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error Details: %s"), *GetThreadName(), *FString(__func__), *UTF8_TO_TCHAR(ErrorDetails.c_str()));	
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__), *ErrorCodeStr);
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error details: %s"), *GetThreadName(), *FString(__func__), UTF8_TO_TCHAR(ErrorDetails.c_str()));
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Log generated in directory: %s"), *GetThreadName(), *FString(__func__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
 }
 

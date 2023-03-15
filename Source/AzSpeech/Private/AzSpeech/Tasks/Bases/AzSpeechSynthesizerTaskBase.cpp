@@ -139,6 +139,6 @@ void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
 	if (AzSpeech::Internal::HasEmptyParam(VoiceName) || VoiceName.Equals("Default", ESearchCase::IgnoreCase))
 	{
-		VoiceName = UTF8_TO_TCHAR(Settings.at(3).c_str());
+		VoiceName = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_VOICE).c_str());
 	}
 }
