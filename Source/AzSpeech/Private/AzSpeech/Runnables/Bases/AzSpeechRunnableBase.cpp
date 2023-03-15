@@ -138,7 +138,7 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
-	const auto Settings = UAzSpeechSettings::Get();
+	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
 	const auto Keys = UAzSpeechSettings::GetAzSpeechKeys();
 
 	if (Settings->bUsePrivateEndpoint)
