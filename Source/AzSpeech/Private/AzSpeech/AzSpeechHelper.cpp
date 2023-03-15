@@ -512,7 +512,7 @@ const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData
 		FAzSpeechBlendShapes CurrentBlendShapes;
 		for (const TSharedPtr<FJsonValue>& IteratorValue : IteratorArray->AsArray())
 		{
-			CurrentBlendShapes.Data.Add(IteratorValue->AsNumber());
+			CurrentBlendShapes.Data.Add(static_cast<float>(IteratorValue->AsNumber()));
 		}
 		
 		Output.BlendShapes.Add(CurrentBlendShapes);
