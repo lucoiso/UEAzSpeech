@@ -122,11 +122,11 @@ public:
 			FrameIndex: Integer,
 			BlendShapes: [ 
 				[ 
-					Float, 
+					Number, 
 					... 
 				], 
 				[ 
-					Float, 
+					Number, 
 					... 
 				], 
 				... 
@@ -144,11 +144,11 @@ public:
 			FrameIndex: Integer,
 			BlendShapes: [
 				[
-					Float,
+					Number,
 					...
 				],
 				[
-					Float,
+					Number,
 					...
 				],
 				...
