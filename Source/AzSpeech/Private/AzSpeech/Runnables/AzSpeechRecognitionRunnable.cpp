@@ -8,6 +8,7 @@
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
+#include <Misc/ScopeTryLock.h>
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_phrase_list_grammar.h>
@@ -19,8 +20,6 @@ FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* In
 
 uint32 FAzSpeechRecognitionRunnable::Run()
 {
-	FScopeLock Lock(&Mutex);
-
 #if !UE_BUILD_SHIPPING
 	const int64 StartTime = GetTimeInMilliseconds();
 #endif
@@ -30,7 +29,7 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
 		return 0u;
 	}
-	
+
 	if (!IsSpeechRecognizerValid())
 	{
 		return 0u;
@@ -53,43 +52,48 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Recognition failed to start."), *GetThreadName(), *FString(__func__));
-		AsyncTask(ENamedThreads::GameThread, [RecognizerTask] { RecognizerTask->RecognitionFailed.Broadcast(); });
+		AsyncTask(ENamedThreads::GameThread,
+			[RecognizerTask]
+			{
+				RecognizerTask->RecognitionFailed.Broadcast();
+			}
+		);
+
 		return 0u;
 	}
-	
-	if (RecognizerTask->RecognitionStarted.IsBound())
-	{
-		AsyncTask(ENamedThreads::GameThread, [RecognizerTask] 
-		{ 
+
+	AsyncTask(ENamedThreads::GameThread,
+		[RecognizerTask]
+		{
 			RecognizerTask->RecognitionStarted.Broadcast();
-			RecognizerTask->RecognitionStarted.Clear();
-		});
-	}
+		}
+	);
 
 #if !UE_BUILD_SHIPPING
 	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
 #endif
 
 	const float SleepTime = GetThreadUpdateInterval();
-	
+
 	while (!IsPendingStop())
 	{
+		FPlatformProcess::Sleep(SleepTime);
+
 #if !UE_BUILD_SHIPPING
 		PrintDebugInformation(StartTime, ActivationDelay, SleepTime);
 #endif
-		FPlatformProcess::Sleep(SleepTime);
 	}
-	
+
 	return 1u;
 }
 
 void FAzSpeechRecognitionRunnable::Exit()
 {
-	FScopeLock Lock(&Mutex);
+	FScopeTryLock Lock(&Mutex);
 
-	Super::Exit();
+	Super::Stop();
 
-	if (SpeechRecognizer)
+	if (Lock.IsLocked() && SpeechRecognizer)
 	{
 		SpeechRecognizer->StopContinuousRecognitionAsync().wait_for(GetTaskTimeout());
 	}
@@ -117,42 +121,8 @@ UAzSpeechRecognizerTaskBase* FAzSpeechRecognitionRunnable::GetOwningRecognizerTa
 	return Cast<UAzSpeechRecognizerTaskBase>(GetOwningTask());
 }
 
-void FAzSpeechRecognitionRunnable::ClearSignals()
-{
-	FScopeLock Lock(&Mutex);
-
-	Super::ClearSignals();
-
-	if (!IsSpeechRecognizerValid())
-	{
-		return;
-	}
-	
-	SignalDisconnecter_T(SpeechRecognizer->Recognizing);
-	SignalDisconnecter_T(SpeechRecognizer->Recognized);
-}
-
-void FAzSpeechRecognitionRunnable::RemoveBindings()
-{
-	FScopeLock Lock(&Mutex);
-
-	Super::RemoveBindings();
-	
-	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
-	{
-		return;
-	}
-
-	DelegateDisconnecter_T(RecognizerTask->RecognitionStarted);
-	DelegateDisconnecter_T(RecognizerTask->RecognitionUpdated);
-}
-
 const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!Super::ApplySDKSettings(InConfig))
 	{
 		return false;
@@ -181,8 +151,6 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 
 bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!Super::InitializeAzureObject())
 	{
 		return false;
@@ -229,41 +197,60 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 
 bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 {
-	FScopeLock Lock(&Mutex);
-
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 	if (!IsSpeechRecognizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
 		return false;
 	}
-	
-	const auto RecognitionUpdate_Lambda = [this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
-	{
-		const bool bValidResult = ProcessRecognitionResult(RecognitionEventArgs.Result);
-		if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask) || !bValidResult)
+
+	SpeechRecognizer->Recognizing.Connect(
+		[this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
 		{
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+			{
+				StopAzSpeechRunnableTask();
+			}
+			else
+			{
+				RecognizerTask->OnRecognitionUpdated(RecognitionEventArgs.Result);
+			}
+		}
+	);
+
+	SpeechRecognizer->Recognized.Connect(
+		[this, RecognizerTask](const Microsoft::CognitiveServices::Speech::SpeechRecognitionEventArgs& RecognitionEventArgs)
+		{
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+			{
+				StopAzSpeechRunnableTask();
+				return;
+			}
+
+			const bool bValidResult = ProcessRecognitionResult(RecognitionEventArgs.Result);
 			if (!bValidResult)
 			{
-				AsyncTask(ENamedThreads::GameThread, [RecognizerTask] { RecognizerTask->RecognitionFailed.Broadcast(); });
+				AsyncTask(ENamedThreads::GameThread, 
+					[RecognizerTask] 
+					{
+						RecognizerTask->RecognitionFailed.Broadcast(); 
+					}
+				);
+			}
+			else
+			{
+				RecognizerTask->OnRecognitionUpdated(RecognitionEventArgs.Result);
+				RecognizerTask->BroadcastFinalResult();
 			}
 
 			StopAzSpeechRunnableTask();
-			return;
 		}
-		
-		AsyncTask(ENamedThreads::GameThread, [RecognizerTask, TaskResult = RecognitionEventArgs.Result] { RecognizerTask->OnRecognitionUpdated(TaskResult); });
-	};
-
-	SpeechRecognizer->Recognized.Connect(RecognitionUpdate_Lambda);
-	SpeechRecognizer->Recognizing.Connect(RecognitionUpdate_Lambda);
+	);
 	
 	return true;
 }
 
 bool FAzSpeechRecognitionRunnable::InsertPhraseList() const
 {
-	FScopeLock Lock(&Mutex);
-
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 	if (!IsSpeechRecognizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
@@ -298,26 +285,20 @@ bool FAzSpeechRecognitionRunnable::InsertPhraseList() const
 bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult)
 {
 	bool bOutput = true;
-	bool bFinishTask = false;
 
 	switch (LastResult->Reason)
 	{
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizingSpeech:
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task running. Reason: RecognizingSpeech"), *GetThreadName(), *FString(__func__));
-			bOutput = true;
-			bFinishTask = false;
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::RecognizedSpeech:
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Task completed. Reason: RecognizedSpeech"), *GetThreadName(), *FString(__func__));
-			bOutput = true;
-			bFinishTask = true;
 			break;
 
 		case Microsoft::CognitiveServices::Speech::ResultReason::NoMatch:
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: NoMatch"), *GetThreadName(), *FString(__func__));
 			bOutput = false;
-			bFinishTask = true;
 			break;
 
 		default:
@@ -327,7 +308,6 @@ bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_pt
 	if (LastResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::Canceled)
 	{
 		bOutput = false;
-		bFinishTask = true;
 
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: Canceled"), *GetThreadName(), *FString(__func__));
 
@@ -339,11 +319,6 @@ bool FAzSpeechRecognitionRunnable::ProcessRecognitionResult(const std::shared_pt
 		{
 			ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
 		}
-	}
-
-	if (bFinishTask)
-	{
-		StopAzSpeechRunnableTask();
 	}
 
 	return bOutput;

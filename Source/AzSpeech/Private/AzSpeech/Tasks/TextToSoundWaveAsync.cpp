@@ -5,6 +5,7 @@
 #include "AzSpeech/Tasks/TextToSoundWaveAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Sound/SoundWave.h>
+#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToSoundWaveAsync)
@@ -26,31 +27,20 @@ UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave(UObject* WorldCont
 
 void UTextToSoundWaveAsync::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult();
-
 	FScopeLock Lock(&Mutex);
 
-	if (SynthesisCompleted.IsBound())
-	{
-		const TArray<uint8> LastBuffer = GetAudioData();
-		SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-		SynthesisCompleted.Clear();
-	}
-}
-
-void UTextToSoundWaveAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
-{
-	Super::OnSynthesisUpdate(LastResult);
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastResult->Reason))
-	{
-		FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 
-		BroadcastFinalResult();
-	}
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
+		{
+			const TArray<uint8> LastBuffer = GetAudioData();
+			SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+		}
+	);
 }

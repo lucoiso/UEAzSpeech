@@ -65,18 +65,6 @@ protected:
 	bool bEndingPIE = false;
 #endif
 
-	template<typename ...Args>
-	constexpr const bool HasEmptyParameters(Args&& ...args) const
-	{
-		const bool bOutput = AzSpeech::Internal::HasEmptyParam(std::forward<Args>(args)...);
-		if (bOutput)
-		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Missing parameters"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
-		}
-
-		return bOutput;
-	}
-
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;

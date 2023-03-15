@@ -29,7 +29,6 @@ public:
 
 protected:
 	virtual void BroadcastFinalResult() override;
-	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult) override;
 
 	UFUNCTION()
 	void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);
