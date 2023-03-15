@@ -94,24 +94,67 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const bool IsAudioDataValid(const TArray<uint8>& RawData);
 
+	/* Get the available audio input devices in the current platform */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech")
 	static const TArray<FAzSpeechAudioInputDeviceInfo> GetAvailableAudioInputDevices();
-	
+
+	/* Get the audio input devices info by it's ID */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const FAzSpeechAudioInputDeviceInfo GetAudioInputDeviceInfoFromID(const FString& DeviceID);
 
+	/* Check if the audio input device is currently available */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const bool IsAudioInputDeviceAvailable(const FString& DeviceID);
 
+	/* Check if the device ID is valid */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is Audio Input Device ID Valid"))
 	static const bool IsAudioInputDeviceIDValid(const FString& DeviceID);
 
+	/* Get available modules with content enabled */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const TArray<FString> GetAvailableContentModules();
 
+	/* 
+		Extract the Animation JSON property from Viseme Data.
+
+		JSON Body Format:
+		[
+			FrameIndex: Integer,
+			BlendShapes: [ 
+				[ 
+					Float, 
+					... 
+				], 
+				[ 
+					Float, 
+					... 
+				], 
+				... 
+			]
+		]
+	*/
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const FAzSpeechAnimationData ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData);
+	
+	/*
+		Extract the Animation JSON property from Viseme Data Array.
 
+		JSON Body Format:
+		[
+			FrameIndex: Integer,
+			BlendShapes: [
+				[
+					Float,
+					...
+				],
+				[
+					Float,
+					...
+				],
+				...
+			]
+		]
+	*/
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const TArray<FAzSpeechAnimationData> ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData);
 
