@@ -46,7 +46,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 	
-	if (HasEmptyParameters(FilePath, FileName, LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, LanguageID))
 	{
 		return false;
 	}

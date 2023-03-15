@@ -6,6 +6,7 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
+#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSpeechSynthesisBase)
@@ -42,47 +43,29 @@ void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
 
 void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult();
-
 	FScopeLock Lock(&Mutex);
 
-	if (SynthesisCompleted.IsBound())
-	{
-		SynthesisCompleted.Broadcast(IsLastResultValid());
-		SynthesisCompleted.Clear();
-	}
-}
-
-void UAzSpeechSpeechSynthesisBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
-{	
-	Super::OnSynthesisUpdate(LastResult);
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastResult->Reason))
-	{
-		FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 
-		const TArray<uint8> LastBuffer = GetAudioData();
-		if (!UAzSpeechHelper::IsAudioDataValid(LastBuffer))
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
 		{
-			SetReadyToDestroy();
-			return;
+			AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
+
+			FScriptDelegate UniqueDelegate_AudioStateChanged;
+			UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
+			AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
+
+			AudioComponent->Play();
+
+			SynthesisCompleted.Broadcast(IsLastResultValid());
 		}
-
-		BroadcastFinalResult();
-
-		AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
-
-		FScriptDelegate UniqueDelegate_AudioStateChanged;
-		UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
-		AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
-
-		AudioComponent->Play();
-	}
+	);
 }
 
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)

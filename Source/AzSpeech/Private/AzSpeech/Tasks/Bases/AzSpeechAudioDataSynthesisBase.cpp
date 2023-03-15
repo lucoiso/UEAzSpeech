@@ -15,7 +15,7 @@ bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 	
-	if (HasEmptyParameters(SynthesisText))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
 	{
 		return false;
 	}

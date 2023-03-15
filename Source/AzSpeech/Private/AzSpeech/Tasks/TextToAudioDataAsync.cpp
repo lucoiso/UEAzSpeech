@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
+#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToAudioDataAsync)
@@ -24,30 +25,19 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(UObject* WorldCont
 
 void UTextToAudioDataAsync::BroadcastFinalResult()
 {
-	Super::BroadcastFinalResult();
-
 	FScopeLock Lock(&Mutex);
 
-	if (SynthesisCompleted.IsBound())
-	{
-		SynthesisCompleted.Broadcast(GetAudioData());
-		SynthesisCompleted.Clear();
-	}
-}
-
-void UTextToAudioDataAsync::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
-{
-	Super::OnSynthesisUpdate(LastResult);
-
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		return;
 	}
 
-	if (CanBroadcastWithReason(LastResult->Reason))
-	{
-		FScopeLock Lock(&Mutex);
+	Super::BroadcastFinalResult();
 
-		BroadcastFinalResult();
-	}
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
+		{
+			SynthesisCompleted.Broadcast(GetAudioData());
+		}
+	);
 }

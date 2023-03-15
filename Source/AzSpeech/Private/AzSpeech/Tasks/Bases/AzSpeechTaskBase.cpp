@@ -49,12 +49,12 @@ void UAzSpeechTaskBase::Activate()
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!UAzSpeechTaskStatus::IsTaskActive(this) || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Stopping task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsTaskActive = false;
@@ -63,8 +63,6 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	{
 		RunnableTask->StopAzSpeechRunnableTask();
 	}
-
-	BroadcastFinalResult();
 	
 	SetReadyToDestroy();
 }
@@ -86,12 +84,12 @@ const FString UAzSpeechTaskBase::GetLanguageID() const
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
-
-	FScopeLock Lock(&Mutex);
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 	bIsReadyToDestroy = true;
@@ -120,7 +118,12 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
-	check(IsInGameThread());
+	FScopeLock Lock(&Mutex);
+
+	if (!bIsTaskActive)
+	{
+		return;
+	}
 	
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
@@ -144,14 +147,16 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 
 void UAzSpeechTaskBase::ValidateLanguageID()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (bIsSSMLBased)
 	{
 		return;
 	}
 
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (HasEmptyParameters(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
+	if (AzSpeech::Internal::HasEmptyParam(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
 	{
-		LanguageID = UTF8_TO_TCHAR(Settings.at(2).c_str());
+		LanguageID = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_LANGUAGE).c_str());
 	}
 }

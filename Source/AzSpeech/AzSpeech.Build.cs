@@ -31,7 +31,8 @@ public class AzSpeech : ModuleRules
 			"DeveloperSettings",
 			"AudioCaptureCore",
 			"AssetRegistry",
-			"Projects"
+			"Projects",
+			"Json"
 		});
 
 		if (Target.bBuildEditor)

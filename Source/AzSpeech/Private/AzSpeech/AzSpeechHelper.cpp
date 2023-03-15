@@ -20,6 +20,9 @@
 #include <Sound/AudioSettings.h>
 #include <Engine/Engine.h>
 #include <Interfaces/IPluginManager.h>
+#include <Serialization/JsonReader.h>
+#include <Serialization/JsonSerializer.h>
+#include <Dom/JsonObject.h>
 
 #if WITH_EDITORONLY_DATA
 #include <EditorFramework/AssetImportData.h>
@@ -149,8 +152,8 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 	FWaveModInfo WaveInfo;
 	WaveInfo.ReadWaveInfo(RawData.GetData(), RawData.Num());
 
-	const int32 ChannelCount = *WaveInfo.pChannels;
-	const int32 SizeOfSample = *WaveInfo.pBitsPerSample / 8;
+	const int32 ChannelCount = static_cast<int32>(*WaveInfo.pChannels);
+	const int32 SizeOfSample = (*WaveInfo.pBitsPerSample) / 8;
 	const int32 NumSamples = WaveInfo.SampleDataSize / SizeOfSample;
 	const int32 NumFrames = NumSamples / ChannelCount;
 
@@ -209,7 +212,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 		SoundWave->RawPCMData = static_cast<uint8*>(FMemory::Malloc(WaveInfo.SampleDataSize));
 		FMemory::Memcpy(SoundWave->RawPCMData, WaveInfo.SampleDataStart, WaveInfo.SampleDataSize);
 
-		SoundWave->Duration = NumFrames / *WaveInfo.pSamplesPerSec;
+		SoundWave->Duration = static_cast<float>(NumFrames) / *WaveInfo.pSamplesPerSec;
 		SoundWave->SetSampleRate(*WaveInfo.pSamplesPerSec);
 		SoundWave->NumChannels = ChannelCount;
 		SoundWave->TotalSamples = *WaveInfo.pSamplesPerSec * SoundWave->Duration;
@@ -225,35 +228,34 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 			NewCuePoint.FrameLength = static_cast<int32>(WaveCue.SampleLength);
 			NewCuePoint.FramePosition = static_cast<int32>(WaveCue.Position);
 			NewCuePoint.Label = WaveCue.Label;
+
 			SoundWave->CuePoints.Add(NewCuePoint);
 		}
 #endif
 
-#if WITH_EDITORONLY_DATA
-#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if WITH_EDITORONLY_DATA && (ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1))
 		if (WaveInfo.TimecodeInfo.IsValid())
 		{
 			SoundWave->SetTimecodeInfo(*WaveInfo.TimecodeInfo);
 		}
-
-		if (const UAudioSettings* const AudioSettings = GetDefault<UAudioSettings>())
-		{
-			SoundWave->SetSoundAssetCompressionType(Audio::ToSoundAssetCompressionType(AudioSettings->DefaultAudioCompressionType));
-		}
-		else
-		{
-			SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
-		}
-
-#elif ENGINE_MAJOR_VERSION == 5
-		SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio);
-#endif
-
-		FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->InvalidateCompressedData(true, false); });
 #endif
 
 		if (bCreatedNewPackage)
 		{
+#if WITH_EDITORONLY_DATA && ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+			if (const UAudioSettings* const AudioSettings = GetDefault<UAudioSettings>())
+			{
+				FAudioThread::RunCommandOnAudioThread([AudioSettings, SoundWave]() { SoundWave->SetSoundAssetCompressionType(Audio::ToSoundAssetCompressionType(AudioSettings->DefaultAudioCompressionType)); });
+			}
+			else
+			{
+				FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio); });
+			}
+
+#elif ENGINE_MAJOR_VERSION == 5
+			FAudioThread::RunCommandOnAudioThread([SoundWave]() { SoundWave->SetSoundAssetCompressionType(ESoundAssetCompressionType::BinkAudio); });
+#endif
+
 			SoundWave->MarkPackageDirty();
 			FAssetRegistryModule::AssetCreated(SoundWave);
 
@@ -480,6 +482,52 @@ const TArray<FString> UAzSpeechHelper::GetAvailableContentModules()
 		}
 
 		Output.Add(Plugin->GetName());
+	}
+
+	return Output;
+}
+
+const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData)
+{
+	FAzSpeechAnimationData Output;
+	if (AzSpeech::Internal::HasEmptyParam(VisemeData.Animation))
+	{
+		return Output;
+	}
+
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(VisemeData.Animation);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	FJsonSerializer::Deserialize(Reader, JsonObject);
+
+	if (!JsonObject.IsValid())
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to deserialize animation data"), *FString(__func__));
+		return Output;
+	}
+
+	Output.FrameIndex = JsonObject->GetIntegerField("FrameIndex");
+
+	for (const TSharedPtr<FJsonValue>& IteratorArray : JsonObject->GetArrayField("BlendShapes"))
+	{
+		FAzSpeechBlendShapes CurrentBlendShapes;
+		for (const TSharedPtr<FJsonValue>& IteratorValue : IteratorArray->AsArray())
+		{
+			CurrentBlendShapes.Data.Add(static_cast<float>(IteratorValue->AsNumber()));
+		}
+		
+		Output.BlendShapes.Add(CurrentBlendShapes);
+	}
+
+	return Output;
+}
+
+const TArray<FAzSpeechAnimationData> UAzSpeechHelper::ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData)
+{
+	TArray<FAzSpeechAnimationData> Output;
+
+	for (const FAzSpeechVisemeData& VisemeDataElement : VisemeData)
+	{
+		Output.Add(ExtractAnimationDataFromVisemeData(VisemeDataElement));
 	}
 
 	return Output;

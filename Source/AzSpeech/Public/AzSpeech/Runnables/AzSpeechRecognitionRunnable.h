@@ -37,9 +37,6 @@ protected:
 
 	class UAzSpeechRecognizerTaskBase* GetOwningRecognizerTask() const;
 
-	virtual void ClearSignals() override;
-	virtual void RemoveBindings() override;
-
 	virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const override;
 
 	virtual bool InitializeAzureObject() override;

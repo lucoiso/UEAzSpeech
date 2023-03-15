@@ -10,6 +10,7 @@
 #include "LogAzSpeech.h"
 #include <HAL/ThreadManager.h>
 #include <Misc/FileHelper.h>
+#include <Misc/ScopeTryLock.h>
 #include <Async/Async.h>
 #include <chrono>
 
@@ -69,22 +70,19 @@ void FAzSpeechRunnableBase::Stop()
 
 void FAzSpeechRunnableBase::Exit()
 {
-	FScopeLock Lock_Runnable(&Mutex);
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
-
-	ClearSignals();
-
-	if (UAzSpeechTaskStatus::IsTaskActive(GetOwningTask()))
+	
+	UAzSpeechTaskBase* const Task = GetOwningTask();
+	if (!Task)
 	{
-		FScopeLock Lock_Task(&GetOwningTask()->Mutex);
-		AsyncTask(ENamedThreads::GameThread, [this] { GetOwningTask()->BroadcastFinalResult(); });
+		return;
 	}
 
-	RemoveBindings();
-
-	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()) && !UAzSpeechTaskStatus::IsTaskReadyToDestroy(GetOwningTask()))
+	FScopeTryLock Lock(&Task->Mutex);
+	if (Lock.IsLocked())
 	{
-		GetOwningTask()->SetReadyToDestroy();
+		Task->BroadcastFinalResult();
+		Task->SetReadyToDestroy();
 	}
 }
 
@@ -136,31 +134,23 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 	return bOutput;
 }
 
-void FAzSpeechRunnableBase::ClearSignals()
-{
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Disconnecting Azure SDK recognition signals"), *GetThreadName(), *FString(__func__));
-}
-
-void FAzSpeechRunnableBase::RemoveBindings()
-{
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Removing existing delegate bindings"), *GetThreadName(), *FString(__func__));
-}
-
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
+	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
+	const auto Keys = UAzSpeechSettings::GetAzSpeechKeys();
 
-	if (!SpeechConfig)
+	if (Settings->bUsePrivateEndpoint)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Failed to create speech configuration"), *GetThreadName(), *FString(__func__));
-		
-		return nullptr;
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Keys.at(AZSPEECH_KEY_ENDPOINT), Keys.at(AZSPEECH_KEY_SUBSCRIPTION));
+	}
+	else
+	{
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Keys.at(AZSPEECH_KEY_SUBSCRIPTION), Keys.at(AZSPEECH_KEY_REGION));
 	}
 
-	return SpeechConfig;
+	return nullptr;
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -170,8 +160,6 @@ const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
 
 const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!InSpeechConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
@@ -196,8 +184,6 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
 
 const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
-	FScopeLock Lock(&Mutex);
-
 	if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
 	{
 		return true;
@@ -335,9 +321,7 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__), *ErrorCodeStr);
-	
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error Details: %s"), *GetThreadName(), *FString(__func__), *UTF8_TO_TCHAR(ErrorDetails.c_str()));
-	
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error details: %s"), *GetThreadName(), *FString(__func__), UTF8_TO_TCHAR(ErrorDetails.c_str()));
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Log generated in directory: %s"), *GetThreadName(), *FString(__func__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
 }
 
@@ -413,8 +397,6 @@ void FAzSpeechRunnableBase::StoreThreadInformation()
 #if !UE_BUILD_SHIPPING
 void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const
 {
-	FScopeLock Lock(&Mutex);
-
 	UAzSpeechTaskBase* const Task = GetOwningTask();
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(Task) || !UAzSpeechSettings::Get()->bEnableDebuggingLogs)
 	{
