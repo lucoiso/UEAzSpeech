@@ -157,6 +157,6 @@ void UAzSpeechTaskBase::ValidateLanguageID()
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
 	if (AzSpeech::Internal::HasEmptyParam(LanguageID) || LanguageID.Equals("Default", ESearchCase::IgnoreCase))
 	{
-		LanguageID = UTF8_TO_TCHAR(Settings.at(2).c_str());
+		LanguageID = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_LANGUAGE).c_str());
 	}
 }

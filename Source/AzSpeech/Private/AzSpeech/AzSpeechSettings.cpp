@@ -13,7 +13,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettings)
 #endif
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), APIAccessKey(FString()), RegionID(FString()), LanguageID(FString()), VoiceName(FString()), ProfanityFilter(EAzSpeechProfanityFilter::Raw), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bEnableViseme(true), bFilterVisemeFacialExpression(true), SpeechSynthesisOutputFormat(EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm), SpeechRecognitionOutputFormat(EAzSpeechRecognitionOutputFormat::Detailed), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), APIAccessKey(FString()), RegionID(FString()), bUsePrivateEndpoint(false), PrivateEndpoint(FString()), LanguageID(FString()), VoiceName(FString()), ProfanityFilter(EAzSpeechProfanityFilter::Raw), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bEnableViseme(true), bFilterVisemeFacialExpression(true), SpeechSynthesisOutputFormat(EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm), SpeechRecognitionOutputFormat(EAzSpeechRecognitionOutputFormat::Detailed), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
 	CategoryName = TEXT("Plugins");
 
@@ -190,10 +190,11 @@ const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 		Output.insert(std::make_pair(InId, InStr));
 	};
 
-	UpdateSettingsMap(0, Instance->APIAccessKey);
-	UpdateSettingsMap(1, Instance->RegionID);
-	UpdateSettingsMap(2, Instance->LanguageID);
-	UpdateSettingsMap(3, Instance->VoiceName);
+	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->APIAccessKey);
+	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->RegionID);
+	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->PrivateEndpoint);
+	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->LanguageID);
+	UpdateSettingsMap(AZSPEECH_KEY_VOICE, Instance->VoiceName);
 
 	return Output;
 }
@@ -207,8 +208,21 @@ const bool UAzSpeechSettings::CheckAzSpeechSettings()
 		return false;
 	}
 
+	const bool bUsingEndpoint = UAzSpeechSettings::Get()->bUsePrivateEndpoint;
+
 	for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
 	{
+		if (bUsingEndpoint && Iterator == AZSPEECH_KEY_REGION)
+		{
+			// Do not check region
+			continue;
+		}
+		else if (!bUsingEndpoint && Iterator == AZSPEECH_KEY_ENDPOINT)
+		{
+			// Do not check endpoint
+			continue;
+		}
+
 		if (AzSpeechParams.at(Iterator).empty())
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));

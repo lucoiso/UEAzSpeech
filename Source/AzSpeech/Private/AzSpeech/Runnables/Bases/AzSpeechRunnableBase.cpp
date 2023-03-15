@@ -138,17 +138,19 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1));
+	const auto Settings = UAzSpeechSettings::Get();
+	const auto Keys = UAzSpeechSettings::GetAzSpeechKeys();
 
-	if (!SpeechConfig)
+	if (Settings->bUsePrivateEndpoint)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Failed to create speech configuration"), *GetThreadName(), *FString(__func__));
-		
-		return nullptr;
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Keys.at(AZSPEECH_KEY_ENDPOINT), Keys.at(AZSPEECH_KEY_SUBSCRIPTION));
+	}
+	else
+	{
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Keys.at(AZSPEECH_KEY_SUBSCRIPTION), Keys.at(AZSPEECH_KEY_REGION));
 	}
 
-	return SpeechConfig;
+	return nullptr;
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
