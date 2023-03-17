@@ -13,7 +13,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettings)
 #endif
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), APIAccessKey(FString()), RegionID(FString()), bUsePrivateEndpoint(false), PrivateEndpoint(FString()), LanguageID(FString()), VoiceName(FString()), ProfanityFilter(EAzSpeechProfanityFilter::Raw), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bEnableViseme(true), bFilterVisemeFacialExpression(true), SpeechSynthesisOutputFormat(EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm), SpeechRecognitionOutputFormat(EAzSpeechRecognitionOutputFormat::Detailed), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), SubscriptionKey(FString()), RegionID(FString()), bUsePrivateEndpoint(false), PrivateEndpoint(FString()), LanguageID(FString()), VoiceName(FString()), ProfanityFilter(EAzSpeechProfanityFilter::Raw), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bEnableViseme(true), bFilterVisemeFacialExpression(true), SpeechSynthesisOutputFormat(EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm), SpeechRecognitionOutputFormat(EAzSpeechRecognitionOutputFormat::Detailed), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
 	CategoryName = TEXT("Plugins");
 
@@ -31,22 +31,85 @@ const UAzSpeechSettings* UAzSpeechSettings::Get()
 
 TArray<FString> UAzSpeechSettings::GetCandidateLanguages()
 {
-	return UAzSpeechSettings::Get()->AutoCandidateLanguages;
+	return GetDefault<UAzSpeechSettings>()->AutoCandidateLanguages;
 }
 
 TArray<FAzSpeechPhraseListMap> UAzSpeechSettings::GetPhraseListMap()
 {
-	return UAzSpeechSettings::Get()->PhraseListMap;
+	return GetDefault<UAzSpeechSettings>()->PhraseListMap;
 }
 
 TArray<FAzSpeechRecognitionMap> UAzSpeechSettings::GetRecognitionMap()
 {
-	return UAzSpeechSettings::Get()->RecognitionMap;
+	return GetDefault<UAzSpeechSettings>()->RecognitionMap;
 }
 
 FString UAzSpeechSettings::GetStringDelimiters()
 {
-	return UAzSpeechSettings::Get()->StringDelimiters;
+	return GetDefault<UAzSpeechSettings>()->StringDelimiters;
+}
+
+FString UAzSpeechSettings::GetSubscriptionKey()
+{
+	return GetDefault<UAzSpeechSettings>()->SubscriptionKey;
+}
+
+void UAzSpeechSettings::SetSubscriptionKey(const FString& Value)
+{
+	GetMutableDefault<UAzSpeechSettings>()->SubscriptionKey = Value;
+}
+
+FString UAzSpeechSettings::GetRegionID()
+{
+	return UAzSpeechSettings::Get()->RegionID;
+}
+
+void UAzSpeechSettings::SetRegionID(const FString& Value)
+{
+	GetMutableDefault<UAzSpeechSettings>()->RegionID = Value;
+}
+
+bool UAzSpeechSettings::GetUsePrivateEndpoint()
+{
+	return UAzSpeechSettings::Get()->bUsePrivateEndpoint;
+}
+
+void UAzSpeechSettings::SetUsePrivateEndpoint(const bool Value)
+{
+	GetMutableDefault<UAzSpeechSettings>()->bUsePrivateEndpoint = Value;
+}
+
+FString UAzSpeechSettings::GetPrivateEndpoint()
+{
+	return UAzSpeechSettings::Get()->PrivateEndpoint;
+}
+
+void UAzSpeechSettings::SetPrivateEndpoint(const FString& Value)
+{
+	GetMutableDefault<UAzSpeechSettings>()->PrivateEndpoint = Value;
+}
+
+FString UAzSpeechSettings::GetDefaultLanguageID()
+{
+	return UAzSpeechSettings::Get()->LanguageID;
+}
+
+void UAzSpeechSettings::SetDefaultLanguageID(const FString& Value)
+{
+	UAzSpeechSettings* const MutableInstance = GetMutableDefault<UAzSpeechSettings>();
+	MutableInstance->LanguageID = Value;
+
+	MutableInstance->ValidateCandidateLanguages(true);
+}
+
+FString UAzSpeechSettings::GetDefaultVoiceName()
+{
+	return UAzSpeechSettings::Get()->VoiceName;
+}
+
+void UAzSpeechSettings::SetDefaultVoiceName(const FString& Value)
+{
+	GetMutableDefault<UAzSpeechSettings>()->VoiceName = Value;
 }
 
 #if WITH_EDITOR
@@ -190,7 +253,7 @@ const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 		Output.insert(std::make_pair(InId, InStr));
 	};
 
-	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->APIAccessKey);
+	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->SubscriptionKey);
 	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->RegionID);
 	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->PrivateEndpoint);
 	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->LanguageID);

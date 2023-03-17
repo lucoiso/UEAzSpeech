@@ -68,8 +68,8 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "API Access Key"))
-	FString APIAccessKey;
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Subscription Key"))
+	FString SubscriptionKey;
 
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Region ID", EditCondition = "!bUsePrivateEndpoint"))
 	FString RegionID;
@@ -166,6 +166,42 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: String Delimiters"))
 	static FString GetStringDelimiters();
+	
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Subscription Key"))
+	static FString GetSubscriptionKey();
+
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Subscription Key"))
+	static void SetSubscriptionKey(const FString& Value);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Region ID"))
+	static FString GetRegionID();
+	
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Region ID"))
+	static void SetRegionID(const FString& Value);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Use Private Endpoint"))
+	static bool GetUsePrivateEndpoint();
+
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Use Private Endpoint"))
+	static void SetUsePrivateEndpoint(const bool Value);
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Private Endpoint"))
+	static FString GetPrivateEndpoint();
+
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Private Endpoint"))
+	static void SetPrivateEndpoint(const FString& Value);	
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Language ID"))
+	static FString GetDefaultLanguageID();
+
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Default Language ID"))
+	static void SetDefaultLanguageID(const FString& Value);	
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Voice Name"))
+	static FString GetDefaultVoiceName();
+
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Default Voice Name"))
+	static void SetDefaultVoiceName(const FString& Value);
 
 protected:
 #if WITH_EDITOR
