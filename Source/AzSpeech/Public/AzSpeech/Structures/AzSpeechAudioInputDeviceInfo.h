@@ -10,7 +10,7 @@
 USTRUCT(BlueprintType, Category = "AzSpeech")
 struct FAzSpeechAudioInputDeviceInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FAzSpeechAudioInputDeviceInfo() : DeviceName("Default Device"), DeviceID(FString()) {}
 	FAzSpeechAudioInputDeviceInfo(const FString& InName, const FString& InID) : DeviceName(InName), DeviceID(InID) {}

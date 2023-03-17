@@ -9,6 +9,7 @@
 #include <AzSpeech/Tasks/GetAvailableVoicesAsync.h>
 #include <AzSpeech/Tasks/TextToAudioDataAsync.h>
 #include <AzSpeech/Tasks/SSMLToAudioDataAsync.h>
+#include <AzSpeech/Structures/AzSpeechSettingsOptions.h>
 #include <Widgets/Input/STextComboBox.h>
 #include <Widgets/Input/SEditableTextBox.h>
 #include <Widgets/Input/SMultiLineEditableTextBox.h>
@@ -273,12 +274,12 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	UAzSpeechAudioDataSynthesisBase* Task = nullptr;
 	if (bIsSSMLBased)
 	{
-		Task = USSMLToAudioDataAsync::SSMLToAudioData(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString());
+		Task = USSMLToAudioDataAsync::SSMLToAudioDataAsync(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString());
 		Cast<USSMLToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 	else
 	{
-		Task = UTextToAudioDataAsync::TextToAudioData(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), Voice, Locale);
+		Task = UTextToAudioDataAsync::TextToAudioDataAsync(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), FAzSpeechSettingsOptions(Locale, Voice));
 		Cast<UTextToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 

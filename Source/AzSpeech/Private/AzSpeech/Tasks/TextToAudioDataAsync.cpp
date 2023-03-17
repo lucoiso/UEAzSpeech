@@ -9,13 +9,12 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToAudioDataAsync)
 #endif
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioDataAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
 {
 	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageID = LanguageID;
+	NewAsyncTask->TaskOptions = Options;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);

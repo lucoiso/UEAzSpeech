@@ -8,9 +8,9 @@
 #include "AzSpeechPhraseListMap.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechPhraseListMap
+struct AZSPEECH_API FAzSpeechPhraseListMap
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	/* The name of this phrase list data group */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")

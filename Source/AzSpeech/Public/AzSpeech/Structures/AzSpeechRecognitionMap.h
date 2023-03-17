@@ -8,9 +8,9 @@
 #include "AzSpeechRecognitionMap.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechRecognitionData
+struct AZSPEECH_API FAzSpeechRecognitionData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 	
 	FAzSpeechRecognitionData() : Value(0), Weight(1) {};
 	FAzSpeechRecognitionData(const int32 InValue) : Value(InValue) {};
@@ -39,9 +39,9 @@ struct FAzSpeechRecognitionData
 };
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechRecognitionMap
+struct AZSPEECH_API FAzSpeechRecognitionMap
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FAzSpeechRecognitionMap() : GroupName(NAME_None) {};
 

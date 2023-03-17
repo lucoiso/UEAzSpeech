@@ -22,8 +22,15 @@ public:
 	FSoundWaveSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToSoundWaveAsync* TextToSoundWave(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead"))
+	static FORCEINLINE UTextToSoundWaveAsync* TextToSoundWave(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default")
+	{
+		return TextToSoundWaveAsync(WorldContextObject, SynthesisText, FAzSpeechSettingsOptions(LanguageID, VoiceName));
+	}
+
+	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Options"))
+	static UTextToSoundWaveAsync* TextToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options  = FAzSpeechSettingsOptions());
 
 protected:
 	virtual void BroadcastFinalResult() override;

@@ -22,8 +22,15 @@ public:
 	FAudioDataSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a Text-To-AudioData task that will convert your text to a audio data stream */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToAudioDataAsync* TextToAudioData(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead"))
+	static FORCEINLINE UTextToAudioDataAsync* TextToAudioData(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default")
+	{
+		return TextToAudioDataAsync(WorldContextObject, SynthesisText, FAzSpeechSettingsOptions(LanguageID, VoiceName));
+	}
+
+	/* Creates a Text-To-AudioData task that will convert your text to a audio data stream */
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Options"))
+	static UTextToAudioDataAsync* TextToAudioDataAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options  = FAzSpeechSettingsOptions());
 
 protected:
 	virtual void BroadcastFinalResult() override;

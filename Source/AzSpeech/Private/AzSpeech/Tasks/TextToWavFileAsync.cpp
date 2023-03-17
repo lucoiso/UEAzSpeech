@@ -8,15 +8,14 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToWavFileAsync)
 #endif
 
-UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageID)
+UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFileAsync(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options)
 {
 	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisText;
+	NewAsyncTask->TaskOptions = Options;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
-	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);

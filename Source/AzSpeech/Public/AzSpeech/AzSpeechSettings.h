@@ -8,44 +8,10 @@
 #include <Engine/DeveloperSettings.h>
 #include <map>
 #include <string>
-#include "AzSpeech/AzSpeechRecognitionMap.h"
-#include "AzSpeechPhraseListMap.h"
+#include "AzSpeech/Structures/AzSpeechRecognitionMap.h"
+#include "AzSpeech/Structures/AzSpeechPhraseListMap.h"
+#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechSettings.generated.h"
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechProfanityFilter : uint8
-{
-	Raw,
-	Masked,
-	Removed
-};
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechThreadPriority : uint8
-{
-	Lowest,
-	BelowNormal,
-	Normal,
-	AboveNormal,
-	Highest,
-};
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechSynthesisOutputFormat : uint8
-{
-	Riff16Khz16BitMonoPcm,
-	Riff24Khz16BitMonoPcm,
-	Riff48Khz16BitMonoPcm,
-	Riff22050Hz16BitMonoPcm,
-	Riff44100Hz16BitMonoPcm
-};
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechRecognitionOutputFormat : uint8
-{
-	Simple,
-	Detailed
-};
 
 constexpr int AZSPEECH_KEY_SUBSCRIPTION = 0;
 constexpr int AZSPEECH_KEY_REGION = 1;
@@ -68,68 +34,8 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Subscription Key"))
-	FString SubscriptionKey;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Region ID", EditCondition = "!bUsePrivateEndpoint"))
-	FString RegionID;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Use Private Endpoint"))
-	bool bUsePrivateEndpoint;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Private Endpoint", EditCondition = "bUsePrivateEndpoint"))
-	FString PrivateEndpoint;
-
-	/* It will be used if no value is specified or "Default" is passed as Language ID parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Language ID"))
-	FString LanguageID;
-
-	/* It will be used if no value is specified or "Default" is passed as Voice Name parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Voice Name"))
-	FString VoiceName;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Profanity Filter"))
-	EAzSpeechProfanityFilter ProfanityFilter;
-
-	/* It will be used if "Auto" is passed as Language ID parameter - Will use Azure SDK Language Identification */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Auto Candidate Languages"))
-	TArray<FString> AutoCandidateLanguages;
-
-	/* Silence time limit in miliseconds to consider the task as Completed */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
-	int32 SegmentationSilenceTimeoutMs;
-
-	/* Silence time limit in miliseconds at the start of the task to consider the result as Canceled/NoMatch */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
-	int32 InitialSilenceTimeoutMs;
-
-	/* If enabled, synthesizers tasks will generate Viseme data */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Enable Viseme"))
-	bool bEnableViseme;
-
-	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Filter Viseme Facial Expression"))
-	bool bFilterVisemeFacialExpression;
-
-	/* Synthesis audio output format */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Synthesis Output Format"))
-	EAzSpeechSynthesisOutputFormat SpeechSynthesisOutputFormat;
-
-	/* Recognition output format */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Recognition Output Format"))
-	EAzSpeechRecognitionOutputFormat SpeechRecognitionOutputFormat;
-
-	/* Time limit in seconds to wait for related asynchronous tasks to complete */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
-	int32 TimeOutInSeconds;
-
-	/* CPU thread priority to use in created runnable threads */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Priority"))
-	EAzSpeechThreadPriority TasksThreadPriority;
-
-	/* Thread update interval: Sleep time between task update checks */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001", ClampMax = "1", UIMax = "1"))
-	float ThreadUpdateInterval;
+	UPROPERTY(GlobalConfig, EditAnywhere, Meta = (DisplayName = "AzSpeech Default Settings"))
+	FAzSpeechSettingsOptions Options;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Azure SDK Logs"))
@@ -166,42 +72,12 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: String Delimiters"))
 	static FString GetStringDelimiters();
-	
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Subscription Key"))
-	static FString GetSubscriptionKey();
 
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Subscription Key"))
-	static void SetSubscriptionKey(const FString& Value);
+	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Settings"))
+	static FAzSpeechSettingsOptions GetDefaultSettings();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Region ID"))
-	static FString GetRegionID();
-	
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Region ID"))
-	static void SetRegionID(const FString& Value);
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Use Private Endpoint"))
-	static bool GetUsePrivateEndpoint();
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Use Private Endpoint"))
-	static void SetUsePrivateEndpoint(const bool Value);
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Private Endpoint"))
-	static FString GetPrivateEndpoint();
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Private Endpoint"))
-	static void SetPrivateEndpoint(const FString& Value);	
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Language ID"))
-	static FString GetDefaultLanguageID();
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Default Language ID"))
-	static void SetDefaultLanguageID(const FString& Value);	
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Voice Name"))
-	static FString GetDefaultVoiceName();
-
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Default Voice Name"))
-	static void SetDefaultVoiceName(const FString& Value);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Default Settings"))
+	static void SetDefaultSettings(const FAzSpeechSettingsOptions& Value);
 
 protected:
 #if WITH_EDITOR

@@ -6,9 +6,9 @@
 
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
-#include "AzSpeech/AzSpeechAudioInputDeviceInfo.h"
-#include "AzSpeech/AzSpeechAnimationData.h"
-#include "AzSpeech/AzSpeechVisemeData.h"
+#include "AzSpeech/Structures/AzSpeechAudioInputDeviceInfo.h"
+#include "AzSpeech/Structures/AzSpeechAnimationData.h"
+#include "AzSpeech/Structures/AzSpeechVisemeData.h"
 #include "AzSpeechHelper.generated.h"
 
 /**

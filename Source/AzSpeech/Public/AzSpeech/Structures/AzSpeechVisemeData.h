@@ -8,7 +8,7 @@
 #include "AzSpeechVisemeData.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechVisemeData
+struct AZSPEECH_API FAzSpeechVisemeData
 {
 	GENERATED_BODY()
 

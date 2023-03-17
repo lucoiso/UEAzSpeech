@@ -6,7 +6,7 @@
 
 #include <CoreMinimal.h>
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
-#include "AzSpeech/AzSpeechVisemeData.h"
+#include "AzSpeech/Structures/AzSpeechVisemeData.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_speech_synthesis_result.h>
@@ -72,7 +72,6 @@ public:
 	const bool IsSSMLBased() const;
 	
 protected:
-	FString VoiceName;
 	FString SynthesisText;
 	
 	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);

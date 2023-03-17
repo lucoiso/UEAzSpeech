@@ -13,13 +13,30 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettings)
 #endif
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), SubscriptionKey(FString()), RegionID(FString()), bUsePrivateEndpoint(false), PrivateEndpoint(FString()), LanguageID(FString()), VoiceName(FString()), ProfanityFilter(EAzSpeechProfanityFilter::Raw), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bEnableViseme(true), bFilterVisemeFacialExpression(true), SpeechSynthesisOutputFormat(EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm), SpeechRecognitionOutputFormat(EAzSpeechRecognitionOutputFormat::Detailed), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
 	CategoryName = TEXT("Plugins");
 
-	if (AzSpeech::Internal::HasEmptyParam(AutoCandidateLanguages))
+	Options.SubscriptionKey = FString();
+	Options.RegionID = FString();
+	Options.bUsePrivateEndpoint = false;
+	Options.PrivateEndpoint = FString();
+	Options.LanguageID = FString();
+	Options.VoiceName = FString();
+	Options.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
+	Options.SegmentationSilenceTimeoutMs = 1000;
+	Options.InitialSilenceTimeoutMs = 5000;
+	Options.bEnableViseme = true;
+	Options.bFilterVisemeFacialExpression = true;
+	Options.SpeechSynthesisOutputFormat = EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
+	Options.SpeechRecognitionOutputFormat = EAzSpeechRecognitionOutputFormat::Detailed;
+	Options.TimeOutInSeconds = 10.f;
+	Options.TasksThreadPriority = EAzSpeechThreadPriority::Normal;
+	Options.ThreadUpdateInterval = 0.033334f;
+
+	if (AzSpeech::Internal::HasEmptyParam(Options.AutoCandidateLanguages))
 	{
-		AutoCandidateLanguages.Add(LanguageID);
+		Options.AutoCandidateLanguages.Add(Options.LanguageID);
 	}
 }
 
@@ -31,7 +48,7 @@ const UAzSpeechSettings* UAzSpeechSettings::Get()
 
 TArray<FString> UAzSpeechSettings::GetCandidateLanguages()
 {
-	return GetDefault<UAzSpeechSettings>()->AutoCandidateLanguages;
+	return GetDefault<UAzSpeechSettings>()->Options.AutoCandidateLanguages;
 }
 
 TArray<FAzSpeechPhraseListMap> UAzSpeechSettings::GetPhraseListMap()
@@ -49,67 +66,14 @@ FString UAzSpeechSettings::GetStringDelimiters()
 	return GetDefault<UAzSpeechSettings>()->StringDelimiters;
 }
 
-FString UAzSpeechSettings::GetSubscriptionKey()
+FAzSpeechSettingsOptions UAzSpeechSettings::GetDefaultSettings()
 {
-	return GetDefault<UAzSpeechSettings>()->SubscriptionKey;
+	return GetDefault<UAzSpeechSettings>()->Options;
 }
 
-void UAzSpeechSettings::SetSubscriptionKey(const FString& Value)
+void UAzSpeechSettings::SetDefaultSettings(const FAzSpeechSettingsOptions& Value)
 {
-	GetMutableDefault<UAzSpeechSettings>()->SubscriptionKey = Value;
-}
-
-FString UAzSpeechSettings::GetRegionID()
-{
-	return UAzSpeechSettings::Get()->RegionID;
-}
-
-void UAzSpeechSettings::SetRegionID(const FString& Value)
-{
-	GetMutableDefault<UAzSpeechSettings>()->RegionID = Value;
-}
-
-bool UAzSpeechSettings::GetUsePrivateEndpoint()
-{
-	return UAzSpeechSettings::Get()->bUsePrivateEndpoint;
-}
-
-void UAzSpeechSettings::SetUsePrivateEndpoint(const bool Value)
-{
-	GetMutableDefault<UAzSpeechSettings>()->bUsePrivateEndpoint = Value;
-}
-
-FString UAzSpeechSettings::GetPrivateEndpoint()
-{
-	return UAzSpeechSettings::Get()->PrivateEndpoint;
-}
-
-void UAzSpeechSettings::SetPrivateEndpoint(const FString& Value)
-{
-	GetMutableDefault<UAzSpeechSettings>()->PrivateEndpoint = Value;
-}
-
-FString UAzSpeechSettings::GetDefaultLanguageID()
-{
-	return UAzSpeechSettings::Get()->LanguageID;
-}
-
-void UAzSpeechSettings::SetDefaultLanguageID(const FString& Value)
-{
-	UAzSpeechSettings* const MutableInstance = GetMutableDefault<UAzSpeechSettings>();
-	MutableInstance->LanguageID = Value;
-
-	MutableInstance->ValidateCandidateLanguages(true);
-}
-
-FString UAzSpeechSettings::GetDefaultVoiceName()
-{
-	return UAzSpeechSettings::Get()->VoiceName;
-}
-
-void UAzSpeechSettings::SetDefaultVoiceName(const FString& Value)
-{
-	GetMutableDefault<UAzSpeechSettings>()->VoiceName = Value;
+	GetMutableDefault<UAzSpeechSettings>()->Options = Value;
 }
 
 #if WITH_EDITOR
@@ -117,9 +81,9 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 {
 	Super::PreEditChange(PropertyAboutToChange);
 
-	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
+	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, LanguageID))
 	{
-		AutoCandidateLanguages.Remove(LanguageID);
+		Options.AutoCandidateLanguages.Remove(Options.LanguageID);
 	}
 }
 
@@ -127,23 +91,21 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages)
-		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, LanguageID))
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, AutoCandidateLanguages) || PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, LanguageID))
 	{
 		ValidateCandidateLanguages();
 	}
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, AutoCandidateLanguages))
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, AutoCandidateLanguages))
 	{
-		if (AutoCandidateLanguages.Num() > MaxCandidateLanguages)
+		if (Options.AutoCandidateLanguages.Num() > MaxCandidateLanguages)
 		{
 			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));
-			AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
+			Options.AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, Options.AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
 		}
 	}
-	
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableInternalLogs)
-		|| PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableDebuggingLogs))
+
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableInternalLogs) || PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, bEnableDebuggingLogs))
 	{
 		ToggleInternalLogs();
 	}
@@ -163,15 +125,15 @@ void UAzSpeechSettings::ValidateCandidateLanguages(const bool bRemoveEmpties)
 {
 	if (bRemoveEmpties)
 	{
-		AutoCandidateLanguages.Remove(FString());
+		Options.AutoCandidateLanguages.Remove(FString());
 	}
 
-	if (!AutoCandidateLanguages.Contains(LanguageID))
+	if (!Options.AutoCandidateLanguages.Contains(Options.LanguageID))
 	{
-		AutoCandidateLanguages.Insert(LanguageID, 0);
+		Options.AutoCandidateLanguages.Insert(Options.LanguageID, 0);
 	}
 
-	AutoCandidateLanguages.Shrink();
+	Options.AutoCandidateLanguages.Shrink();
 }
 
 void UAzSpeechSettings::ToggleInternalLogs()
@@ -253,11 +215,11 @@ const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 		Output.insert(std::make_pair(InId, InStr));
 	};
 
-	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->SubscriptionKey);
-	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->RegionID);
-	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->PrivateEndpoint);
-	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->LanguageID);
-	UpdateSettingsMap(AZSPEECH_KEY_VOICE, Instance->VoiceName);
+	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->Options.SubscriptionKey);
+	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->Options.RegionID);
+	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->Options.PrivateEndpoint);
+	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->Options.LanguageID);
+	UpdateSettingsMap(AZSPEECH_KEY_VOICE, Instance->Options.VoiceName);
 
 	return Output;
 }
@@ -271,7 +233,7 @@ const bool UAzSpeechSettings::CheckAzSpeechSettings()
 		return false;
 	}
 
-	const bool bUsingEndpoint = UAzSpeechSettings::Get()->bUsePrivateEndpoint;
+	const bool bUsingEndpoint = UAzSpeechSettings::Get()->Options.bUsePrivateEndpoint;
 
 	for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
 	{

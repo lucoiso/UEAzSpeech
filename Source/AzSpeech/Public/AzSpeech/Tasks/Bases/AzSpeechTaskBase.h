@@ -7,6 +7,7 @@
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
+#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
@@ -49,8 +50,8 @@ public:
 protected:
 	TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
 	FName TaskName = NAME_None;
+	FAzSpeechSettingsOptions TaskOptions;
 
-	FString LanguageID;
 	const UObject* WorldContextObject;
 	bool bIsSSMLBased = false;
 

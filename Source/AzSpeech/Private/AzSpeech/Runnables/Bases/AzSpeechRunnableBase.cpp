@@ -126,7 +126,7 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 		bOutput = false;
 	}
 
-	if (!IsValid(GetOwningTask()))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
 		bOutput = false;
 	}
@@ -138,19 +138,17 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
-	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	const auto Keys = UAzSpeechSettings::GetAzSpeechKeys();
-
-	if (Settings->bUsePrivateEndpoint)
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Keys.at(AZSPEECH_KEY_ENDPOINT), Keys.at(AZSPEECH_KEY_SUBSCRIPTION));
-	}
-	else
-	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Keys.at(AZSPEECH_KEY_SUBSCRIPTION), Keys.at(AZSPEECH_KEY_REGION));
+		return nullptr;
 	}
 
-	return nullptr;
+	if (OwningTask->TaskOptions.bUsePrivateEndpoint)
+	{
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->TaskOptions.PrivateEndpoint), TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey));
+	}
+	
+	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey), TCHAR_TO_UTF8(*OwningTask->TaskOptions.RegionID));
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -220,9 +218,9 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBase::GetProfanityFilter() const
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (Settings->ProfanityFilter)
+		switch (OwningTask->TaskOptions.ProfanityFilter)
 		{
 			case EAzSpeechProfanityFilter::Raw:
 				return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
@@ -327,9 +325,9 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 
 const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (Settings->TasksThreadPriority)
+		switch (OwningTask->TaskOptions.TasksThreadPriority)
 		{
 			case EAzSpeechThreadPriority::Lowest:
 				return EThreadPriority::TPri_Lowest;
@@ -355,10 +353,10 @@ const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
 }
 
 const float FAzSpeechRunnableBase::GetThreadUpdateInterval() const
-{
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+{	
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return Settings->ThreadUpdateInterval <= 0.f ? 0.1f : Settings->ThreadUpdateInterval;
+		return OwningTask->TaskOptions.ThreadUpdateInterval <= 0.f ? 0.1f : OwningTask->TaskOptions.ThreadUpdateInterval;
 	}
 
 	return 0.1f;
@@ -375,9 +373,9 @@ const int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
 
 const int32 FAzSpeechRunnableBase::GetTimeout() const
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return Settings->TimeOutInSeconds <= 0.f ? 15.f : Settings->TimeOutInSeconds;
+		return OwningTask->TaskOptions.TimeOutInSeconds <= 0.f ? 15.f : OwningTask->TaskOptions.TimeOutInSeconds;
 	}
 
 	return 15.f;

@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/RecognitionMapCheckAsync.h"
-#include "AzSpeech/AzSpeechRecognitionMap.h"
+#include "AzSpeech/Structures/AzSpeechRecognitionMap.h"
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include <Async/Async.h>

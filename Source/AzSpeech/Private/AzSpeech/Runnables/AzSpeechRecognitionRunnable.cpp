@@ -128,11 +128,14 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 		return false;
 	}
 
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
+	if (!IsValid(RecognizerTask))
 	{
-		InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(Settings->SegmentationSilenceTimeoutMs)));
-		InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(Settings->InitialSilenceTimeoutMs)));
+		return false;
 	}
+
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->TaskOptions.SegmentationSilenceTimeoutMs)));
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->TaskOptions.InitialSilenceTimeoutMs)));
 
 	InConfig->SetOutputFormat(GetOutputFormat());
 
@@ -140,7 +143,7 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 	{
 		return true;
 	}
-	
+
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *GetOwningTask()->GetLanguageID());
 
 	const std::string UsedLang = TCHAR_TO_UTF8(*GetOwningTask()->GetLanguageID());
@@ -330,8 +333,13 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 
 	std::vector<std::string> Output;
 
-	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	for (const FString& Iterator : Settings->AutoCandidateLanguages)
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+	{
+		return Output;
+	}
+
+	for (const FString& Iterator : RecognizerTask->TaskOptions.AutoCandidateLanguages)
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Iterator))
 		{
@@ -345,6 +353,7 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 
 		if (Output.size() >= UAzSpeechSettings::MaxCandidateLanguages)
 		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."), *GetThreadName(), *FString(__func__));
 			Output.resize(UAzSpeechSettings::MaxCandidateLanguages);
 			break;
 		}
@@ -364,10 +373,10 @@ const TArray<FString> FAzSpeechRecognitionRunnable::GetPhraseListFromGroup(const
 }
 
 const Microsoft::CognitiveServices::Speech::OutputFormat FAzSpeechRecognitionRunnable::GetOutputFormat() const
-{
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+{	
+	if (UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask(); UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
-		switch (Settings->SpeechRecognitionOutputFormat)
+		switch (RecognizerTask->TaskOptions.SpeechRecognitionOutputFormat)
 		{
 			case EAzSpeechRecognitionOutputFormat::Simple:
 				return Microsoft::CognitiveServices::Speech::OutputFormat::Simple;

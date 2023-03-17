@@ -10,7 +10,7 @@
 USTRUCT(BlueprintType, Category = "AzSpeech")
 struct FAzSpeechBlendShapes
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FAzSpeechBlendShapes() = default;
 		
@@ -21,7 +21,7 @@ struct FAzSpeechBlendShapes
 USTRUCT(BlueprintType, Category = "AzSpeech")
 struct FAzSpeechAnimationData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 		
 	FAzSpeechAnimationData() = default;
 

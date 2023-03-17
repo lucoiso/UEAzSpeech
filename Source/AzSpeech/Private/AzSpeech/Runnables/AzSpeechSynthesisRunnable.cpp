@@ -196,18 +196,18 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 
 bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 {
-	if (!UAzSpeechSettings::Get()->bEnableViseme)
-	{
-		return true;
-	}
-
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 	if (!IsSpeechSynthesizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
 	}
 
-	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && UAzSpeechSettings::Get()->bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
+	if (!SynthesizerTask->TaskOptions.bEnableViseme)
+	{
+		return true;
+	}
+
+	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && SynthesizerTask->TaskOptions.bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
 
 	SpeechSynthesizer->VisemeReceived.Connect(
 		[this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)
@@ -362,10 +362,10 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 }
 
 const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat FAzSpeechSynthesisRunnable::GetOutputFormat() const
-{
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+{	
+	if (UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask(); UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
-		switch (Settings->SpeechSynthesisOutputFormat)
+		switch (SynthesizerTask->TaskOptions.SpeechSynthesisOutputFormat)
 		{
 			case EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm:
 				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;

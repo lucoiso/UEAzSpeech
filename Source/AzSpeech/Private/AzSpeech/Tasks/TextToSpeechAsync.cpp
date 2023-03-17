@@ -8,13 +8,12 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToSpeechAsync)
 #endif
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeechAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
 {
 	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->VoiceName = VoiceName;
-	NewAsyncTask->LanguageID = LanguageID;
+	NewAsyncTask->TaskOptions = Options;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);

@@ -9,11 +9,11 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SpeechToTextAsync)
 #endif
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText(UObject* WorldContextObject, const FString& LanguageID, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToTextAsync(UObject* WorldContextObject, const FString& AudioInputDeviceID, const FName PhraseListGroup, const FAzSpeechSettingsOptions& Options)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->LanguageID = LanguageID;
+	NewAsyncTask->TaskOptions = Options;
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
@@ -48,7 +48,7 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.LanguageID))
 	{
 		return false;
 	}
