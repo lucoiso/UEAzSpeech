@@ -26,5 +26,5 @@ public:
 
 	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To .wav File Async", AutoCreateRefTerm = "Options"))
-	static USSMLToWavFileAsync* SSMLToWavFileAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options  = FAzSpeechSettingsOptions());
+	static USSMLToWavFileAsync* SSMLToWavFileAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options = FAzSpeechSettingsOptions());
 };

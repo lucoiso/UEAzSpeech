@@ -69,15 +69,15 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
-	return TaskOptions.LanguageID.Equals("Auto", ESearchCase::IgnoreCase);
+	return TaskOptions.LanguageID.ToString().Equals("Auto", ESearchCase::IgnoreCase);
 }
 
-const FString UAzSpeechTaskBase::GetTaskName() const
+const FName UAzSpeechTaskBase::GetTaskName() const
 {
-	return TaskName.ToString();
+	return TaskName;
 }
 
-const FString UAzSpeechTaskBase::GetLanguageID() const
+const FName UAzSpeechTaskBase::GetLanguageID() const
 {
 	return TaskOptions.LanguageID;
 }
@@ -155,7 +155,7 @@ void UAzSpeechTaskBase::ValidateLanguageID()
 	}
 
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.LanguageID) || TaskOptions.LanguageID.Equals("Default", ESearchCase::IgnoreCase))
+	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.LanguageID) || TaskOptions.LanguageID.ToString().Equals("Default", ESearchCase::IgnoreCase))
 	{
 		TaskOptions.LanguageID = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_LANGUAGE).c_str());
 	}

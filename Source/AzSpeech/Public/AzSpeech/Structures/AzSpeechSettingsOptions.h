@@ -49,33 +49,33 @@ struct AZSPEECH_API FAzSpeechSettingsOptions
 		
 public:
 	FAzSpeechSettingsOptions();
-	FAzSpeechSettingsOptions(const FString& LanguageID);
-	FAzSpeechSettingsOptions(const FString& LanguageID, const FString& VoiceName);
+	FAzSpeechSettingsOptions(const FName& LanguageID);
+	FAzSpeechSettingsOptions(const FName& LanguageID, const FName& VoiceName);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Subscription Key"))
-	FString SubscriptionKey;
+	FName SubscriptionKey;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Region ID", EditCondition = "!bUsePrivateEndpoint"))
-	FString RegionID;
+	FName RegionID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Use Private Endpoint"))
 	bool bUsePrivateEndpoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Private Endpoint", EditCondition = "bUsePrivateEndpoint"))
-	FString PrivateEndpoint;
+	FName PrivateEndpoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Default Language ID"))
-	FString LanguageID;
+	FName LanguageID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Default Voice Name"))
-	FString VoiceName;
+	FName VoiceName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Profanity Filter"))
 	EAzSpeechProfanityFilter ProfanityFilter;
 
 	/* It will be used if "Auto" is passed as Language ID parameter - Will use Azure SDK Language Identification */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Auto Candidate Languages"))
-	TArray<FString> AutoCandidateLanguages;
+	TArray<FName> AutoCandidateLanguages;
 
 	/* Silence time limit in miliseconds to consider the task as Completed */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))

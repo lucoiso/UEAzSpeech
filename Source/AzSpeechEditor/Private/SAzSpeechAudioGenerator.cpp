@@ -279,7 +279,7 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	}
 	else
 	{
-		Task = UTextToAudioDataAsync::TextToAudioDataAsync(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), FAzSpeechSettingsOptions(Locale, Voice));
+		Task = UTextToAudioDataAsync::TextToAudioDataAsync(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), FAzSpeechSettingsOptions(*Locale, *Voice));
 		Cast<UTextToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 

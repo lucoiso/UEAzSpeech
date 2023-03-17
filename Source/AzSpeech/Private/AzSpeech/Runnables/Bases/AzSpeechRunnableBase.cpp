@@ -33,7 +33,7 @@ FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, co
 
 void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
 {
-	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *GetOwningTask()->GetTaskName(), GetOwningTask()->GetUniqueID()), 0u, GetCPUThreadPriority()));
+	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *GetOwningTask()->GetTaskName().ToString(), GetOwningTask()->GetUniqueID()), 0u, GetCPUThreadPriority()));
 }
 
 void FAzSpeechRunnableBase::StopAzSpeechRunnableTask()
@@ -145,10 +145,10 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 
 	if (OwningTask->TaskOptions.bUsePrivateEndpoint)
 	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->TaskOptions.PrivateEndpoint), TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey));
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->TaskOptions.PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey.ToString()));
 	}
-	
-	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey), TCHAR_TO_UTF8(*OwningTask->TaskOptions.RegionID));
+
+	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->TaskOptions.RegionID.ToString()));
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -413,6 +413,6 @@ void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const i
 		SpecificDataStr = FString::Printf(TEXT("Current synthesis buffer allocated size: %d"), Cast<UAzSpeechSynthesizerTaskBase>(Task)->GetAudioData().GetAllocatedSize());
 	}
 
-	GEngine->AddOnScreenDebugMessage((int32)Task->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\n%s\nNote: Disable Debugging Logs to avoid this Print"), *Task->GetTaskName(), Task->GetUniqueID(), ActivationDelay, InSeconds, *SpecificDataStr));
+	GEngine->AddOnScreenDebugMessage((int32)Task->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\n%s\nNote: Disable Debugging Logs to avoid this Print"), *Task->GetTaskName().ToString(), Task->GetUniqueID(), ActivationDelay, InSeconds, *SpecificDataStr));
 }
 #endif

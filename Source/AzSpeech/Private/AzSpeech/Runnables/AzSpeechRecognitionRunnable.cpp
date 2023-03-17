@@ -144,9 +144,9 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 		return true;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *GetOwningTask()->GetLanguageID());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *GetOwningTask()->GetLanguageID().ToString());
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*GetOwningTask()->GetLanguageID());
+	const std::string UsedLang = TCHAR_TO_UTF8(*GetOwningTask()->GetLanguageID().ToString());
 	InConfig->SetSpeechRecognitionLanguage(UsedLang);
 
 	return !AzSpeech::Internal::HasEmptyParam(UsedLang);
@@ -339,7 +339,7 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 		return Output;
 	}
 
-	for (const FString& Iterator : RecognizerTask->TaskOptions.AutoCandidateLanguages)
+	for (const FName& Iterator : RecognizerTask->TaskOptions.AutoCandidateLanguages)
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Iterator))
 		{
@@ -347,9 +347,9 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 			continue;
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language %s as candidate"), *GetThreadName(), *FString(__func__), *Iterator);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language %s as candidate"), *GetThreadName(), *FString(__func__), *Iterator.ToString());
 
-		Output.push_back(TCHAR_TO_UTF8(*Iterator));
+		Output.push_back(TCHAR_TO_UTF8(*Iterator.ToString()));
 
 		if (Output.size() >= UAzSpeechSettings::MaxCandidateLanguages)
 		{

@@ -14,14 +14,14 @@ FAzSpeechSettingsOptions::FAzSpeechSettingsOptions()
 	SetDefaults();
 }
 
-FAzSpeechSettingsOptions::FAzSpeechSettingsOptions(const FString& LanguageID)
+FAzSpeechSettingsOptions::FAzSpeechSettingsOptions(const FName& LanguageID)
 {
 	SetDefaults();
 
 	this->LanguageID = LanguageID;
 }
 
-FAzSpeechSettingsOptions::FAzSpeechSettingsOptions(const FString& LanguageID, const FString& VoiceName)
+FAzSpeechSettingsOptions::FAzSpeechSettingsOptions(const FName& LanguageID, const FName& VoiceName)
 {
 	SetDefaults();
 

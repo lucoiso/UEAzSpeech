@@ -58,7 +58,7 @@ const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 	return bLastResultIsValid;
 }
 
-const FString UAzSpeechSynthesizerTaskBase::GetVoiceName() const
+const FName UAzSpeechSynthesizerTaskBase::GetVoiceName() const
 {
 	return TaskOptions.VoiceName;
 }
@@ -137,7 +137,7 @@ void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
 	}
 
 	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.VoiceName) || TaskOptions.VoiceName.Equals("Default", ESearchCase::IgnoreCase))
+	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.VoiceName) || TaskOptions.VoiceName.ToString().Equals("Default", ESearchCase::IgnoreCase))
 	{
 		TaskOptions.VoiceName = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_VOICE).c_str());
 	}

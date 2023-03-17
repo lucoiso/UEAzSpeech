@@ -55,14 +55,14 @@ public:
 
 	/* String delimiters to use in recognition checks */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "String Delimiters"))
-	FString StringDelimiters;
+	FName StringDelimiters;
 
 	/* Map of keywords to trigger or ignore in recognition interactions: Used by CheckReturnFromRecognitionMap task */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Candidate Languages"))
-	static TArray<FString> GetCandidateLanguages();
+	static TArray<FName> GetCandidateLanguages();
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Phrase List Map"))
 	static TArray<FAzSpeechPhraseListMap> GetPhraseListMap();
@@ -71,7 +71,7 @@ public:
 	static TArray<FAzSpeechRecognitionMap> GetRecognitionMap();
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: String Delimiters"))
-	static FString GetStringDelimiters();
+	static FName GetStringDelimiters();
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Settings"))
 	static FAzSpeechSettingsOptions GetDefaultSettings();

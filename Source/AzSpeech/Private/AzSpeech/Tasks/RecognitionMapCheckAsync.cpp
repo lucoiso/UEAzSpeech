@@ -187,19 +187,19 @@ const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType
 	return bOutput;
 }
 
-const FString URecognitionMapCheckAsync::GetStringDelimiters() const
+const FName URecognitionMapCheckAsync::GetStringDelimiters() const
 {
 	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
 	{
 		return Settings->StringDelimiters;
 	}
 
-	return FString(" ,.;:[]{}!'\"?");
+	return FName(" ,.;:[]{}!'\"?");
 }
 
 const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index) const
 {
-	const FString StringDelimiters = GetStringDelimiters();
+	const FString StringDelimiters = GetStringDelimiters().ToString();
 
 	if (InputString.IsValidIndex(Index))
 	{

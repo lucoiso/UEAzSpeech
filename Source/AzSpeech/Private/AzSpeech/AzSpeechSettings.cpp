@@ -17,12 +17,12 @@ UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer
 {
 	CategoryName = TEXT("Plugins");
 
-	Options.SubscriptionKey = FString();
-	Options.RegionID = FString();
+	Options.SubscriptionKey = NAME_None;
+	Options.RegionID = NAME_None;
 	Options.bUsePrivateEndpoint = false;
-	Options.PrivateEndpoint = FString();
-	Options.LanguageID = FString();
-	Options.VoiceName = FString();
+	Options.PrivateEndpoint = NAME_None;
+	Options.LanguageID = NAME_None;
+	Options.VoiceName = NAME_None;
 	Options.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
 	Options.SegmentationSilenceTimeoutMs = 1000;
 	Options.InitialSilenceTimeoutMs = 5000;
@@ -46,7 +46,7 @@ const UAzSpeechSettings* UAzSpeechSettings::Get()
 	return Instance;
 }
 
-TArray<FString> UAzSpeechSettings::GetCandidateLanguages()
+TArray<FName> UAzSpeechSettings::GetCandidateLanguages()
 {
 	return GetDefault<UAzSpeechSettings>()->Options.AutoCandidateLanguages;
 }
@@ -61,7 +61,7 @@ TArray<FAzSpeechRecognitionMap> UAzSpeechSettings::GetRecognitionMap()
 	return GetDefault<UAzSpeechSettings>()->RecognitionMap;
 }
 
-FString UAzSpeechSettings::GetStringDelimiters()
+FName UAzSpeechSettings::GetStringDelimiters()
 {
 	return GetDefault<UAzSpeechSettings>()->StringDelimiters;
 }
@@ -125,7 +125,7 @@ void UAzSpeechSettings::ValidateCandidateLanguages(const bool bRemoveEmpties)
 {
 	if (bRemoveEmpties)
 	{
-		Options.AutoCandidateLanguages.Remove(FString());
+		Options.AutoCandidateLanguages.Remove(NAME_None);
 	}
 
 	if (!Options.AutoCandidateLanguages.Contains(Options.LanguageID))
@@ -209,9 +209,9 @@ const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 		return Output;
 	}
 
-	const auto UpdateSettingsMap = [&Output](const int& InId, const FString& InString)
+	const auto UpdateSettingsMap = [&Output](const int& InId, const FName& InString)
 	{
-		const std::string InStr = TCHAR_TO_UTF8(*InString);
+		const std::string InStr = TCHAR_TO_UTF8(*InString.ToString());
 		Output.insert(std::make_pair(InId, InStr));
 	};
 

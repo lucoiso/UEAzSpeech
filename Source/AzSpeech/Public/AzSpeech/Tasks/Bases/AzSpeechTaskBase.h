@@ -40,10 +40,10 @@ public:
 	const bool IsUsingAutoLanguage() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetTaskName() const;
+	const FName GetTaskName() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetLanguageID() const;
+	const FName GetLanguageID() const;
 
 	virtual void SetReadyToDestroy() override;
 

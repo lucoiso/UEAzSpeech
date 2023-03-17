@@ -63,7 +63,7 @@ public:
 	const bool IsLastResultValid() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetVoiceName() const;
+	const FName GetVoiceName() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetSynthesisText() const;
