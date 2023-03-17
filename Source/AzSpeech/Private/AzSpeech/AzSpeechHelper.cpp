@@ -533,6 +533,11 @@ const TArray<FAzSpeechAnimationData> UAzSpeechHelper::ExtractAnimationDataFromVi
 	return Output;
 }
 
+const FAzSpeechSettingsOptions UAzSpeechHelper::ConstructAzSpeechOptionsWithLanguageAndVoice(const FName Voice, const FName Language)
+{
+	return FAzSpeechSettingsOptions(Language, Voice);
+}
+
 const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()
 {
 	return FPaths::Combine(*FPaths::ProjectLogDir(), TEXT("AzSpeech"));

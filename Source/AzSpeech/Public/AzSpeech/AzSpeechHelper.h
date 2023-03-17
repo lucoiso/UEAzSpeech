@@ -158,5 +158,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const TArray<FAzSpeechAnimationData> ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData);
 
+	/*  */
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static const FAzSpeechSettingsOptions ConstructAzSpeechOptionsWithLanguageAndVoice(const FName Voice, const FName Language);
+
 	static const FString GetAzSpeechLogsBaseDir();
 };
