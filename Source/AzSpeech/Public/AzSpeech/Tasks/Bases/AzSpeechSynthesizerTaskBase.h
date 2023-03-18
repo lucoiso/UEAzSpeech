@@ -68,9 +68,6 @@ public:
 	const bool IsLastResultValid() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FName GetVoiceName() const;
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetSynthesisText() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))

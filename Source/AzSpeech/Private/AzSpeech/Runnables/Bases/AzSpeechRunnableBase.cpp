@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
@@ -143,12 +142,12 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 		return nullptr;
 	}
 
-	if (OwningTask->TaskOptions.bUsePrivateEndpoint)
+	if (OwningTask->GetTaskOptions().bUsePrivateEndpoint)
 	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->TaskOptions.PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey.ToString()));
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().SubscriptionKey.ToString()));
 	}
 
-	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->TaskOptions.SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->TaskOptions.RegionID.ToString()));
+	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().RegionID.ToString()));
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -220,7 +219,7 @@ const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBas
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (OwningTask->TaskOptions.ProfanityFilter)
+		switch (OwningTask->GetTaskOptions().ProfanityFilter)
 		{
 			case EAzSpeechProfanityFilter::Raw:
 				return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
@@ -327,7 +326,7 @@ const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (OwningTask->TaskOptions.TasksThreadPriority)
+		switch (OwningTask->GetTaskOptions().TasksThreadPriority)
 		{
 			case EAzSpeechThreadPriority::Lowest:
 				return EThreadPriority::TPri_Lowest;
@@ -356,7 +355,7 @@ const float FAzSpeechRunnableBase::GetThreadUpdateInterval() const
 {	
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return OwningTask->TaskOptions.ThreadUpdateInterval <= 0.f ? 0.1f : OwningTask->TaskOptions.ThreadUpdateInterval;
+		return OwningTask->GetTaskOptions().ThreadUpdateInterval <= 0.f ? 0.1f : OwningTask->GetTaskOptions().ThreadUpdateInterval;
 	}
 
 	return 0.1f;
@@ -375,7 +374,7 @@ const int32 FAzSpeechRunnableBase::GetTimeout() const
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return OwningTask->TaskOptions.TimeOutInSeconds <= 0.f ? 15.f : OwningTask->TaskOptions.TimeOutInSeconds;
+		return OwningTask->GetTaskOptions().TimeOutInSeconds <= 0.f ? 15.f : OwningTask->GetTaskOptions().TimeOutInSeconds;
 	}
 
 	return 15.f;

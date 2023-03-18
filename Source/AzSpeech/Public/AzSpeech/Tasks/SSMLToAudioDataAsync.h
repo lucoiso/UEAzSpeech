@@ -25,12 +25,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead."))
 	static FORCEINLINE USSMLToAudioDataAsync* SSMLToAudioData(UObject* WorldContextObject, const FString& SynthesisSSML)
 	{
-		return SSMLToAudioDataAsync(WorldContextObject, SynthesisSSML);
+		return SSMLToAudioDataAsync(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
 	}
 
 	/* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data Async", AutoCreateRefTerm = "Options"))
-	static USSMLToAudioDataAsync* SSMLToAudioDataAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options = FAzSpeechSettingsOptions());
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data Async"))
+	static USSMLToAudioDataAsync* SSMLToAudioDataAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
 	
 protected:
 	virtual void BroadcastFinalResult() override;

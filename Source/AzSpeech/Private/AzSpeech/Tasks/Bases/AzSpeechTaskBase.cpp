@@ -5,7 +5,6 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 
 #if WITH_EDITOR
@@ -75,9 +74,9 @@ const FName UAzSpeechTaskBase::GetTaskName() const
 	return TaskName;
 }
 
-const FName UAzSpeechTaskBase::GetLanguageID() const
+const FAzSpeechSettingsOptions UAzSpeechTaskBase::GetTaskOptions() const
 {
-	return TaskOptions.LanguageID;
+	return TaskOptions;
 }
 
 void UAzSpeechTaskBase::SetReadyToDestroy()

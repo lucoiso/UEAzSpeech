@@ -87,6 +87,8 @@ protected:
 
 	virtual void PostInitProperties() override;
 
+	void SaveAndReload(const FName& PropertyName);
+
 private:
 	void ValidateCandidateLanguages(const bool bRemoveEmpties = false);
 	void ToggleInternalLogs();

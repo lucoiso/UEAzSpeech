@@ -29,8 +29,8 @@ public:
 	}
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Options"))
-	static UTextToSoundWaveAsync* TextToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options = FAzSpeechSettingsOptions());
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+	static UTextToSoundWaveAsync* TextToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options);
 
 protected:
 	virtual void BroadcastFinalResult() override;

@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
@@ -134,19 +133,19 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 		return false;
 	}
 
-	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->TaskOptions.SegmentationSilenceTimeoutMs)));
-	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->TaskOptions.InitialSilenceTimeoutMs)));
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->GetTaskOptions().SegmentationSilenceTimeoutMs)));
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->GetTaskOptions().InitialSilenceTimeoutMs)));
 
 	InConfig->SetOutputFormat(GetOutputFormat());
 
-	if (GetOwningTask()->IsUsingAutoLanguage())
+	if (RecognizerTask->IsUsingAutoLanguage())
 	{
 		return true;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *GetOwningTask()->GetLanguageID().ToString());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *RecognizerTask->GetTaskOptions().LanguageID.ToString());
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*GetOwningTask()->GetLanguageID().ToString());
+	const std::string UsedLang = TCHAR_TO_UTF8(*RecognizerTask->GetTaskOptions().LanguageID.ToString());
 	InConfig->SetSpeechRecognitionLanguage(UsedLang);
 
 	return !AzSpeech::Internal::HasEmptyParam(UsedLang);
@@ -339,7 +338,7 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 		return Output;
 	}
 
-	for (const FName& Iterator : RecognizerTask->TaskOptions.AutoCandidateLanguages)
+	for (const FName& Iterator : RecognizerTask->GetTaskOptions().AutoCandidateLanguages)
 	{
 		if (AzSpeech::Internal::HasEmptyParam(Iterator))
 		{
@@ -376,7 +375,7 @@ const Microsoft::CognitiveServices::Speech::OutputFormat FAzSpeechRecognitionRun
 {	
 	if (UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask(); UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
 	{
-		switch (RecognizerTask->TaskOptions.SpeechRecognitionOutputFormat)
+		switch (RecognizerTask->GetTaskOptions().SpeechRecognitionOutputFormat)
 		{
 			case EAzSpeechRecognitionOutputFormat::Simple:
 				return Microsoft::CognitiveServices::Speech::OutputFormat::Simple;

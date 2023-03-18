@@ -75,7 +75,8 @@ void UAzSpeechSettings::SetDefaultSettings(const FAzSpeechSettingsOptions& Value
 {
 	UAzSpeechSettings* const Settings = GetMutableDefault<UAzSpeechSettings>();
 	Settings->Options = Value;
-	Settings->SaveConfig();
+
+	Settings->SaveAndReload(GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, Options));
 }
 
 #if WITH_EDITOR
@@ -121,6 +122,12 @@ void UAzSpeechSettings::PostInitProperties()
 	ValidateCandidateLanguages(true);
 	ToggleInternalLogs();
 	ValidateRecognitionMap();
+}
+
+void UAzSpeechSettings::SaveAndReload(const FName& PropertyName)
+{
+	SaveConfig();
+	ReloadConfig(GetClass(), *GetDefaultConfigFilename(), UE::ELoadConfigPropagationFlags::LCPF_PropagateToChildDefaultObjects, GetClass()->FindPropertyByName(PropertyName));
 }
 
 void UAzSpeechSettings::ValidateCandidateLanguages(const bool bRemoveEmpties)

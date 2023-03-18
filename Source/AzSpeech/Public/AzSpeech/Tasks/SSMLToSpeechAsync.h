@@ -21,10 +21,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead"))
 	static FORCEINLINE USSMLToSpeechAsync* SSMLToSpeech(UObject* WorldContextObject, const FString& SynthesisSSML)
 	{
-		return SSMLToSpeechAsync(WorldContextObject, SynthesisSSML);
+		return SSMLToSpeechAsync(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
 	}
 
 	/* Creates a SSML-To-Speech task that will convert your SSML file to speech */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech Async", AutoCreateRefTerm = "Options"))
-	static USSMLToSpeechAsync* SSMLToSpeechAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options = FAzSpeechSettingsOptions());
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech Async"))
+	static USSMLToSpeechAsync* SSMLToSpeechAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
 };

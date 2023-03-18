@@ -7,7 +7,7 @@
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
-#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
@@ -43,7 +43,7 @@ public:
 	const FName GetTaskName() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FName GetLanguageID() const;
+	const FAzSpeechSettingsOptions GetTaskOptions() const;
 
 	virtual void SetReadyToDestroy() override;
 

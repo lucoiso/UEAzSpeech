@@ -274,7 +274,7 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	UAzSpeechAudioDataSynthesisBase* Task = nullptr;
 	if (bIsSSMLBased)
 	{
-		Task = USSMLToAudioDataAsync::SSMLToAudioDataAsync(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString());
+		Task = USSMLToAudioDataAsync::SSMLToAudioDataAsync(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), FAzSpeechSettingsOptions());
 		Cast<USSMLToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 	else

@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
@@ -68,11 +67,6 @@ const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 	FScopeLock Lock(&Mutex);
 
 	return bLastResultIsValid;
-}
-
-const FName UAzSpeechSynthesizerTaskBase::GetVoiceName() const
-{
-	return TaskOptions.VoiceName;
 }
 
 const FString UAzSpeechSynthesizerTaskBase::GetSynthesisText() const

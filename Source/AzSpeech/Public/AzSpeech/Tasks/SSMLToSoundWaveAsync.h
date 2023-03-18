@@ -25,12 +25,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead."))
 	static FORCEINLINE USSMLToSoundWaveAsync* SSMLToSoundWave(UObject* WorldContextObject, const FString& SynthesisSSML)
 	{
-		return SSMLToSoundWaveAsync(WorldContextObject, SynthesisSSML);
+		return SSMLToSoundWaveAsync(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
 	}
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave Async", AutoCreateRefTerm = "Options"))
-	static USSMLToSoundWaveAsync* SSMLToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options = FAzSpeechSettingsOptions());
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave Async"))
+	static USSMLToSoundWaveAsync* SSMLToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
 
 protected:
 	virtual void BroadcastFinalResult() override;

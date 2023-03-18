@@ -26,7 +26,7 @@ struct FAzSpeechAnimationData
 	FAzSpeechAnimationData() = default;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-	int32 FrameIndex;
+	int32 FrameIndex = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<FAzSpeechBlendShapes> BlendShapes;
