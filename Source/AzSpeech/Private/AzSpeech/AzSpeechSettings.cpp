@@ -73,7 +73,9 @@ FAzSpeechSettingsOptions UAzSpeechSettings::GetDefaultSettings()
 
 void UAzSpeechSettings::SetDefaultSettings(const FAzSpeechSettingsOptions& Value)
 {
-	GetMutableDefault<UAzSpeechSettings>()->Options = Value;
+	UAzSpeechSettings* const Settings = GetMutableDefault<UAzSpeechSettings>();
+	Settings->Options = Value;
+	Settings->SaveConfig();
 }
 
 #if WITH_EDITOR
