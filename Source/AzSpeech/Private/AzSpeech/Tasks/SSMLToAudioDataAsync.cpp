@@ -13,7 +13,7 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioDataAsync(UObject* Worl
 {
 	USSMLToAudioDataAsync* const NewAsyncTask = NewObject<USSMLToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TaskOptions = Options;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);

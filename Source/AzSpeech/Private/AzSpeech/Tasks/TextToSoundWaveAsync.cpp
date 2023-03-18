@@ -16,7 +16,7 @@ UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWaveAsync(UObject* Worl
 	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->TaskOptions = Options;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);

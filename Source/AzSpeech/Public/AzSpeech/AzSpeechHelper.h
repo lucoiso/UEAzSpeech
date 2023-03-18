@@ -161,6 +161,14 @@ public:
 	/*  */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const FAzSpeechSettingsOptions ConstructAzSpeechOptionsWithLanguageAndVoice(const FName Voice, const FName Language);
+	
+	/*  */
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static class UAzSpeechRecognizerTaskBase* CastToAzSpeechRecognizerTaskBase(UObject* Object);
+
+	/*  */
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	static class UAzSpeechSynthesizerTaskBase* CastToAzSpeechSynthesizerTaskBase(UObject* Object);
 
 	static const FString GetAzSpeechLogsBaseDir();
 };

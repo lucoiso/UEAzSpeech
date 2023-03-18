@@ -28,8 +28,6 @@ void UAzSpeechTaskBase::Activate()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	ValidateLanguageID();
-
 	bIsTaskActive = true;
 	
 	Super::Activate();
@@ -145,18 +143,31 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 }
 #endif
 
-void UAzSpeechTaskBase::ValidateLanguageID()
+FAzSpeechSettingsOptions UAzSpeechTaskBase::GetValidatedOptions(const FAzSpeechSettingsOptions& Options)
 {
-	FScopeLock Lock(&Mutex);
+	FAzSpeechSettingsOptions Output = Options;
+	Output.LanguageID = GetValidatedLanguageID(Options.LanguageID);
+	Output.VoiceName = GetValidatedVoiceName(Options.VoiceName);
 
-	if (bIsSSMLBased)
+	return Output;
+}
+
+FName UAzSpeechTaskBase::GetValidatedLanguageID(const FName& Language)
+{
+	if (AzSpeech::Internal::HasEmptyParam(Language) || Language.ToString().Equals("Default", ESearchCase::IgnoreCase))
 	{
-		return;
+		return UAzSpeechSettings::Get()->Options.LanguageID;
 	}
 
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.LanguageID) || TaskOptions.LanguageID.ToString().Equals("Default", ESearchCase::IgnoreCase))
+	return Language;
+}
+
+FName UAzSpeechTaskBase::GetValidatedVoiceName(const FName& Voice)
+{
+	if (AzSpeech::Internal::HasEmptyParam(Voice) || Voice.ToString().Equals("Default", ESearchCase::IgnoreCase))
 	{
-		TaskOptions.LanguageID = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_LANGUAGE).c_str());
+		return UAzSpeechSettings::Get()->Options.VoiceName;
 	}
+
+	return Voice;
 }

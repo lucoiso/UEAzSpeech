@@ -5,6 +5,7 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
@@ -12,13 +13,6 @@
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSynthesizerTaskBase)
 #endif
-
-void UAzSpeechSynthesizerTaskBase::Activate()
-{
-	ValidateVoiceName();
-	
-	Super::Activate();
-}
 
 const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() const
 {
@@ -35,6 +29,8 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() cons
 
 const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return VisemeDataArray;
 }
 
@@ -53,8 +49,24 @@ const TArray<uint8> UAzSpeechSynthesizerTaskBase::GetAudioData() const
 	return OutputArr;
 }
 
+const FAzSpeechAnimationData UAzSpeechSynthesizerTaskBase::GetLastExtractedAnimationData() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return UAzSpeechHelper::ExtractAnimationDataFromVisemeData(GetLastVisemeData());
+}
+
+const TArray<FAzSpeechAnimationData> UAzSpeechSynthesizerTaskBase::GetExtractedAnimationDataArray() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return UAzSpeechHelper::ExtractAnimationDataFromVisemeDataArray(GetVisemeDataArray());
+}
+
 const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return bLastResultIsValid;
 }
 
@@ -127,18 +139,4 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 			SynthesisUpdated.Broadcast();
 		}
 	);
-}
-
-void UAzSpeechSynthesizerTaskBase::ValidateVoiceName()
-{
-	if (bIsSSMLBased)
-	{
-		return;
-	}
-
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.VoiceName) || TaskOptions.VoiceName.ToString().Equals("Default", ESearchCase::IgnoreCase))
-	{
-		TaskOptions.VoiceName = UTF8_TO_TCHAR(Settings.at(AZSPEECH_KEY_VOICE).c_str());
-	}
 }

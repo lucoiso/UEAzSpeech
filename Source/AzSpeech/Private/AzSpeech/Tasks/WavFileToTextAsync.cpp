@@ -15,7 +15,7 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToTextAsync(UObject* WorldConte
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TaskOptions = Options;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;

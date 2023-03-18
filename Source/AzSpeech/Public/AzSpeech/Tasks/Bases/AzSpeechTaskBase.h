@@ -66,11 +66,14 @@ protected:
 	bool bEndingPIE = false;
 #endif
 
+	static FAzSpeechSettingsOptions GetValidatedOptions(const FAzSpeechSettingsOptions& Options);
+
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
 
-	void ValidateLanguageID();
+	static FName GetValidatedLanguageID(const FName& Language);
+	static FName GetValidatedVoiceName(const FName& Voice);
 };
 
 UCLASS(NotPlaceable, Category = "AzSpeech")

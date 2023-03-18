@@ -13,7 +13,7 @@ USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFileAsync(UObject* WorldConte
 	USSMLToWavFileAsync* const NewAsyncTask = NewObject<USSMLToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisSSML;
-	NewAsyncTask->TaskOptions = Options;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->bIsSSMLBased = true;

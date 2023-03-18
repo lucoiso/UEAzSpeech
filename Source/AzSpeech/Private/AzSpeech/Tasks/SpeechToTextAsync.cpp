@@ -13,7 +13,7 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToTextAsync(UObject* WorldContextO
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TaskOptions = Options;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;

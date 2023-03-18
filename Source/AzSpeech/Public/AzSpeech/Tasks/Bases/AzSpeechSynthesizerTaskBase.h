@@ -7,6 +7,7 @@
 #include <CoreMinimal.h>
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Structures/AzSpeechVisemeData.h"
+#include "AzSpeech/Structures/AzSpeechAnimationData.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_speech_synthesis_result.h>
@@ -32,8 +33,6 @@ class AZSPEECH_API UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
 	friend class FAzSpeechSynthesisRunnable;
 
 public:	
-	virtual void Activate() override;
-
 	/* Task delegate that will be called when dpdated */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FAzSpeechTaskGenericDelegate SynthesisUpdated;
@@ -50,7 +49,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Get Last Viseme Data"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FAzSpeechVisemeData GetLastVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
@@ -58,6 +57,12 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const TArray<uint8> GetAudioData() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const FAzSpeechAnimationData GetLastExtractedAnimationData() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const TArray<FAzSpeechAnimationData> GetExtractedAnimationDataArray() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const bool IsLastResultValid() const;
@@ -83,6 +88,4 @@ private:
 	std::vector<uint8_t> AudioData;
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
-
-	void ValidateVoiceName();
 };
