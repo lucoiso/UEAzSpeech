@@ -10,7 +10,7 @@
 #include <Async/Async.h>
 
 #if !UE_BUILD_SHIPPING
-#include <Engine.h>
+#include <Engine/Engine.h>
 #endif
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
