@@ -155,7 +155,7 @@ FName UAzSpeechTaskBase::GetValidatedLanguageID(const FName& Language)
 {
 	if (AzSpeech::Internal::HasEmptyParam(Language) || Language.ToString().Equals("Default", ESearchCase::IgnoreCase))
 	{
-		return UAzSpeechSettings::Get()->Options.LanguageID;
+		return UAzSpeechSettings::Get()->DefaultOptions.LanguageID;
 	}
 
 	return Language;
@@ -165,7 +165,7 @@ FName UAzSpeechTaskBase::GetValidatedVoiceName(const FName& Voice)
 {
 	if (AzSpeech::Internal::HasEmptyParam(Voice) || Voice.ToString().Equals("Default", ESearchCase::IgnoreCase))
 	{
-		return UAzSpeechSettings::Get()->Options.VoiceName;
+		return UAzSpeechSettings::Get()->DefaultOptions.VoiceName;
 	}
 
 	return Voice;

@@ -22,15 +22,15 @@ public:
 	FSoundWaveSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead."))
-	static FORCEINLINE USSMLToSoundWaveAsync* SSMLToSoundWave(UObject* WorldContextObject, const FString& SynthesisSSML)
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Default Options"))
+	static FORCEINLINE USSMLToSoundWaveAsync* SSMLToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
 	{
-		return SSMLToSoundWaveAsync(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
+		return SSMLToSoundWave_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
 	}
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave Async"))
-	static USSMLToSoundWaveAsync* SSMLToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Custom Options"))
+	static USSMLToSoundWaveAsync* SSMLToSoundWave_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
 
 protected:
 	virtual void BroadcastFinalResult() override;

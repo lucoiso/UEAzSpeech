@@ -11,7 +11,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToSoundWaveAsync)
 #endif
 
-UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
+UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
 {
 	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

@@ -11,7 +11,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WavFileToTextAsync)
 #endif
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToTextAsync(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

@@ -18,15 +18,15 @@ class AZSPEECH_API USpeechToTextAsync : public UAzSpeechRecognizerTaskBase
 
 public:
 	/* Creates a Speech-To-Text task that will convert your speech to string */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead."))
-	static FORCEINLINE USpeechToTextAsync* SpeechToText(UObject* WorldContextObject, const FString& LanguageID = "Default", const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None)
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Speech to Text with Default Options"))
+	static FORCEINLINE USpeechToTextAsync* SpeechToText_DefaultOptions(UObject* WorldContextObject, const FString& LanguageID = "Default", const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None)
 	{
-		return SpeechToTextAsync(WorldContextObject, FAzSpeechSettingsOptions(*LanguageID), AudioInputDeviceID, PhraseListGroup);
+		return SpeechToText_CustomOptions(WorldContextObject, FAzSpeechSettingsOptions(*LanguageID), AudioInputDeviceID, PhraseListGroup);
 	}
 
 	/* Creates a Speech-To-Text task that will convert your speech to string */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static USpeechToTextAsync* SpeechToTextAsync(UObject* WorldContextObject, const FAzSpeechSettingsOptions& Options, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Speech to Text with Default Options"))
+	static USpeechToTextAsync* SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSettingsOptions& Options, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
 	

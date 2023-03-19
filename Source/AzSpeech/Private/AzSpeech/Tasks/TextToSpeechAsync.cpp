@@ -8,7 +8,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToSpeechAsync)
 #endif
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeechAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
 {
 	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

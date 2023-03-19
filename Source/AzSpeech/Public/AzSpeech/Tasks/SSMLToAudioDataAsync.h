@@ -22,15 +22,15 @@ public:
 	FAudioDataSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead."))
-	static FORCEINLINE USSMLToAudioDataAsync* SSMLToAudioData(UObject* WorldContextObject, const FString& SynthesisSSML)
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data with Default Options"))
+	static FORCEINLINE USSMLToAudioDataAsync* SSMLToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
 	{
-		return SSMLToAudioDataAsync(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
+		return SSMLToAudioData_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
 	}
 
 	/* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data Async"))
-	static USSMLToAudioDataAsync* SSMLToAudioDataAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data with Custom Options"))
+	static USSMLToAudioDataAsync* SSMLToAudioData_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
 	
 protected:
 	virtual void BroadcastFinalResult() override;

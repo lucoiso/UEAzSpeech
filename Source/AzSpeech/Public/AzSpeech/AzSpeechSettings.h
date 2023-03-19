@@ -34,8 +34,8 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Meta = (DisplayName = "AzSpeech Default Settings"))
-	FAzSpeechSettingsOptions Options;
+	UPROPERTY(GlobalConfig, EditAnywhere, Meta = (DisplayName = "Default Options"))
+	FAzSpeechSettingsOptions DefaultOptions;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Azure SDK Logs"))
@@ -61,23 +61,23 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Candidate Languages"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Candidate Languages", CompactNodeTitle = "AzSpeech Candidate Languages"))
 	static TArray<FName> GetCandidateLanguages();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Phrase List Map"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Phrase List Map", CompactNodeTitle = "AzSpeech Phrase List Map"))
 	static TArray<FAzSpeechPhraseListMap> GetPhraseListMap();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Recognition Map"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Recognition Map", CompactNodeTitle = "AzSpeech Recognition Map"))
 	static TArray<FAzSpeechRecognitionMap> GetRecognitionMap();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: String Delimiters"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get String Delimiters", CompactNodeTitle = "AzSpeech String Delimiters"))
 	static FName GetStringDelimiters();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Default Settings"))
-	static FAzSpeechSettingsOptions GetDefaultSettings();
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Default Options", CompactNodeTitle = "AzSpeech Default Options"))
+	static FAzSpeechSettingsOptions GetDefaultOptions();
 
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set AzSpeech Settings Data: Default Settings"))
-	static void SetDefaultSettings(const FAzSpeechSettingsOptions& Value);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set Default Options"))
+	static void SetDefaultOptions(const FAzSpeechSettingsOptions& Value);
 
 protected:
 #if WITH_EDITOR
@@ -86,6 +86,8 @@ protected:
 #endif
 
 	virtual void PostInitProperties() override;
+
+	virtual void SetToDefaults();
 
 	void SaveAndReload(const FName& PropertyName);
 

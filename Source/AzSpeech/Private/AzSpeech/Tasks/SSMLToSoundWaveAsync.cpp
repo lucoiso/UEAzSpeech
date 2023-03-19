@@ -11,7 +11,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToSoundWaveAsync)
 #endif
 
-USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
+USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
 {
 	USSMLToSoundWaveAsync* const NewAsyncTask = NewObject<USSMLToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

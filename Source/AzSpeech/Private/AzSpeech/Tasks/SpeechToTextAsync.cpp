@@ -9,7 +9,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SpeechToTextAsync)
 #endif
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToTextAsync(UObject* WorldContextObject, const FAzSpeechSettingsOptions& Options, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSettingsOptions& Options, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;

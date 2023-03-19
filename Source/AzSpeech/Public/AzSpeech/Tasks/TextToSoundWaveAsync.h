@@ -22,15 +22,15 @@ public:
 	FSoundWaveSynthesisDelegate SynthesisCompleted;
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead"))
-	static FORCEINLINE UTextToSoundWaveAsync* TextToSoundWave(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default")
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Sound Wave with Default Options"))
+	static FORCEINLINE UTextToSoundWaveAsync* TextToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default")
 	{
-		return TextToSoundWaveAsync(WorldContextObject, SynthesisText, FAzSpeechSettingsOptions(*LanguageID, *VoiceName));
+		return TextToSoundWave_CustomOptions(WorldContextObject, SynthesisText, FAzSpeechSettingsOptions(*LanguageID, *VoiceName));
 	}
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static UTextToSoundWaveAsync* TextToSoundWaveAsync(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Sound Wave with Custom Options"))
+	static UTextToSoundWaveAsync* TextToSoundWave_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options);
 
 protected:
 	virtual void BroadcastFinalResult() override;

@@ -17,27 +17,7 @@ UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer
 {
 	CategoryName = TEXT("Plugins");
 
-	Options.SubscriptionKey = NAME_None;
-	Options.RegionID = NAME_None;
-	Options.bUsePrivateEndpoint = false;
-	Options.PrivateEndpoint = NAME_None;
-	Options.LanguageID = NAME_None;
-	Options.VoiceName = NAME_None;
-	Options.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
-	Options.SegmentationSilenceTimeoutMs = 1000;
-	Options.InitialSilenceTimeoutMs = 5000;
-	Options.bEnableViseme = true;
-	Options.bFilterVisemeFacialExpression = true;
-	Options.SpeechSynthesisOutputFormat = EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
-	Options.SpeechRecognitionOutputFormat = EAzSpeechRecognitionOutputFormat::Detailed;
-	Options.TimeOutInSeconds = 10.f;
-	Options.TasksThreadPriority = EAzSpeechThreadPriority::Normal;
-	Options.ThreadUpdateInterval = 0.033334f;
-
-	if (AzSpeech::Internal::HasEmptyParam(Options.AutoCandidateLanguages))
-	{
-		Options.AutoCandidateLanguages.Add(Options.LanguageID);
-	}
+	SetToDefaults();
 }
 
 const UAzSpeechSettings* UAzSpeechSettings::Get()
@@ -48,7 +28,7 @@ const UAzSpeechSettings* UAzSpeechSettings::Get()
 
 TArray<FName> UAzSpeechSettings::GetCandidateLanguages()
 {
-	return GetDefault<UAzSpeechSettings>()->Options.AutoCandidateLanguages;
+	return GetDefault<UAzSpeechSettings>()->DefaultOptions.AutoCandidateLanguages;
 }
 
 TArray<FAzSpeechPhraseListMap> UAzSpeechSettings::GetPhraseListMap()
@@ -66,17 +46,17 @@ FName UAzSpeechSettings::GetStringDelimiters()
 	return GetDefault<UAzSpeechSettings>()->StringDelimiters;
 }
 
-FAzSpeechSettingsOptions UAzSpeechSettings::GetDefaultSettings()
+FAzSpeechSettingsOptions UAzSpeechSettings::GetDefaultOptions()
 {
-	return GetDefault<UAzSpeechSettings>()->Options;
+	return GetDefault<UAzSpeechSettings>()->DefaultOptions;
 }
 
-void UAzSpeechSettings::SetDefaultSettings(const FAzSpeechSettingsOptions& Value)
+void UAzSpeechSettings::SetDefaultOptions(const FAzSpeechSettingsOptions& Value)
 {
 	UAzSpeechSettings* const Settings = GetMutableDefault<UAzSpeechSettings>();
-	Settings->Options = Value;
+	Settings->DefaultOptions = Value;
 
-	Settings->SaveAndReload(GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, Options));
+	Settings->SaveAndReload(GET_MEMBER_NAME_CHECKED(UAzSpeechSettings, DefaultOptions));
 }
 
 #if WITH_EDITOR
@@ -86,7 +66,7 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 
 	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, LanguageID))
 	{
-		Options.AutoCandidateLanguages.Remove(Options.LanguageID);
+		DefaultOptions.AutoCandidateLanguages.Remove(DefaultOptions.LanguageID);
 	}
 }
 
@@ -101,10 +81,10 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, AutoCandidateLanguages))
 	{
-		if (Options.AutoCandidateLanguages.Num() > MaxCandidateLanguages)
+		if (DefaultOptions.AutoCandidateLanguages.Num() > MaxCandidateLanguages)
 		{
 			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));
-			Options.AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, Options.AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
+			DefaultOptions.AutoCandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, DefaultOptions.AutoCandidateLanguages.Num() - MaxCandidateLanguages, true);
 		}
 	}
 
@@ -124,6 +104,31 @@ void UAzSpeechSettings::PostInitProperties()
 	ValidateRecognitionMap();
 }
 
+void UAzSpeechSettings::SetToDefaults()
+{
+	DefaultOptions.SubscriptionKey = NAME_None;
+	DefaultOptions.RegionID = NAME_None;
+	DefaultOptions.bUsePrivateEndpoint = false;
+	DefaultOptions.PrivateEndpoint = NAME_None;
+	DefaultOptions.LanguageID = NAME_None;
+	DefaultOptions.VoiceName = NAME_None;
+	DefaultOptions.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
+	DefaultOptions.SegmentationSilenceTimeoutMs = 1000;
+	DefaultOptions.InitialSilenceTimeoutMs = 5000;
+	DefaultOptions.bEnableViseme = true;
+	DefaultOptions.bFilterVisemeFacialExpression = true;
+	DefaultOptions.SpeechSynthesisOutputFormat = EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
+	DefaultOptions.SpeechRecognitionOutputFormat = EAzSpeechRecognitionOutputFormat::Detailed;
+	DefaultOptions.TimeOutInSeconds = 10.f;
+	DefaultOptions.TasksThreadPriority = EAzSpeechThreadPriority::Normal;
+	DefaultOptions.ThreadUpdateInterval = 0.033334f;
+
+	if (AzSpeech::Internal::HasEmptyParam(DefaultOptions.AutoCandidateLanguages))
+	{
+		DefaultOptions.AutoCandidateLanguages.Add(DefaultOptions.LanguageID);
+	}
+}
+
 void UAzSpeechSettings::SaveAndReload(const FName& PropertyName)
 {
 	SaveConfig();
@@ -134,15 +139,15 @@ void UAzSpeechSettings::ValidateCandidateLanguages(const bool bRemoveEmpties)
 {
 	if (bRemoveEmpties)
 	{
-		Options.AutoCandidateLanguages.Remove(NAME_None);
+		DefaultOptions.AutoCandidateLanguages.Remove(NAME_None);
 	}
 
-	if (!Options.AutoCandidateLanguages.Contains(Options.LanguageID))
+	if (!DefaultOptions.AutoCandidateLanguages.Contains(DefaultOptions.LanguageID))
 	{
-		Options.AutoCandidateLanguages.Insert(Options.LanguageID, 0);
+		DefaultOptions.AutoCandidateLanguages.Insert(DefaultOptions.LanguageID, 0);
 	}
 
-	Options.AutoCandidateLanguages.Shrink();
+	DefaultOptions.AutoCandidateLanguages.Shrink();
 }
 
 void UAzSpeechSettings::ToggleInternalLogs()
@@ -224,11 +229,11 @@ const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 		Output.insert(std::make_pair(InId, InStr));
 	};
 
-	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->Options.SubscriptionKey);
-	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->Options.RegionID);
-	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->Options.PrivateEndpoint);
-	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->Options.LanguageID);
-	UpdateSettingsMap(AZSPEECH_KEY_VOICE, Instance->Options.VoiceName);
+	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->DefaultOptions.SubscriptionKey);
+	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->DefaultOptions.RegionID);
+	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->DefaultOptions.PrivateEndpoint);
+	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->DefaultOptions.LanguageID);
+	UpdateSettingsMap(AZSPEECH_KEY_VOICE, Instance->DefaultOptions.VoiceName);
 
 	return Output;
 }
@@ -242,7 +247,7 @@ const bool UAzSpeechSettings::CheckAzSpeechSettings()
 		return false;
 	}
 
-	const bool bUsingEndpoint = UAzSpeechSettings::Get()->Options.bUsePrivateEndpoint;
+	const bool bUsingEndpoint = UAzSpeechSettings::Get()->DefaultOptions.bUsePrivateEndpoint;
 
 	for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
 	{

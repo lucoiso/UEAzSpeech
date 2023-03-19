@@ -33,22 +33,22 @@ void FAzSpeechSettingsOptions::SetDefaults()
 {
 	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
 	{
-		SubscriptionKey = Settings->Options.SubscriptionKey;
-		RegionID = Settings->Options.RegionID;
-		bUsePrivateEndpoint = Settings->Options.bUsePrivateEndpoint;
-		PrivateEndpoint = Settings->Options.PrivateEndpoint;
-		LanguageID = Settings->Options.LanguageID;
-		AutoCandidateLanguages = Settings->Options.AutoCandidateLanguages;
-		VoiceName = Settings->Options.VoiceName;
-		ProfanityFilter = Settings->Options.ProfanityFilter;
-		SegmentationSilenceTimeoutMs = Settings->Options.SegmentationSilenceTimeoutMs;
-		InitialSilenceTimeoutMs = Settings->Options.InitialSilenceTimeoutMs;
-		bEnableViseme = Settings->Options.bEnableViseme;
-		bFilterVisemeFacialExpression = Settings->Options.bFilterVisemeFacialExpression;
-		SpeechSynthesisOutputFormat = Settings->Options.SpeechSynthesisOutputFormat;
-		SpeechRecognitionOutputFormat = Settings->Options.SpeechRecognitionOutputFormat;
-		TimeOutInSeconds = Settings->Options.TimeOutInSeconds;
-		TasksThreadPriority = Settings->Options.TasksThreadPriority;
-		ThreadUpdateInterval = Settings->Options.ThreadUpdateInterval;
+		SubscriptionKey = Settings->DefaultOptions.SubscriptionKey;
+		RegionID = Settings->DefaultOptions.RegionID;
+		bUsePrivateEndpoint = Settings->DefaultOptions.bUsePrivateEndpoint;
+		PrivateEndpoint = Settings->DefaultOptions.PrivateEndpoint;
+		LanguageID = Settings->DefaultOptions.LanguageID;
+		AutoCandidateLanguages = Settings->DefaultOptions.AutoCandidateLanguages;
+		VoiceName = Settings->DefaultOptions.VoiceName;
+		ProfanityFilter = Settings->DefaultOptions.ProfanityFilter;
+		SegmentationSilenceTimeoutMs = Settings->DefaultOptions.SegmentationSilenceTimeoutMs;
+		InitialSilenceTimeoutMs = Settings->DefaultOptions.InitialSilenceTimeoutMs;
+		bEnableViseme = Settings->DefaultOptions.bEnableViseme;
+		bFilterVisemeFacialExpression = Settings->DefaultOptions.bFilterVisemeFacialExpression;
+		SpeechSynthesisOutputFormat = Settings->DefaultOptions.SpeechSynthesisOutputFormat;
+		SpeechRecognitionOutputFormat = Settings->DefaultOptions.SpeechRecognitionOutputFormat;
+		TimeOutInSeconds = Settings->DefaultOptions.TimeOutInSeconds;
+		TasksThreadPriority = Settings->DefaultOptions.TasksThreadPriority;
+		ThreadUpdateInterval = Settings->DefaultOptions.ThreadUpdateInterval;
 	}
 }

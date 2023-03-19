@@ -18,13 +18,13 @@ class AZSPEECH_API USSMLToSpeechAsync : public UAzSpeechSpeechSynthesisBase
 
 public:
 	/* Creates a SSML-To-Speech task that will convert your SSML file to speech */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech", DeprecatedFunction = "true", DeprecationMessage = "Use the version with the new options structure instead"))
-	static FORCEINLINE USSMLToSpeechAsync* SSMLToSpeech(UObject* WorldContextObject, const FString& SynthesisSSML)
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech with Default Options"))
+	static FORCEINLINE USSMLToSpeechAsync* SSMLToSpeech_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
 	{
-		return SSMLToSpeechAsync(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
+		return SSMLToSpeech_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
 	}
 
 	/* Creates a SSML-To-Speech task that will convert your SSML file to speech */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech Async"))
-	static USSMLToSpeechAsync* SSMLToSpeechAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech with Custom Options"))
+	static USSMLToSpeechAsync* SSMLToSpeech_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options);
 };

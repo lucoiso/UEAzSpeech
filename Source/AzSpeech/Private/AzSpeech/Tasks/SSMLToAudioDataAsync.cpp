@@ -9,7 +9,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToAudioDataAsync)
 #endif
 
-USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioDataAsync(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
+USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
 {
 	USSMLToAudioDataAsync* const NewAsyncTask = NewObject<USSMLToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
