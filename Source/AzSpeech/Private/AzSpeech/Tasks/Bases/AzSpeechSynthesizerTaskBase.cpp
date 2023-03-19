@@ -146,7 +146,7 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 			VisemeData.Animation
 		};
 
-		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1}); Function: {2}; Message:\n\tViseme ID: {3}\n\tViseme audio offset: {4}ms\n\tViseme animation: {5}"), Arguments);
+		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1});\n\tFunction: {2};\n\tViseme ID: {3}\n\tViseme audio offset: {4}ms\n\tViseme animation: {5}"), Arguments);
 
 		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
 
@@ -196,7 +196,7 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 			ServiceLatency
 		};
 
-		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1}); Function: {2}; Message:\n\tAudio duration: {3}\n\tAudio lenght: {4}\n\tStream size: {5}\n\tReason code: {6}\n\tResult ID: {7}\n\tConnection latency: {8}ms\n\tFinish latency: {9}ms\n\tFirst byte latency: {10}ms\n\tNetwork latency: {11}ms\n\tService latency: {12}ms"), Arguments);
+		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1});\n\tFunction: {2};\n\tAudio duration: {3}\n\tAudio lenght: {4}\n\tStream size: {5}\n\tReason code: {6}\n\tResult ID: {7}\n\tConnection latency: {8}ms\n\tFinish latency: {9}ms\n\tFirst byte latency: {10}ms\n\tNetwork latency: {11}ms\n\tService latency: {12}ms"), Arguments);
 
 		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
 

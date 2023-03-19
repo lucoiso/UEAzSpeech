@@ -25,6 +25,12 @@ void UAzSpeechTaskBase::Activate()
 	}
 #endif
 
+	FString NewTaskName = TaskName.ToString();
+	NewTaskName.RemoveFromEnd("_DefaultOptions");
+	NewTaskName.RemoveFromEnd("_CustomOptions");
+
+	TaskName = *NewTaskName;
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
 	bIsTaskActive = true;
