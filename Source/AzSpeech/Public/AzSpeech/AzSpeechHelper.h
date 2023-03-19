@@ -9,6 +9,7 @@
 #include "AzSpeech/Structures/AzSpeechAudioInputDeviceInfo.h"
 #include "AzSpeech/Structures/AzSpeechAnimationData.h"
 #include "AzSpeech/Structures/AzSpeechVisemeData.h"
+#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechHelper.generated.h"
 
 /**
