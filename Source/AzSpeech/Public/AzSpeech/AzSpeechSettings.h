@@ -34,7 +34,7 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Meta = (DisplayName = "Default Options"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Default Options"))
 	FAzSpeechSettingsOptions DefaultOptions;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */

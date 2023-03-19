@@ -77,8 +77,8 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 			GetUniqueID(),
 			FString(__func__),
 			UTF8_TO_TCHAR(LastResult->Text.c_str()),
-			LastResult->Duration(),
-			LastResult->Offset(),
+			static_cast<uint64>(LastResult->Duration()),
+			static_cast<uint64>(LastResult->Offset()),
 			static_cast<int32>(LastResult->Reason),
 			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
 			RecognitionLatency
