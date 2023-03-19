@@ -8,6 +8,11 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToSpeechAsync)
 #endif
 
+USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
+{
+	return SSMLToSpeech_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
+}
+
 USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
 {
 	USSMLToSpeechAsync* const NewAsyncTask = NewObject<USSMLToSpeechAsync>();

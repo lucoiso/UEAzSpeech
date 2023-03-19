@@ -19,11 +19,7 @@ class AZSPEECH_API UTextToWavFileAsync : public UAzSpeechWavFileSynthesisBase
 public:
 	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To .wav File with Default Options"))
-	static FORCEINLINE UTextToWavFileAsync* TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageID = "Default")
-	{
-		return TextToWavFile_CustomOptions(WorldContextObject, SynthesisText, FilePath, FileName, FAzSpeechSettingsOptions(*LanguageID, *VoiceName));
-	}
-
+	static UTextToWavFileAsync* TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
 
 	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To .wav File with Custom Options"))

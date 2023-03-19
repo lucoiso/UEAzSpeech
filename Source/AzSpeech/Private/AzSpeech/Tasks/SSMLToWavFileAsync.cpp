@@ -8,6 +8,11 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToWavFileAsync)
 #endif
 
+USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
+{
+	return SSMLToWavFile_CustomOptions(WorldContextObject, SynthesisSSML, FilePath, FileName, FAzSpeechSettingsOptions());
+}
+
 USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options)
 {
 	USSMLToWavFileAsync* const NewAsyncTask = NewObject<USSMLToWavFileAsync>();

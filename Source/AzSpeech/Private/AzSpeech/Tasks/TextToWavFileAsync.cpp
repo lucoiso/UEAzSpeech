@@ -8,6 +8,11 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToWavFileAsync)
 #endif
 
+UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageID)
+{
+	return TextToWavFile_CustomOptions(WorldContextObject, SynthesisText, FilePath, FileName, FAzSpeechSettingsOptions(*LanguageID, *VoiceName));
+}
+
 UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options)
 {
 	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();

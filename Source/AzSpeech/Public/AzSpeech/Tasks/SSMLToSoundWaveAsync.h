@@ -23,10 +23,7 @@ public:
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Default Options"))
-	static FORCEINLINE USSMLToSoundWaveAsync* SSMLToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
-	{
-		return SSMLToSoundWave_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
-	}
+	static USSMLToSoundWaveAsync* SSMLToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML);
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Custom Options"))

@@ -23,10 +23,7 @@ public:
 
 	/* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data with Default Options"))
-	static FORCEINLINE USSMLToAudioDataAsync* SSMLToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
-	{
-		return SSMLToAudioData_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
-	}
+	static USSMLToAudioDataAsync* SSMLToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML);
 
 	/* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data with Custom Options"))
