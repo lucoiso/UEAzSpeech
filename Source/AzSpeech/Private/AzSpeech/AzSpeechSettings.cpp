@@ -4,6 +4,7 @@
 
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
+#include <Runtime/Launch/Resources/Version.h>
 
 #if WITH_EDITOR
 #include <Misc/MessageDialog.h>
