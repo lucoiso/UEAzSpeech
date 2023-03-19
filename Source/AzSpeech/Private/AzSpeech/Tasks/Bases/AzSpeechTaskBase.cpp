@@ -170,3 +170,24 @@ FName UAzSpeechTaskBase::GetValidatedVoiceName(const FName& Voice)
 
 	return Voice;
 }
+
+bool UAzSpeechTaskStatus::IsTaskActive(const UAzSpeechTaskBase* Test)
+{
+	return IsValid(Test) && Test->bIsTaskActive;
+}
+
+bool UAzSpeechTaskStatus::IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
+{
+	return IsValid(Test) && Test->bIsReadyToDestroy;
+}
+
+bool UAzSpeechTaskStatus::IsTaskStillValid(const UAzSpeechTaskBase* Test)
+{
+	bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
+
+#if WITH_EDITOR
+	bOutput = bOutput && !Test->bEndingPIE;
+#endif
+
+	return bOutput;
+}

@@ -223,9 +223,9 @@ void UAzSpeechSettings::ValidatePhraseList()
 	}
 }
 
-const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
+const std::map<unsigned short int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 {
-	std::map<int, std::string> Output;
+	std::map<unsigned short int, std::string> Output;
 
 	const UAzSpeechSettings* const Instance = UAzSpeechSettings::Get();
 	if (!IsValid(Instance))
@@ -233,7 +233,7 @@ const std::map<int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
 		return Output;
 	}
 
-	const auto UpdateSettingsMap = [&Output](const int& InId, const FName& InString)
+	const auto UpdateSettingsMap = [&Output](const unsigned short int InId, const FName& InString)
 	{
 		const std::string InStr = TCHAR_TO_UTF8(*InString.ToString());
 		Output.insert(std::make_pair(InId, InStr));

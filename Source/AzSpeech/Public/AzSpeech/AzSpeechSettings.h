@@ -13,11 +13,11 @@
 #include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechSettings.generated.h"
 
-constexpr int AZSPEECH_KEY_SUBSCRIPTION = 0;
-constexpr int AZSPEECH_KEY_REGION = 1;
-constexpr int AZSPEECH_KEY_ENDPOINT = 2;
-constexpr int AZSPEECH_KEY_LANGUAGE = 3;
-constexpr int AZSPEECH_KEY_VOICE = 4;
+constexpr unsigned short int AZSPEECH_KEY_SUBSCRIPTION = 0u;
+constexpr unsigned short int AZSPEECH_KEY_REGION = 1u;
+constexpr unsigned short int AZSPEECH_KEY_ENDPOINT = 2u;
+constexpr unsigned short int AZSPEECH_KEY_LANGUAGE = 3u;
+constexpr unsigned short int AZSPEECH_KEY_VOICE = 4u;
 
 /**
  * 
@@ -102,6 +102,6 @@ private:
 	void ValidatePhraseList();
 
 public:
-	static const std::map<int, std::string> GetAzSpeechKeys();
+	static const std::map<unsigned short int, std::string> GetAzSpeechKeys();
 	static const bool CheckAzSpeechSettings();
 };

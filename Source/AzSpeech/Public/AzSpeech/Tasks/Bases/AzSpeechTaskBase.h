@@ -83,26 +83,11 @@ class AZSPEECH_API UAzSpeechTaskStatus final : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static FORCEINLINE bool IsTaskActive(const UAzSpeechTaskBase* Test)
-	{
-		return IsValid(Test) && Test->bIsTaskActive;
-	}
+	static bool IsTaskActive(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static FORCEINLINE bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
-	{
-		return IsValid(Test) && Test->bIsReadyToDestroy;
-	}
+	static bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);	
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static FORCEINLINE bool IsTaskStillValid(const UAzSpeechTaskBase* Test)
-	{
-		bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
-
-#if WITH_EDITOR
-		bOutput = bOutput && !Test->bEndingPIE;
-#endif
-
-		return bOutput;
-	}
+	static bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 };

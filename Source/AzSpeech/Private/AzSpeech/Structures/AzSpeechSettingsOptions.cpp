@@ -31,7 +31,7 @@ FAzSpeechSettingsOptions::FAzSpeechSettingsOptions(const FName& LanguageID, cons
 
 void FAzSpeechSettingsOptions::SetDefaults()
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
 	{
 		SubscriptionKey = Settings->DefaultOptions.SubscriptionKey;
 		RegionID = Settings->DefaultOptions.RegionID;
