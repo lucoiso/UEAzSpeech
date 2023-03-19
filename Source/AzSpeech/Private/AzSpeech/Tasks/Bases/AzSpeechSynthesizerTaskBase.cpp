@@ -135,10 +135,27 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 {
 	FScopeLock Lock(&Mutex);
 
-	{ //Logging
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Viseme ID: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.VisemeID);
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Viseme audio offset: %dms"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.AudioOffsetMilliseconds);
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Viseme animation: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *VisemeData.Animation);
+	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+	{
+		const FStringFormatOrderedArguments Arguments{
+			TaskName.ToString(),
+			GetUniqueID(),
+			FString(__func__),
+			VisemeData.VisemeID,
+			VisemeData.AudioOffsetMilliseconds,
+			VisemeData.Animation
+		};
+
+		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1}); Function: {2}; Message:\n\tViseme ID: {3}\n\tViseme audio offset: {4}ms\n\tViseme animation: {5}"), Arguments);
+
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
+
+#if !UE_BUILD_SHIPPING
+		if (UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+		{
+			GEngine->AddOnScreenDebugMessage(static_cast<int32>(GetUniqueID()), 5.f, FColor::Yellow, MountedDebuggingInfo);
+		}
+#endif
 	}
 	
 	VisemeDataArray.Add(VisemeData);

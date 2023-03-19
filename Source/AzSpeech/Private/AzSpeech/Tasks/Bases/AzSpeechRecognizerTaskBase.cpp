@@ -72,19 +72,24 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 
 	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
 	{
+		const auto TicksToMs = [](const uint64& Ticks) -> uint64
+		{
+			return static_cast<uint64>(Ticks / 10000u);
+		};
+
 		const FStringFormatOrderedArguments Arguments {
 			TaskName.ToString(),
 			GetUniqueID(),
 			FString(__func__),
 			UTF8_TO_TCHAR(LastResult->Text.c_str()),
-			static_cast<uint64>(LastResult->Duration()),
-			static_cast<uint64>(LastResult->Offset()),
+			TicksToMs(static_cast<uint64>(LastResult->Duration())),
+			TicksToMs(static_cast<uint64>(LastResult->Offset())),
 			static_cast<int32>(LastResult->Reason),
 			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
 			RecognitionLatency
 		};
 
-		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1}); Function: {2}; Message:\n\tRecognized text: {3}\n\tDuration: {4}\n\tOffset: {5}\n\tReason code: {6}\n\tResult ID: {7}\n\tRecognition latency: {8}ms"), Arguments);
+		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1}); Function: {2}; Message:\n\tRecognized text: {3}\n\tDuration: {4}ms\n\tOffset: {5}ms\n\tReason code: {6}\n\tResult ID: {7}\n\tRecognition latency: {8}ms"), Arguments);
 
 		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
 
