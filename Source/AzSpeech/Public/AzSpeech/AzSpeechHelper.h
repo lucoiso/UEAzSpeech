@@ -9,7 +9,6 @@
 #include "AzSpeech/Structures/AzSpeechAudioInputDeviceInfo.h"
 #include "AzSpeech/Structures/AzSpeechAnimationData.h"
 #include "AzSpeech/Structures/AzSpeechVisemeData.h"
-#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechHelper.generated.h"
 
 /**
@@ -158,10 +157,6 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static const TArray<FAzSpeechAnimationData> ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData);
-
-	/*  */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static const FAzSpeechSettingsOptions ConstructAzSpeechOptionsWithLanguageAndVoice(const FName Voice, const FName Language);
 	
 	/*  */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")

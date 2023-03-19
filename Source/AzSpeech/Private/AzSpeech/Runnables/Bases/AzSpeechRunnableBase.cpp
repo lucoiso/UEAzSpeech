@@ -318,7 +318,7 @@ const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (OwningTask->GetTaskOptions().TasksThreadPriority)
+		switch (UAzSpeechSettings::Get()->TasksThreadPriority)
 		{
 			case EAzSpeechThreadPriority::Lowest:
 				return EThreadPriority::TPri_Lowest;
@@ -347,7 +347,7 @@ const float FAzSpeechRunnableBase::GetThreadUpdateInterval() const
 {	
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return OwningTask->GetTaskOptions().ThreadUpdateInterval <= 0.f ? 0.1f : OwningTask->GetTaskOptions().ThreadUpdateInterval;
+		return UAzSpeechSettings::Get()->ThreadUpdateInterval <= 0.f ? 0.1f : UAzSpeechSettings::Get()->ThreadUpdateInterval;
 	}
 
 	return 0.1f;
@@ -357,7 +357,7 @@ const int32 FAzSpeechRunnableBase::GetTimeout() const
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return OwningTask->GetTaskOptions().TimeOutInSeconds <= 0.f ? 15.f : OwningTask->GetTaskOptions().TimeOutInSeconds;
+		return UAzSpeechSettings::Get()->TimeOutInSeconds <= 0.f ? 15.f : UAzSpeechSettings::Get()->TimeOutInSeconds;
 	}
 
 	return 15.f;

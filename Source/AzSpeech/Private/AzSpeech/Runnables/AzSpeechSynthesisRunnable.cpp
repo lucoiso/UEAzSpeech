@@ -194,7 +194,7 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 		return true;
 	}
 
-	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && SynthesizerTask->GetTaskOptions().bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
+	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && UAzSpeechSettings::Get()->bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
 
 	SpeechSynthesizer->VisemeReceived.Connect(
 		[this, SynthesizerTask](const Microsoft::CognitiveServices::Speech::SpeechSynthesisVisemeEventArgs& VisemeEventArgs)

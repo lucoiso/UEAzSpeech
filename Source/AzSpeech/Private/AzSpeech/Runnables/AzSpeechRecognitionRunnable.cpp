@@ -121,8 +121,8 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 		return false;
 	}
 
-	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->GetTaskOptions().SegmentationSilenceTimeoutMs)));
-	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(RecognizerTask->GetTaskOptions().InitialSilenceTimeoutMs)));
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_SegmentationSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(UAzSpeechSettings::Get()->SegmentationSilenceTimeoutMs)));
+	InConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_InitialSilenceTimeoutMs, TCHAR_TO_UTF8(*FString::FromInt(UAzSpeechSettings::Get()->InitialSilenceTimeoutMs)));
 
 	InConfig->SetOutputFormat(GetOutputFormat());
 

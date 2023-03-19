@@ -41,14 +41,8 @@ void FAzSpeechSettingsOptions::SetDefaults()
 		AutoCandidateLanguages = Settings->DefaultOptions.AutoCandidateLanguages;
 		VoiceName = Settings->DefaultOptions.VoiceName;
 		ProfanityFilter = Settings->DefaultOptions.ProfanityFilter;
-		SegmentationSilenceTimeoutMs = Settings->DefaultOptions.SegmentationSilenceTimeoutMs;
-		InitialSilenceTimeoutMs = Settings->DefaultOptions.InitialSilenceTimeoutMs;
 		bEnableViseme = Settings->DefaultOptions.bEnableViseme;
-		bFilterVisemeFacialExpression = Settings->DefaultOptions.bFilterVisemeFacialExpression;
 		SpeechSynthesisOutputFormat = Settings->DefaultOptions.SpeechSynthesisOutputFormat;
 		SpeechRecognitionOutputFormat = Settings->DefaultOptions.SpeechRecognitionOutputFormat;
-		TimeOutInSeconds = Settings->DefaultOptions.TimeOutInSeconds;
-		TasksThreadPriority = Settings->DefaultOptions.TasksThreadPriority;
-		ThreadUpdateInterval = Settings->DefaultOptions.ThreadUpdateInterval;
 	}
 }

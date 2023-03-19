@@ -14,7 +14,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettings)
 #endif
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), bEnableDebuggingPrints(false), StringDelimiters(" ,.;:[]{}!'\"?")
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), SegmentationSilenceTimeoutMs(1000), InitialSilenceTimeoutMs(5000), bFilterVisemeFacialExpression(true), TimeOutInSeconds(10.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.033334f), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), bEnableDebuggingPrints(false), StringDelimiters(" ,.;:[]{}!'\"?")
 {
 	CategoryName = TEXT("Plugins");
 
@@ -107,22 +107,16 @@ void UAzSpeechSettings::PostInitProperties()
 
 void UAzSpeechSettings::SetToDefaults()
 {
-	DefaultOptions.SubscriptionKey = NAME_None;
+	DefaultOptions.SubscriptionKey = NAME_None;	
 	DefaultOptions.RegionID = NAME_None;
 	DefaultOptions.bUsePrivateEndpoint = false;
 	DefaultOptions.PrivateEndpoint = NAME_None;
 	DefaultOptions.LanguageID = NAME_None;
 	DefaultOptions.VoiceName = NAME_None;
 	DefaultOptions.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
-	DefaultOptions.SegmentationSilenceTimeoutMs = 1000;
-	DefaultOptions.InitialSilenceTimeoutMs = 5000;
 	DefaultOptions.bEnableViseme = true;
-	DefaultOptions.bFilterVisemeFacialExpression = true;
 	DefaultOptions.SpeechSynthesisOutputFormat = EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
 	DefaultOptions.SpeechRecognitionOutputFormat = EAzSpeechRecognitionOutputFormat::Detailed;
-	DefaultOptions.TimeOutInSeconds = 10.f;
-	DefaultOptions.TasksThreadPriority = EAzSpeechThreadPriority::Normal;
-	DefaultOptions.ThreadUpdateInterval = 0.033334f;
 
 	if (AzSpeech::Internal::HasEmptyParam(DefaultOptions.AutoCandidateLanguages))
 	{

@@ -535,11 +535,6 @@ const TArray<FAzSpeechAnimationData> UAzSpeechHelper::ExtractAnimationDataFromVi
 	return Output;
 }
 
-const FAzSpeechSettingsOptions UAzSpeechHelper::ConstructAzSpeechOptionsWithLanguageAndVoice(const FName Voice, const FName Language)
-{
-	return FAzSpeechSettingsOptions(Language, Voice);
-}
-
 UAzSpeechRecognizerTaskBase* UAzSpeechHelper::CastToAzSpeechRecognizerTaskBase(UObject* Object)
 {
 	return Cast<UAzSpeechRecognizerTaskBase>(Object);

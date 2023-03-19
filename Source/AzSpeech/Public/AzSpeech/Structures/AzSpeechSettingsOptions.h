@@ -77,21 +77,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Auto Candidate Languages"))
 	TArray<FName> AutoCandidateLanguages;
 
-	/* Silence time limit in miliseconds to consider the task as Completed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
-	int32 SegmentationSilenceTimeoutMs;
-
-	/* Silence time limit in miliseconds at the start of the task to consider the result as Canceled/NoMatch */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
-	int32 InitialSilenceTimeoutMs;
-
 	/* If enabled, synthesizers tasks will generate Viseme data */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Enable Viseme"))
 	bool bEnableViseme;
-
-	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Filter Viseme Facial Expression"))
-	bool bFilterVisemeFacialExpression;
 
 	/* Synthesis audio output format */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Synthesis Output Format"))
@@ -100,18 +88,6 @@ public:
 	/* Recognition output format */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Recognition Output Format"))
 	EAzSpeechRecognitionOutputFormat SpeechRecognitionOutputFormat;
-
-	/* Time limit in seconds to wait for related asynchronous tasks to complete */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thread", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
-	int32 TimeOutInSeconds;
-
-	/* CPU thread priority to use in created runnable threads */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thread", Meta = (DisplayName = "Thread Priority"))
-	EAzSpeechThreadPriority TasksThreadPriority;
-
-	/* Thread update interval: Sleep time between task update checks */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thread", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001", ClampMax = "1", UIMax = "1"))
-	float ThreadUpdateInterval;
 
 private:
 	void SetDefaults();
