@@ -7,6 +7,10 @@
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 
+#if !UE_BUILD_SHIPPING
+#include <Engine/Engine.h>
+#endif
+
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechRecognizerTaskBase)
 #endif
@@ -21,6 +25,13 @@ const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 	}
 
 	return UTF8_TO_TCHAR(RecognizedText.c_str());
+}
+
+const int32 UAzSpeechRecognizerTaskBase::GetRecognitionLatency() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return RecognitionLatency;
 }
 
 void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
@@ -57,12 +68,37 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 {
 	FScopeLock Lock(&Mutex);
 
-	{ // Logging
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current recognized text: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GetRecognizedString());
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->Duration());
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current offset: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->Offset());
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
+	RecognitionLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_RecognitionLatencyMs)));
+
+	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+	{
+		const auto TicksToMs = [](const auto& Ticks)
+		{
+			return static_cast<uint64>(Ticks / 10000u);
+		};
+
+		const FStringFormatOrderedArguments Arguments {
+			TaskName.ToString(),
+			GetUniqueID(),
+			FString(__func__),
+			UTF8_TO_TCHAR(LastResult->Text.c_str()),
+			TicksToMs(LastResult->Duration()),
+			TicksToMs(LastResult->Offset()),
+			static_cast<int32>(LastResult->Reason),
+			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
+			RecognitionLatency
+		};
+
+		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1});\n\tFunction: {2};\n\tRecognized text: {3}\n\tDuration: {4}ms\n\tOffset: {5}ms\n\tReason code: {6}\n\tResult ID: {7}\n\tRecognition latency: {8}ms"), Arguments);
+
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
+
+#if !UE_BUILD_SHIPPING
+		if (UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+		{
+			GEngine->AddOnScreenDebugMessage(static_cast<int32>(GetUniqueID()), 5.f, FColor::Yellow, MountedDebuggingInfo);
+		}
+#endif
 	}
 
 	RecognizedText = LastResult->Text;

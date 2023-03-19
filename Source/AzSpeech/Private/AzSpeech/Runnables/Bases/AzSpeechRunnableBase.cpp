@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
@@ -12,19 +11,11 @@
 #include <Misc/FileHelper.h>
 #include <Misc/ScopeTryLock.h>
 #include <Async/Async.h>
-#include <chrono>
 
 #if ENGINE_MAJOR_VERSION < 5
 #include <HAL/PlatformFilemanager.h>
 #else
 #include <HAL/PlatformFileManager.h>
-#endif
-
-#if !UE_BUILD_SHIPPING
-// Used to print debug informations on screen - only available on non-shipping builds
-#include <Engine/Engine.h>
-#include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
-#include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #endif
 
 FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
@@ -33,7 +24,7 @@ FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, co
 
 void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
 {
-	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *GetOwningTask()->GetTaskName(), GetOwningTask()->GetUniqueID()), 0u, GetCPUThreadPriority()));
+	Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *GetOwningTask()->GetTaskName().ToString(), GetOwningTask()->GetUniqueID()), 0u, GetCPUThreadPriority()));
 }
 
 void FAzSpeechRunnableBase::StopAzSpeechRunnableTask()
@@ -126,7 +117,7 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 		bOutput = false;
 	}
 
-	if (!IsValid(GetOwningTask()))
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
 		bOutput = false;
 	}
@@ -138,19 +129,17 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
-	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	const auto Keys = UAzSpeechSettings::GetAzSpeechKeys();
-
-	if (Settings->bUsePrivateEndpoint)
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Keys.at(AZSPEECH_KEY_ENDPOINT), Keys.at(AZSPEECH_KEY_SUBSCRIPTION));
-	}
-	else
-	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Keys.at(AZSPEECH_KEY_SUBSCRIPTION), Keys.at(AZSPEECH_KEY_REGION));
+		return nullptr;
 	}
 
-	return nullptr;
+	if (OwningTask->GetTaskOptions().bUsePrivateEndpoint)
+	{
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().SubscriptionKey.ToString()));
+	}
+
+	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().RegionID.ToString()));
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -220,9 +209,9 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBase::GetProfanityFilter() const
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (Settings->ProfanityFilter)
+		switch (OwningTask->GetTaskOptions().ProfanityFilter)
 		{
 			case EAzSpeechProfanityFilter::Raw:
 				return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
@@ -327,9 +316,9 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveS
 
 const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		switch (Settings->TasksThreadPriority)
+		switch (UAzSpeechSettings::Get()->TasksThreadPriority)
 		{
 			case EAzSpeechThreadPriority::Lowest:
 				return EThreadPriority::TPri_Lowest;
@@ -355,29 +344,20 @@ const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const
 }
 
 const float FAzSpeechRunnableBase::GetThreadUpdateInterval() const
-{
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+{	
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return Settings->ThreadUpdateInterval <= 0.f ? 0.1f : Settings->ThreadUpdateInterval;
+		return UAzSpeechSettings::Get()->ThreadUpdateInterval <= 0.f ? 0.1f : UAzSpeechSettings::Get()->ThreadUpdateInterval;
 	}
 
 	return 0.1f;
 }
 
-const int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
-{
-	const auto CurrentTime = std::chrono::system_clock::now();
-	const auto TimeSinceEpoch = CurrentTime.time_since_epoch();
-	const auto CurrentTimeInMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(TimeSinceEpoch);
-
-	return static_cast<int64>(CurrentTimeInMilliseconds.count());
-}
-
 const int32 FAzSpeechRunnableBase::GetTimeout() const
 {
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return Settings->TimeOutInSeconds <= 0.f ? 15.f : Settings->TimeOutInSeconds;
+		return UAzSpeechSettings::Get()->TimeOutInSeconds <= 0.f ? 15.f : UAzSpeechSettings::Get()->TimeOutInSeconds;
 	}
 
 	return 15.f;
@@ -393,28 +373,3 @@ void FAzSpeechRunnableBase::StoreThreadInformation()
 	const FString& ThreadNameRef = FThreadManager::Get().GetThreadName(FPlatformTLS::GetCurrentThreadId());
 	ThreadName = *ThreadNameRef;
 }
-
-#if !UE_BUILD_SHIPPING
-void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const
-{
-	UAzSpeechTaskBase* const Task = GetOwningTask();
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(Task) || !UAzSpeechSettings::Get()->bEnableDebuggingLogs)
-	{
-		return;
-	}
-
-	const float InSeconds = (FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime) / 1000.f;
-	FString SpecificDataStr;
-
-	if (Task->GetClass()->IsChildOf<UAzSpeechRecognizerTaskBase>())
-	{
-		SpecificDataStr = FString::Printf(TEXT("Current recognized string: %s"), *Cast<UAzSpeechRecognizerTaskBase>(Task)->GetRecognizedString());
-	}
-	else if (Task->GetClass()->IsChildOf<UAzSpeechSynthesizerTaskBase>())
-	{
-		SpecificDataStr = FString::Printf(TEXT("Current synthesis buffer allocated size: %d"), Cast<UAzSpeechSynthesizerTaskBase>(Task)->GetAudioData().GetAllocatedSize());
-	}
-
-	GEngine->AddOnScreenDebugMessage((int32)Task->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\n%s\nNote: Disable Debugging Logs to avoid this Print"), *Task->GetTaskName(), Task->GetUniqueID(), ActivationDelay, InSeconds, *SpecificDataStr));
-}
-#endif

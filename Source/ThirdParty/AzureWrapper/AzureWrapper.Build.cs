@@ -217,6 +217,8 @@ public class AzureWrapper : ModuleRules
 
 	public AzureWrapper(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		CppStandard = CppStandardVersion.Cpp17;
 		Type = ModuleType.External;
 		bEnableExceptions = true;
 

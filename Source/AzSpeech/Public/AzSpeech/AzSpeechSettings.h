@@ -8,50 +8,16 @@
 #include <Engine/DeveloperSettings.h>
 #include <map>
 #include <string>
-#include "AzSpeech/AzSpeechRecognitionMap.h"
-#include "AzSpeechPhraseListMap.h"
+#include "AzSpeech/Structures/AzSpeechRecognitionMap.h"
+#include "AzSpeech/Structures/AzSpeechPhraseListMap.h"
+#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechSettings.generated.h"
 
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechProfanityFilter : uint8
-{
-	Raw,
-	Masked,
-	Removed
-};
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechThreadPriority : uint8
-{
-	Lowest,
-	BelowNormal,
-	Normal,
-	AboveNormal,
-	Highest,
-};
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechSynthesisOutputFormat : uint8
-{
-	Riff16Khz16BitMonoPcm,
-	Riff24Khz16BitMonoPcm,
-	Riff48Khz16BitMonoPcm,
-	Riff22050Hz16BitMonoPcm,
-	Riff44100Hz16BitMonoPcm
-};
-
-UENUM(BlueprintType, Category = "AzSpeech")
-enum class EAzSpeechRecognitionOutputFormat : uint8
-{
-	Simple,
-	Detailed
-};
-
-constexpr int AZSPEECH_KEY_SUBSCRIPTION = 0;
-constexpr int AZSPEECH_KEY_REGION = 1;
-constexpr int AZSPEECH_KEY_ENDPOINT = 2;
-constexpr int AZSPEECH_KEY_LANGUAGE = 3;
-constexpr int AZSPEECH_KEY_VOICE = 4;
+constexpr unsigned short int AZSPEECH_KEY_SUBSCRIPTION = 0u;
+constexpr unsigned short int AZSPEECH_KEY_REGION = 1u;
+constexpr unsigned short int AZSPEECH_KEY_ENDPOINT = 2u;
+constexpr unsigned short int AZSPEECH_KEY_LANGUAGE = 3u;
+constexpr unsigned short int AZSPEECH_KEY_VOICE = 4u;
 
 /**
  * 
@@ -68,32 +34,8 @@ public:
 
 	static constexpr unsigned MaxCandidateLanguages = 10u;
 
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "API Access Key"))
-	FString APIAccessKey;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Region ID", EditCondition = "!bUsePrivateEndpoint"))
-	FString RegionID;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Use Private Endpoint"))
-	bool bUsePrivateEndpoint;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Azure", Meta = (DisplayName = "Private Endpoint", EditCondition = "bUsePrivateEndpoint"))
-	FString PrivateEndpoint;
-
-	/* It will be used if no value is specified or "Default" is passed as Language ID parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Language ID"))
-	FString LanguageID;
-
-	/* It will be used if no value is specified or "Default" is passed as Voice Name parameter */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Default Voice Name"))
-	FString VoiceName;
-
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Profanity Filter"))
-	EAzSpeechProfanityFilter ProfanityFilter;
-
-	/* It will be used if "Auto" is passed as Language ID parameter - Will use Azure SDK Language Identification */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Auto Candidate Languages"))
-	TArray<FString> AutoCandidateLanguages;
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Default Options"))
+	FAzSpeechSettingsOptions DefaultOptions;	
 
 	/* Silence time limit in miliseconds to consider the task as Completed */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
@@ -103,24 +45,8 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
 	int32 InitialSilenceTimeoutMs;
 
-	/* If enabled, synthesizers tasks will generate Viseme data */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Enable Viseme"))
-	bool bEnableViseme;
-
-	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Filter Viseme Facial Expression"))
-	bool bFilterVisemeFacialExpression;
-
-	/* Synthesis audio output format */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Synthesis Output Format"))
-	EAzSpeechSynthesisOutputFormat SpeechSynthesisOutputFormat;
-
-	/* Recognition output format */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Recognition Output Format"))
-	EAzSpeechRecognitionOutputFormat SpeechRecognitionOutputFormat;
-
 	/* Time limit in seconds to wait for related asynchronous tasks to complete */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
 	int32 TimeOutInSeconds;
 
 	/* CPU thread priority to use in created runnable threads */
@@ -130,18 +56,26 @@ public:
 	/* Thread update interval: Sleep time between task update checks */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001", ClampMax = "1", UIMax = "1"))
 	float ThreadUpdateInterval;
+	
+	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Filter Viseme Facial Expression"))
+	bool bFilterVisemeFacialExpression;
 
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Azure SDK Logs"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
 
 	/* Will print extra internal informations in log */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Internal Logs"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Enable Internal Logs"))
 	bool bEnableInternalLogs;
 
 	/* Will print extra debugging informations in log */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Logging", Meta = (DisplayName = "Enable Debugging Logs"))
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Enable Debugging Logs"))
 	bool bEnableDebuggingLogs;
+	
+	/* Will print extra debugging informations in screen */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Enable Debugging Prints"))
+	bool bEnableDebuggingPrints;
 
 	/* Map of Phrase Lists used to improve recognition accuracy */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "Phrase List Map", TitleProperty = "Group: {GroupName}"))
@@ -149,23 +83,29 @@ public:
 
 	/* String delimiters to use in recognition checks */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "String Delimiters"))
-	FString StringDelimiters;
+	FName StringDelimiters;
 
 	/* Map of keywords to trigger or ignore in recognition interactions: Used by CheckReturnFromRecognitionMap task */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Extras", Meta = (DisplayName = "Recognition Map", TitleProperty = "Group: {GroupName}"))
 	TArray<FAzSpeechRecognitionMap> RecognitionMap;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Candidate Languages"))
-	static TArray<FString> GetCandidateLanguages();
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Candidate Languages", CompactNodeTitle = "AzSpeech Candidate Languages"))
+	static TArray<FName> GetCandidateLanguages();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Phrase List Map"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Phrase List Map", CompactNodeTitle = "AzSpeech Phrase List Map"))
 	static TArray<FAzSpeechPhraseListMap> GetPhraseListMap();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: Recognition Map"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Recognition Map", CompactNodeTitle = "AzSpeech Recognition Map"))
 	static TArray<FAzSpeechRecognitionMap> GetRecognitionMap();
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get AzSpeech Settings Data: String Delimiters"))
-	static FString GetStringDelimiters();
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get String Delimiters", CompactNodeTitle = "AzSpeech String Delimiters"))
+	static FName GetStringDelimiters();
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Get Default Options", CompactNodeTitle = "AzSpeech Default Options"))
+	static FAzSpeechSettingsOptions GetDefaultOptions();
+
+	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Settings", meta = (HidePin = "Self", DefaultToSelf = "Self", DisplayName = "Set Default Options"))
+	static void SetDefaultOptions(const FAzSpeechSettingsOptions& Value);
 
 protected:
 #if WITH_EDITOR
@@ -175,6 +115,10 @@ protected:
 
 	virtual void PostInitProperties() override;
 
+	virtual void SetToDefaults();
+
+	void SaveAndReload(const FName& PropertyName);
+
 private:
 	void ValidateCandidateLanguages(const bool bRemoveEmpties = false);
 	void ToggleInternalLogs();
@@ -182,6 +126,6 @@ private:
 	void ValidatePhraseList();
 
 public:
-	static const std::map<int, std::string> GetAzSpeechKeys();
+	static const std::map<unsigned short int, std::string> GetAzSpeechKeys();
 	static const bool CheckAzSpeechSettings();
 };

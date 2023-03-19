@@ -273,12 +273,12 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	UAzSpeechAudioDataSynthesisBase* Task = nullptr;
 	if (bIsSSMLBased)
 	{
-		Task = USSMLToAudioDataAsync::SSMLToAudioData(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString());
+		Task = USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), FAzSpeechSettingsOptions());
 		Cast<USSMLToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 	else
 	{
-		Task = UTextToAudioDataAsync::TextToAudioData(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), Voice, Locale);
+		Task = UTextToAudioDataAsync::TextToAudioData_CustomOptions(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), FAzSpeechSettingsOptions(*Locale, *Voice));
 		Cast<UTextToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 

@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/RecognitionMapCheckAsync.h"
-#include "AzSpeech/AzSpeechRecognitionMap.h"
+#include "AzSpeech/Structures/AzSpeechRecognitionMap.h"
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include <Async/Async.h>
@@ -31,11 +31,18 @@ void URecognitionMapCheckAsync::Activate()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
-	{
-		const int32 TaskResult = CheckRecognitionResult();
-		AsyncTask(ENamedThreads::GameThread, [this, TaskResult] { BroadcastResult(TaskResult); });
-	});
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, 
+		[this]
+		{
+			const int32 TaskResult = CheckRecognitionResult();
+			AsyncTask(ENamedThreads::GameThread, 
+				[this, TaskResult] 
+				{ 
+					BroadcastResult(TaskResult); 
+				}
+			);
+		}
+	);
 }
 
 void URecognitionMapCheckAsync::SetReadyToDestroy()
@@ -187,19 +194,19 @@ const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType
 	return bOutput;
 }
 
-const FString URecognitionMapCheckAsync::GetStringDelimiters() const
+const FName URecognitionMapCheckAsync::GetStringDelimiters() const
 {
 	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
 	{
 		return Settings->StringDelimiters;
 	}
 
-	return FString(" ,.;:[]{}!'\"?");
+	return FName(" ,.;:[]{}!'\"?");
 }
 
 const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index) const
 {
-	const FString StringDelimiters = GetStringDelimiters();
+	const FString StringDelimiters = GetStringDelimiters().ToString();
 
 	if (InputString.IsValidIndex(Index))
 	{

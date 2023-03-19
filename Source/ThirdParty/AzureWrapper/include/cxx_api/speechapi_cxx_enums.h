@@ -428,6 +428,27 @@ enum class PropertyId
     SpeechServiceResponse_SynthesisUnderrunTimeMs = 5012,
 
     /// <summary>
+    /// The speech synthesis connection latency in milliseconds. Read-only, available on final speech synthesis results.
+    /// This measures the latency between when the synthesis is started to be processed, and the moment the HTTP/WebSocket connection is established.
+    /// Added in version 1.26.0.
+    /// </summary>
+    SpeechServiceResponse_SynthesisConnectionLatencyMs = 5013,
+
+    /// <summary>
+    /// The speech synthesis network latency in milliseconds. Read-only, available on final speech synthesis results.
+    /// This measures the network round trip time.
+    /// Added in version 1.26.0.
+    /// </summary>
+    SpeechServiceResponse_SynthesisNetworkLatencyMs = 5014,
+
+    /// <summary>
+    /// The speech synthesis service latency in milliseconds. Read-only, available on final speech synthesis results.
+    /// This measures the service processing time to synthesize the first byte of audio.
+    /// Added in version 1.26.0.
+    /// </summary>
+    SpeechServiceResponse_SynthesisServiceLatencyMs = 5015,
+
+    /// <summary>
     /// Indicates which backend the synthesis is finished by. Read-only, available on speech synthesis results, except for the result in SynthesisStarted event
     /// Added in version 1.17.0.
     /// </summary>

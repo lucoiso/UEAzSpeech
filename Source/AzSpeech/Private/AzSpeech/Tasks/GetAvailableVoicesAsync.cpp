@@ -38,11 +38,18 @@ void UGetAvailableVoicesAsync::Activate()
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
-	{
-		const TArray<FString> TaskResult = GetAvailableVoices();
-		AsyncTask(ENamedThreads::GameThread, [this, TaskResult] { BroadcastResult(TaskResult); });
-	});
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, 
+		[this]
+		{
+			const TArray<FString> TaskResult = GetAvailableVoices();
+			AsyncTask(ENamedThreads::GameThread, 
+				[this, TaskResult] 
+				{ 
+					BroadcastResult(TaskResult); 
+				}
+			);
+		}
+	);
 }
 
 void UGetAvailableVoicesAsync::SetReadyToDestroy()

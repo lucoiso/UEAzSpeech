@@ -5,6 +5,8 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
+#include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>
@@ -531,6 +533,16 @@ const TArray<FAzSpeechAnimationData> UAzSpeechHelper::ExtractAnimationDataFromVi
 	}
 
 	return Output;
+}
+
+UAzSpeechRecognizerTaskBase* UAzSpeechHelper::CastToAzSpeechRecognizerTaskBase(UObject* Object)
+{
+	return Cast<UAzSpeechRecognizerTaskBase>(Object);
+}
+
+UAzSpeechSynthesizerTaskBase* UAzSpeechHelper::CastToAzSpeechSynthesizerTaskBase(UObject* Object)
+{
+	return Cast<UAzSpeechSynthesizerTaskBase>(Object);
 }
 
 const FString UAzSpeechHelper::GetAzSpeechLogsBaseDir()
