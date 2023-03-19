@@ -66,7 +66,7 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
 const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
 {
-	return TaskOptions.LanguageID.ToString().Equals("Auto", ESearchCase::IgnoreCase);
+	return GetTaskOptions().LanguageID.ToString().Equals("Auto", ESearchCase::IgnoreCase);
 }
 
 const FName UAzSpeechTaskBase::GetTaskName() const

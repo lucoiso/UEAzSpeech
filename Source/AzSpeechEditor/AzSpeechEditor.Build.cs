@@ -14,21 +14,20 @@ public class AzSpeechEditor : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new[]
         {
-            "Core"
+            "Core",
+            "AzSpeech"
         });
 
         PrivateDependencyModuleNames.AddRange(new[]
         {
-            "UnrealEd",
-            "CoreUObject",
-            "ToolMenus",
             "Engine",
-            "EditorStyle",
-            "ToolMenus",
+            "CoreUObject",
             "Slate",
             "SlateCore",
-            "WorkspaceMenuStructure",
-            "AzSpeech"
+            "UnrealEd",
+            "ToolMenus",
+            "EditorStyle",
+            "WorkspaceMenuStructure"
         });
     }
 }

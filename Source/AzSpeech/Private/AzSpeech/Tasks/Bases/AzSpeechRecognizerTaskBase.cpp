@@ -8,7 +8,7 @@
 #include <Async/Async.h>
 
 #if !UE_BUILD_SHIPPING
-#include <Engine/Engine.h>
+#include <Engine.h>
 #endif
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
@@ -72,7 +72,7 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 
 	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
 	{
-		const auto TicksToMs = [](const uint64& Ticks) -> uint64
+		const auto TicksToMs = [](const auto& Ticks)
 		{
 			return static_cast<uint64>(Ticks / 10000u);
 		};
@@ -82,8 +82,8 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 			GetUniqueID(),
 			FString(__func__),
 			UTF8_TO_TCHAR(LastResult->Text.c_str()),
-			TicksToMs(static_cast<uint64>(LastResult->Duration())),
-			TicksToMs(static_cast<uint64>(LastResult->Offset())),
+			TicksToMs(LastResult->Duration()),
+			TicksToMs(LastResult->Offset()),
 			static_cast<int32>(LastResult->Reason),
 			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
 			RecognitionLatency

@@ -48,7 +48,7 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(TaskOptions.LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(GetTaskOptions().LanguageID))
 	{
 		return false;
 	}

@@ -8,7 +8,7 @@
 #include "AzSpeechAudioInputDeviceInfo.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechAudioInputDeviceInfo
+struct AZSPEECH_API FAzSpeechAudioInputDeviceInfo
 {
 	GENERATED_BODY()
 

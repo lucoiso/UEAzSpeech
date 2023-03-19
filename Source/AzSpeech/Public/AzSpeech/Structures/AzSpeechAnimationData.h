@@ -8,7 +8,7 @@
 #include "AzSpeechAnimationData.generated.h"
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechBlendShapes
+struct AZSPEECH_API FAzSpeechBlendShapes
 {
 	GENERATED_BODY()
 
@@ -19,7 +19,7 @@ struct FAzSpeechBlendShapes
 };
 
 USTRUCT(BlueprintType, Category = "AzSpeech")
-struct FAzSpeechAnimationData
+struct AZSPEECH_API FAzSpeechAnimationData
 {
 	GENERATED_BODY()
 		
