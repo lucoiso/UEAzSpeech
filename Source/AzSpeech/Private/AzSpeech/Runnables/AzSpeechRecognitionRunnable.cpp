@@ -19,10 +19,6 @@ FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* In
 
 uint32 FAzSpeechRecognitionRunnable::Run()
 {
-#if !UE_BUILD_SHIPPING
-	const int64 StartTime = GetTimeInMilliseconds();
-#endif
-
 	if (Super::Run() == 0u)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
@@ -68,19 +64,11 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		}
 	);
 
-#if !UE_BUILD_SHIPPING
-	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
-#endif
-
 	const float SleepTime = GetThreadUpdateInterval();
 
 	while (!IsPendingStop())
 	{
 		FPlatformProcess::Sleep(SleepTime);
-
-#if !UE_BUILD_SHIPPING
-		PrintDebugInformation(StartTime, ActivationDelay, SleepTime);
-#endif
 	}
 
 	return 1u;

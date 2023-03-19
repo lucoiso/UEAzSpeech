@@ -20,7 +20,7 @@ namespace CognitiveServices {
 namespace Speech {
 
 /// <summary>
-/// Class that defines embedded (offline) configurations for speech recognition and speech synthesis.
+/// Class that defines embedded (offline) speech configuration.
 /// </summary>
 class EmbeddedSpeechConfig
 {
@@ -42,8 +42,7 @@ public:
     }
 
     /// <summary>
-    /// Creates an instance of the embedded speech config with a specified offline model path
-    /// for speech recognition and/or synthesis.
+    /// Creates an instance of the embedded speech config with a specified offline model path.
     /// </summary>
     /// <param name="path">The folder path to search for offline models.
     /// This can be a root path under which several models are located in subfolders,
@@ -63,8 +62,7 @@ public:
     }
 
     /// <summary>
-    /// Creates an instance of the embedded speech config with specified offline model paths
-    /// for speech recognition and/or synthesis.
+    /// Creates an instance of the embedded speech config with specified offline model paths.
     /// </summary>
     /// <param name="paths">The folder paths to search for offline models.
     /// These can be root paths under which several models are located in subfolders,

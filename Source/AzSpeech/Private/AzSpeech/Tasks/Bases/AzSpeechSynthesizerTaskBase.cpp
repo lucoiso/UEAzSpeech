@@ -9,6 +9,10 @@
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 
+#if !UE_BUILD_SHIPPING
+#include <Engine/Engine.h>
+#endif
+
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSynthesizerTaskBase)
 #endif
@@ -79,6 +83,41 @@ const bool UAzSpeechSynthesizerTaskBase::IsSSMLBased() const
 	return bIsSSMLBased;
 }
 
+const int32 UAzSpeechSynthesizerTaskBase::GetConnectionLatency() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return ConnectionLatency;
+}
+
+const int32 UAzSpeechSynthesizerTaskBase::GetFinishLatency() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return FinishLatency;
+}
+
+const int32 UAzSpeechSynthesizerTaskBase::GetFirstByteLatency() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return FirstByteLatency;
+}
+
+const int32 UAzSpeechSynthesizerTaskBase::GetNetworkLatency() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return NetworkLatency;
+}
+
+const int32 UAzSpeechSynthesizerTaskBase::GetServiceLatency() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return ServiceLatency;
+}
+
 void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
 {
 	RunnableTask = MakeShared<FAzSpeechSynthesisRunnable>(this, InAudioConfig);
@@ -97,9 +136,9 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 	FScopeLock Lock(&Mutex);
 
 	{ //Logging
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Id: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.VisemeID);
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Audio Offset: %dms"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.AudioOffsetMilliseconds);
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current Viseme Animation: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *VisemeData.Animation);
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Viseme ID: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.VisemeID);
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Viseme audio offset: %dms"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), VisemeData.AudioOffsetMilliseconds);
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Viseme animation: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *VisemeData.Animation);
 	}
 	
 	VisemeDataArray.Add(VisemeData);
@@ -116,12 +155,40 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 {
 	FScopeLock Lock(&Mutex);
 
-	{ //Logging
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio duration: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->AudioDuration.count());
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current audio length: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioLength());
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current stream size: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), LastResult->GetAudioData().get()->size());
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current reason code: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), static_cast<int32>(LastResult->Reason));
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Current result id: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(LastResult->ResultId.c_str()));
+	ConnectionLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisConnectionLatencyMs)));
+	FinishLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisFinishLatencyMs)));
+	FirstByteLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisFirstByteLatencyMs)));
+	NetworkLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisNetworkLatencyMs)));
+	ServiceLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisServiceLatencyMs)));
+	
+	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+	{
+		const FStringFormatOrderedArguments Arguments{
+			TaskName.ToString(),
+			GetUniqueID(),
+			FString(__func__),
+			LastResult->AudioDuration.count(),
+			LastResult->GetAudioLength(),
+			LastResult->GetAudioData().get()->size(),
+			static_cast<int32>(LastResult->Reason),
+			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
+			ConnectionLatency,
+			FinishLatency,
+			FirstByteLatency,
+			NetworkLatency,
+			ServiceLatency
+		};
+
+		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1}); Function: {2}; Message:\n\tAudio duration: {3}\n\tAudio lenght: {4}\n\tStream size: {5}\n\tReason code: {6}\n\tResult ID: {7}\n\tConnection latency: {8}ms\n\tFinish latency: {9}ms\n\tFirst byte latency: {10}ms\n\tNetwork latency: {11}ms\n\tService latency: {12}ms"), Arguments);
+
+		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
+
+#if !UE_BUILD_SHIPPING
+		if (UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+		{
+			GEngine->AddOnScreenDebugMessage(static_cast<int32>(GetUniqueID()), 5.f, FColor::Yellow, MountedDebuggingInfo);
+		}
+#endif
 	}
 
 	AudioData = *LastResult->GetAudioData().get();

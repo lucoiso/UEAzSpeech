@@ -11,19 +11,11 @@
 #include <Misc/FileHelper.h>
 #include <Misc/ScopeTryLock.h>
 #include <Async/Async.h>
-#include <chrono>
 
 #if ENGINE_MAJOR_VERSION < 5
 #include <HAL/PlatformFilemanager.h>
 #else
 #include <HAL/PlatformFileManager.h>
-#endif
-
-#if !UE_BUILD_SHIPPING
-// Used to print debug informations on screen - only available on non-shipping builds
-#include <Engine/Engine.h>
-#include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
-#include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #endif
 
 FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
@@ -361,15 +353,6 @@ const float FAzSpeechRunnableBase::GetThreadUpdateInterval() const
 	return 0.1f;
 }
 
-const int64 FAzSpeechRunnableBase::GetTimeInMilliseconds()
-{
-	const auto CurrentTime = std::chrono::system_clock::now();
-	const auto TimeSinceEpoch = CurrentTime.time_since_epoch();
-	const auto CurrentTimeInMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(TimeSinceEpoch);
-
-	return static_cast<int64>(CurrentTimeInMilliseconds.count());
-}
-
 const int32 FAzSpeechRunnableBase::GetTimeout() const
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
@@ -390,28 +373,3 @@ void FAzSpeechRunnableBase::StoreThreadInformation()
 	const FString& ThreadNameRef = FThreadManager::Get().GetThreadName(FPlatformTLS::GetCurrentThreadId());
 	ThreadName = *ThreadNameRef;
 }
-
-#if !UE_BUILD_SHIPPING
-void FAzSpeechRunnableBase::PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const
-{
-	UAzSpeechTaskBase* const Task = GetOwningTask();
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(Task) || !UAzSpeechSettings::Get()->bEnableDebuggingLogs)
-	{
-		return;
-	}
-
-	const float InSeconds = (FAzSpeechRunnableBase::GetTimeInMilliseconds() - StartTime) / 1000.f;
-	FString SpecificDataStr;
-
-	if (Task->GetClass()->IsChildOf<UAzSpeechRecognizerTaskBase>())
-	{
-		SpecificDataStr = FString::Printf(TEXT("Current recognized string: %s"), *Cast<UAzSpeechRecognizerTaskBase>(Task)->GetRecognizedString());
-	}
-	else if (Task->GetClass()->IsChildOf<UAzSpeechSynthesizerTaskBase>())
-	{
-		SpecificDataStr = FString::Printf(TEXT("Current synthesis buffer allocated size: %d"), Cast<UAzSpeechSynthesizerTaskBase>(Task)->GetAudioData().GetAllocatedSize());
-	}
-
-	GEngine->AddOnScreenDebugMessage((int32)Task->GetUniqueID(), 5.f, FColor::Yellow, FString::Printf(TEXT("Task: %s (%d).\nActivation time: %d milliseconds\nActive time: %f seconds\n%s\nNote: Disable Debugging Logs to avoid this Print"), *Task->GetTaskName().ToString(), Task->GetUniqueID(), ActivationDelay, InSeconds, *SpecificDataStr));
-}
-#endif

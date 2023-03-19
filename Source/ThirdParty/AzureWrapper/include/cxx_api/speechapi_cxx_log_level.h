@@ -16,15 +16,33 @@ namespace Logging {
 /// </summary>
 /// <remarks>
 /// This is used by different loggers to set the maximum level of detail they will output.
+///
 /// <see cref="MemoryLogger.SetLevel(Level)" />
+///
 /// <see cref="EventLogger.SetLevel(Level)" />
+///
 /// <see cref="FileLogger.SetLevel(Level)" />
 /// </remarks>
 enum class Level
 {
+    /// <summary>
+    /// Error logging level. Only errors will be logged.
+    /// <remarks>
     Error,
+
+    /// <summary>
+    /// Warning logging level. Only errors and warnings will be logged.
+    /// <remarks>
     Warning,
+
+    /// <summary>
+    /// Informational logging level. Only errors, warnings and informational log messages will be logged.
+    /// <remarks>
     Info,
+
+    /// <summary>
+    /// Verbose logging level. All log messages will be logged.
+    /// <remarks>
     Verbose
 };
 

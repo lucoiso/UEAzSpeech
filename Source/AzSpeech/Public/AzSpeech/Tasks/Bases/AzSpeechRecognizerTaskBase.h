@@ -47,6 +47,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetRecognizedString() const;
 	
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetRecognitionLatency() const;
+	
 protected:
 	FName PhraseListGroup = NAME_None;
 	
@@ -57,4 +60,5 @@ protected:
 
 private:
 	std::string RecognizedText;
+	int32 RecognitionLatency = 0;
 };

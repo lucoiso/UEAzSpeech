@@ -72,6 +72,21 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
 	const bool IsSSMLBased() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetConnectionLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetFinishLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetFirstByteLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetNetworkLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetServiceLatency() const;
 	
 protected:
 	FString SynthesisText;
@@ -85,4 +100,10 @@ private:
 	std::vector<uint8_t> AudioData;
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
+
+	int32 ConnectionLatency;
+	int32 FinishLatency;
+	int32 FirstByteLatency;
+	int32 NetworkLatency;
+	int32 ServiceLatency;
 };

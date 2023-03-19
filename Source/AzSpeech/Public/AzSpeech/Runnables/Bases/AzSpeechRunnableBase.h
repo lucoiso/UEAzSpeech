@@ -62,7 +62,6 @@ protected:
 	const EThreadPriority GetCPUThreadPriority() const;
 	const float GetThreadUpdateInterval() const;
 
-	static const int64 GetTimeInMilliseconds();
 	const int32 GetTimeout() const;
 
 	const FString GetThreadName() const;
@@ -79,8 +78,4 @@ private:
 
 protected:
 	mutable FCriticalSection Mutex;
-
-#if !UE_BUILD_SHIPPING
-	void PrintDebugInformation(const int64 StartTime, const int64 ActivationDelay, const float SleepTime) const;
-#endif
 };
