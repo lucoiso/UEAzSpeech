@@ -13,6 +13,9 @@ public class AzSpeech : ModuleRules
 		CppStandard = CppStandardVersion.Cpp17;
 		bEnableExceptions = true;
 
+		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
+
 		PublicDependencyModuleNames.AddRange(new[]
 		{
 			"Core",

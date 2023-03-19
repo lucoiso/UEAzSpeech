@@ -9,7 +9,6 @@
 #include <AzSpeech/Tasks/GetAvailableVoicesAsync.h>
 #include <AzSpeech/Tasks/TextToAudioDataAsync.h>
 #include <AzSpeech/Tasks/SSMLToAudioDataAsync.h>
-#include <AzSpeech/Structures/AzSpeechSettingsOptions.h>
 #include <Widgets/Input/STextComboBox.h>
 #include <Widgets/Input/SEditableTextBox.h>
 #include <Widgets/Input/SMultiLineEditableTextBox.h>
