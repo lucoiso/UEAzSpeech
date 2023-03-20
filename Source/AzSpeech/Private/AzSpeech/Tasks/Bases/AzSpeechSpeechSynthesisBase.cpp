@@ -70,6 +70,8 @@ void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
 	{
 		return;

@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 #include <Misc/ScopeTryLock.h>
@@ -14,11 +13,7 @@ FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwni
 }
 
 uint32 FAzSpeechSynthesisRunnable::Run()
-{
-#if !UE_BUILD_SHIPPING
-	const int64 StartTime = GetTimeInMilliseconds();
-#endif
-	
+{	
 	if (Super::Run() == 0u)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
@@ -67,20 +62,12 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 
 		return 0u;
 	}
-	
-#if !UE_BUILD_SHIPPING
-	const int64 ActivationDelay = GetTimeInMilliseconds() - StartTime;
-#endif
 
 	const float SleepTime = GetThreadUpdateInterval();
 
 	while (!IsPendingStop())
 	{
 		FPlatformProcess::Sleep(SleepTime);
-
-#if !UE_BUILD_SHIPPING
-		PrintDebugInformation(StartTime, ActivationDelay, SleepTime);
-#endif
 	}
 
 	return 1u;
@@ -142,13 +129,13 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 		return true;
 	}
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetLanguageID());
-	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetVoiceName());
+	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetTaskOptions().LanguageID.ToString());
+	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetTaskOptions().VoiceName.ToString());
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetLanguageID());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetTaskOptions().LanguageID.ToString());
 	InConfig->SetSpeechSynthesisLanguage(UsedLang);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetVoiceName());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetTaskOptions().VoiceName.ToString());
 	InConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
 	return true;
@@ -196,15 +183,15 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 
 bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 {
-	if (!UAzSpeechSettings::Get()->bEnableViseme)
-	{
-		return true;
-	}
-
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
 	if (!IsSpeechSynthesizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
+	}
+
+	if (!SynthesizerTask->GetTaskOptions().bEnableViseme)
+	{
+		return true;
 	}
 
 	bFilterVisemeData = SynthesizerTask->bIsSSMLBased && UAzSpeechSettings::Get()->bFilterVisemeFacialExpression && SynthesizerTask->SynthesisText.Contains("<mstts:viseme type=\"FacialExpression\"/>", ESearchCase::IgnoreCase);
@@ -362,10 +349,10 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 }
 
 const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat FAzSpeechSynthesisRunnable::GetOutputFormat() const
-{
-	if (const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get())
+{	
+	if (UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask(); UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
-		switch (Settings->SpeechSynthesisOutputFormat)
+		switch (SynthesizerTask->GetTaskOptions().SpeechSynthesisOutputFormat)
 		{
 			case EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm:
 				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;

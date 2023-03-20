@@ -11,10 +11,16 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToSoundWaveAsync)
 #endif
 
-USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave(UObject* WorldContextObject, const FString& SynthesisSSML)
+USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
+{
+	return SSMLToSoundWave_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
+}
+
+USSMLToSoundWaveAsync* USSMLToSoundWaveAsync::SSMLToSoundWave_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
 {
 	USSMLToSoundWaveAsync* const NewAsyncTask = NewObject<USSMLToSoundWaveAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);

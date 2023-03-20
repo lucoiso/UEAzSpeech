@@ -466,11 +466,6 @@
 #define SPX_IFFAILED_RETURN_HR(hr)                  SPX_RETURN_ON_FAIL(hr)
 #define SPX_IFFAILED_RETURN_HR_IFNOT(hr, hrNot)     SPX_RETURN_ON_FAIL_IF_NOT(hr, hrNot)
 
-#define SPX_IFTRUE_RETURN_X(cond, expr)             AZAC_IFTRUE_RETURN_X(cond, expr)
-#define SPX_IFFALSE_RETURN_X(cond, expr)            AZAC_IFFALSE_RETURN_X(cond, expr)
-#define SPX_IFTRUE_RETURN(cond)                     AZAC_IFTRUE_RETURN(cond)
-#define SPX_IFFALSE_RETURN(cond)                    AZAC_IFFALSE_RETURN(cond)
-
 #ifdef SPX_CONFIG_TRACE_EXITFN_ON_FAIL
 #define SPX_EXITFN_HR(hr)                           __SPX_T_EXITFN_HR("SPX_EXITFN_ON_FAIL: ", __FILE__, __LINE__, hr)
 #define SPX_EXITFN_HR_IF(hr, cond)                  __SPX_T_EXITFN_HR_IF("SPX_EXITFN_ON_FAIL: ", __FILE__, __LINE__, hr, cond)

@@ -11,13 +11,18 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WavFileToTextAsync)
 #endif
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_DefaultOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
+{
+	return WavFileToText_CustomOptions(WorldContextObject, FilePath, FileName, FAzSpeechSettingsOptions(*LanguageID), PhraseListGroup);
+}
+
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
-	NewAsyncTask->LanguageID = LanguageID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
@@ -46,7 +51,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 	
-	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, GetTaskOptions().LanguageID))
 	{
 		return false;
 	}

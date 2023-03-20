@@ -6,7 +6,8 @@
 
 #include <CoreMinimal.h>
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
-#include "AzSpeech/AzSpeechVisemeData.h"
+#include "AzSpeech/Structures/AzSpeechVisemeData.h"
+#include "AzSpeech/Structures/AzSpeechAnimationData.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_speech_synthesis_result.h>
@@ -32,8 +33,6 @@ class AZSPEECH_API UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
 	friend class FAzSpeechSynthesisRunnable;
 
 public:	
-	virtual void Activate() override;
-
 	/* Task delegate that will be called when dpdated */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FAzSpeechTaskGenericDelegate SynthesisUpdated;
@@ -50,7 +49,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Get Last Viseme Data"))
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FAzSpeechVisemeData GetLastVisemeData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
@@ -60,19 +59,36 @@ public:
 	const TArray<uint8> GetAudioData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const bool IsLastResultValid() const;
+	const FAzSpeechAnimationData GetLastExtractedAnimationData() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetVoiceName() const;
+	const TArray<FAzSpeechAnimationData> GetExtractedAnimationDataArray() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const bool IsLastResultValid() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetSynthesisText() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
 	const bool IsSSMLBased() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetConnectionLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetFinishLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetFirstByteLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetNetworkLatency() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int32 GetServiceLatency() const;
 	
 protected:
-	FString VoiceName;
 	FString SynthesisText;
 	
 	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
@@ -85,5 +101,9 @@ private:
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
 
-	void ValidateVoiceName();
+	int32 ConnectionLatency;
+	int32 FinishLatency;
+	int32 FirstByteLatency;
+	int32 NetworkLatency;
+	int32 ServiceLatency;
 };

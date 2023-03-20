@@ -7,6 +7,7 @@
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintAsyncActionBase.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
+#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
@@ -39,18 +40,18 @@ public:
 	const bool IsUsingAutoLanguage() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetTaskName() const;
+	const FName GetTaskName() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetLanguageID() const;
+	const FAzSpeechSettingsOptions GetTaskOptions() const;
 
 	virtual void SetReadyToDestroy() override;
 
 protected:
 	TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
 	FName TaskName = NAME_None;
+	FAzSpeechSettingsOptions TaskOptions;
 
-	FString LanguageID;
 	const UObject* WorldContextObject;
 	bool bIsSSMLBased = false;
 
@@ -65,11 +66,14 @@ protected:
 	bool bEndingPIE = false;
 #endif
 
+	static FAzSpeechSettingsOptions GetValidatedOptions(const FAzSpeechSettingsOptions& Options);
+
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
 
-	void ValidateLanguageID();
+	static FName GetValidatedLanguageID(const FName& Language);
+	static FName GetValidatedVoiceName(const FName& Voice);
 };
 
 UCLASS(NotPlaceable, Category = "AzSpeech")
@@ -79,26 +83,11 @@ class AZSPEECH_API UAzSpeechTaskStatus final : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static FORCEINLINE bool IsTaskActive(const UAzSpeechTaskBase* Test)
-	{
-		return IsValid(Test) && Test->bIsTaskActive;
-	}
+	static bool IsTaskActive(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static FORCEINLINE bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
-	{
-		return IsValid(Test) && Test->bIsReadyToDestroy;
-	}
+	static bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);	
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static FORCEINLINE bool IsTaskStillValid(const UAzSpeechTaskBase* Test)
-	{
-		bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
-
-#if WITH_EDITOR
-		bOutput = bOutput && !Test->bEndingPIE;
-#endif
-
-		return bOutput;
-	}
+	static bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
 };

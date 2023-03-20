@@ -2,6 +2,7 @@
 // Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
+using System.IO;
 using UnrealBuildTool;
 
 public class AzSpeechEditor : ModuleRules
@@ -10,23 +11,23 @@ public class AzSpeechEditor : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         CppStandard = CppStandardVersion.Cpp17;
+        bEnableExceptions = true;
 
         PublicDependencyModuleNames.AddRange(new[]
         {
-            "Core"
+            "Core",
+            "AzSpeech"
         });
 
         PrivateDependencyModuleNames.AddRange(new[]
         {
-            "AzSpeech",
-            "UnrealEd",
-            "CoreUObject",
-            "ToolMenus",
             "Engine",
-            "EditorStyle",
-            "ToolMenus",
+            "CoreUObject",
             "Slate",
             "SlateCore",
+            "UnrealEd",
+            "ToolMenus",
+            "EditorStyle",
             "WorkspaceMenuStructure"
         });
     }

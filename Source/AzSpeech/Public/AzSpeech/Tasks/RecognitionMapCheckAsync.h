@@ -49,7 +49,7 @@ private:
 	const int32 CheckRecognitionResult() const;
 	const bool CheckStringContains(const FString& KeyType, const FString& Key) const;
 	
-	const FString GetStringDelimiters() const;
+	const FName GetStringDelimiters() const;
 	const bool CheckStringDelimiters(const int32 Index) const;
 
 	const FAzSpeechRecognitionMap GetRecognitionMap(const FName& InGroup) const;

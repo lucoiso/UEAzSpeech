@@ -549,34 +549,6 @@ inline void __azac_do_trace_message(int level, const char* pszTitle, const char*
 #define AZAC_IFFAILED_RETURN_HR(hr)                 AZAC_RETURN_ON_FAIL(hr)
 #define AZAC_IFFAILED_RETURN_HR_IFNOT(hr, hrNot)    AZAC_RETURN_ON_FAIL_IF_NOT(hr, hrNot)
 
-#define AZAC_IFTRUE_RETURN_X(cond, expr) \
-    do {                                                        \
-        int fCondT = !!(cond);                                  \
-        if (fCondT) {                                           \
-            return expr;                                        \
-    } } while (0)
-
-#define AZAC_IFFALSE_RETURN_X(cond, expr) \
-    do {                                                        \
-        int fCondF = !!(cond);                                  \
-        if (!fCondF) {                                          \
-            return expr;                                        \
-    } } while (0)
-
-#define AZAC_IFTRUE_RETURN(cond) \
-    do {                                                        \
-        int fCondT = !!(cond);                                  \
-        if (fCondT) {                                           \
-            return;                                             \
-    } } while (0)
-
-#define AZAC_IFFALSE_RETURN(cond) \
-    do {                                                        \
-        int fCondF = !!(cond);                                  \
-        if (!fCondF) {                                          \
-            return;                                             \
-    } } while (0)
-
 #ifdef AZAC_CONFIG_TRACE_EXITFN_ON_FAIL
 #define AZAC_EXITFN_HR(hr)                          __AZAC_T_EXITFN_HR("AZAC_EXITFN_ON_FAIL: ", __FILE__, __LINE__, hr)
 #define AZAC_EXITFN_HR_IF(hr, cond)                 __AZAC_T_EXITFN_HR_IF("AZAC_EXITFN_ON_FAIL: ", __FILE__, __LINE__, hr, cond)

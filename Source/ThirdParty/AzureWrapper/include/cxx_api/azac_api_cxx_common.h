@@ -48,13 +48,19 @@ class ProtectedAccess : public T
 public:
 
     static AZAC_HANDLE HandleFromPtr(T* ptr) {
-        AZAC_IFTRUE_RETURN_X(ptr == nullptr, nullptr);
+        if (ptr == nullptr)
+        {
+            return nullptr;
+        }
         auto access = static_cast<ProtectedAccess*>(ptr);
         return (AZAC_HANDLE)(*access);
     }
 
     static AZAC_HANDLE HandleFromConstPtr(const T* ptr) {
-        AZAC_IFTRUE_RETURN_X(ptr == nullptr, nullptr);
+        if (ptr == nullptr)
+        {
+            return nullptr;
+        }
         auto access = static_cast<const ProtectedAccess*>(ptr);
         return (AZAC_HANDLE)(*access);
     }

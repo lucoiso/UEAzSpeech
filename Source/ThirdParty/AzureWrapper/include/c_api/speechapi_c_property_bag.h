@@ -86,6 +86,9 @@ enum  PropertyId
     SpeechServiceResponse_SynthesisFirstByteLatencyMs = 5010,
     SpeechServiceResponse_SynthesisFinishLatencyMs = 5011,
     SpeechServiceResponse_SynthesisUnderrunTimeMs = 5012,
+    SpeechServiceResponse_SynthesisConnectionLatencyMs = 5013,
+    SpeechServiceResponse_SynthesisNetworkLatencyMs = 5014,
+    SpeechServiceResponse_SynthesisServiceLatencyMs = 5015,
 
     CancellationDetails_Reason = 6000,
     CancellationDetails_ReasonText = 6001,
