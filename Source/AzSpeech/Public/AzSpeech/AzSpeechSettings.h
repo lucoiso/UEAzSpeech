@@ -44,6 +44,10 @@ public:
 	/* Silence time limit in miliseconds at the start of the task to consider the result as Canceled/NoMatch */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
 	int32 InitialSilenceTimeoutMs;
+	
+	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Filter Viseme Facial Expression"))
+	bool bFilterVisemeFacialExpression;
 
 	/* Time limit in seconds to wait for related asynchronous tasks to complete */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
@@ -57,10 +61,6 @@ public:
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Update Interval", ClampMin = "0.0001", UIMin = "0.0001", ClampMax = "1", UIMax = "1"))
 	float ThreadUpdateInterval;
 	
-	/* If enabled, SSML synthesizers tasks with viseme output type set to FacialExpression will return only data that contains the Animation property */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Filter Viseme Facial Expression"))
-	bool bFilterVisemeFacialExpression;
-
 	/* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Enable Azure SDK Logs"))
 	bool bEnableSDKLogs;
