@@ -4,6 +4,11 @@
 
 An Unreal Engine plugin that integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.
 
+## Editor Tool
+AzSpeech also includes a new Editor Tool to generate audios as USoundWaves directly in the Engine:
+
+![Tool](https://user-images.githubusercontent.com/77353979/226608065-6de13528-353e-4319-981c-0432a945d1bd.png)
+
 ## Links
 
 * [Documentation](https://github.com/lucoiso/UEAzSpeech/wiki)
