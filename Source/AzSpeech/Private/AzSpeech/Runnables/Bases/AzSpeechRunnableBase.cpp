@@ -62,19 +62,27 @@ void FAzSpeechRunnableBase::Stop()
 void FAzSpeechRunnableBase::Exit()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
-	
+
 	UAzSpeechTaskBase* const Task = GetOwningTask();
 	if (!Task)
 	{
 		return;
 	}
 
-	FScopeTryLock Lock(&Task->Mutex);
-	if (Lock.IsLocked())
-	{
-		Task->BroadcastFinalResult();
-		Task->SetReadyToDestroy();
-	}
+	AsyncTask(ENamedThreads::GameThread,
+		[Task]
+		{
+			FScopeTryLock Lock(&Task->Mutex);
+
+			if (Lock.IsLocked())
+			{
+				return;
+			}
+
+			Task->BroadcastFinalResult();
+			Task->SetReadyToDestroy();
+		}
+	);
 }
 
 UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const

@@ -228,8 +228,13 @@ bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
 			}
 			else
 			{
-				RecognizerTask->OnRecognitionUpdated(RecognitionEventArgs.Result);
-				RecognizerTask->BroadcastFinalResult();
+				AsyncTask(ENamedThreads::GameThread,
+					[RecognizerTask, Result = RecognitionEventArgs.Result]
+					{
+						RecognizerTask->OnRecognitionUpdated(Result);
+						RecognizerTask->BroadcastFinalResult();
+					}
+				);
 			}
 
 			StopAzSpeechRunnableTask();

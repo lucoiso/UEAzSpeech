@@ -49,7 +49,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FVisemeReceived VisemeReceived;
 
-	/* Get the last viseme data received by this task - Note: If you're trying to get at task runtime via blueprints, prefer to get this data in an assignment delegate: Assign On Viseme Received */
+	/* Get the last viseme data received by this task */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FAzSpeechVisemeData GetLastVisemeData() const;
 
@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const TArray<uint8> GetAudioData() const;
 
-	/* Get the extracted animation data from the last viseme data received by this task - Note: If you're trying to get at task runtime via blueprints, prefer to get this data in an assignment delegate: Assign On Viseme Received */
+	/* Get the extracted animation data from the last viseme data received by this task */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FAzSpeechAnimationData GetLastExtractedAnimationData() const;
 

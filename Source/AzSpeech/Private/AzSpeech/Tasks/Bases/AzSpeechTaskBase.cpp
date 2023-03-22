@@ -6,6 +6,7 @@
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "LogAzSpeech.h"
+#include <Async/Async.h>
 
 #if WITH_EDITOR
 #include <Editor.h>
@@ -121,6 +122,18 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
+	if (!IsInGameThread())
+	{
+		AsyncTask(ENamedThreads::GameThread,
+			[this]
+			{
+				BroadcastFinalResult();
+			}
+		);
+
+		return;
+	}
+
 	FScopeLock Lock(&Mutex);
 
 	if (!bIsTaskActive)

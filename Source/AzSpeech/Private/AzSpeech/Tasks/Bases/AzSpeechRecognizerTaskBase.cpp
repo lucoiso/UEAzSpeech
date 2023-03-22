@@ -66,17 +66,14 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 
 void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult)
 {
+	check(IsInGameThread());
+
 	FScopeLock Lock(&Mutex);
 
 	RecognizedText = LastResult->Text;
-	RecognitionLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_RecognitionLatencyMs)));	
+	RecognitionLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_RecognitionLatencyMs);
 
-	AsyncTask(ENamedThreads::GameThread,
-		[this]
-		{
-			RecognitionUpdated.Broadcast(GetRecognizedString());
-		}
-	);
+	RecognitionUpdated.Broadcast(GetRecognizedString());
 
 	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
 	{
