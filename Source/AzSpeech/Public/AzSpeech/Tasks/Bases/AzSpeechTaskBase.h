@@ -68,6 +68,39 @@ protected:
 
 	static FAzSpeechSettingsOptions GetValidatedOptions(const FAzSpeechSettingsOptions& Options);
 
+	template <typename ReturnTy, typename ResultType>
+	constexpr ReturnTy GetProperty(const ResultType& Result, const Microsoft::CognitiveServices::Speech::PropertyId& ID)
+	{
+		const auto Property = Result->Properties.GetProperty(ID);
+		if (Property.empty())
+		{
+			return ReturnTy();
+		}
+
+		if constexpr (std::is_same_v<ReturnTy, FString>)
+		{
+			return FString(Property.c_str());
+		}
+		else if constexpr (std::is_same_v<ReturnTy, FName>)
+		{
+			return FName(Property.c_str());
+		}
+		else if constexpr (std::is_same_v<ReturnTy, int32>)
+		{
+			return FCString::Atoi(*FString(Property.c_str()));
+		}
+		else if constexpr (std::is_same_v<ReturnTy, float>)
+		{
+			return FCString::Atof(*FString(Property.c_str()));
+		}
+		else if constexpr (std::is_same_v<ReturnTy, bool>)
+		{
+			return FCString::ToBool(Property.c_str());
+		}
+
+		return ReturnTy();
+	}
+
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;

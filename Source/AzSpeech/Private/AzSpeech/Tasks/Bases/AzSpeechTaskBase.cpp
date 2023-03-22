@@ -121,6 +121,8 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 
 void UAzSpeechTaskBase::BroadcastFinalResult()
 {
+	check(IsInGameThread());
+
 	FScopeLock Lock(&Mutex);
 
 	if (!bIsTaskActive)
