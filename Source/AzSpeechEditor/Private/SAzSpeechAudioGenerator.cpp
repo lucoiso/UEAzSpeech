@@ -175,7 +175,7 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 							{
 								AvailableVoices = { SelectVoice };
 							}
-							else if (!Locale.IsEmpty())
+							else if (!AzSpeech::Internal::HasEmptyParam(Locale))
 							{
 								UpdateAvailableVoices();
 							}

@@ -161,7 +161,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 	bool bCreatedNewPackage = false;
 
-	if (OutputModulePath.IsEmpty() || OutputAssetName.IsEmpty())
+	if (AzSpeech::Internal::HasEmptyParam(OutputModulePath) || AzSpeech::Internal::HasEmptyParam(OutputAssetName))
 	{
 		//Create a new object from the transient package
 		SoundWave = NewObject<USoundWave>(GetTransientPackage(), *OutputAssetName);

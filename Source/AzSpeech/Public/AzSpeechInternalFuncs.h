@@ -25,6 +25,10 @@ namespace AzSpeech
 			{
 				return Arg1.IsNone();
 			}
+			else if constexpr (std::is_base_of<FText, Ty>())
+			{
+				return Arg1.IsEmptyOrWhitespace();
+			}
 			else if constexpr (std::is_base_of<std::string, Ty>())
 			{
 				return Arg1.empty();
