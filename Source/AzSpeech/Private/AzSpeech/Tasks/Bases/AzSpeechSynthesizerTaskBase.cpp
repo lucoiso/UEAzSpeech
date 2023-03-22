@@ -27,7 +27,7 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() cons
 		return FAzSpeechVisemeData();
 	}
 
-	return VisemeDataArray.Last();
+	return VisemeDataArray.Top();
 }
 
 const TArray<FAzSpeechVisemeData> UAzSpeechSynthesizerTaskBase::GetVisemeDataArray() const
@@ -135,6 +135,15 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 {
 	FScopeLock Lock(&Mutex);
 
+	VisemeDataArray.Add(VisemeData);
+
+	AsyncTask(ENamedThreads::GameThread,
+		[this, VisemeData]
+		{
+			VisemeReceived.Broadcast(VisemeData);
+		}
+	);
+
 	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
 	{
 		const FStringFormatOrderedArguments Arguments{
@@ -157,26 +166,27 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
 		}
 #endif
 	}
-	
-	VisemeDataArray.Add(VisemeData);
-
-	AsyncTask(ENamedThreads::GameThread,
-		[this, VisemeData]
-		{
-			VisemeReceived.Broadcast(VisemeData);
-		}
-	);
 }
 
 void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult)
 {
 	FScopeLock Lock(&Mutex);
 
+	AudioData = *LastResult->GetAudioData().get();
+	bLastResultIsValid = !AudioData.empty();
+
 	ConnectionLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisConnectionLatencyMs)));
 	FinishLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisFinishLatencyMs)));
 	FirstByteLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisFirstByteLatencyMs)));
 	NetworkLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisNetworkLatencyMs)));
 	ServiceLatency = static_cast<int32>(std::stoi(LastResult->Properties.GetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisServiceLatencyMs)));
+	
+	AsyncTask(ENamedThreads::GameThread,
+		[this]
+		{
+			SynthesisUpdated.Broadcast();
+		}
+	);
 	
 	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
 	{
@@ -207,14 +217,4 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 		}
 #endif
 	}
-
-	AudioData = *LastResult->GetAudioData().get();
-	bLastResultIsValid = !AudioData.empty();
-
-	AsyncTask(ENamedThreads::GameThread,
-		[this]
-		{
-			SynthesisUpdated.Broadcast();
-		}
-	);
 }

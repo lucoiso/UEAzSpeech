@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 17,
-	"VersionName": "1.6.0",
+	"Version": 18,
+	"VersionName": "1.6.1",
 	"FriendlyName": "AzSpeech - Voice and Text",
 	"Description": "Integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.",
 	"Category": "Game Features",
@@ -19,7 +19,7 @@
 			"Name": "AzSpeech",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
-			"PlatformAllowList": [
+			"WhitelistPlatforms": [
 				"Win64",
 				"Android"
 			]
@@ -27,7 +27,7 @@
 		{
 			"Name": "AzSpeechEditor",
 			"Type": "Editor",
-			"PlatformAllowList": [
+			"WhitelistPlatforms": [
 				"Win64",
 				"Mac",
 				"Linux"

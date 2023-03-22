@@ -238,10 +238,10 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisStartedSignal()
 		}
 		else
 		{
-			AsyncTask(ENamedThreads::GameThread, 
-				[SynthesizerTask] 
-				{ 
-					SynthesizerTask->SynthesisStarted.Broadcast(); 
+			AsyncTask(ENamedThreads::GameThread,
+				[SynthesizerTask]
+				{
+					SynthesizerTask->SynthesisStarted.Broadcast();
 				}
 			);
 		}
