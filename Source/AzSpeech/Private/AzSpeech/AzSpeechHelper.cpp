@@ -98,7 +98,7 @@ const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const F
 	return QualifiedName;
 }
 
-USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModulePath, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
+USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModule, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
@@ -117,7 +117,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *Full_FileName))
 		{
 			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
-			if (USoundWave* const SoundWave = ConvertAudioDataToSoundWave(RawData, OutputModulePath, RelativeOutputDirectory, OutputAssetName))
+			if (USoundWave* const SoundWave = ConvertAudioDataToSoundWave(RawData, OutputModule, RelativeOutputDirectory, OutputAssetName))
 			{
 #if WITH_EDITORONLY_DATA
 				SoundWave->AssetImportData->Update(Full_FileName);
@@ -133,7 +133,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 	return nullptr;
 }
 
-USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModulePath, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
+USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& RawData, const FString& OutputModule, const FString& RelativeOutputDirectory, const FString& OutputAssetName)
 {
 #if PLATFORM_ANDROID
 	if (!CheckAndroidPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
@@ -161,20 +161,20 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 	bool bCreatedNewPackage = false;
 
-	if (AzSpeech::Internal::HasEmptyParam(OutputModulePath) || AzSpeech::Internal::HasEmptyParam(OutputAssetName))
+	if (AzSpeech::Internal::HasEmptyParam(OutputModule) || AzSpeech::Internal::HasEmptyParam(OutputAssetName))
 	{
 		//Create a new object from the transient package
 		SoundWave = NewObject<USoundWave>(GetTransientPackage(), *OutputAssetName);
 	}
 	else
 	{
-		if (!GetAvailableContentModules().Contains(OutputModulePath))
+		if (!IsContentModuleAvailable(OutputModule))
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Module '%s' is not available"), *FString(__func__), *OutputModulePath);
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Module '%s' is not available"), *FString(__func__), *OutputModule);
 			return nullptr;
 		}
 
-		FString TargetFilename = FPaths::Combine(QualifyModulePath(OutputModulePath), RelativeOutputDirectory, OutputAssetName);
+		FString TargetFilename = FPaths::Combine(QualifyModulePath(OutputModule), RelativeOutputDirectory, OutputAssetName);
 		FPaths::NormalizeFilename(TargetFilename);
 
 		UPackage* const Package = CreatePackage(*TargetFilename);
@@ -487,6 +487,23 @@ const TArray<FString> UAzSpeechHelper::GetAvailableContentModules()
 	}
 
 	return Output;
+}
+
+const bool UAzSpeechHelper::IsContentModuleAvailable(const FString& ModuleName)
+{
+	const FString QualifiedParam = QualifyModulePath(ModuleName);
+
+	bool bOutput = false;
+	for (const FString& Module : GetAvailableContentModules())
+	{
+		if (QualifyModulePath(Module).Contains(QualifiedParam, ESearchCase::IgnoreCase))
+		{
+			bOutput = true;
+			break;
+		}
+	}
+
+	return bOutput;
 }
 
 const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData)
