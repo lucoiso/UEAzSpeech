@@ -17,3 +17,4 @@ AzSpeech also includes a new Editor Tool to generate audios as USoundWaves direc
 * [Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)  
 * [Supported languages](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support)  
 * [Example Project: SpeechGPT](https://github.com/lucoiso/UESpeechGPT)  
+* [Sample Project: AzSpeechSampleProject](https://github.com/lucoiso/UEAzSpeechSampleProject)
