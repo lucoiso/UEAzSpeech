@@ -506,6 +506,16 @@ const bool UAzSpeechHelper::IsContentModuleAvailable(const FString& ModuleName)
 	return bOutput;
 }
 
+const FString UAzSpeechHelper::GetPluginFriendlyName()
+{
+	return IPluginManager::Get().FindPlugin("AzSpeech")->GetFriendlyName();
+}
+
+const FString UAzSpeechHelper::GetPluginVersion()
+{
+	return IPluginManager::Get().FindPlugin("AzSpeech")->GetDescriptor().VersionName;
+}
+
 const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData)
 {
 	FAzSpeechAnimationData Output;
@@ -550,6 +560,11 @@ const TArray<FAzSpeechAnimationData> UAzSpeechHelper::ExtractAnimationDataFromVi
 	}
 
 	return Output;
+}
+
+UAzSpeechTaskBase* UAzSpeechHelper::CastToAzSpeechTaskBase(UObject* Object)
+{
+	return Cast<UAzSpeechTaskBase>(Object);
 }
 
 UAzSpeechRecognizerTaskBase* UAzSpeechHelper::CastToAzSpeechRecognizerTaskBase(UObject* Object)
