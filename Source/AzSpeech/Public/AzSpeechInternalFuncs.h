@@ -6,6 +6,7 @@
 
 #include <CoreMinimal.h>
 #include <Runtime/Launch/Resources/Version.h>
+#include <string>
 #include "LogAzSpeech.h"
 
 struct FAzSpeechRecognitionMap;

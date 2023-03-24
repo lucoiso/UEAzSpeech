@@ -5,7 +5,6 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 
 THIRD_PARTY_INCLUDES_START

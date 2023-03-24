@@ -6,18 +6,10 @@
 
 #include <CoreMinimal.h>
 #include <Engine/DeveloperSettings.h>
-#include <map>
-#include <string>
 #include "AzSpeech/Structures/AzSpeechRecognitionMap.h"
 #include "AzSpeech/Structures/AzSpeechPhraseListMap.h"
 #include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 #include "AzSpeechSettings.generated.h"
-
-constexpr unsigned short int AZSPEECH_KEY_SUBSCRIPTION = 0u;
-constexpr unsigned short int AZSPEECH_KEY_REGION = 1u;
-constexpr unsigned short int AZSPEECH_KEY_ENDPOINT = 2u;
-constexpr unsigned short int AZSPEECH_KEY_LANGUAGE = 3u;
-constexpr unsigned short int AZSPEECH_KEY_VOICE = 4u;
 
 /**
  * 
@@ -124,8 +116,9 @@ private:
 	void ToggleInternalLogs();
 	void ValidateRecognitionMap();
 	void ValidatePhraseList();
+	void ValidateEndpoint();
 
 public:
-	static const std::map<unsigned short int, std::string> GetAzSpeechKeys();
 	static const bool CheckAzSpeechSettings();
+	static const bool CheckAzSpeechSettings(const FAzSpeechSettingsOptions& Options, const bool bSSML = false);
 };

@@ -5,10 +5,12 @@
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <HAL/ThreadManager.h>
 #include <Misc/FileHelper.h>
+#include <Misc/Paths.h>
 #include <Misc/ScopeTryLock.h>
 #include <Async/Async.h>
 
@@ -116,21 +118,13 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Checking if can initialize task in current context"), *GetThreadName(), *FString(__func__));
 	
-	bool bOutput = true;
-
-	if (!UAzSpeechSettings::CheckAzSpeechSettings())
+	const UAzSpeechTaskBase* const Task = GetOwningTask();
+	if (!IsValid(Task))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Failed to initialize task due to invalid settings"), *GetThreadName(), *FString(__func__));
-
-		bOutput = false;
+		return false;
 	}
 
-	if (!UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
-	{
-		bOutput = false;
-	}
-
-	return bOutput;
+	return UAzSpeechSettings::CheckAzSpeechSettings(Task->TaskOptions, Task->bIsSSMLBased) && UAzSpeechTaskStatus::IsTaskStillValid(Task);
 }
 
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const

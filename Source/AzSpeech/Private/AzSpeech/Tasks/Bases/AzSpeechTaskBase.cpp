@@ -5,6 +5,8 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 
 #if WITH_EDITOR
@@ -116,7 +118,7 @@ bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
-	return UAzSpeechSettings::CheckAzSpeechSettings() && UAzSpeechTaskStatus::IsTaskStillValid(this);
+	return UAzSpeechTaskStatus::IsTaskStillValid(this);
 }
 
 void UAzSpeechTaskBase::BroadcastFinalResult()

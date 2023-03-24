@@ -4,7 +4,6 @@
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
-#include <Misc/Paths.h>
 #include <HAL/FileManager.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
@@ -71,8 +70,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 	}
 
 	// Try to open the file before sending to Azure - Avoid crash due to the file already being used by another proccess
-	if (FArchive* const Archive = IFileManager::Get().CreateFileReader(*QualifiedPath);
-		Archive == nullptr)
+	if (FArchive* const Archive = IFileManager::Get().CreateFileReader(*QualifiedPath); Archive == nullptr)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to load file '%s'"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *QualifiedPath);
 		return false;

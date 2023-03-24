@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/SSMLToAudioDataAsync.h"
-#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SSMLToAudioDataAsync)
@@ -38,10 +37,5 @@ void USSMLToAudioDataAsync::BroadcastFinalResult()
 
 	Super::BroadcastFinalResult();
 
-	AsyncTask(ENamedThreads::GameThread,
-		[this]
-		{
-			SynthesisCompleted.Broadcast(GetAudioData());
-		}
-	);
+	SynthesisCompleted.Broadcast(GetAudioData());
 }
