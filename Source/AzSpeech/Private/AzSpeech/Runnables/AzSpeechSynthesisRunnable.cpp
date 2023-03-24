@@ -124,6 +124,11 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 	InConfig->SetProperty("SpeechSynthesis_KeepConnectionAfterStopping", "false");
 	InConfig->SetSpeechSynthesisOutputFormat(GetOutputFormat());
 
+	if (SynthesizerTask->IsSSMLBased())
+	{
+		return true;
+	}
+
 	if (SynthesizerTask->IsUsingAutoLanguage())
 	{
 		return true;
@@ -167,7 +172,7 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	
 	ApplySDKSettings(SpeechConfig);
 
-	if (SynthesizerTask->IsUsingAutoLanguage())
+	if (!SynthesizerTask->IsSSMLBased() && SynthesizerTask->IsUsingAutoLanguage())
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing auto language detection"), *GetThreadName(), *FString(__func__));
 

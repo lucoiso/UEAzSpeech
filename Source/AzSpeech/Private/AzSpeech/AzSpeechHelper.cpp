@@ -4,7 +4,6 @@
 
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
-#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include <Sound/SoundWave.h>
@@ -13,7 +12,6 @@
 #include <DesktopPlatformModule.h>
 #include <Kismet/GameplayStatics.h>
 #include <AudioCaptureCore.h>
-#include <Misc/Paths.h>
 #include <HAL/FileManager.h>
 #include <AssetRegistry/AssetRegistryModule.h>
 #include <Components/AudioComponent.h>

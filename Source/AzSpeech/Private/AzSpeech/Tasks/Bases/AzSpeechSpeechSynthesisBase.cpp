@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSpeechSynthesisBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include <Components/AudioComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
 #include <Async/Async.h>

@@ -80,6 +80,11 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 		ValidateCandidateLanguages();
 	}
 
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, RegionID) || PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, bUsePrivateEndpoint))
+	{
+		ValidateEndpoint();
+	}
+
 	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechSettingsOptions, AutoCandidateLanguages))
 	{
 		if (DefaultOptions.AutoCandidateLanguages.Num() > MaxCandidateLanguages)
@@ -101,8 +106,10 @@ void UAzSpeechSettings::PostInitProperties()
 	Super::PostInitProperties();
 
 	ValidateCandidateLanguages(true);
-	ToggleInternalLogs();
 	ValidateRecognitionMap();
+	ValidateEndpoint();
+
+	ToggleInternalLogs();
 }
 
 void UAzSpeechSettings::SetToDefaults()
@@ -217,60 +224,49 @@ void UAzSpeechSettings::ValidatePhraseList()
 	}
 }
 
-const std::map<unsigned short int, std::string> UAzSpeechSettings::GetAzSpeechKeys()
+void UAzSpeechSettings::ValidateEndpoint()
 {
-	std::map<unsigned short int, std::string> Output;
-
-	const UAzSpeechSettings* const Instance = UAzSpeechSettings::Get();
-	if (!IsValid(Instance))
-	{
-		return Output;
-	}
-
-	const auto UpdateSettingsMap = [&Output](const unsigned short int InId, const FName& InString)
-	{
-		const std::string InStr = TCHAR_TO_UTF8(*InString.ToString());
-		Output.insert(std::make_pair(InId, InStr));
-	};
-
-	UpdateSettingsMap(AZSPEECH_KEY_SUBSCRIPTION, Instance->DefaultOptions.SubscriptionKey);
-	UpdateSettingsMap(AZSPEECH_KEY_REGION, Instance->DefaultOptions.RegionID);
-	UpdateSettingsMap(AZSPEECH_KEY_ENDPOINT, Instance->DefaultOptions.PrivateEndpoint);
-	UpdateSettingsMap(AZSPEECH_KEY_LANGUAGE, Instance->DefaultOptions.LanguageID);
-	UpdateSettingsMap(AZSPEECH_KEY_VOICE, Instance->DefaultOptions.VoiceName);
-
-	return Output;
+	DefaultOptions.SyncEndpointWithRegion();
 }
 
 const bool UAzSpeechSettings::CheckAzSpeechSettings()
 {
-	const auto AzSpeechParams = GetAzSpeechKeys();
-	if (AzSpeechParams.empty())
+	return CheckAzSpeechSettings(UAzSpeechSettings::Get()->DefaultOptions);
+}
+
+const bool UAzSpeechSettings::CheckAzSpeechSettings(const FAzSpeechSettingsOptions& Options, const bool bSSML)
+{
+	if (Options.bUsePrivateEndpoint && AzSpeech::Internal::HasEmptyParam(Options.PrivateEndpoint))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Endpoint."), *FString(__func__));
 		return false;
 	}
 
-	const bool bUsingEndpoint = UAzSpeechSettings::Get()->DefaultOptions.bUsePrivateEndpoint;
-
-	for (uint8 Iterator = 0u; Iterator < AzSpeechParams.size(); ++Iterator)
+	if (!Options.bUsePrivateEndpoint && AzSpeech::Internal::HasEmptyParam(Options.RegionID))
 	{
-		if (bUsingEndpoint && Iterator == AZSPEECH_KEY_REGION)
-		{
-			// Do not check region
-			continue;
-		}
-		else if (!bUsingEndpoint && Iterator == AZSPEECH_KEY_ENDPOINT)
-		{
-			// Do not check endpoint
-			continue;
-		}
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Region ID."), *FString(__func__));
+		return false;
+	}
 
-		if (AzSpeechParams.at(Iterator).empty())
+	if (!bSSML)
+	{
+		if (AzSpeech::Internal::HasEmptyParam(Options.LanguageID))
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid settings. Check your AzSpeech settings on Project Settings -> AzSpeech Settings."), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Language ID."), *FString(__func__));
 			return false;
 		}
+
+		if (AzSpeech::Internal::HasEmptyParam(Options.VoiceName))
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Voice Name."), *FString(__func__));
+			return false;
+		}
+	}
+
+	if (AzSpeech::Internal::HasEmptyParam(Options.SubscriptionKey))
+	{
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Subscription Key."), *FString(__func__));
+		return false;
 	}
 
 	return true;

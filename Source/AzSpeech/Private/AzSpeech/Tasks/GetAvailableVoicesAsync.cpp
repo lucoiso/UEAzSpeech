@@ -91,23 +91,55 @@ const TArray<FString> UGetAvailableVoicesAsync::GetAvailableVoices() const
 {
 	TArray<FString> Output;
 
-	const auto Settings = UAzSpeechSettings::GetAzSpeechKeys();
-	if (const auto SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(Settings.at(0), Settings.at(1)))
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> SpeechConfig;
+	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
+	const std::string SubscriptionKey = TCHAR_TO_UTF8(*Settings->DefaultOptions.SubscriptionKey.ToString());
+
+	if (Settings->DefaultOptions.bUsePrivateEndpoint)
+	{
+		const std::string RegionID = TCHAR_TO_UTF8(*Settings->DefaultOptions.RegionID.ToString());
+		SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(SubscriptionKey, RegionID);
+	}
+	else
+	{
+		const std::string Endpoint = TCHAR_TO_UTF8(*Settings->DefaultOptions.PrivateEndpoint.ToString());
+		SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Endpoint, SubscriptionKey);
+	}
+
+	if (SpeechConfig)
 	{
 		if (std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig))
 		{
 			const auto SynthesisVoices = SpeechSynthesizer->GetVoicesAsync(TCHAR_TO_UTF8(*Locale)).get();
+
 			for (const auto& Voice : SynthesisVoices->Voices)
 			{
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Name: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(Voice->Name.c_str()));
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Short Name: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(Voice->ShortName.c_str()));
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Local Name: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(Voice->LocalName.c_str()));
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Path: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(Voice->VoicePath.c_str()));
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Locale: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), UTF8_TO_TCHAR(Voice->Locale.c_str()));
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Gender: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), Voice->Gender);
-				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Voice Type: %d"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), Voice->VoiceType);
-
 				Output.Add(UTF8_TO_TCHAR(Voice->ShortName.c_str()));
+
+				const FStringFormatOrderedArguments Arguments{
+					TaskName.ToString(),
+					GetUniqueID(),
+					FString(__func__),
+					UTF8_TO_TCHAR(Voice->Name.c_str()),
+					UTF8_TO_TCHAR(Voice->ShortName.c_str()),
+					UTF8_TO_TCHAR(Voice->LocalName.c_str()),
+					UTF8_TO_TCHAR(Voice->VoicePath.c_str()),
+					UTF8_TO_TCHAR(Voice->Locale.c_str()),
+					static_cast<int32>(Voice->Gender),
+					static_cast<int32>(Voice->VoiceType)
+				};
+
+				const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1});\n\tFunction: {2};\n\tVoice Name: {3}\n\tVoice Short Name: {4}\n\tVoice Local Name: {5}\n\tVoice Path: {6};\n\tVoice Locale: {7}\n\tVoice Gender: {8}\n\tVoice Type: {9}"), Arguments);
+
+				UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
+
+#if !UE_BUILD_SHIPPING
+				if (UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+				{
+					GEngine->AddOnScreenDebugMessage(static_cast<int32>(GetUniqueID()), 5.f, FColor::Yellow, MountedDebuggingInfo);
+				}
+#endif
+
 			}
 		}
 	}
