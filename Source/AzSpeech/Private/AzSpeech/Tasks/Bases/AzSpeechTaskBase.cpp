@@ -158,6 +158,11 @@ FAzSpeechSettingsOptions UAzSpeechTaskBase::GetValidatedOptions(const FAzSpeechS
 	Output.LanguageID = GetValidatedLanguageID(Options.LanguageID);
 	Output.VoiceName = GetValidatedVoiceName(Options.VoiceName);
 
+	if (Output.bUsePrivateEndpoint && AzSpeech::Internal::HasEmptyParam(Output.PrivateEndpoint) && !AzSpeech::Internal::HasEmptyParam(Output.RegionID))
+	{
+		Output.bUsePrivateEndpoint = false;
+	}
+
 	return Output;
 }
 
