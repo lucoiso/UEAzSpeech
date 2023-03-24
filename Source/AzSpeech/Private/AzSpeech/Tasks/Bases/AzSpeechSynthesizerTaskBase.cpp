@@ -7,7 +7,6 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
-#include <Async/Async.h>
 
 #if !UE_BUILD_SHIPPING
 #include <Engine/Engine.h>

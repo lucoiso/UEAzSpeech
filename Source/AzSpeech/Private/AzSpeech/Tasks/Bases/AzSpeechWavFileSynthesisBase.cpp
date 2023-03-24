@@ -6,7 +6,6 @@
 #include "AzSpeech/AzSpeechHelper.h"
 #include "LogAzSpeech.h"
 #include <HAL/FileManager.h>
-#include <Async/Async.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechWavFileSynthesisBase)
@@ -68,12 +67,7 @@ void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 
 	Super::BroadcastFinalResult();
 
-	AsyncTask(ENamedThreads::GameThread,
-		[this]
-		{
-			SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
-		}
-	);
+	SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()

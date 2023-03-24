@@ -45,4 +45,14 @@ void FAzSpeechSettingsOptions::SetDefaults()
 		SpeechSynthesisOutputFormat = Settings->DefaultOptions.SpeechSynthesisOutputFormat;
 		SpeechRecognitionOutputFormat = Settings->DefaultOptions.SpeechRecognitionOutputFormat;
 	}
+
+	SyncEndpointWithRegion();
+}
+
+void FAzSpeechSettingsOptions::SyncEndpointWithRegion()
+{
+	if (!bUsePrivateEndpoint)
+	{
+		PrivateEndpoint = *FString::Format(TEXT("https://{0}.api.cognitive.microsoft.com/sts/v1.0/issuetoken"), { RegionID.ToString() });
+	}
 }
