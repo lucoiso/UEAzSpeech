@@ -89,6 +89,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Recognition Output Format"))
 	EAzSpeechRecognitionOutputFormat SpeechRecognitionOutputFormat;
 
+	/* If not using private endpoint, set endpoint value to: https://REGION-ID.api.cognitive.microsoft.com/sts/v1.0/issuetoken */
+	void SyncEndpointWithRegion();
+
 private:
 	void SetDefaults();
 };

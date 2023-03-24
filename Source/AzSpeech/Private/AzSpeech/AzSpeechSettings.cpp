@@ -226,10 +226,7 @@ void UAzSpeechSettings::ValidatePhraseList()
 
 void UAzSpeechSettings::ValidateEndpoint()
 {
-	if (!DefaultOptions.bUsePrivateEndpoint)
-	{
-		DefaultOptions.PrivateEndpoint = *FString::Format(TEXT("https://{0}.api.cognitive.microsoft.com/sts/v1.0/issuetoken"), { DefaultOptions.RegionID.ToString() });
-	}
+	DefaultOptions.SyncEndpointWithRegion();
 }
 
 const bool UAzSpeechSettings::CheckAzSpeechSettings()
