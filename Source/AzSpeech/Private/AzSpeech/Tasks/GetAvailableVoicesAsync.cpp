@@ -93,16 +93,16 @@ const TArray<FString> UGetAvailableVoicesAsync::GetAvailableVoices() const
 
 	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> SpeechConfig;
 	const UAzSpeechSettings* const Settings = UAzSpeechSettings::Get();
-	const std::string SubscriptionKey = TCHAR_TO_UTF8(*Settings->DefaultOptions.SubscriptionKey.ToString());
+	const std::string SubscriptionKey = TCHAR_TO_UTF8(*Settings->DefaultOptions.SubscriptionOptions.SubscriptionKey.ToString());
 
-	if (Settings->DefaultOptions.bUsePrivateEndpoint)
+	if (Settings->DefaultOptions.SubscriptionOptions.bUsePrivateEndpoint)
 	{
-		const std::string RegionID = TCHAR_TO_UTF8(*Settings->DefaultOptions.RegionID.ToString());
+		const std::string RegionID = TCHAR_TO_UTF8(*Settings->DefaultOptions.SubscriptionOptions.RegionID.ToString());
 		SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(SubscriptionKey, RegionID);
 	}
 	else
 	{
-		const std::string Endpoint = TCHAR_TO_UTF8(*Settings->DefaultOptions.PrivateEndpoint.ToString());
+		const std::string Endpoint = TCHAR_TO_UTF8(*Settings->DefaultOptions.SubscriptionOptions.PrivateEndpoint.ToString());
 		SpeechConfig = Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(Endpoint, SubscriptionKey);
 	}
 

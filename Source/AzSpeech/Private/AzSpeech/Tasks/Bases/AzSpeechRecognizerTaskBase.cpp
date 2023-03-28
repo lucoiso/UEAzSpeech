@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 
@@ -14,6 +15,11 @@
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechRecognizerTaskBase)
 #endif
+
+const FAzSpeechRecognitionOptions UAzSpeechRecognizerTaskBase::GetRecognitionOptions() const
+{
+	return RecognitionOptions;
+}
 
 const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {

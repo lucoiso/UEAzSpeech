@@ -72,6 +72,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetSynthesisText() const;
 
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const FAzSpeechSynthesisOptions GetSynthesisOptions() const;
+
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
 	const bool IsSSMLBased() const;
 
@@ -92,6 +95,7 @@ public:
 	
 protected:
 	FString SynthesisText;
+	FAzSpeechSynthesisOptions SynthesisOptions;
 	
 	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 	

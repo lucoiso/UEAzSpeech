@@ -7,6 +7,9 @@
 #include <CoreMinimal.h>
 #include "SAzSpeechAudioGenerator.generated.h"
 
+DECLARE_DELEGATE_OneParam(FAvailableVoicesUpdated, TArray<FString>);
+DECLARE_DELEGATE_OneParam(FAudioDataGenerated, TArray<uint8>);
+
 UCLASS(MinimalAPI, NotBlueprintable, NotPlaceable, Category = "Implementation")
 class UAzSpeechPropertiesGetter : public UObject
 {
@@ -14,11 +17,9 @@ class UAzSpeechPropertiesGetter : public UObject
 
 public:
 	explicit UAzSpeechPropertiesGetter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-#if ENGINE_MAJOR_VERSION >= 5
-	TObjectPtr<class SAzSpeechAudioGenerator> OwningWidget;
-#else
-	class SAzSpeechAudioGenerator* OwningWidget;
-#endif
+	
+	FAvailableVoicesUpdated OnAvailableVoicesUpdated;
+	FAudioDataGenerated OnAudioDataGenerated;
 
 	UFUNCTION()
 	void OnAvailableVoicesChanged(const TArray<FString>& Voices);

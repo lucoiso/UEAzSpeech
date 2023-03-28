@@ -124,7 +124,7 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 		return false;
 	}
 
-	return UAzSpeechSettings::CheckAzSpeechSettings(Task->TaskOptions, Task->bIsSSMLBased) && UAzSpeechTaskStatus::IsTaskStillValid(Task);
+	return UAzSpeechSettings::CheckAzSpeechSettings(Task->GetSubscriptionOptions()) && UAzSpeechTaskStatus::IsTaskStillValid(Task);
 }
 
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const
@@ -136,12 +136,12 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 		return nullptr;
 	}
 
-	if (OwningTask->GetTaskOptions().bUsePrivateEndpoint)
+	if (OwningTask->GetSubscriptionOptions().bUsePrivateEndpoint)
 	{
-		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().SubscriptionKey.ToString()));
+		return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()));
 	}
 
-	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetTaskOptions().RegionID.ToString()));
+	return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().RegionID.ToString()));
 }
 
 const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
@@ -161,16 +161,48 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
 
 	EnableLogInConfiguration(InSpeechConfig);
 
-	InSpeechConfig->SetProfanity(GetProfanityFilter());
-
-	if (GetOwningTask()->IsUsingAutoLanguage())
-	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using auto language identification"), *GetThreadName(), *FString(__func__));
-		
-		InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_LanguageIdMode, "Continuous");
-	}
-
 	return true;
+}
+
+void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+{
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding profanity filter property"), *GetThreadName(), *FString(__func__));
+	switch (Mode)
+	{
+		case EAzSpeechProfanityFilter::Raw:
+			InSpeechConfig->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Raw);
+			break;
+
+		case EAzSpeechProfanityFilter::Removed:
+			InSpeechConfig->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Removed);
+			break;
+
+		case EAzSpeechProfanityFilter::Masked:
+			InSpeechConfig->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Masked);
+			break;
+
+		default:
+			break;
+	}
+}
+
+void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+{
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding language identification property"), *GetThreadName(), *FString(__func__));
+
+	switch (Mode)
+	{
+		case EAzSpeechLanguageIdentificationMode::AtStart:
+			InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_LanguageIdMode, "AtStart");
+			break;
+
+		case EAzSpeechLanguageIdentificationMode::Continuous:
+			InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_LanguageIdMode, "Continuous");
+			break;
+
+		default:
+			break;
+	}
 }
 
 const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
@@ -207,28 +239,6 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 	return false;
 #endif
-}
-
-const Microsoft::CognitiveServices::Speech::ProfanityOption FAzSpeechRunnableBase::GetProfanityFilter() const
-{
-	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
-	{
-		switch (OwningTask->GetTaskOptions().ProfanityFilter)
-		{
-			case EAzSpeechProfanityFilter::Raw:
-				return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
-
-			case EAzSpeechProfanityFilter::Removed:
-				return Microsoft::CognitiveServices::Speech::ProfanityOption::Removed;
-
-			case EAzSpeechProfanityFilter::Masked:
-				return Microsoft::CognitiveServices::Speech::ProfanityOption::Masked;
-
-			default: break;
-		}
-	}
-
-	return Microsoft::CognitiveServices::Speech::ProfanityOption::Raw;
 }
 
 const FString FAzSpeechRunnableBase::CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const
@@ -359,7 +369,7 @@ const int32 FAzSpeechRunnableBase::GetTimeout() const
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
-		return UAzSpeechSettings::Get()->TimeOutInSeconds <= 0.f ? 15.f : UAzSpeechSettings::Get()->TimeOutInSeconds;
+		return UAzSpeechSettings::Get()->TaskInitTimeOut <= 0.f ? 15.f : UAzSpeechSettings::Get()->TaskInitTimeOut;
 	}
 
 	return 15.f;

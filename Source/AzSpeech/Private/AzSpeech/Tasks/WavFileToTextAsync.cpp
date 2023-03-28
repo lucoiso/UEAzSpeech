@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeechInternalFuncs.h"
 #include <HAL/FileManager.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
@@ -12,14 +13,15 @@
 
 UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_DefaultOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
 {
-	return WavFileToText_CustomOptions(WorldContextObject, FilePath, FileName, FAzSpeechSettingsOptions(*LanguageID), PhraseListGroup);
+	return WavFileToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*LanguageID), FilePath, FileName, PhraseListGroup);
 }
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->RecognitionOptions = RecognitionOptions;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
@@ -50,7 +52,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 	
-	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, GetTaskOptions().LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, GetRecognitionOptions().LanguageID))
 	{
 		return false;
 	}

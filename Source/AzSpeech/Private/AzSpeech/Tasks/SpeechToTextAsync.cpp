@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeechInternalFuncs.h"
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SpeechToTextAsync)
@@ -11,14 +12,15 @@
 
 USpeechToTextAsync* USpeechToTextAsync::SpeechToText_DefaultOptions(UObject* WorldContextObject, const FString& LanguageID, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
-	return SpeechToText_CustomOptions(WorldContextObject, FAzSpeechSettingsOptions(*LanguageID), AudioInputDeviceID, PhraseListGroup);
+	return SpeechToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*LanguageID), AudioInputDeviceID, PhraseListGroup);
 }
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSettingsOptions& Options, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
 	USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->RecognitionOptions = RecognitionOptions;
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
@@ -53,7 +55,7 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(GetTaskOptions().LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(GetRecognitionOptions().LanguageID))
 	{
 		return false;
 	}

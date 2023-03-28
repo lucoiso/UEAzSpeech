@@ -10,15 +10,16 @@
 
 UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName, const FString& LanguageID)
 {
-	return TextToWavFile_CustomOptions(WorldContextObject, SynthesisText, FilePath, FileName, FAzSpeechSettingsOptions(*LanguageID, *VoiceName));
+	return TextToWavFile_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*LanguageID, *VoiceName), SynthesisText, FilePath, FileName);
 }
 
-UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options)
+UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
 {
 	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->bIsSSMLBased = false;

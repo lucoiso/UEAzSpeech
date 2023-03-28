@@ -23,7 +23,7 @@ public:
 
 	/* Creates a Speech-To-Text task that will convert your speech to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Speech to Text with Custom Options"))
-	static USpeechToTextAsync* SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSettingsOptions& Options, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
+	static USpeechToTextAsync* SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
 	
