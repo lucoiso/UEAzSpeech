@@ -10,14 +10,15 @@
 
 USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
 {
-	return SSMLToAudioData_CustomOptions(WorldContextObject, SynthesisSSML, FAzSpeechSettingsOptions());
+	return SSMLToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(), SynthesisSSML);
 }
 
-USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FAzSpeechSettingsOptions& Options)
+USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisSSML)
 {
 	USSMLToAudioDataAsync* const NewAsyncTask = NewObject<USSMLToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);

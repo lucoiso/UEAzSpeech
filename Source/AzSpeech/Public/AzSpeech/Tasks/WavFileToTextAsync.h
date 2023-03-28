@@ -23,7 +23,7 @@ public:
 
 	/* Creates a WavFile-To-Text task that will convert your Wav file to string */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = ".wav File To Text with Custom Options"))
-	static UWavFileToTextAsync* WavFileToText_CustomOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FAzSpeechSettingsOptions& Options, const FName PhraseListGroup = NAME_None);
+	static UWavFileToTextAsync* WavFileToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
 

@@ -36,20 +36,18 @@ public:
 	virtual void StopAzSpeechTask();
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const bool IsUsingAutoLanguage() const;
-
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FName GetTaskName() const;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FAzSpeechSettingsOptions GetTaskOptions() const;
+	const FAzSpeechSubscriptionOptions GetSubscriptionOptions() const;
 
 	virtual void SetReadyToDestroy() override;
 
 protected:
 	TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
 	FName TaskName = NAME_None;
-	FAzSpeechSettingsOptions TaskOptions;
+
+	FAzSpeechSubscriptionOptions SubscriptionOptions;
 
 	const UObject* WorldContextObject;
 	bool bIsSSMLBased = false;
@@ -64,8 +62,6 @@ protected:
 
 	bool bEndingPIE = false;
 #endif
-
-	static FAzSpeechSettingsOptions GetValidatedOptions(const FAzSpeechSettingsOptions& Options);
 
 	template <typename ReturnTy, typename ResultType>
 	constexpr ReturnTy GetProperty(const ResultType& Result, const Microsoft::CognitiveServices::Speech::PropertyId& ID)
@@ -103,9 +99,6 @@ protected:
 private:
 	bool bIsTaskActive = false;
 	bool bIsReadyToDestroy = false;
-
-	static FName GetValidatedLanguageID(const FName& Language);
-	static FName GetValidatedVoiceName(const FName& Voice);
 };
 
 UCLASS(NotPlaceable, Category = "AzSpeech")

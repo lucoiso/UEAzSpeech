@@ -44,6 +44,9 @@ public:
 	FAzSpeechTaskGenericDelegate RecognitionFailed;
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const FAzSpeechRecognitionOptions GetRecognitionOptions() const;
+
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetRecognizedString() const;
 	
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
@@ -51,6 +54,7 @@ public:
 	
 protected:
 	FName PhraseListGroup = NAME_None;
+	FAzSpeechRecognitionOptions RecognitionOptions;
 	
 	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
