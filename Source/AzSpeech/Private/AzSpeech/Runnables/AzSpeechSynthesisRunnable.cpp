@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 #include <Misc/ScopeTryLock.h>
@@ -26,7 +27,6 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	}
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
-
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return 0u;
@@ -64,7 +64,6 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 	}
 
 	const float SleepTime = GetThreadUpdateInterval();
-
 	while (!IsPendingStop())
 	{
 		FPlatformProcess::Sleep(SleepTime);
@@ -115,7 +114,6 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 	}
 
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
-
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
@@ -124,23 +122,26 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 	InConfig->SetProperty("SpeechSynthesis_KeepConnectionAfterStopping", "false");
 	InConfig->SetSpeechSynthesisOutputFormat(GetOutputFormat());
 
+	InsertProfanityFilterProperty(SynthesizerTask->GetSynthesisOptions().ProfanityFilter, InConfig);
+
 	if (SynthesizerTask->IsSSMLBased())
 	{
 		return true;
 	}
 
-	if (SynthesizerTask->IsUsingAutoLanguage())
+	if (SynthesizerTask->GetSynthesisOptions().bUseLanguageIdentification)
 	{
+		InsertLanguageIdentificationProperty(SynthesizerTask->GetSynthesisOptions().LanguageIdentificationMode, InConfig);
 		return true;
 	}
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetTaskOptions().LanguageID.ToString());
-	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetTaskOptions().VoiceName.ToString());
+	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().LanguageID.ToString());
+	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().VoiceName.ToString());
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetTaskOptions().LanguageID.ToString());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisOptions().LanguageID.ToString());
 	InConfig->SetSpeechSynthesisLanguage(UsedLang);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetTaskOptions().VoiceName.ToString());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisOptions().VoiceName.ToString());
 	InConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
 	return true;
@@ -154,7 +155,6 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	}
 	
 	UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask();
-
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
 		return false;
@@ -163,7 +163,6 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating synthesizer object"), *GetThreadName(), *FString(__func__));
 
 	const auto SpeechConfig = CreateSpeechConfig();
-
 	if (!SpeechConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));	
@@ -172,10 +171,9 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	
 	ApplySDKSettings(SpeechConfig);
 
-	if (!SynthesizerTask->IsSSMLBased() && SynthesizerTask->IsUsingAutoLanguage())
+	if (!SynthesizerTask->IsSSMLBased() && SynthesizerTask->GetSynthesisOptions().bUseLanguageIdentification)
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing auto language detection"), *GetThreadName(), *FString(__func__));
-
 		SpeechSynthesizer = Microsoft::CognitiveServices::Speech::SpeechSynthesizer::FromConfig(SpeechConfig, Microsoft::CognitiveServices::Speech::AutoDetectSourceLanguageConfig::FromOpenRange(), GetAudioConfig());
 	}
 	else
@@ -194,7 +192,7 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
 		return false;
 	}
 
-	if (!SynthesizerTask->GetTaskOptions().bEnableViseme)
+	if (!SynthesizerTask->GetSynthesisOptions().bEnableViseme)
 	{
 		return true;
 	}
@@ -351,14 +349,12 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 
 	if (LastResult->Reason == Microsoft::CognitiveServices::Speech::ResultReason::Canceled)
 	{
-		bOutput = false;
-		
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: Canceled"), *GetThreadName(), *FString(__func__));
-		
+
+		bOutput = false;		
 		const auto CancellationDetails = Microsoft::CognitiveServices::Speech::SpeechSynthesisCancellationDetails::FromResult(LastResult);
 
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Cancellation Reason: %s"), *GetThreadName(), *FString(__func__), *CancellationReasonToString(CancellationDetails->Reason));
-
 		if (CancellationDetails->Reason == Microsoft::CognitiveServices::Speech::CancellationReason::Error)
 		{
 			ProcessCancellationError(CancellationDetails->ErrorCode, CancellationDetails->ErrorDetails);
@@ -372,7 +368,7 @@ const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat FAzSpeec
 {	
 	if (UAzSpeechSynthesizerTaskBase* const SynthesizerTask = GetOwningSynthesizerTask(); UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
 	{
-		switch (SynthesizerTask->GetTaskOptions().SpeechSynthesisOutputFormat)
+		switch (SynthesizerTask->GetSynthesisOptions().SpeechSynthesisOutputFormat)
 		{
 			case EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm:
 				return Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;

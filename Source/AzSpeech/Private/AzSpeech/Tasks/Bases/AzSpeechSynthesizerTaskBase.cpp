@@ -4,6 +4,7 @@
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
 #include "AzSpeech/Runnables/AzSpeechSynthesisRunnable.h"
+#include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
@@ -75,6 +76,11 @@ const bool UAzSpeechSynthesizerTaskBase::IsLastResultValid() const
 const FString UAzSpeechSynthesizerTaskBase::GetSynthesisText() const
 {
 	return SynthesisText;
+}
+
+const FAzSpeechSynthesisOptions UAzSpeechSynthesizerTaskBase::GetSynthesisOptions() const
+{
+	return SynthesisOptions;
 }
 
 const bool UAzSpeechSynthesizerTaskBase::IsSSMLBased() const

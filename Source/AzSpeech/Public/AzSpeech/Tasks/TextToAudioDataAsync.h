@@ -27,7 +27,7 @@ public:
 
 	/* Creates a Text-To-AudioData task that will convert your text to a audio data stream */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Audio Data with Custom Options"))
-	static UTextToAudioDataAsync* TextToAudioData_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options);
+	static UTextToAudioDataAsync* TextToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText);
 
 protected:
 	virtual void BroadcastFinalResult() override;

@@ -24,22 +24,12 @@ public:
 
 	static const UAzSpeechSettings* Get();
 
-	static constexpr unsigned MaxCandidateLanguages = 10u;
-
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "AzSpeech", Meta = (DisplayName = "Default Options"))
-	FAzSpeechSettingsOptions DefaultOptions;	
+	FAzSpeechSettingsOptions DefaultOptions;
 
-	/* Silence time limit in miliseconds to consider the task as Completed */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Segmentation Silence Timeout in Miliseconds", ClampMin = "100", UIMin = "100", ClampMax = "5000", UIMax = "5000"))
-	int32 SegmentationSilenceTimeoutMs;
-
-	/* Silence time limit in miliseconds at the start of the task to consider the result as Canceled/NoMatch */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
-	int32 InitialSilenceTimeoutMs;
-
-	/* Time limit in seconds to wait for related asynchronous tasks to complete */
-	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Tasks", Meta = (DisplayName = "Attempt Timeout in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
-	int32 TimeOutInSeconds;
+	/* Time Out in seconds to wait for related asynchronous tasks to initialize: std::future::wait_for */
+	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Task Initialization Time Out in Seconds", ClampMin = "1", UIMin = "1", ClampMax = "600", UIMax = "600"))
+	int32 TaskInitTimeOut;
 
 	/* CPU thread priority to use in created runnable threads */
 	UPROPERTY(GlobalConfig, EditAnywhere, Category = "Thread", Meta = (DisplayName = "Thread Priority"))
@@ -120,5 +110,5 @@ private:
 
 public:
 	static const bool CheckAzSpeechSettings();
-	static const bool CheckAzSpeechSettings(const FAzSpeechSettingsOptions& Options, const bool bSSML = false);
+	static const bool CheckAzSpeechSettings(const FAzSpeechSubscriptionOptions& Options);
 };

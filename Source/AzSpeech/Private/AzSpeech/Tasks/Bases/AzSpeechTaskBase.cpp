@@ -33,6 +33,8 @@ void UAzSpeechTaskBase::Activate()
 
 	TaskName = *NewTaskName;
 
+	SubscriptionOptions.SyncEndpointWithRegion();
+
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 
 	bIsTaskActive = true;
@@ -72,19 +74,14 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	SetReadyToDestroy();
 }
 
-const bool UAzSpeechTaskBase::IsUsingAutoLanguage() const
-{
-	return GetTaskOptions().LanguageID.ToString().Equals("Auto", ESearchCase::IgnoreCase);
-}
-
 const FName UAzSpeechTaskBase::GetTaskName() const
 {
 	return TaskName;
 }
 
-const FAzSpeechSettingsOptions UAzSpeechTaskBase::GetTaskOptions() const
+const FAzSpeechSubscriptionOptions UAzSpeechTaskBase::GetSubscriptionOptions() const
 {
-	return TaskOptions;
+	return SubscriptionOptions;
 }
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
@@ -151,40 +148,6 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 	StopAzSpeechTask();
 }
 #endif
-
-FAzSpeechSettingsOptions UAzSpeechTaskBase::GetValidatedOptions(const FAzSpeechSettingsOptions& Options)
-{
-	FAzSpeechSettingsOptions Output = Options;
-	Output.LanguageID = GetValidatedLanguageID(Options.LanguageID);
-	Output.VoiceName = GetValidatedVoiceName(Options.VoiceName);
-
-	if (Output.bUsePrivateEndpoint && AzSpeech::Internal::HasEmptyParam(Output.PrivateEndpoint) && !AzSpeech::Internal::HasEmptyParam(Output.RegionID))
-	{
-		Output.bUsePrivateEndpoint = false;
-	}
-
-	return Output;
-}
-
-FName UAzSpeechTaskBase::GetValidatedLanguageID(const FName& Language)
-{
-	if (AzSpeech::Internal::HasEmptyParam(Language) || Language.ToString().Equals("Default", ESearchCase::IgnoreCase))
-	{
-		return UAzSpeechSettings::Get()->DefaultOptions.LanguageID;
-	}
-
-	return Language;
-}
-
-FName UAzSpeechTaskBase::GetValidatedVoiceName(const FName& Voice)
-{
-	if (AzSpeech::Internal::HasEmptyParam(Voice) || Voice.ToString().Equals("Default", ESearchCase::IgnoreCase))
-	{
-		return UAzSpeechSettings::Get()->DefaultOptions.VoiceName;
-	}
-
-	return Voice;
-}
 
 bool UAzSpeechTaskStatus::IsTaskActive(const UAzSpeechTaskBase* Test)
 {

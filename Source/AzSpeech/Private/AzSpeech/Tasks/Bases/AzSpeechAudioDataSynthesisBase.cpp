@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechAudioDataSynthesisBase.h"
+#include "AzSpeechInternalFuncs.h"
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechAudioDataSynthesisBase)

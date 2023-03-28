@@ -23,5 +23,5 @@ public:
 
 	/* Creates a Text-To-Speech task that will convert your text to speech */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Speech with Custom Options"))
-	static UTextToSpeechAsync* TextToSpeech_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options);
+	static UTextToSpeechAsync* TextToSpeech_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText);
 };

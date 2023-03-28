@@ -10,15 +10,16 @@
 
 UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
 {
-	return TextToAudioData_CustomOptions(WorldContextObject, SynthesisText, FAzSpeechSettingsOptions(*LanguageID, *VoiceName));
+	return TextToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*LanguageID, *VoiceName), SynthesisText);
 }
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* WorldContextObject, const FString& SynthesisText, const FAzSpeechSettingsOptions& Options)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
 {
 	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->TaskOptions = GetValidatedOptions(Options);
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
