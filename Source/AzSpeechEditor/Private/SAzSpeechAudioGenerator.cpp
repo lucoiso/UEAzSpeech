@@ -26,24 +26,13 @@ UAzSpeechPropertiesGetter::UAzSpeechPropertiesGetter(const FObjectInitializer& O
 
 void UAzSpeechPropertiesGetter::OnAvailableVoicesChanged(const TArray<FString>& Voices)
 {
-	if (OwningWidget)
-	{
-		OwningWidget->OnAvailableVoicesChanged(Voices);
-	}
-
+	OnAvailableVoicesUpdated.ExecuteIfBound(Voices);
 	Destroy();
 }
 
 void UAzSpeechPropertiesGetter::SynthesisCompleted(const TArray<uint8>& AudioData)
 {
-	if (OwningWidget)
-	{
-		if (USoundWave* const SoundWave = UAzSpeechHelper::ConvertAudioDataToSoundWave(AudioData, OwningWidget->Module, OwningWidget->RelativePath, OwningWidget->AssetName))
-		{
-			UGameplayStatics::PlaySound2D(GEditor->GetEditorWorldContext().World(), SoundWave);
-		}
-	}
-
+	OnAudioDataGenerated.ExecuteIfBound(AudioData);
 	Destroy();
 }
 
@@ -54,8 +43,6 @@ void UAzSpeechPropertiesGetter::TaskFail()
 
 void UAzSpeechPropertiesGetter::Destroy()
 {
-	OwningWidget = nullptr;
-
 #if ENGINE_MAJOR_VERSION >= 5
 	MarkAsGarbage();
 #else
@@ -252,7 +239,12 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 void SAzSpeechAudioGenerator::UpdateAvailableVoices()
 {
 	UAzSpeechPropertiesGetter* const InternalGetter = NewObject<UAzSpeechPropertiesGetter>();
-	InternalGetter->OwningWidget = this;
+	InternalGetter->OnAvailableVoicesUpdated.BindLambda(
+		[this](TArray<FString> Voices)
+		{
+			OnAvailableVoicesChanged(Voices);
+		}
+	);
 
 	UGetAvailableVoicesAsync* const Task = UGetAvailableVoicesAsync::GetAvailableVoicesAsync(GEditor->GetEditorWorldContext().World(), Locale);
 	Task->Success.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::OnAvailableVoicesChanged);
@@ -268,7 +260,15 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	}
 
 	UAzSpeechPropertiesGetter* const InternalGetter = NewObject<UAzSpeechPropertiesGetter>();
-	InternalGetter->OwningWidget = this;
+	InternalGetter->OnAudioDataGenerated.BindLambda(
+		[this](TArray<uint8> AudioData)
+		{
+			if (USoundWave* const SoundWave = UAzSpeechHelper::ConvertAudioDataToSoundWave(AudioData, Module, RelativePath, AssetName))
+			{
+				UGameplayStatics::PlaySound2D(GEditor->GetEditorWorldContext().World(), SoundWave);
+			}
+		}
+	);
 
 	UAzSpeechAudioDataSynthesisBase* Task = nullptr;
 	if (bIsSSMLBased)
