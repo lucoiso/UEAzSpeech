@@ -38,7 +38,6 @@ public:
 	virtual void SetReadyToDestroy() override;
 
 protected:
-	const UObject* WorldContextObject;
 	FName TaskName;
 	FName GroupName;
 	FString InputString;

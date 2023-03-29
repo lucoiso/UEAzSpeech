@@ -63,21 +63,21 @@ FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions()
 	SetDefaults();
 }
 
-FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions(const FName& LanguageID)
+FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions(const FName& Locale)
 {
 	SetDefaults();
 
-	if (IsAutoLanguage(LanguageID))
+	if (IsAutoLanguage(Locale))
 	{
 		this->bUseLanguageIdentification = true;
-		this->LanguageID = LanguageID;
+		this->Locale = Locale;
 	}
-	else if (IsDefault(LanguageID))
+	else if (IsDefault(Locale))
 	{
-		this->LanguageID = GetDefault<UAzSpeechSettings>()->DefaultOptions.RecognitionOptions.LanguageID;
+		this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.RecognitionOptions.Locale;
 	}
 
-	this->LanguageID = LanguageID;
+	this->Locale = Locale;
 }
 
 uint8 FAzSpeechRecognitionOptions::GetMaxAllowedCandidateLanguages() const
@@ -101,7 +101,7 @@ void FAzSpeechRecognitionOptions::SetDefaults()
 {
 	if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
 	{
-		LanguageID = Settings->DefaultOptions.RecognitionOptions.LanguageID;
+		Locale = Settings->DefaultOptions.RecognitionOptions.Locale;
 		CandidateLanguages = Settings->DefaultOptions.RecognitionOptions.CandidateLanguages;
 		SpeechRecognitionOutputFormat = Settings->DefaultOptions.RecognitionOptions.SpeechRecognitionOutputFormat;
 		bUseLanguageIdentification = Settings->DefaultOptions.RecognitionOptions.bUseLanguageIdentification;
@@ -117,47 +117,47 @@ FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions()
 	SetDefaults();
 }
 
-FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& LanguageID)
+FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale)
 {
 	SetDefaults();
 
-	if (IsAutoLanguage(LanguageID))
+	if (IsAutoLanguage(Locale))
 	{
 		this->bUseLanguageIdentification = true;
-		this->LanguageID = LanguageID;
+		this->Locale = Locale;
 	}
-	else if (IsDefault(LanguageID))
+	else if (IsDefault(Locale))
 	{
-		this->LanguageID = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.LanguageID;
+		this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
 	}
 
-	this->LanguageID = LanguageID;
+	this->Locale = Locale;
 }
 
-FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& LanguageID, const FName& VoiceName)
+FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale, const FName& Voice)
 {
 	SetDefaults();
 
-	if (IsAutoLanguage(LanguageID))
+	if (IsAutoLanguage(Locale))
 	{
 		this->bUseLanguageIdentification = true;
-		this->LanguageID = LanguageID;
+		this->Locale = Locale;
 	}
-	else if (IsDefault(LanguageID))
+	else if (IsDefault(Locale))
 	{
-		this->LanguageID = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.LanguageID;
+		this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
 	}
 
-	this->LanguageID = LanguageID;
-	this->VoiceName = IsDefault(VoiceName) ? GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.VoiceName : VoiceName;
+	this->Locale = Locale;
+	this->Voice = IsDefault(Voice) ? GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Voice : Voice;
 }
 
 void FAzSpeechSynthesisOptions::SetDefaults()
 {
 	if (const UAzSpeechSettings* const Settings = GetDefault<UAzSpeechSettings>())
 	{
-		LanguageID = Settings->DefaultOptions.SynthesisOptions.LanguageID;
-		VoiceName = Settings->DefaultOptions.SynthesisOptions.VoiceName;
+		Locale = Settings->DefaultOptions.SynthesisOptions.Locale;
+		Voice = Settings->DefaultOptions.SynthesisOptions.Voice;
 		bEnableViseme = Settings->DefaultOptions.SynthesisOptions.bEnableViseme;
 		SpeechSynthesisOutputFormat = Settings->DefaultOptions.SynthesisOptions.SpeechSynthesisOutputFormat;
 		bUseLanguageIdentification = Settings->DefaultOptions.SynthesisOptions.bUseLanguageIdentification;

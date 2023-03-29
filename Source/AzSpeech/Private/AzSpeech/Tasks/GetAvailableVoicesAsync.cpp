@@ -18,9 +18,9 @@ THIRD_PARTY_INCLUDES_END
 UGetAvailableVoicesAsync* UGetAvailableVoicesAsync::GetAvailableVoicesAsync(UObject* WorldContextObject, const FString& Locale)
 {
 	UGetAvailableVoicesAsync* const NewAsyncTask = NewObject<UGetAvailableVoicesAsync>();
-	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->TaskName = *FString(__func__);
 	NewAsyncTask->Locale = Locale;
+
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;

@@ -36,7 +36,6 @@ public:
 	virtual void SetReadyToDestroy() override;
 
 protected:
-	const UObject* WorldContextObject;
 	FName TaskName;
 	FString Locale;
 

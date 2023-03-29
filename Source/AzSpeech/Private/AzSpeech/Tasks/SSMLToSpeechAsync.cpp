@@ -13,7 +13,7 @@ USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_DefaultOptions(UObject* Wor
 	return SSMLToSpeech_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(), SynthesisSSML);
 }
 
-USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisSSML)
+USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
 {
 	USSMLToSpeechAsync* const NewAsyncTask = NewObject<USSMLToSpeechAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
@@ -22,6 +22,7 @@ USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(UObject* Worl
 	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
 	NewAsyncTask->TaskName = *FString(__func__);
+
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;

@@ -49,7 +49,6 @@ protected:
 
 	FAzSpeechSubscriptionOptions SubscriptionOptions;
 
-	const UObject* WorldContextObject;
 	bool bIsSSMLBased = false;
 
 	virtual bool StartAzureTaskWork();
@@ -58,9 +57,10 @@ protected:
 	mutable FCriticalSection Mutex;
 
 #if WITH_EDITOR
-	virtual void PrePIEEnded(bool bIsSimulating);
-
+	bool bIsEditorTask = false;
 	bool bEndingPIE = false;
+
+	virtual void PrePIEEnded(bool bIsSimulating);
 #endif
 
 	template <typename ReturnTy, typename ResultType>

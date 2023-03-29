@@ -11,15 +11,14 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WavFileToTextAsync)
 #endif
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_DefaultOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& LanguageID, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_DefaultOptions(UObject* WorldContextObject, const FString& FilePath, const FString& FileName, const FString& Locale, const FName PhraseListGroup)
 {
-	return WavFileToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*LanguageID), FilePath, FileName, PhraseListGroup);
+	return WavFileToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*Locale), FilePath, FileName, PhraseListGroup);
 }
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
 {
 	UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
-	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
 	NewAsyncTask->RecognitionOptions = RecognitionOptions;
 	NewAsyncTask->FilePath = FilePath;
@@ -27,6 +26,7 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* W
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;
@@ -52,7 +52,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 		return false;
 	}
 	
-	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, GetRecognitionOptions().LanguageID))
+	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName, GetRecognitionOptions().Locale))
 	{
 		return false;
 	}

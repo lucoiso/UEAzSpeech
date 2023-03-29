@@ -66,7 +66,7 @@ void FAzSpeechRunnableBase::Exit()
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
 	UAzSpeechTaskBase* const Task = GetOwningTask();
-	if (!Task)
+	if (!UAzSpeechTaskStatus::IsTaskActive(Task))
 	{
 		return;
 	}

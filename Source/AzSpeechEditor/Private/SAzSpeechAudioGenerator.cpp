@@ -43,6 +43,8 @@ void UAzSpeechPropertiesGetter::TaskFail()
 
 void UAzSpeechPropertiesGetter::Destroy()
 {
+	ClearFlags(RF_Standalone);
+
 #if ENGINE_MAJOR_VERSION >= 5
 	MarkAsGarbage();
 #else
@@ -239,6 +241,8 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
 void SAzSpeechAudioGenerator::UpdateAvailableVoices()
 {
 	UAzSpeechPropertiesGetter* const InternalGetter = NewObject<UAzSpeechPropertiesGetter>();
+	InternalGetter->SetFlags(RF_Standalone);
+
 	InternalGetter->OnAvailableVoicesUpdated.BindLambda(
 		[this](TArray<FString> Voices)
 		{
@@ -260,6 +264,8 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	}
 
 	UAzSpeechPropertiesGetter* const InternalGetter = NewObject<UAzSpeechPropertiesGetter>();
+	InternalGetter->SetFlags(RF_Standalone);
+
 	InternalGetter->OnAudioDataGenerated.BindLambda(
 		[this](TArray<uint8> AudioData)
 		{
@@ -273,12 +279,12 @@ FReply SAzSpeechAudioGenerator::HandleGenerateAudioButtonClicked()
 	UAzSpeechAudioDataSynthesisBase* Task = nullptr;
 	if (bIsSSMLBased)
 	{
-		Task = USSMLToAudioDataAsync::SSMLToAudioData_DefaultOptions(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString());
+		Task = USSMLToAudioDataAsync::EditorTask(SynthesisText.ToString());
 		Cast<USSMLToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 	else
 	{
-		Task = UTextToAudioDataAsync::TextToAudioData_DefaultOptions(GEditor->GetEditorWorldContext().World(), SynthesisText.ToString(), Voice, Locale);
+		Task = UTextToAudioDataAsync::EditorTask(SynthesisText.ToString(), Voice, Locale);
 		Cast<UTextToAudioDataAsync>(Task)->SynthesisCompleted.AddDynamic(InternalGetter, &UAzSpeechPropertiesGetter::SynthesisCompleted);
 	}
 
