@@ -23,11 +23,11 @@ public:
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Sound Wave with Default Options"))
-	static UTextToSoundWaveAsync* TextToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
+	static UTextToSoundWaveAsync* TextToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& Voice = "Default", const FString& Locale = "Default");
 
 	/* Creates a Text-To-SoundWave task that will convert your text to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Sound Wave with Custom Options"))
-	static UTextToSoundWaveAsync* TextToSoundWave_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText);
+	static UTextToSoundWaveAsync* TextToSoundWave_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
 
 protected:
 	virtual void BroadcastFinalResult() override;

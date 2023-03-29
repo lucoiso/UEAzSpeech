@@ -87,10 +87,10 @@ struct AZSPEECH_API FAzSpeechRecognitionOptions
 
 public:
 	FAzSpeechRecognitionOptions();
-	FAzSpeechRecognitionOptions(const FName& LanguageID);
+	FAzSpeechRecognitionOptions(const FName& Locale);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Language ID"))
-	FName LanguageID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Locale"))
+	FName Locale;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Use Language Identification"))
 	bool bUseLanguageIdentification;
@@ -133,14 +133,14 @@ struct AZSPEECH_API FAzSpeechSynthesisOptions
 
 public:
 	FAzSpeechSynthesisOptions();
-	FAzSpeechSynthesisOptions(const FName& LanguageID);
-	FAzSpeechSynthesisOptions(const FName& LanguageID, const FName& VoiceName);
+	FAzSpeechSynthesisOptions(const FName& Locale);
+	FAzSpeechSynthesisOptions(const FName& Locale, const FName& Voice);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Language ID"))
-	FName LanguageID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Locale"))
+	FName Locale;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Voice Name"))
-	FName VoiceName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Voice"))
+	FName Voice;
 
 	/* If enabled, tasks will generate Viseme data */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Enable Viseme"))

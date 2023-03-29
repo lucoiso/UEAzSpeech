@@ -65,9 +65,9 @@ void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
 {
 	Super::PreEditChange(PropertyAboutToChange);
 
-	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechRecognitionOptions, LanguageID))
+	if (PropertyAboutToChange->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechRecognitionOptions, Locale))
 	{
-		DefaultOptions.RecognitionOptions.CandidateLanguages.Remove(DefaultOptions.RecognitionOptions.LanguageID);
+		DefaultOptions.RecognitionOptions.CandidateLanguages.Remove(DefaultOptions.RecognitionOptions.Locale);
 	}
 }
 
@@ -75,7 +75,7 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechRecognitionOptions, CandidateLanguages) || PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechRecognitionOptions, LanguageID))
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechRecognitionOptions, CandidateLanguages) || PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(FAzSpeechRecognitionOptions, Locale))
 	{
 		constexpr uint8 MaxCandidateLanguages = 10;
 
@@ -118,15 +118,15 @@ void UAzSpeechSettings::SetToDefaults()
 	DefaultOptions.SubscriptionOptions.bUsePrivateEndpoint = false;
 	DefaultOptions.SubscriptionOptions.PrivateEndpoint = NAME_None;
 
-	DefaultOptions.SynthesisOptions.LanguageID = NAME_None;
-	DefaultOptions.SynthesisOptions.VoiceName = NAME_None;
+	DefaultOptions.SynthesisOptions.Locale = NAME_None;
+	DefaultOptions.SynthesisOptions.Voice = NAME_None;
 	DefaultOptions.SynthesisOptions.bEnableViseme = true;
 	DefaultOptions.SynthesisOptions.SpeechSynthesisOutputFormat = EAzSpeechSynthesisOutputFormat::Riff16Khz16BitMonoPcm;
 	DefaultOptions.SynthesisOptions.bUseLanguageIdentification = false;
 	DefaultOptions.SynthesisOptions.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
 	DefaultOptions.SynthesisOptions.LanguageIdentificationMode = EAzSpeechLanguageIdentificationMode::AtStart;
 
-	DefaultOptions.RecognitionOptions.LanguageID = NAME_None;
+	DefaultOptions.RecognitionOptions.Locale = NAME_None;
 	DefaultOptions.RecognitionOptions.SpeechRecognitionOutputFormat = EAzSpeechRecognitionOutputFormat::Detailed;
 	DefaultOptions.RecognitionOptions.bUseLanguageIdentification = false;
 	DefaultOptions.RecognitionOptions.ProfanityFilter = EAzSpeechProfanityFilter::Raw;
@@ -136,7 +136,7 @@ void UAzSpeechSettings::SetToDefaults()
 
 	if (AzSpeech::Internal::HasEmptyParam(DefaultOptions.RecognitionOptions.CandidateLanguages))
 	{
-		DefaultOptions.RecognitionOptions.CandidateLanguages.Add(DefaultOptions.RecognitionOptions.LanguageID);
+		DefaultOptions.RecognitionOptions.CandidateLanguages.Add(DefaultOptions.RecognitionOptions.Locale);
 	}
 }
 
@@ -162,9 +162,9 @@ void UAzSpeechSettings::ValidateCandidateLanguages(const bool bRemoveEmpties)
 		DefaultOptions.RecognitionOptions.CandidateLanguages.Remove(NAME_None);
 	}
 
-	if (!DefaultOptions.RecognitionOptions.CandidateLanguages.Contains(DefaultOptions.RecognitionOptions.LanguageID))
+	if (!DefaultOptions.RecognitionOptions.CandidateLanguages.Contains(DefaultOptions.RecognitionOptions.Locale))
 	{
-		DefaultOptions.RecognitionOptions.CandidateLanguages.Insert(DefaultOptions.RecognitionOptions.LanguageID, 0);
+		DefaultOptions.RecognitionOptions.CandidateLanguages.Insert(DefaultOptions.RecognitionOptions.Locale, 0);
 	}
 
 	DefaultOptions.RecognitionOptions.CandidateLanguages.Shrink();

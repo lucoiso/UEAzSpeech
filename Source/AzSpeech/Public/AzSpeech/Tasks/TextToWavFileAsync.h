@@ -19,9 +19,9 @@ class AZSPEECH_API UTextToWavFileAsync : public UAzSpeechWavFileSynthesisBase
 public:
 	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To .wav File with Default Options"))
-	static UTextToWavFileAsync* TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& VoiceName = "Default", const FString& LanguageID = "Default");
+	static UTextToWavFileAsync* TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& Voice = "Default", const FString& Locale = "Default");
 
 	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To .wav File with Custom Options"))
-	static UTextToWavFileAsync* TextToWavFile_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName);
+	static UTextToWavFileAsync* TextToWavFile_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName);
 };

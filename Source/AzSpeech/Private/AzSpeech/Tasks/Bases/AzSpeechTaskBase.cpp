@@ -8,6 +8,7 @@
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
+#include <Misc/ScopeTryLock.h>
 
 #if WITH_EDITOR
 #include <Editor.h>
@@ -50,15 +51,22 @@ void UAzSpeechTaskBase::Activate()
 	}
 
 #if WITH_EDITOR
-	FEditorDelegates::PrePIEEnded.AddUObject(this, &UAzSpeechTaskBase::PrePIEEnded);
+	if (bIsEditorTask)
+	{
+		SetFlags(RF_Standalone);
+	}
+	else
+	{
+		FEditorDelegates::PrePIEEnded.AddUObject(this, &UAzSpeechTaskBase::PrePIEEnded);
+	}
 #endif
 }
 
 void UAzSpeechTaskBase::StopAzSpeechTask()
 {
-	FScopeLock Lock(&Mutex);
+	FScopeTryLock TryLock(&Mutex);
 
-	if (!UAzSpeechTaskStatus::IsTaskActive(this) || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
+	if (!TryLock.IsLocked() || !UAzSpeechTaskStatus::IsTaskActive(this) || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -86,9 +94,9 @@ const FAzSpeechSubscriptionOptions UAzSpeechTaskBase::GetSubscriptionOptions() c
 
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
-	FScopeLock Lock(&Mutex);
+	FScopeTryLock TryLock(&Mutex);
 
-	if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
+	if (!TryLock.IsLocked() || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
 	{
 		return;
 	}
@@ -97,6 +105,17 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 	bIsReadyToDestroy = true;
 
 #if WITH_EDITOR
+	if (bIsEditorTask)
+	{
+		ClearFlags(RF_Standalone);
+
+#if ENGINE_MAJOR_VERSION >= 5
+		MarkAsGarbage();
+#else
+		MarkPendingKill();
+#endif
+	}
+
 	if (FEditorDelegates::PrePIEEnded.IsBoundToObject(this))
 	{
 		FEditorDelegates::PrePIEEnded.RemoveAll(this);

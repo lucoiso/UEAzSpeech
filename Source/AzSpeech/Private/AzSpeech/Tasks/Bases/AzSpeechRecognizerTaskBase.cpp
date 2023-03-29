@@ -55,6 +55,8 @@ void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Mic
 
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 {
+	FScopeLock Lock(&Mutex);
+
 	if (!UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		return;
