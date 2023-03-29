@@ -15,11 +15,11 @@
 URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(UObject* WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
 {
 	URecognitionMapCheckAsync* const NewAsyncTask = NewObject<URecognitionMapCheckAsync>();
-	NewAsyncTask->WorldContextObject = WorldContextObject;
 	NewAsyncTask->InputString = InString;
 	NewAsyncTask->GroupName = GroupName;
 	NewAsyncTask->bStopAtFirstTrigger = bStopAtFirstTrigger;
 	NewAsyncTask->TaskName = *FString(__func__);
+
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;

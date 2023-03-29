@@ -135,13 +135,13 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 		return true;
 	}
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().LanguageID.ToString());
-	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().VoiceName.ToString());
+	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().Locale.ToString());
+	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().Voice.ToString());
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisOptions().LanguageID.ToString());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisOptions().Locale.ToString());
 	InConfig->SetSpeechSynthesisLanguage(UsedLang);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisOptions().VoiceName.ToString());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__), *SynthesizerTask->GetSynthesisOptions().Voice.ToString());
 	InConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
 	return true;

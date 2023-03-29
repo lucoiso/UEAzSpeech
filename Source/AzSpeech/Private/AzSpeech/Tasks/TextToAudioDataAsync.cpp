@@ -4,16 +4,30 @@
 
 #include "AzSpeech/Tasks/TextToAudioDataAsync.h"
 
+#if WITH_EDITOR
+#include <Editor.h>
+#endif
+
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToAudioDataAsync)
 #endif
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& VoiceName, const FString& LanguageID)
+#if WITH_EDITOR
+UTextToAudioDataAsync* UTextToAudioDataAsync::EditorTask(const FString& SynthesisText, const FString& Voice, const FString& Locale)
 {
-	return TextToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*LanguageID, *VoiceName), SynthesisText);
+	UTextToAudioDataAsync* const NewAsyncTask = TextToAudioData_DefaultOptions(GEditor->GetEditorWorldContext().World(), SynthesisText, Voice, Locale);
+	NewAsyncTask->bIsEditorTask = true;
+
+	return NewAsyncTask;
+}
+#endif
+
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& Voice, const FString& Locale)
+{
+	return TextToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
 }
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
 {
 	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
 	NewAsyncTask->WorldContextObject = WorldContextObject;
@@ -22,6 +36,7 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObj
 	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->bIsSSMLBased = false;
 	NewAsyncTask->TaskName = *FString(__func__);
+
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
 	return NewAsyncTask;

@@ -18,4 +18,6 @@ class AZSPEECH_API UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizer
 	
 protected:
 	virtual bool StartAzureTaskWork() override;
+
+	const UObject* WorldContextObject;
 };

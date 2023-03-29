@@ -27,7 +27,7 @@ public:
 
 	/* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Custom Options"))
-	static USSMLToSoundWaveAsync* SSMLToSoundWave_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisSSML);
+	static USSMLToSoundWaveAsync* SSMLToSoundWave_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
 
 protected:
 	virtual void BroadcastFinalResult() override;

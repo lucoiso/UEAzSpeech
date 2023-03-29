@@ -78,7 +78,7 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 		return false;
 	}
 
-	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, FilePath, FileName) || (!bIsSSMLBased && AzSpeech::Internal::HasEmptyParam(GetSynthesisOptions().VoiceName, GetSynthesisOptions().LanguageID)))
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, FilePath, FileName) || (!bIsSSMLBased && AzSpeech::Internal::HasEmptyParam(GetSynthesisOptions().Voice, GetSynthesisOptions().Locale)))
 	{
 		return false;
 	}

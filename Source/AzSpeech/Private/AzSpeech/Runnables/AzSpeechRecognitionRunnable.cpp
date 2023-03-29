@@ -133,9 +133,9 @@ const bool FAzSpeechRecognitionRunnable::ApplySDKSettings(const std::shared_ptr<
 		return true;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *RecognizerTask->GetRecognitionOptions().LanguageID.ToString());
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__), *RecognizerTask->GetRecognitionOptions().Locale.ToString());
 
-	const std::string UsedLang = TCHAR_TO_UTF8(*RecognizerTask->GetRecognitionOptions().LanguageID.ToString());
+	const std::string UsedLang = TCHAR_TO_UTF8(*RecognizerTask->GetRecognitionOptions().Locale.ToString());
 	InConfig->SetSpeechRecognitionLanguage(UsedLang);
 
 	return !AzSpeech::Internal::HasEmptyParam(UsedLang);
