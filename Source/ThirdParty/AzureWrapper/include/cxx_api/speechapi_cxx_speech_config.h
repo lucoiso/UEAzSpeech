@@ -335,6 +335,10 @@ public:
     /// Enables audio logging in service.
     /// Added in version 1.5.0.
     /// </summary>
+    /// <remarks>
+    /// Audio and content logs are stored either in Microsoft-owned storage, or in your own storage account linked
+    /// to your Cognitive Services subscription (Bring Your Own Storage (BYOS) enabled Speech resource).
+    /// </remarks>
     void EnableAudioLogging()
     {
         property_bag_set_string(m_propertybag, static_cast<int>(PropertyId::SpeechServiceConnection_EnableAudioLogging), nullptr, TrueString);
@@ -364,7 +368,7 @@ public:
     ///
     /// Note: Proxy functionality is not available on macOS. This function will have no effect on this platform.
     /// </summary>
-    /// <param name="proxyHostName">The host name of the proxy server, without the protocol scheme (http://)</param>
+    /// <param name="proxyHostName">The host name of the proxy server, without the protocol scheme (`http://`)</param>
     /// <param name="proxyPort">The port number of the proxy server</param>
     /// <param name="proxyUserName">The user name of the proxy server</param>
     /// <param name="proxyPassword">The password of the proxy server</param>

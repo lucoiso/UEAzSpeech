@@ -58,7 +58,7 @@ public class AzureWrapper : ModuleRules
 
 	private string GetRuntimesSubDirectory()
 	{
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens || Target.Platform == UnrealTargetPlatform.Mac)
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
 			return Path.Combine(GetPlatformLibsSubDirectory(), "Runtime");
 		}
@@ -121,11 +121,18 @@ public class AzureWrapper : ModuleRules
 				"libMicrosoft.CognitiveServices.Speech.extension.mas.so"
 			});
 		}
-		else if (Target.Platform == UnrealTargetPlatform.IOS || Target.Platform == UnrealTargetPlatform.Mac)
+		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			Output.AddRange(new[]
 			{
 				"libMicrosoft.CognitiveServices.Speech.core.a"
+			});
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			Output.AddRange(new[]
+			{
+				"libMicrosoft.CognitiveServices.Speech.core.dylib"
 			});
 		}
 
@@ -163,7 +170,7 @@ public class AzureWrapper : ModuleRules
 				});
 			}
 		}
-		else if (Target.Platform.ToString().ToLower().Contains("linux"))
+		else if (Target.Platform.ToString().ToLower().Contains("linux") || Target.Platform == UnrealTargetPlatform.Mac)
 		{
 			// Using the same list as for static libraries
 			Output = GetStaticLibraries();
@@ -171,13 +178,6 @@ public class AzureWrapper : ModuleRules
 		else if (Target.Platform == UnrealTargetPlatform.Android || Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			// Empty
-		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac)
-		{
-			Output.AddRange(new[]
-			{
-				"libMicrosoft.CognitiveServices.Speech.core.dylib"
-			});
 		}
 
 		return Output;
