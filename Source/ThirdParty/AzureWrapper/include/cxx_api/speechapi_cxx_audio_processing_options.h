@@ -20,7 +20,7 @@ namespace Audio {
 
 /// <summary>
 /// Types of preset microphone array geometries.
-/// Check https://docs.microsoft.com/azure/cognitive-services/speech-service/speech-devices-sdk-microphone for details.
+/// See [Microphone Array Recommendations](/azure/cognitive-services/speech-service/speech-devices-sdk-microphone) for more details.
 /// </summary>
 enum class PresetMicrophoneArrayGeometry
 {

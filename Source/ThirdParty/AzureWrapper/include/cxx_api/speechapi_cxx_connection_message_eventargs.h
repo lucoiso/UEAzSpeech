@@ -55,7 +55,7 @@ public:
     /// <summary>
     /// Gets the <see cref="ConnectionMessage"/> associated with this <see cref="ConnectionMessageEventArgs"/>.
     /// </summary>
-    /// <returns>An std::shared<ConnectionMessage> containing the message.</returns>
+    /// <returns>An `std::shared<ConnectionMessage>` containing the message.</returns>
     std::shared_ptr<ConnectionMessage> GetMessage() const { return m_message; }
 
 private:
