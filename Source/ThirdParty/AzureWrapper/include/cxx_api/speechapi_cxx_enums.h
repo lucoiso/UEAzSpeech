@@ -284,6 +284,10 @@ enum class PropertyId
     /// A boolean value specifying whether audio logging is enabled in the service or not.
     /// Added in version 1.5.0
     /// </summary>
+    /// <remarks>
+    /// Audio and content logs are stored either in Microsoft-owned storage, or in your own storage account linked
+    /// to your Cognitive Services subscription (Bring Your Own Storage (BYOS) enabled Speech resource).
+    /// </remarks>
     SpeechServiceConnection_EnableAudioLogging = 3202,
 
     /// <summary>
@@ -615,8 +619,8 @@ enum class PropertyId
 
     /// <summary>
     /// The reference text of the audio for pronunciation evaluation.
-    /// For this and the following pronunciation assessment parameters, see
-    /// https://docs.microsoft.com/azure/cognitive-services/speech-service/rest-speech-to-text#pronunciation-assessment-parameters for details.
+    /// For this and the following pronunciation assessment parameters, see the table
+    /// [Pronunciation assessment parameters](/azure/cognitive-services/speech-service/rest-speech-to-text-short#pronunciation-assessment-parameters).
     /// Under normal circumstances, you shouldn't have to use this property directly.
     /// Instead, use <see cref="PronunciationAssessmentConfig::Create"/> or <see cref="PronunciationAssessmentConfig::SetReferenceText"/>.
     /// Added in version 1.14.0

@@ -31,7 +31,6 @@ class Session;
 /// <summary>
 /// Class for source language recognizers.
 /// You can use this class for standalone language detection.
-/// Please refer to <a href="https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-automatic-language-detection?pivots=programming-language-cpp#standalone-language-identification">this page</a>
 /// Added in version 1.17.0
 /// </summary>
 class SourceLanguageRecognizer final : public AsyncRecognizer<SpeechRecognitionResult, SpeechRecognitionEventArgs, SpeechRecognitionCanceledEventArgs>
@@ -43,9 +42,9 @@ public:
     /// <summary>
     /// Create a source language recognizer from a speech config, auto detection source language config and audio config
     /// </summary>
-    /// <param name="speechconfig">Speech configuration. Please refer to <a href="https://docs.microsoft.com/cpp/cognitive-services/speech/speechconfig">this page</a> on how to use speech configuration.</param>
-    /// <param name="autoDetectSourceLangConfig">Auto detection source language config. Please refer to <a href="https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-automatic-language-detection?pivots=programming-language-cpp">this page</a> on how to use automatic language detection.</param>
-    /// <param name="audioInput">Audio configuration. Please refer to <a href="https://docs.microsoft.com/cpp/cognitive-services/speech/audio-audioconfig">this page</a> on how to use audio input config.</param>
+    /// <param name="speechconfig">Speech configuration</param>
+    /// <param name="autoDetectSourceLangConfig">Auto detection source language config</param>
+    /// <param name="audioInput">Audio configuration</param>
     /// <returns>A smart pointer wrapped source language recognizer pointer.</returns>
     static std::shared_ptr<SourceLanguageRecognizer> FromConfig(
         std::shared_ptr<SpeechConfig> speechconfig,

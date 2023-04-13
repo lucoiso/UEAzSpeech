@@ -34,8 +34,8 @@ public:
 
     /// <summary>
     /// Creates an instance of the PronunciationAssessmentConfig
-    /// For the parameters details, see
-    /// https://docs.microsoft.com/azure/cognitive-services/speech-service/rest-speech-to-text#pronunciation-assessment-parameters
+    /// For parameter details, see the table
+    /// [Pronunciation assessment parameters](/azure/cognitive-services/speech-service/rest-speech-to-text-short#pronunciation-assessment-parameters).
     /// </summary>
     /// <param name="referenceText">The reference text</param>
     /// <param name="gradingSystem">The point system for score calibration</param>
@@ -62,8 +62,8 @@ public:
 
     /// <summary>
     /// Creates an instance of the PronunciationAssessmentConfig
-    /// For the parameters details, see
-    /// https://docs.microsoft.com/azure/cognitive-services/speech-service/rest-speech-to-text#pronunciation-assessment-parameters
+    /// For parameters details, see the table
+    /// [Pronunciation assessment parameters](/azure/cognitive-services/speech-service/rest-speech-to-text-short#pronunciation-assessment-parameters).
     /// </summary>
     /// <param name="referenceText">The reference text</param>
     /// <param name="gradingSystem">The point system for score calibration</param>
@@ -81,8 +81,8 @@ public:
     }
 
     /// <summary>
-    /// Creates an instance of the PronunciationAssessmentConfig from json.
-    /// see https://docs.microsoft.com/azure/cognitive-services/speech-service/rest-speech-to-text#pronunciation-assessment-parameters
+    /// Creates an instance of the PronunciationAssessmentConfig from json. See the table
+    /// [Pronunciation assessment parameters](/azure/cognitive-services/speech-service/rest-speech-to-text-short#pronunciation-assessment-parameters).
     /// </summary>
     /// <param name="json">The json string containing the pronunciation assessment parameters.</param>
     /// <returns>A shared pointer to the new PronunciationAssessmentConfig instance.</returns>

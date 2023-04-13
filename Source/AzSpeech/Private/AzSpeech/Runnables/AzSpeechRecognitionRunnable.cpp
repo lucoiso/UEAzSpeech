@@ -347,7 +347,7 @@ const std::vector<std::string> FAzSpeechRecognitionRunnable::GetCandidateLanguag
 		Output.push_back(TCHAR_TO_UTF8(*Iterator.ToString()));
 		if (Output.size() > MaxAllowedCandidateLanguages)
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."), *GetThreadName(), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."), *GetThreadName(), *FString(__func__));
 			Output.resize(MaxAllowedCandidateLanguages);
 			break;
 		}
