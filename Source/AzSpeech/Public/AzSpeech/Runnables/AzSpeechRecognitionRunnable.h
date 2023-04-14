@@ -42,7 +42,8 @@ protected:
 	virtual bool InitializeAzureObject() override;
 
 private:
-	bool ConnectRecognitionSignals();
+	bool ConnectRecognitionStartedSignals();
+	bool ConnectRecognitionUpdatedSignals();
 	bool InsertPhraseList() const;
 
 	bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);

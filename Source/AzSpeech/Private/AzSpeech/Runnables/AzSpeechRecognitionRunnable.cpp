@@ -57,13 +57,6 @@ uint32 FAzSpeechRecognitionRunnable::Run()
 		return 0u;
 	}
 
-	AsyncTask(ENamedThreads::GameThread,
-		[RecognizerTask]
-		{
-			RecognizerTask->RecognitionStarted.Broadcast();
-		}
-	);
-
 	const float SleepTime = GetThreadUpdateInterval();
 	while (!IsPendingStop())
 	{
@@ -81,6 +74,10 @@ void FAzSpeechRecognitionRunnable::Exit()
 
 	if (Lock.IsLocked() && SpeechRecognizer)
 	{
+		SpeechRecognizer->Recognized.DisconnectAll();
+		SpeechRecognizer->Recognizing.DisconnectAll();
+		SpeechRecognizer->SessionStarted.DisconnectAll();
+
 		SpeechRecognizer->StopContinuousRecognitionAsync().wait_for(GetTaskTimeout());
 	}
 
@@ -182,10 +179,40 @@ bool FAzSpeechRecognitionRunnable::InitializeAzureObject()
 		SpeechRecognizer = Microsoft::CognitiveServices::Speech::SpeechRecognizer::FromConfig(SpeechConfig, GetAudioConfig());
 	}
 
-	return InsertPhraseList() && ConnectRecognitionSignals();
+	return InsertPhraseList() && ConnectRecognitionStartedSignals() && ConnectRecognitionUpdatedSignals();
 }
 
-bool FAzSpeechRecognitionRunnable::ConnectRecognitionSignals()
+bool FAzSpeechRecognitionRunnable::ConnectRecognitionStartedSignals()
+{
+	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
+	if (!IsSpeechRecognizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+	{
+		return false;
+	}
+
+	SpeechRecognizer->SessionStarted.Connect(
+		[this, RecognizerTask]([[maybe_unused]] const Microsoft::CognitiveServices::Speech::SessionEventArgs& SessionEventArgs)
+		{
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
+			{
+				StopAzSpeechRunnableTask();
+			}
+			else
+			{
+				AsyncTask(ENamedThreads::GameThread,
+					[RecognizerTask]
+					{
+						RecognizerTask->RecognitionStarted.Broadcast();
+					}
+				);
+			}
+		}
+	);
+
+	return true;
+}
+
+bool FAzSpeechRecognitionRunnable::ConnectRecognitionUpdatedSignals()
 {
 	UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
 	if (!IsSpeechRecognizerValid() || !UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
