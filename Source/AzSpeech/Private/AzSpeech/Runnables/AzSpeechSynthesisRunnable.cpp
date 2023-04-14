@@ -80,6 +80,12 @@ void FAzSpeechSynthesisRunnable::Exit()
 	
 	if (Lock.IsLocked() && SpeechSynthesizer)
 	{
+		SpeechSynthesizer->VisemeReceived.DisconnectAll();
+		SpeechSynthesizer->SynthesisCanceled.DisconnectAll();
+		SpeechSynthesizer->SynthesisCompleted.DisconnectAll();
+		SpeechSynthesizer->SynthesisStarted.DisconnectAll();
+		SpeechSynthesizer->Synthesizing.DisconnectAll();
+
 		SpeechSynthesizer->StopSpeakingAsync().wait_for(GetTaskTimeout());
 	}
 
@@ -238,24 +244,24 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisStartedSignal()
 		return false;
 	}
 
-	const auto SynthesisStarted_Lambda = [this, SynthesizerTask]([[maybe_unused]] const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
-	{
-		if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
+	SpeechSynthesizer->SynthesisStarted.Connect(
+		[this, SynthesizerTask]([[maybe_unused]] const Microsoft::CognitiveServices::Speech::SpeechSynthesisEventArgs& SynthesisEventArgs)
 		{
-			StopAzSpeechRunnableTask();
+			if (!UAzSpeechTaskStatus::IsTaskStillValid(SynthesizerTask))
+			{
+				StopAzSpeechRunnableTask();
+			}
+			else
+			{
+				AsyncTask(ENamedThreads::GameThread,
+					[SynthesizerTask]
+					{
+						SynthesizerTask->SynthesisStarted.Broadcast();
+					}
+				);
+			}
 		}
-		else
-		{
-			AsyncTask(ENamedThreads::GameThread,
-				[SynthesizerTask]
-				{
-					SynthesizerTask->SynthesisStarted.Broadcast();
-				}
-			);
-		}
-	};
-
-	SpeechSynthesizer->SynthesisStarted.Connect(SynthesisStarted_Lambda);
+	);
 
 	return true;
 }
