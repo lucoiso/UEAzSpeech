@@ -88,6 +88,13 @@ const bool UAzSpeechSynthesizerTaskBase::IsSSMLBased() const
 	return bIsSSMLBased;
 }
 
+const int64 UAzSpeechSynthesizerTaskBase::GetAudioDuration() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return AudioDuration;
+}
+
 const int32 UAzSpeechSynthesizerTaskBase::GetConnectionLatency() const
 {
 	FScopeLock Lock(&Mutex);
@@ -179,6 +186,8 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 	AudioData = *LastResult->GetAudioData().get();
 	bLastResultIsValid = !AudioData.empty();
 
+	AudioDuration = static_cast<int64>(LastResult->AudioDuration.count());
+
 	ConnectionLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisConnectionLatencyMs);
 	FinishLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisFinishLatencyMs);
 	FirstByteLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_SynthesisFirstByteLatencyMs);
@@ -193,7 +202,7 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
 			TaskName.ToString(),
 			GetUniqueID(),
 			FString(__func__),
-			static_cast<int64>(LastResult->AudioDuration.count()),
+			AudioDuration,
 			static_cast<uint32>(LastResult->GetAudioLength()),
 			static_cast<uint32>(LastResult->GetAudioData().get()->size()),
 			static_cast<int32>(LastResult->Reason),

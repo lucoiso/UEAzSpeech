@@ -48,7 +48,11 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const FString GetRecognizedString() const;
-	
+
+	/* Get Recognition Duration in Milliseconds */
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int64 GetRecognitionDuration() const;
+
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const int32 GetRecognitionLatency() const;
 	
@@ -63,5 +67,7 @@ protected:
 
 private:
 	std::string RecognizedText;
+
+	int64 RecognitionDuration = 0;
 	int32 RecognitionLatency = 0;
 };

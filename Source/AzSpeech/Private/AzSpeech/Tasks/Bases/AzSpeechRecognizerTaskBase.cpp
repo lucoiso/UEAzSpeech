@@ -33,6 +33,13 @@ const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 	return UTF8_TO_TCHAR(RecognizedText.c_str());
 }
 
+const int64 UAzSpeechRecognizerTaskBase::GetRecognitionDuration() const
+{
+	FScopeLock Lock(&Mutex);
+
+	return RecognitionDuration;
+}
+
 const int32 UAzSpeechRecognizerTaskBase::GetRecognitionLatency() const
 {
 	FScopeLock Lock(&Mutex);
@@ -79,23 +86,25 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
 	FScopeLock Lock(&Mutex);
 
 	RecognizedText = LastResult->Text;
+
+	const auto TicksToMs = [](const auto& Ticks)
+	{
+		return static_cast<int64>(Ticks / 10000u);
+	};
+
+	RecognitionDuration = TicksToMs(LastResult->Duration());
 	RecognitionLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_RecognitionLatencyMs);
 
 	RecognitionUpdated.Broadcast(GetRecognizedString());
 
 	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
 	{
-		const auto TicksToMs = [](const auto& Ticks)
-		{
-			return static_cast<uint64>(Ticks / 10000u);
-		};
-
 		const FStringFormatOrderedArguments Arguments {
 			TaskName.ToString(),
 			GetUniqueID(),
 			FString(__func__),
 			UTF8_TO_TCHAR(LastResult->Text.c_str()),
-			TicksToMs(LastResult->Duration()),
+			RecognitionDuration,
 			TicksToMs(LastResult->Offset()),
 			static_cast<int32>(LastResult->Reason),
 			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),

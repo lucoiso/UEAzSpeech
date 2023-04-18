@@ -78,6 +78,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
 	const bool IsSSMLBased() const;
 
+	/* Get Audio Duration in Milliseconds */
+	UFUNCTION(BlueprintPure, Category = "AzSpeech")
+	const int64 GetAudioDuration() const;
+
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const int32 GetConnectionLatency() const;
 
@@ -107,9 +111,11 @@ private:
 	TArray<FAzSpeechVisemeData> VisemeDataArray;
 	bool bLastResultIsValid = false;
 
-	int32 ConnectionLatency;
-	int32 FinishLatency;
-	int32 FirstByteLatency;
-	int32 NetworkLatency;
-	int32 ServiceLatency;
+	int64 AudioDuration = 0;
+
+	int32 ConnectionLatency = 0;
+	int32 FinishLatency = 0;
+	int32 FirstByteLatency = 0;
+	int32 NetworkLatency = 0;
+	int32 ServiceLatency = 0;
 };
