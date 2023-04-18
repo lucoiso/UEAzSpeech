@@ -35,6 +35,8 @@ const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 
 const int64 UAzSpeechRecognizerTaskBase::GetRecognitionDuration() const
 {
+	FScopeLock Lock(&Mutex);
+
 	return RecognitionDuration;
 }
 
