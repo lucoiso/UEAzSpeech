@@ -11,7 +11,7 @@ public class AzureWrapper : ModuleRules
 {
 	private bool isArmArch()
 	{
-		return Target.Architecture.ToLower().Contains("arm") || Target.Architecture.ToLower().Contains("aarch");
+		return Target.Architecture.ToString().ToLower().Contains("arm") || Target.Architecture.ToString().ToLower().Contains("aarch");
 	}
 
 	private string GetPlatformLibsSubDirectory()
