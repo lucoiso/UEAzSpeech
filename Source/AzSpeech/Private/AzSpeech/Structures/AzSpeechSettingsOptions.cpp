@@ -76,8 +76,10 @@ FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions(const FName& Locale)
 	{
 		this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.RecognitionOptions.Locale;
 	}
-
-	this->Locale = Locale;
+	else
+	{
+		this->Locale = Locale;
+	}	
 }
 
 uint8 FAzSpeechRecognitionOptions::GetMaxAllowedCandidateLanguages() const
