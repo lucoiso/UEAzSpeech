@@ -132,8 +132,10 @@ FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale)
 	{
 		this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
 	}
-
-	this->Locale = Locale;
+	else
+	{
+		this->Locale = Locale;
+	}
 }
 
 FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale, const FName& Voice)
@@ -149,8 +151,11 @@ FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale, const 
 	{
 		this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
 	}
-
-	this->Locale = Locale;
+	else
+	{
+		this->Locale = Locale;
+	}
+	
 	this->Voice = IsDefault(Voice) ? GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Voice : Voice;
 }
 
