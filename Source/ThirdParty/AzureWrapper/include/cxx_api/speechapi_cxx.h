@@ -52,6 +52,7 @@
 #include <speechapi_cxx_translation_recognizer.h>
 #include <speechapi_cxx_auto_detect_source_lang_config.h>
 #include <speechapi_cxx_source_lang_config.h>
+#include <speechapi_cxx_speech_translation_model.h>
 
 #include <speechapi_cxx_pronunciation_assessment_config.h>
 #include <speechapi_cxx_pronunciation_assessment_result.h>

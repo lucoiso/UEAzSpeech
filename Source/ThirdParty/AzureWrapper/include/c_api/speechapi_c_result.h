@@ -55,7 +55,8 @@ enum Result_NoMatchReason
     NoMatchReason_NotRecognized = 1,
     NoMatchReason_InitialSilenceTimeout = 2,
     NoMatchReason_InitialBabbleTimeout = 3,
-    NoMatchReason_KeywordNotRecognized = 4
+    NoMatchReason_KeywordNotRecognized = 4,
+    NoMatchReason_EndSilenceTimeout = 5
 };
 typedef enum Result_NoMatchReason Result_NoMatchReason;
 

@@ -282,12 +282,10 @@ enum class PropertyId
 
     /// <summary>
     /// A boolean value specifying whether audio logging is enabled in the service or not.
-    /// Added in version 1.5.0
-    /// </summary>
-    /// <remarks>
     /// Audio and content logs are stored either in Microsoft-owned storage, or in your own storage account linked
     /// to your Cognitive Services subscription (Bring Your Own Storage (BYOS) enabled Speech resource).
-    /// </remarks>
+    /// Added in version 1.5.0.
+    /// </summary>
     SpeechServiceConnection_EnableAudioLogging = 3202,
 
     /// <summary>
@@ -689,7 +687,21 @@ enum class PropertyId
     /// This property is added to allow testing and use of previous versions of Speaker Recognition APIs, where applicable.
     /// Added in version 1.18.0
     /// </summary>
-    SpeakerRecognition_Api_Version = 13001
+    SpeakerRecognition_Api_Version = 13001,
+
+    /// <summary>
+    /// The name of a model to be used for speech translation.
+    /// Do not use this property directly.
+    /// Currently this is only valid when EmbeddedSpeechConfig is used.
+    /// </summary>
+    SpeechTranslation_ModelName = 13100,
+
+    /// <summary>
+    /// The decryption key of a model to be used for speech translation.
+    /// Do not use this property directly.
+    /// Currently this is only valid when EmbeddedSpeechConfig is used.
+    /// </summary>
+    SpeechTranslation_ModelKey = 13101
 };
 
 /// <summary>
@@ -993,7 +1005,12 @@ enum class NoMatchReason
     /// Indicates that the spotted keyword has been rejected by the keyword verification service.
     /// Added in version 1.5.0.
     /// </summary>
-    KeywordNotRecognized = 4
+    KeywordNotRecognized = 4,
+
+    /// <summary>
+    /// Indicates that the audio stream contained only silence after the last recognized phrase.
+    /// </summary>
+    EndSilenceTimeout = 5
 };
 
 /// <summary>

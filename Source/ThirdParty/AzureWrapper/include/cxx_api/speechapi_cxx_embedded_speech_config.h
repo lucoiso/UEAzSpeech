@@ -13,6 +13,7 @@
 #include <speechapi_cxx_properties.h>
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_speech_recognition_model.h>
+#include <speechapi_cxx_speech_translation_model.h>
 #include <speechapi_c_embedded_speech_config.h>
 
 namespace Microsoft {
@@ -191,6 +192,49 @@ public:
     SPXSTRING GetSpeechSynthesisOutputFormat() const
     {
         return m_config.GetSpeechSynthesisOutputFormat();
+    }
+
+    /// <summary>
+    /// Gets a list of available speech translation models.
+    /// </summary>
+    /// <returns>Speech translation model info.</returns>
+    std::vector<std::shared_ptr<SpeechTranslationModel>> GetSpeechTranslationModels()
+    {
+        std::vector<std::shared_ptr<SpeechTranslationModel>> models;
+
+        uint32_t numModels = 0;
+        SPX_THROW_ON_FAIL(embedded_speech_config_get_num_speech_translation_models(static_cast<SPXSPEECHCONFIGHANDLE>(m_config), &numModels));
+
+        for (uint32_t i = 0; i < numModels; i++)
+        {
+            SPXSPEECHRECOMODELHANDLE hmodel = SPXHANDLE_INVALID;
+            SPX_THROW_ON_FAIL(embedded_speech_config_get_speech_translation_model(static_cast<SPXSPEECHCONFIGHANDLE>(m_config), i, &hmodel));
+
+            auto model = std::make_shared<SpeechTranslationModel>(hmodel);
+            models.push_back(model);
+        }
+
+        return models;
+    }
+
+    /// <summary>
+    /// Sets the model for speech translation.
+    /// </summary>
+    /// <param name="name">Model name.</param>
+    /// <param name="key">Model decryption key.</param>
+    void SetSpeechTranslationModel(const SPXSTRING& name, const SPXSTRING& key)
+    {
+        SetProperty(PropertyId::SpeechTranslation_ModelName, name);
+        SetProperty(PropertyId::SpeechTranslation_ModelKey, key);
+    }
+
+    /// <summary>
+    /// Gets the model name for speech translation.
+    /// </summary>
+    /// <returns>The speech translation model name.</returns>
+    SPXSTRING GetSpeechTranslationModelName() const
+    {
+        return GetProperty(PropertyId::SpeechTranslation_ModelName);
     }
 
     /// <summary>

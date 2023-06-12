@@ -6,6 +6,7 @@
 #include "AzSpeechInternalFuncs.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechSynthesizerTaskBase.h"
+#include <Audio.h>
 #include <Sound/SoundWave.h>
 #include <Misc/FileHelper.h>
 #include <Misc/Paths.h>

@@ -126,7 +126,10 @@ enum  PropertyId
     PronunciationAssessment_NBestPhonemeCount = 12007,
     PronunciationAssessment_Json = 12009,
     PronunciationAssessment_Params = 12010,
-    SpeakerRecognition_Api_Version = 13001
+    SpeakerRecognition_Api_Version = 13001,
+
+    SpeechTranslation_ModelName = 13100,
+    SpeechTranslation_ModelKey = 13101
 };
 
 typedef enum _ParticipantChangedReason

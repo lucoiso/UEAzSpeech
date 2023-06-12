@@ -179,6 +179,11 @@ public:
     /// </summary>
     /// <param name="audioProcessingFlags">Specifies flags to control the audio processing performed by Speech SDK. It is bitwise OR of AUDIO_INPUT_PROCESSING_XXX constants.</param>
     /// <returns>The newly created AudioProcessingOptions wrapped inside a std::shared_ptr.</returns>
+    /// <remarks>
+    /// This function should only be used when the audio input is from a microphone array.
+    /// On Windows, this function will try to query the microphone array geometry from the audio driver. Audio data is also read from speaker reference channel.
+    /// On Linux, it assumes that the microphone is a single channel microphone.
+    /// </remarks>
     static std::shared_ptr<AudioProcessingOptions> Create(int audioProcessingFlags)
     {
         SPXAUDIOPROCESSINGOPTIONSHANDLE hoptions = SPXHANDLE_INVALID;

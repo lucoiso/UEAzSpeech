@@ -48,6 +48,36 @@ public:
     }
 
     /// <summary>
+    /// Create a translation recognizer from an embedded speech config
+    /// </summary>
+    /// <param name="speechConfig">Embedded speech configuration.</param>
+    /// <returns>A smart pointer wrapped translation recognizer pointer.</returns>
+    static std::shared_ptr<TranslationRecognizer> FromConfig(std::shared_ptr<EmbeddedSpeechConfig> speechConfig, std::nullptr_t)
+    {
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_translation_recognizer_from_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, EmbeddedSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(nullptr)));
+        return std::make_shared<TranslationRecognizer>(hreco);
+    }
+
+    /// <summary>
+    /// Create a translation recognizer from a hybrid speech config
+    /// </summary>
+    /// <param name="speechConfig">Hybrid speech configuration.</param>
+    /// <returns>A smart pointer wrapped translation recognizer pointer.</returns>
+    static std::shared_ptr<TranslationRecognizer> FromConfig(std::shared_ptr<HybridSpeechConfig> speechConfig, std::nullptr_t)
+    {
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_translation_recognizer_from_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(nullptr)));
+        return std::make_shared<TranslationRecognizer>(hreco);
+    }
+
+    /// <summary>
     /// Create a translation recognizer from a translation config and an audio config.
     /// Users should use this function to create a translation recognizer.
     /// </summary>
@@ -61,6 +91,38 @@ public:
             &hreco,
             HandleOrInvalid<SPXSPEECHCONFIGHANDLE, SpeechTranslationConfig>(speechconfig),
             HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
+        return std::make_shared<TranslationRecognizer>(hreco);
+    }
+
+    /// <summary>
+    /// Create a translation recognizer from an embedded speech config and audio config.
+    /// </summary>
+    /// <param name="speechConfig">Embedded speech config.</param>
+    /// <param name="audioConfig">Audio config.</param>
+    /// <returns>A smart pointer wrapped translation recognizer pointer.</returns>
+    static std::shared_ptr<TranslationRecognizer> FromConfig(std::shared_ptr<EmbeddedSpeechConfig> speechConfig, std::shared_ptr<Audio::AudioConfig> audioConfig = nullptr)
+    {
+        SPXRECOHANDLE hreco{ SPXHANDLE_INVALID };
+        SPX_THROW_ON_FAIL(::recognizer_create_translation_recognizer_from_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, EmbeddedSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioConfig)));
+        return std::make_shared<TranslationRecognizer>(hreco);
+    }
+
+    /// <summary>
+    /// Create a translation recognizer from a hybrid speech config and audio config.
+    /// </summary>
+    /// <param name="speechConfig">Hybrid speech config.</param>
+    /// <param name="audioConfig">Audio config.</param>
+    /// <returns>A smart pointer wrapped translation recognizer pointer.</returns>
+    static std::shared_ptr<TranslationRecognizer> FromConfig(std::shared_ptr<HybridSpeechConfig> speechConfig, std::shared_ptr<Audio::AudioConfig> audioConfig = nullptr)
+    {
+        SPXRECOHANDLE hreco{ SPXHANDLE_INVALID };
+        SPX_THROW_ON_FAIL(::recognizer_create_translation_recognizer_from_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, HybridSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioConfig)));
         return std::make_shared<TranslationRecognizer>(hreco);
     }
 

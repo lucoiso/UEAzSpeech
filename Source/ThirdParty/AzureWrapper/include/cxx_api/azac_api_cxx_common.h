@@ -40,7 +40,7 @@
 namespace Azure {
 namespace AI {
 namespace Core {
-namespace Details {
+namespace _detail {
 
 template <class T>
 class ProtectedAccess : public T
