@@ -45,3 +45,4 @@
 #include <speechapi_c_speaker_recognition.h>
 #include <speechapi_c_pronunciation_assessment_config.h>
 #include <speechapi_c_speech_recognition_model.h>
+#include <speechapi_c_speech_translation_model.h>

@@ -31,6 +31,13 @@ AZAC_API diagnostics_logmessage_set_callback(DIAGNOSTICS_CALLBACK_FUNC callback)
 AZAC_API diagnostics_logmessage_set_filters(const char* filters);
 
 //
+// APIs to managed eventSource events
+//
+typedef void(*DIAGNOSTICS_EVENTSOURCE_CALLBACK_FUNC)(const char *logLine, const int level);
+AZAC_API diagnostics_eventsource_logmessage_set_callback(DIAGNOSTICS_EVENTSOURCE_CALLBACK_FUNC callback);
+AZAC_API diagnostics_eventsource_logmessage_set_filters(const char* filters);
+
+//
 // APIs to manage logging to memory
 //
 AZAC_API_(void) diagnostics_log_memory_start_logging();
