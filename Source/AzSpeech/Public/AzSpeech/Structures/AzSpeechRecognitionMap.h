@@ -11,7 +11,7 @@ USTRUCT(BlueprintType, Category = "AzSpeech")
 struct AZSPEECH_API FAzSpeechRecognitionData
 {
 	GENERATED_BODY()
-	
+
 	FAzSpeechRecognitionData() : Value(0), Weight(1) {};
 	FAzSpeechRecognitionData(const int32 InValue) : Value(InValue) {};
 	FAzSpeechRecognitionData(const int32 InValue, const int32 InWeight) : Value(InValue), Weight(InWeight) {};

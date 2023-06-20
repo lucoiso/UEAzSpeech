@@ -39,7 +39,7 @@ struct AZSPEECH_API FAzSpeechAudioInputDeviceInfo
 
 		return Output;
 	}
-	
+
 	const FString GetAudioInputDeviceEndpointID() const
 	{
 		// {0.0.1.00000000}.{Device ID}

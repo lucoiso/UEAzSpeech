@@ -31,7 +31,7 @@ protected:
 
 	UFUNCTION()
 	void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);
-	
+
 private:
 	TWeakObjectPtr<class UAudioComponent> AudioComponent;
 };

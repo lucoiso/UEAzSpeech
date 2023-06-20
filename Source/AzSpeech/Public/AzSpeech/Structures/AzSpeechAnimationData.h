@@ -13,7 +13,7 @@ struct AZSPEECH_API FAzSpeechBlendShapes
 	GENERATED_BODY()
 
 	FAzSpeechBlendShapes() = default;
-		
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<float> Data;
 };
@@ -22,12 +22,12 @@ USTRUCT(BlueprintType, Category = "AzSpeech")
 struct AZSPEECH_API FAzSpeechAnimationData
 {
 	GENERATED_BODY()
-		
+
 	FAzSpeechAnimationData() = default;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	int32 FrameIndex = 0;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	TArray<FAzSpeechBlendShapes> BlendShapes;
 };

@@ -26,13 +26,13 @@ public:
 	static USpeechToTextAsync* SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
 
 	virtual void Activate() override;
-	
+
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	bool IsUsingDefaultAudioInputDevice() const;
 
 protected:
 	virtual bool StartAzureTaskWork() override;
-	
+
 private:
 	FString AudioInputDeviceID;
 };

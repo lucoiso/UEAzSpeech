@@ -29,7 +29,7 @@ public:
 
 protected:
 	virtual bool StartAzureTaskWork() override;
-	
+
 private:
 	FString FilePath;
 	FString FileName;

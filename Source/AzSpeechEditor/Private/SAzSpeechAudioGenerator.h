@@ -17,7 +17,7 @@ class UAzSpeechPropertiesGetter : public UObject
 
 public:
 	explicit UAzSpeechPropertiesGetter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
 	FAvailableVoicesUpdated OnAvailableVoicesUpdated;
 	FAudioDataGenerated OnAudioDataGenerated;
 
