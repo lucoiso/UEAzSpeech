@@ -15,7 +15,7 @@ UCLASS(Abstract, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy 
 class AZSPEECH_API UAzSpeechAudioDataSynthesisBase : public UAzSpeechSynthesizerTaskBase
 {
 	GENERATED_BODY()
-	
+
 protected:
 	virtual bool StartAzureTaskWork() override;
 

@@ -46,12 +46,12 @@ public:
 		return QualifyFileExtension(Path, Name, "xml");
 	}
 
-	/* 
+	/*
 		Convert .wav file to USoundWave.
 
 		[OutputModule, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content. Set empty values to generate a transient Sound Wave
 
-		OutputModule: Name of the module that will be used to save the generated audio data in project's content. Example: Game. 
+		OutputModule: Name of the module that will be used to save the generated audio data in project's content. Example: Game.
 		RelativeOutputDirectory: Directory where the sound wave will be saved
 		OutputAssetName: Name of the generated Sound Wave
 
@@ -60,12 +60,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Audio", Meta = (DisplayName = "Convert .wav file to USoundWave"))
 	static USoundWave* ConvertWavFileToSoundWave(const FString& FilePath, const FString& FileName, const FString& OutputModule = "", const FString& RelativeOutputDirectory = "", const FString& OutputAssetName = "");
 
-	/* 
+	/*
 		Convert audio data (TArray<uint8>) to USoundWave.
 
 		[OutputModule, RelativeOutputDirectory, OutputAssetName]: Used to save the generated audio data in project's content. Set empty values to generate a transient Sound Wave
 
-		OutputModule: Name of the module that will be used to save the generated audio data in project's content. Example: Game. 
+		OutputModule: Name of the module that will be used to save the generated audio data in project's content. Example: Game.
 		RelativeOutputDirectory: Directory where the sound wave will be saved
 		OutputAssetName: Name of the generated Sound Wave
 
@@ -117,7 +117,7 @@ public:
 	/* Check if the content module is available */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech | Utils")
 	static const bool IsContentModuleAvailable(const FString& ModuleName);
-		
+
 	/* Get AzSpeech Friendly Name */
 	UFUNCTION(BlueprintPure, Category = "AzSpeech | Utils")
 	static const FString GetPluginFriendlyName();
@@ -126,28 +126,28 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AzSpeech | Utils")
 	static const FString GetPluginVersion();
 
-	/* 
+	/*
 		Extract the Animation JSON property from Viseme Data.
 
 		JSON Body Format:
 		[
 			FrameIndex: Integer,
-			BlendShapes: [ 
-				[ 
-					Number, 
-					... 
-				], 
-				[ 
-					Number, 
-					... 
-				], 
-				... 
+			BlendShapes: [
+				[
+					Number,
+					...
+				],
+				[
+					Number,
+					...
+				],
+				...
 			]
 		]
 	*/
 	UFUNCTION(BlueprintPure, Category = "AzSpeech | Data")
 	static const FAzSpeechAnimationData ExtractAnimationDataFromVisemeData(const FAzSpeechVisemeData& VisemeData);
-	
+
 	/*
 		Extract the Animation JSON property from Viseme Data Array.
 

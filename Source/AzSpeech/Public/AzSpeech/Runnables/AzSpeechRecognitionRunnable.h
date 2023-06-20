@@ -16,9 +16,9 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-	
+
 class FAzSpeechRecognitionRunnable : public FAzSpeechRunnableBase
-{		
+{
 public:
 	FAzSpeechRecognitionRunnable() = delete;
 	FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);

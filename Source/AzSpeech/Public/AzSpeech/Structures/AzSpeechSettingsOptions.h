@@ -123,7 +123,6 @@ private:
 	void SetDefaults();
 };
 
-
 USTRUCT(BlueprintType, Category = "AzSpeech")
 struct AZSPEECH_API FAzSpeechSynthesisOptions
 {
@@ -167,16 +166,16 @@ USTRUCT(BlueprintType, Category = "AzSpeech")
 struct AZSPEECH_API FAzSpeechSettingsOptions
 {
 	GENERATED_BODY()
-		
+
 public:
 	FAzSpeechSettingsOptions();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Subscription Options"))
 	FAzSpeechSubscriptionOptions SubscriptionOptions;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Recognition Options"))
 	FAzSpeechRecognitionOptions RecognitionOptions;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Azure", Meta = (DisplayName = "Synthesis Options"))
 	FAzSpeechSynthesisOptions SynthesisOptions;
 

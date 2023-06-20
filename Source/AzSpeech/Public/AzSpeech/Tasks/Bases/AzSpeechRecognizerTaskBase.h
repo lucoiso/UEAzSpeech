@@ -25,8 +25,8 @@ class AZSPEECH_API UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 	GENERATED_BODY()
 
 	friend class FAzSpeechRecognitionRunnable;
-	
-public:	
+
+public:
 	/* Task delegate that will be called when completed */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FRecognitionCompletedDelegate RecognitionCompleted;
@@ -55,11 +55,11 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const int32 GetRecognitionLatency() const;
-	
+
 protected:
 	FName PhraseListGroup = NAME_None;
 	FAzSpeechRecognitionOptions RecognitionOptions;
-	
+
 	void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
 	virtual void BroadcastFinalResult() override;

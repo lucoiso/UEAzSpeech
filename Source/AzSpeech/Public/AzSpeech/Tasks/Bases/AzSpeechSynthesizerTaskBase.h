@@ -32,7 +32,7 @@ class AZSPEECH_API UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
 
 	friend class FAzSpeechSynthesisRunnable;
 
-public:	
+public:
 	/* Task delegate that will be called when dpdated */
 	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
 	FAzSpeechTaskGenericDelegate SynthesisUpdated;
@@ -96,16 +96,16 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	const int32 GetServiceLatency() const;
-	
+
 protected:
 	FString SynthesisText;
 	FAzSpeechSynthesisOptions SynthesisOptions;
-	
+
 	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
-	
+
 	virtual void OnVisemeReceived(const FAzSpeechVisemeData& VisemeData);
 	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
-	
+
 private:
 	std::vector<uint8_t> AudioData;
 	TArray<FAzSpeechVisemeData> VisemeDataArray;

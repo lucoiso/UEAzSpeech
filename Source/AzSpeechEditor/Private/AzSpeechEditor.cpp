@@ -48,7 +48,7 @@ void FAzSpeechEditorModule::RegisterMenus()
 #endif
 
 	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("AzSpeechCategory", "AzSpeech"), LOCTEXT("AzSpeechCategoryTooltip", "AzSpeech Plugin Tabs"), FSlateIcon(AppStyleName, "Icons.Package"));
-	
+
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AzSpeechEditorTabName, EditorTabSpawnerDelegate)
 		.SetDisplayName(FText::FromString("AzSpeech Audio Generator"))
 		.SetTooltipText(FText::FromString("Open AzSpeech Audio Generator"))
@@ -57,5 +57,5 @@ void FAzSpeechEditorModule::RegisterMenus()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FAzSpeechEditorModule, AzSpeechEditor)

@@ -111,7 +111,7 @@ public:
 	static bool IsTaskActive(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	static bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);	
+	static bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);
 
 	UFUNCTION(BlueprintPure, Category = "AzSpeech")
 	static bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
