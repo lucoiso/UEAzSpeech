@@ -1,4 +1,4 @@
-
+//
 // Copyright (c) Microsoft. All rights reserved.
 // See https://aka.ms/csspeech/license for the full license information.
 //
@@ -10,17 +10,20 @@
 #include <future>
 #include <memory>
 #include <string>
-#include <cstring>
 #include <speechapi_cxx_common.h>
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_c.h>
-#include <speechapi_cxx_conversation.h>
-#include <speechapi_cxx_conversation_transcription_result.h>
+#include <speechapi_cxx_recognizer.h>
 #include <speechapi_cxx_conversation_transcription_eventargs.h>
+#include <speechapi_cxx_conversation_transcription_result.h>
 #include <speechapi_cxx_properties.h>
 #include <speechapi_cxx_speech_config.h>
 #include <speechapi_cxx_audio_stream.h>
+#include <speechapi_cxx_auto_detect_source_lang_config.h>
+#include <speechapi_cxx_source_lang_config.h>
+#include <speechapi_cxx_audio_config.h>
 #include <speechapi_cxx_utils.h>
+
 
 namespace Microsoft {
 namespace CognitiveServices {
@@ -30,56 +33,97 @@ namespace Transcription {
 class Session;
 
 /// <summary>
-/// Class for conversation transcriber.
-/// Added in version 1.5.0.
+/// Class for ConversationTranscribers.
 /// </summary>
-class ConversationTranscriber : public Recognizer
+class ConversationTranscriber final : public Recognizer
 {
 public:
-
     /// <summary>
-    /// Create a conversation transcriber from an audio config.
+    /// Create a conversation transcriber from a speech config
     /// </summary>
-    /// <param name="audioInput">Audio configuration.</param>
+    /// <param name="speechconfig">Speech configuration.</param>
     /// <returns>A smart pointer wrapped conversation transcriber pointer.</returns>
-    static std::shared_ptr<ConversationTranscriber> FromConfig(std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
+    static std::shared_ptr<ConversationTranscriber> FromConfig(std::shared_ptr<SpeechConfig> speechconfig, std::nullptr_t)
     {
-        SPXRECOHANDLE hreco = SPXHANDLE_INVALID;
-        SPX_THROW_ON_FAIL(::recognizer_create_conversation_transcriber_from_config( &hreco,
-            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
-
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_conversation_transcriber_from_config(
+            &hreco,
+            Utils::HandleOrInvalid<SPXSPEECHCONFIGHANDLE, SpeechConfig>(speechconfig),
+            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(nullptr)));
         return std::make_shared<ConversationTranscriber>(hreco);
     }
 
     /// <summary>
-    /// Join a conversation.
+    /// Create a conversation transcriber from a speech config and audio config.
     /// </summary>
-    /// <param name="conversation">A smart pointer of the conversation to be joined.</param>
-    /// <returns>An empty future.</returns>
-    std::future<void> JoinConversationAsync(std::shared_ptr<Conversation> conversation)
+    /// <param name="speechconfig">Speech configuration.</param>
+    /// <param name="audioInput">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped conversation transcriber pointer.</returns>
+    static std::shared_ptr<ConversationTranscriber> FromConfig(std::shared_ptr<SpeechConfig> speechconfig, std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
     {
-        auto keepAlive = this->shared_from_this();
-        auto future = std::async(std::launch::async, [keepAlive, this, conversation]() -> void {
-            SPX_THROW_ON_FAIL(::recognizer_join_conversation(Utils::HandleOrInvalid<SPXCONVERSATIONHANDLE, Conversation>(conversation), m_hreco));
-        });
-
-        return future;
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_conversation_transcriber_from_config(
+            &hreco,
+            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE,SpeechConfig>(speechconfig),
+            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
+        return std::make_shared<ConversationTranscriber>(hreco);
     }
 
     /// <summary>
-    /// Leave a conversation.
-    ///
-    /// Note: After leaving a conversation, no transcribing or transcribed events will be sent to end users. End users need to join a conversation to get the events again.
+    /// Create a conversation transcriber from a speech config, auto detection source language config and audio config
     /// </summary>
-    /// <returns>An empty future.</returns>
-    std::future<void> LeaveConversationAsync()
+    /// <param name="speechconfig">Speech configuration.</param>
+    /// <param name="autoDetectSourceLangConfig">Auto detection source language config.</param>
+    /// <param name="audioInput">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped conversation trasncriber pointer.</returns>
+    static std::shared_ptr<ConversationTranscriber> FromConfig(
+        std::shared_ptr<SpeechConfig> speechconfig,
+        std::shared_ptr<AutoDetectSourceLanguageConfig> autoDetectSourceLangConfig,
+        std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
     {
-        auto keepAlive = this->shared_from_this();
-        auto future = std::async(std::launch::async, [keepAlive, this]() -> void {
-            SPX_THROW_ON_FAIL(::recognizer_leave_conversation(m_hreco));
-        });
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_conversation_transcriber_from_auto_detect_source_lang_config(
+            &hreco,
+            Utils::HandleOrInvalid<SPXSPEECHCONFIGHANDLE, SpeechConfig>(speechconfig),
+            Utils::HandleOrInvalid<SPXAUTODETECTSOURCELANGCONFIGHANDLE, AutoDetectSourceLanguageConfig>(autoDetectSourceLangConfig),
+            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
+        return std::make_shared<ConversationTranscriber>(hreco);
+    }
 
-        return future;
+    /// <summary>
+    /// Create a conversation transcriber from a speech config, source language config and audio config
+    /// </summary>
+    /// <param name="speechconfig">Speech configuration.</param>
+    /// <param name="sourceLanguageConfig">Source language config.</param>
+    /// <param name="audioInput">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped conversation transcriber pointer.</returns>
+    static std::shared_ptr<ConversationTranscriber> FromConfig(
+        std::shared_ptr<SpeechConfig> speechconfig,
+        std::shared_ptr<SourceLanguageConfig> sourceLanguageConfig,
+        std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
+    {
+        SPXRECOHANDLE hreco;
+        SPX_THROW_ON_FAIL(::recognizer_create_conversation_transcriber_from_source_lang_config(
+            &hreco,
+            Utils::HandleOrInvalid<SPXSPEECHCONFIGHANDLE, SpeechConfig>(speechconfig),
+            Utils::HandleOrInvalid<SPXSOURCELANGCONFIGHANDLE, SourceLanguageConfig>(sourceLanguageConfig),
+            Utils::HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
+        return std::make_shared<ConversationTranscriber>(hreco);
+    }
+
+    /// <summary>
+    /// Create a conversation transcriber from a speech config, source language and audio config
+    /// </summary>
+    /// <param name="speechconfig">Speech configuration.</param>
+    /// <param name="sourceLanguage">Source language.</param>
+    /// <param name="audioInput">Audio configuration.</param>
+    /// <returns>A smart pointer wrapped conversation transcriber pointer.</returns>
+    static std::shared_ptr<ConversationTranscriber> FromConfig(
+        std::shared_ptr<SpeechConfig> speechconfig,
+        const SPXSTRING& sourceLanguage,
+        std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
+    {
+        return FromConfig(speechconfig, SourceLanguageConfig::FromLanguage(sourceLanguage), audioInput);
     }
 
     /// <summary>
@@ -91,18 +135,18 @@ public:
         auto keepAlive = this->shared_from_this();
         auto future = std::async(std::launch::async, [keepAlive, this]() -> void {
             SPX_INIT_HR(hr);
-            SPX_THROW_ON_FAIL(hr = recognizer_async_handle_release(m_hasyncStartContinuous)); // close any unfinished previous attempt
+        SPX_THROW_ON_FAIL(hr = recognizer_async_handle_release(m_hasyncStartContinuous)); // close any unfinished previous attempt
 
-            SPX_EXITFN_ON_FAIL(hr = recognizer_start_continuous_recognition_async(m_hreco, &m_hasyncStartContinuous));
-            SPX_EXITFN_ON_FAIL(hr = recognizer_start_continuous_recognition_async_wait_for(m_hasyncStartContinuous, UINT32_MAX));
+        SPX_EXITFN_ON_FAIL(hr = recognizer_start_continuous_recognition_async(m_hreco, &m_hasyncStartContinuous));
+        SPX_EXITFN_ON_FAIL(hr = recognizer_start_continuous_recognition_async_wait_for(m_hasyncStartContinuous, UINT32_MAX));
 
-        SPX_EXITFN_CLEANUP:
-            auto releaseHr = recognizer_async_handle_release(m_hasyncStartContinuous);
-            SPX_REPORT_ON_FAIL(releaseHr);
-            m_hasyncStartContinuous = SPXHANDLE_INVALID;
+    SPX_EXITFN_CLEANUP:
+        auto releaseHr = recognizer_async_handle_release(m_hasyncStartContinuous);
+        SPX_REPORT_ON_FAIL(releaseHr);
+        m_hasyncStartContinuous = SPXHANDLE_INVALID;
 
-            SPX_THROW_ON_FAIL(hr);
-        });
+        SPX_THROW_ON_FAIL(hr);
+            });
 
         return future;
     }
@@ -115,9 +159,6 @@ public:
     {
         auto keepAlive = this->shared_from_this();
         auto future = std::async(std::launch::async, [keepAlive, this]() -> void {
-
-            SPX_THROW_ON_FAIL(::recognizer_leave_conversation(m_hreco));
-
             SPX_INIT_HR(hr);
             SPX_THROW_ON_FAIL(hr = recognizer_async_handle_release(m_hasyncStopContinuous)); // close any unfinished previous attempt
 
@@ -221,14 +262,13 @@ public:
         return Properties.GetProperty(PropertyId::SpeechServiceAuthorization_Token, SPXSTRING());
     }
 
-protected:
-
+ protected:
     /*! \cond PROTECTED */
 
-    /// <summary>
-    /// Internal constructor. Creates a new instance using the provided handle.
-    /// </summary>
-    /// <param name="hreco">Recognizer handle.</param>
+     /// <summary>
+     /// Internal constructor. Creates a new instance using the provided handle.
+     /// </summary>
+     /// <param name="hreco">Recognizer handle.</param>
     virtual void TermRecognizer() override
     {
         SPX_DBG_TRACE_SCOPE(__FUNCTION__, __FUNCTION__);
@@ -428,10 +468,10 @@ private:
         PrivatePropertyCollection(SPXRECOHANDLE hreco) :
             PropertyCollection(
                 [=]() {
-            SPXPROPERTYBAGHANDLE hpropbag = SPXHANDLE_INVALID;
-            recognizer_get_property_bag(hreco, &hpropbag);
-            return hpropbag;
-        }())
+                    SPXPROPERTYBAGHANDLE hpropbag = SPXHANDLE_INVALID;
+        recognizer_get_property_bag(hreco, &hpropbag);
+        return hpropbag;
+                }())
         {
         }
     };
@@ -464,5 +504,6 @@ public:
     /// </summary>
     PropertyCollection& Properties;
 };
+
 
 } } } } // Microsoft::CognitiveServices::Speech::Transcription

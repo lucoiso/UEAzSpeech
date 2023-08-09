@@ -19,7 +19,6 @@ namespace Transcription {
 
 /// <summary>
 /// Class for conversation transcriber event arguments.
-/// Added in version 1.5.0.
 /// </summary>
 class ConversationTranscriptionEventArgs : public RecognitionEventArgs
 {
@@ -88,7 +87,6 @@ private:
 
 /// <summary>
 /// Class for conversation transcriber canceled event arguments.
-/// Added in version 1.5.0.
 /// </summary>
 class ConversationTranscriptionCanceledEventArgs : public ConversationTranscriptionEventArgs
 {
@@ -164,6 +162,4 @@ private:
 
     DISABLE_DEFAULT_CTORS(ConversationTranscriptionCanceledEventArgs);
 };
-
-
 } } } }  // Microsoft::CognitiveServices::Speech::Transcription

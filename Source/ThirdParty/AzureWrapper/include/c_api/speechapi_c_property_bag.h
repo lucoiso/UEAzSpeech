@@ -78,6 +78,11 @@ enum  PropertyId
 
     SpeechServiceResponse_TranslationRequestStablePartialResult = 4100,
 
+    SpeechServiceResponse_RequestWordBoundary = 4200,
+    SpeechServiceResponse_RequestPunctuationBoundary = 4201,
+    SpeechServiceResponse_RequestSentenceBoundary = 4202,
+    SpeechServiceResponse_SynthesisEventsSyncToAudio = 4210,
+
     SpeechServiceResponse_JsonResult = 5000,
     SpeechServiceResponse_JsonErrorDetails = 5001,
     SpeechServiceResponse_RecognitionLatencyMs = 5002,

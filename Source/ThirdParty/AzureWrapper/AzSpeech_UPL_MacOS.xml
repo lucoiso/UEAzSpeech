@@ -2,7 +2,7 @@
 
 <root>
 	<init>
-		<log text="AzSpeech is adding permission requests to MacOS PList"/>
+		<log text="AzSpeech is adding permission requests to MacOS PList" />
 	</init>
 
 	<iosPListUpdates>

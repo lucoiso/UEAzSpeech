@@ -14,14 +14,14 @@
 UCLASS(NotPlaceable, Category = "AzSpeech")
 class AZSPEECH_API USSMLToWavFileAsync : public UAzSpeechWavFileSynthesisBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To .wav File with Default Options"))
-	static USSMLToWavFileAsync* SSMLToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName);
+    /* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To .wav File with Default Options"))
+    static USSMLToWavFileAsync* SSMLToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName);
 
-	/* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
-	UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To .wav File with Custom Options"))
-	static USSMLToWavFileAsync* SSMLToWavFile_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName);
+    /* Creates a Text-To-WavFile task that will convert your string to a .wav audio file */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To .wav File with Custom Options"))
+    static USSMLToWavFileAsync* SSMLToWavFile_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName);
 };

@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 25,
-	"VersionName": "1.6.8",
+	"Version": 26,
+	"VersionName": "1.6.9",
 	"FriendlyName": "AzSpeech - Voice and Text",
 	"Description": "Integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.",
 	"Category": "Game Features",

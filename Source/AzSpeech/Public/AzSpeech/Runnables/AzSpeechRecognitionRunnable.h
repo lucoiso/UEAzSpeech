@@ -20,36 +20,36 @@ THIRD_PARTY_INCLUDES_END
 class FAzSpeechRecognitionRunnable : public FAzSpeechRunnableBase
 {
 public:
-	FAzSpeechRecognitionRunnable() = delete;
-	FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    FAzSpeechRecognitionRunnable() = delete;
+    FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
 protected:
-	// FRunnable interface
-	virtual uint32 Run() override;
-	virtual void Exit() override;
-	// End of FRunnable interface
+    // FRunnable interface
+    virtual uint32 Run() override;
+    virtual void Exit() override;
+    // End of FRunnable interface
 
 private:
-	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> SpeechRecognizer;
+    std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> SpeechRecognizer;
 
 protected:
-	const bool IsSpeechRecognizerValid() const;
+    const bool IsSpeechRecognizerValid() const;
 
-	class UAzSpeechRecognizerTaskBase* GetOwningRecognizerTask() const;
+    class UAzSpeechRecognizerTaskBase* GetOwningRecognizerTask() const;
 
-	virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const override;
+    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const override;
 
-	virtual bool InitializeAzureObject() override;
+    virtual bool InitializeAzureObject() override;
 
 private:
-	bool ConnectRecognitionStartedSignals();
-	bool ConnectRecognitionUpdatedSignals();
-	bool InsertPhraseList() const;
+    bool ConnectRecognitionStartedSignals();
+    bool ConnectRecognitionUpdatedSignals();
+    bool InsertPhraseList() const;
 
-	bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
+    bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
-	const std::vector<std::string> GetCandidateLanguages() const;
-	const TArray<FString> GetPhraseListFromGroup(const FName& InGroup) const;
+    const std::vector<std::string> GetCandidateLanguages() const;
+    const TArray<FString> GetPhraseListFromGroup(const FName& InGroup) const;
 
-	const Microsoft::CognitiveServices::Speech::OutputFormat GetOutputFormat() const;
+    const Microsoft::CognitiveServices::Speech::OutputFormat GetOutputFormat() const;
 };

@@ -8,5 +8,4 @@
 #pragma once
 #include <speechapi_c_common.h>
 
-SPXAPI conversation_transcription_result_get_user_id(SPXRESULTHANDLE hresult, char* pszUserId, uint32_t cchUserId);
-SPXAPI conversation_transcription_result_get_utterance_id(SPXRESULTHANDLE hresult, char* pszUtteranceId, uint32_t cchUtteranceId);
+SPXAPI conversation_transcription_result_get_speaker_id(SPXRESULTHANDLE hresult, char* pszSpeakerId, uint32_t cchSpeakerId);

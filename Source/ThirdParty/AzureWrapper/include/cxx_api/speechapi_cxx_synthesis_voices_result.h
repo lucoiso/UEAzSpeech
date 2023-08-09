@@ -89,7 +89,7 @@ public:
         SPX_THROW_ON_FAIL(synthesis_voices_result_get_result_id(hresult, sz, maxCharCount));
         m_resultId = Utils::ToSPXString(sz);
 
-        Result_Reason resultReason;
+        Result_Reason resultReason = ResultReason_NoMatch;
         SPX_THROW_ON_FAIL(synthesis_voices_result_get_reason(hresult, &resultReason));
         m_reason = static_cast<ResultReason>(resultReason);
 

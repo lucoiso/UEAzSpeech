@@ -137,8 +137,8 @@ public:
     /// <returns>void.</returns>
     void SetMessageProperty(const SPXSTRING& path, const SPXSTRING& propertyName, const SPXSTRING& propertyValue)
     {
-            SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
-            SPX_THROW_ON_FAIL(::connection_set_message_property(m_connectionHandle, Utils::ToUTF8(path).c_str(), Utils::ToUTF8(propertyName).c_str(), Utils::ToUTF8(propertyValue).c_str()));
+        SPX_THROW_HR_IF(SPXERR_INVALID_HANDLE, m_connectionHandle == SPXHANDLE_INVALID);
+        SPX_THROW_ON_FAIL(::connection_set_message_property(m_connectionHandle, Utils::ToUTF8(path).c_str(), Utils::ToUTF8(propertyName).c_str(), Utils::ToUTF8(propertyValue).c_str()));
     }
 
     /// <summary>

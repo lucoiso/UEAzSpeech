@@ -179,7 +179,7 @@ namespace Microsoft {
                     CancellationErrorCode GetCancellationErrorCode(VoiceProfilePhraseResult* result)
                     {
                         UNUSED(result);
-                        Result_CancellationErrorCode errorCode;
+                        Result_CancellationErrorCode errorCode = CancellationErrorCode_NoError;
 
                         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
                         SPX_IFFAILED_THROW_HR(result_get_canceled_error_code(hresult, &errorCode));

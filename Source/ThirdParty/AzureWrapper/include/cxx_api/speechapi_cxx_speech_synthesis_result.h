@@ -263,7 +263,7 @@ private:
 
     Speech::CancellationErrorCode GetCancellationErrorCode(SpeechSynthesisResult* result)
     {
-        Result_CancellationErrorCode errorCode;
+        Result_CancellationErrorCode errorCode = CancellationErrorCode_NoError;
 
         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
         SPX_IFFAILED_THROW_HR(synth_result_get_canceled_error_code(hresult, &errorCode));
@@ -273,7 +273,7 @@ private:
 
     Speech::CancellationReason GetCancellationReason(AudioDataStream* stream)
     {
-        Result_CancellationReason reason;
+        Result_CancellationReason reason = CancellationReason_Error;
 
         SPXAUDIOSTREAMHANDLE hstream = (SPXAUDIOSTREAMHANDLE)(*stream);
         SPX_IFFAILED_THROW_HR(audio_data_stream_get_reason_canceled(hstream, &reason));
@@ -283,7 +283,7 @@ private:
 
     Speech::CancellationErrorCode GetCancellationErrorCode(AudioDataStream* stream)
     {
-        Result_CancellationErrorCode errorCode;
+        Result_CancellationErrorCode errorCode = CancellationErrorCode_NoError;
 
         SPXAUDIOSTREAMHANDLE hstream = (SPXAUDIOSTREAMHANDLE)(*stream);
         SPX_IFFAILED_THROW_HR(audio_data_stream_get_canceled_error_code(hstream, &errorCode));

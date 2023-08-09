@@ -18,108 +18,108 @@
 
 const FAzSpeechRecognitionOptions UAzSpeechRecognizerTaskBase::GetRecognitionOptions() const
 {
-	return RecognitionOptions;
+    return RecognitionOptions;
 }
 
 const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
 {
-	FScopeLock Lock(&Mutex);
+    FScopeLock Lock(&Mutex);
 
-	if (RecognizedText.empty())
-	{
-		return FString();
-	}
+    if (RecognizedText.empty())
+    {
+        return FString();
+    }
 
-	return UTF8_TO_TCHAR(RecognizedText.c_str());
+    return UTF8_TO_TCHAR(RecognizedText.c_str());
 }
 
 const int64 UAzSpeechRecognizerTaskBase::GetRecognitionDuration() const
 {
-	FScopeLock Lock(&Mutex);
+    FScopeLock Lock(&Mutex);
 
-	return RecognitionDuration;
+    return RecognitionDuration;
 }
 
 const int32 UAzSpeechRecognizerTaskBase::GetRecognitionLatency() const
 {
-	FScopeLock Lock(&Mutex);
+    FScopeLock Lock(&Mutex);
 
-	return RecognitionLatency;
+    return RecognitionLatency;
 }
 
 void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
 {
-	RunnableTask = MakeShared<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
+    RunnableTask = MakeShared<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
 
-	if (!RunnableTask)
-	{
-		SetReadyToDestroy();
-		return;
-	}
-	
-	RunnableTask->StartAzSpeechRunnableTask();
+    if (!RunnableTask)
+    {
+        SetReadyToDestroy();
+        return;
+    }
+
+    RunnableTask->StartAzSpeechRunnableTask();
 }
 
 void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
 {
-	FScopeLock Lock(&Mutex);
+    FScopeLock Lock(&Mutex);
 
-	if (!UAzSpeechTaskStatus::IsTaskActive(this))
-	{
-		return;
-	}
+    if (!UAzSpeechTaskStatus::IsTaskActive(this))
+    {
+        return;
+    }
 
-	Super::BroadcastFinalResult();
+    Super::BroadcastFinalResult();
 
-	AsyncTask(ENamedThreads::GameThread,
-		[this]
-		{
-			RecognitionCompleted.Broadcast(GetRecognizedString());
-		}
-	);
+    AsyncTask(ENamedThreads::GameThread,
+        [this]
+        {
+            RecognitionCompleted.Broadcast(GetRecognizedString());
+        }
+    );
 }
 
 void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult)
 {
-	check(IsInGameThread());
+    check(IsInGameThread());
 
-	FScopeLock Lock(&Mutex);
+    FScopeLock Lock(&Mutex);
 
-	RecognizedText = LastResult->Text;
+    RecognizedText = LastResult->Text;
 
-	const auto TicksToMs = [](const auto& Ticks)
-	{
-		return static_cast<int64>(Ticks / 10000u);
-	};
+    const auto TicksToMs = [](const auto& Ticks)
+        {
+            return static_cast<int64>(Ticks / 10000u);
+        };
 
-	RecognitionDuration = TicksToMs(LastResult->Duration());
-	RecognitionLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_RecognitionLatencyMs);
+    RecognitionDuration = TicksToMs(LastResult->Duration());
+    RecognitionLatency = GetProperty<int32>(LastResult, Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceResponse_RecognitionLatencyMs);
 
-	RecognitionUpdated.Broadcast(GetRecognizedString());
+    RecognitionUpdated.Broadcast(GetRecognizedString());
 
-	if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
-	{
-		const FStringFormatOrderedArguments Arguments {
-			TaskName.ToString(),
-			GetUniqueID(),
-			FString(__func__),
-			UTF8_TO_TCHAR(LastResult->Text.c_str()),
-			RecognitionDuration,
-			TicksToMs(LastResult->Offset()),
-			static_cast<int32>(LastResult->Reason),
-			UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
-			RecognitionLatency
-		};
+    if (UAzSpeechSettings::Get()->bEnableDebuggingLogs || UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+    {
+        const FStringFormatOrderedArguments Arguments{
+            TaskName.ToString(),
+            GetUniqueID(),
+            FString(__func__),
+            UTF8_TO_TCHAR(LastResult->Text.c_str()),
+            RecognitionDuration,
+            TicksToMs(LastResult->Offset()),
+            static_cast<int32>(LastResult->Reason),
+            UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
+            RecognitionLatency
+        };
 
-		const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1});\n\tFunction: {2};\n\tRecognized text: {3}\n\tDuration: {4}ms\n\tOffset: {5}ms\n\tReason code: {6}\n\tResult ID: {7}\n\tRecognition latency: {8}ms"), Arguments);
+        const FString MountedDebuggingInfo = FString::Format(TEXT("Task: {0} ({1});\n\tFunction: {2};\n\tRecognized text: {3}\n\tDuration: {4}ms\n\tOffset: {5}ms\n\tReason code: {6}\n\tResult ID: {7}\n\tRecognition latency: {8}ms"), Arguments);
 
-		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
+        UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s"), *MountedDebuggingInfo);
 
 #if !UE_BUILD_SHIPPING
-		if (UAzSpeechSettings::Get()->bEnableDebuggingPrints)
-		{
-			GEngine->AddOnScreenDebugMessage(static_cast<int32>(GetUniqueID()), 5.f, FColor::Yellow, MountedDebuggingInfo);
-		}
+        if (UAzSpeechSettings::Get()->bEnableDebuggingPrints)
+        {
+            GEngine->AddOnScreenDebugMessage(static_cast<int32>(GetUniqueID()), 5.f, FColor::Yellow, MountedDebuggingInfo);
+        }
 #endif
-	}
+    }
 }

@@ -137,7 +137,7 @@ namespace Intent {
                 size_t nameSize;
                 auto name = ai_core_json_value_as_string_ptr(parserHandle, nameInt, &nameSize);
 
-                size_t valueSize;
+                size_t valueSize = 0;
                 auto value = ai_core_json_value_as_string_ptr(parserHandle, itemInt, &valueSize);
                 if (name != nullptr)
                 {
@@ -191,7 +191,8 @@ namespace Intent {
         {
             auto subItemInt = ai_core_json_item_at(parserHandle, itemInt, index, nullptr);
             int subItemCount = ai_core_json_item_count(parserHandle, subItemInt);
-            size_t nameSize, valueSize;
+            size_t nameSize = 0;
+            size_t valueSize = 0;
             for (int subItemIndex = 0; subItemIndex < subItemCount; subItemIndex++)
             {
                 auto prebuiltPairInt = ai_core_json_item_at(parserHandle, subItemInt, subItemIndex, nullptr);
@@ -218,7 +219,8 @@ namespace Intent {
         {
             auto subItemInt = ai_core_json_item_at(parserHandle, itemInt, index, nullptr);
             int subItemCount = ai_core_json_item_count(parserHandle, subItemInt);
-            size_t nameSize, valueSize;
+            size_t nameSize = 0;
+            size_t valueSize = 0;
             for (int subItemIndex = 0; subItemIndex < subItemCount; subItemIndex++)
             {
                 auto entityPairInt = ai_core_json_item_at(parserHandle, subItemInt, subItemIndex, nullptr);
@@ -241,7 +243,8 @@ namespace Intent {
         {
             auto subItemInt = ai_core_json_item_at(parserHandle, itemInt, index, nullptr);
             int subItemCount = ai_core_json_item_count(parserHandle, subItemInt);
-            size_t nameSize, valueSize;
+            size_t nameSize = 0;
+            size_t valueSize = 0;
             // Default to Strict matching.
             PatternMatchingEntity entity{ "", EntityType::List, EntityMatchMode::Strict, {} };
             for (int subItemIndex = 0; subItemIndex < subItemCount; subItemIndex++)
@@ -272,7 +275,8 @@ namespace Intent {
 
         static void ParseSubList(AZAC_HANDLE parserHandle, PatternMatchingEntity& entity, int listPairInt) 
         {
-            size_t nameSize, valueSize;
+            size_t nameSize = 0;
+            size_t valueSize = 0;
             auto subListCount = ai_core_json_item_count(parserHandle, listPairInt);
             for (int subListIndex = 0; subListIndex < subListCount; subListIndex++)
             {
@@ -317,7 +321,8 @@ namespace Intent {
         {
             auto subItemInt = ai_core_json_item_at(parserHandle, itemInt, index, nullptr);
             int subItemCount = ai_core_json_item_count(parserHandle, subItemInt);
-            size_t nameSize, valueSize;
+            size_t nameSize = 0;
+            size_t valueSize = 0;
             std::string patternStr, intentIdStr;
             for (int subItemIndex = 0; subItemIndex < subItemCount; subItemIndex++)
             {

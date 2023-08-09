@@ -38,6 +38,8 @@
 #include <speechapi_c_dialog_service_connector.h>
 #include <speechapi_c_conversation.h>
 #include <speechapi_c_conversation_transcription_result.h>
+#include <speechapi_c_meeting.h>
+#include <speechapi_c_meeting_transcription_result.h>
 #include <speechapi_c_user.h>
 #include <speechapi_c_participant.h>
 #include <speechapi_c_conversation_translator.h>

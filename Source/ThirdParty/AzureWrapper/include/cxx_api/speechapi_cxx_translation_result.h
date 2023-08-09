@@ -154,7 +154,7 @@ private:
     {
         SPX_INIT_HR(hr);
 
-        Result_Reason resultReason;
+        Result_Reason resultReason = ResultReason_NoMatch;
         SPX_THROW_ON_FAIL(hr = result_get_reason(resultHandle, &resultReason));
         m_reason = (ResultReason)resultReason;
 

@@ -42,7 +42,7 @@ public:
     {
         SPX_DBG_TRACE_VERBOSE("%s (this=0x%p, handle=0x%p)", __FUNCTION__, (void*)this, (void*)m_hEvent);
         uint64_t durationTicks;
-        SpeechSynthesis_BoundaryType boundaryType;
+        SpeechSynthesis_BoundaryType boundaryType = SpeechSynthesis_BoundaryType_Word;
         synthesizer_word_boundary_event_get_values(hevent, &m_audioOffset, &durationTicks, &m_textOffset, &m_wordLength, &boundaryType);
         m_duration = std::chrono::milliseconds(durationTicks / static_cast<uint64_t>(10000));
         m_boundaryType = static_cast<SpeechSynthesisBoundaryType>(boundaryType);
