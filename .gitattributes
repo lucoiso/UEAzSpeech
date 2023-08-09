@@ -1,1 +1,2 @@
 Content/** filter=lfs diff=lfs merge=lfs -text
+Source/ThirdParty/AzureWrapper/libs/iOS/libMicrosoft.CognitiveServices.Speech.core.a filter=lfs diff=lfs merge=lfs -text
