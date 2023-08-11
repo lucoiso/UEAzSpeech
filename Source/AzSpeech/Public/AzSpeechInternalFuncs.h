@@ -7,7 +7,6 @@
 #include <CoreMinimal.h>
 #include <Runtime/Launch/Resources/Version.h>
 #include <string>
-#include "LogAzSpeech.h"
 
 struct FAzSpeechRecognitionMap;
 
@@ -55,7 +54,6 @@ namespace AzSpeech
         {
             if (HasEmptyParam(InGroup))
             {
-                UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid group name"), *FString(__func__));
                 return ReturnTy();
             }
 
@@ -65,7 +63,6 @@ namespace AzSpeech
                 {
                     if (HasEmptyParam(IteratorData.Data))
                     {
-                        UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Map group %s has empty data"), *FString(__func__), *IteratorData.GroupName.ToString());
                         return ReturnTy();
                     }
 
@@ -80,7 +77,6 @@ namespace AzSpeech
                 }
             }
 
-            UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Group with name %s not found"), *FString(__func__), *InGroup.ToString());
             return ReturnTy();
         }
     }

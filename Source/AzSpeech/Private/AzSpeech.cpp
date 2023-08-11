@@ -5,6 +5,7 @@
 #include "AzSpeech.h"
 #include "AzSpeechInternalFuncs.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "LogAzSpeech.h"
 #include <Modules/ModuleManager.h>
 #include <Interfaces/IPluginManager.h>
 #include <Misc/Paths.h>
