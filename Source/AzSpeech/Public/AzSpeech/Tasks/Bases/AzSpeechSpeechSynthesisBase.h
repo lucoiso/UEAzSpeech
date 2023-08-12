@@ -18,6 +18,8 @@ class AZSPEECH_API UAzSpeechSpeechSynthesisBase : public UAzSpeechAudioDataSynth
 {
     GENERATED_BODY()
 
+    friend class UAzSpeechEngineSubsystem;
+
 public:
     /* Task delegate that will be called when completed */
     UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
@@ -33,5 +35,10 @@ protected:
     void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);
 
 private:
+
+    bool bAutoPlayAudio = true;
+    FAzSpeechTaskGenericDelegate_Internal InternalAudioFinished;
     TWeakObjectPtr<class UAudioComponent> AudioComponent;
+
+    void PlayAudio();
 };

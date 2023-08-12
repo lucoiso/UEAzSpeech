@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeech/Tasks/Bases/AzSpeechSpeechSynthesisBase.h"
+#include "AzSpeech/Structures/AzSpeechTaskData.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include <Components/AudioComponent.h>
 #include <Kismet/GameplayStatics.h>
@@ -56,13 +57,10 @@ void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
     AsyncTask(ENamedThreads::GameThread,
         [this]
         {
-            AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject.Get(), UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
-
-            FScriptDelegate UniqueDelegate_AudioStateChanged;
-            UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
-            AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
-
-            AudioComponent->Play();
+            if (bAutoPlayAudio)
+            {
+                PlayAudio();
+            }
 
             SynthesisCompleted.Broadcast(IsLastResultValid());
         }
@@ -78,10 +76,30 @@ void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponent
         return;
     }
 
-    AudioComponent->OnAudioPlayStateChanged.Clear();
-
     if (PlayState == EAudioComponentPlayState::Stopped)
     {
+        InternalAudioFinished.ExecuteIfBound(FAzSpeechTaskData{ GetUniqueID(), GetClass() });
+        InternalAudioFinished.Unbind();
+
         SetReadyToDestroy();
     }
+}
+
+void UAzSpeechSpeechSynthesisBase::PlayAudio()
+{
+    check(IsInGameThread());
+
+    AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject.Get(), UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
+
+    if (!AudioComponent.IsValid())
+    {
+        SetReadyToDestroy();
+        return;
+    }
+
+    FScriptDelegate UniqueDelegate_AudioStateChanged;
+    UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
+    AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
+
+    AudioComponent->Play();
 }

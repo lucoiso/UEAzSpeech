@@ -16,7 +16,6 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-
 class FAzSpeechRecognitionRunnable : public FAzSpeechRunnableBase
 {
 public:

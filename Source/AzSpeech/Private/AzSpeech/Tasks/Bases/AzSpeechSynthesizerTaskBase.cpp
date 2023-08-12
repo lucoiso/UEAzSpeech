@@ -83,6 +83,17 @@ const FAzSpeechSynthesisOptions UAzSpeechSynthesizerTaskBase::GetSynthesisOption
     return SynthesisOptions;
 }
 
+void UAzSpeechSynthesizerTaskBase::SetSynthesisOptions(const FAzSpeechSynthesisOptions& Options)
+{
+    if (UAzSpeechTaskStatus::IsTaskActive(this))
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Can't change the options while the task is active."), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+        return;
+    }
+
+    SynthesisOptions = Options;
+}
+
 const bool UAzSpeechSynthesizerTaskBase::IsSSMLBased() const
 {
     return bIsSSMLBased;

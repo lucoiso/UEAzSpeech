@@ -28,8 +28,6 @@ class AZSPEECH_API UAzSpeechTaskBase : public UBlueprintAsyncActionBase
 
     friend class FAzSpeechRunnableBase;
     friend class UAzSpeechTaskStatus;
-
-protected:
     friend class UAzSpeechEngineSubsystem;
 
 public:
@@ -43,6 +41,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
     const FAzSpeechSubscriptionOptions GetSubscriptionOptions() const;
+
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    void SetSubscriptionOptions(const FAzSpeechSubscriptionOptions& Options);
 
     virtual void SetReadyToDestroy() override;
 
@@ -99,11 +100,14 @@ protected:
         return ReturnTy();
     }
 
+protected:
+
+    typedef TDelegate<void(struct FAzSpeechTaskData)> FAzSpeechTaskGenericDelegate_Internal;
+
 private:
     bool bIsTaskActive = false;
     bool bIsReadyToDestroy = false;
 
-    typedef TDelegate<void(struct FAzSpeechTaskData)> FAzSpeechTaskGenericDelegate_Internal;
     FAzSpeechTaskGenericDelegate_Internal InternalOnTaskFinished;
 };
 

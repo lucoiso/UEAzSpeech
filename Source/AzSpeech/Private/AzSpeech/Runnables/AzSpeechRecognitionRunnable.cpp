@@ -70,7 +70,7 @@ void FAzSpeechRecognitionRunnable::Exit()
 {
     FScopeTryLock Lock(&Mutex);
 
-    Super::Stop();
+    Super::Exit();
 
     if (Lock.IsLocked() && SpeechRecognizer)
     {

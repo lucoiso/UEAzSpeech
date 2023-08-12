@@ -16,6 +16,7 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 class UAzSpeechTaskBase;
+
 /**
  *
  */

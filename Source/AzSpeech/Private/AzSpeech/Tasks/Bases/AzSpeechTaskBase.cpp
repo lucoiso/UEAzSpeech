@@ -99,6 +99,17 @@ const FAzSpeechSubscriptionOptions UAzSpeechTaskBase::GetSubscriptionOptions() c
     return SubscriptionOptions;
 }
 
+void UAzSpeechTaskBase::SetSubscriptionOptions(const FAzSpeechSubscriptionOptions& Options)
+{
+    if (UAzSpeechTaskStatus::IsTaskActive(this))
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Can't change the options while the task is active."), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+        return;
+    }
+
+    SubscriptionOptions = Options;
+}
+
 void UAzSpeechTaskBase::SetReadyToDestroy()
 {
     FScopeTryLock TryLock(&Mutex);
@@ -109,6 +120,7 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
     }
 
     InternalOnTaskFinished.ExecuteIfBound(FAzSpeechTaskData{ GetUniqueID(), GetClass() });
+    InternalOnTaskFinished.Unbind();
 
     if (const UAzSpeechEngineSubsystem* const Subsystem = GEngine->GetEngineSubsystem<UAzSpeechEngineSubsystem>())
     {
@@ -161,6 +173,9 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
     {
         return;
     }
+
+    InternalOnTaskFinished.ExecuteIfBound(FAzSpeechTaskData{ GetUniqueID(), GetClass() });
+    InternalOnTaskFinished.Unbind();
 
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
 

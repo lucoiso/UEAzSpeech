@@ -75,6 +75,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
     const FAzSpeechSynthesisOptions GetSynthesisOptions() const;
 
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    void SetSynthesisOptions(const FAzSpeechSynthesisOptions& Options);
+
     UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
     const bool IsSSMLBased() const;
 

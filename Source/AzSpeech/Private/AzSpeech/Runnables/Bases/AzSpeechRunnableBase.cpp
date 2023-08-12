@@ -65,26 +65,26 @@ void FAzSpeechRunnableBase::Exit()
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
 
-    UAzSpeechTaskBase* const Task = GetOwningTask();
-    if (!UAzSpeechTaskStatus::IsTaskActive(Task))
+    UAzSpeechTaskBase* const OwningTask_Local = GetOwningTask();
+    if (!UAzSpeechTaskStatus::IsTaskActive(OwningTask_Local))
     {
         return;
     }
 
     AsyncTask(ENamedThreads::GameThread,
-        [Task]
+        [OwningTask_Local]
         {
-            FScopeTryLock Lock(&Task->Mutex);
+            FScopeTryLock Lock(&OwningTask_Local->Mutex);
 
             if (Lock.IsLocked())
             {
                 return;
             }
 
-            if (UAzSpeechTaskStatus::IsTaskActive(Task))
+            if (UAzSpeechTaskStatus::IsTaskActive(OwningTask_Local))
             {
-                Task->BroadcastFinalResult();
-                Task->SetReadyToDestroy();
+                OwningTask_Local->BroadcastFinalResult();
+                OwningTask_Local->SetReadyToDestroy();
             }
         }
     );
@@ -121,13 +121,13 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Checking if can initialize task in current context"), *GetThreadName(), *FString(__func__));
 
-    const UAzSpeechTaskBase* const Task = GetOwningTask();
-    if (!IsValid(Task))
+    const UAzSpeechTaskBase* const OwningTask_Local = GetOwningTask();
+    if (!IsValid(OwningTask_Local))
     {
         return false;
     }
 
-    return UAzSpeechSettings::CheckAzSpeechSettings(Task->GetSubscriptionOptions()) && UAzSpeechTaskStatus::IsTaskStillValid(Task);
+    return UAzSpeechSettings::CheckAzSpeechSettings(OwningTask_Local->GetSubscriptionOptions()) && UAzSpeechTaskStatus::IsTaskStillValid(OwningTask_Local);
 }
 
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const

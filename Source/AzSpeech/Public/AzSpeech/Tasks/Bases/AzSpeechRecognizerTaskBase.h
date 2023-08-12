@@ -47,6 +47,9 @@ public:
     const FAzSpeechRecognitionOptions GetRecognitionOptions() const;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    void SetRecognitionOptions(const FAzSpeechRecognitionOptions& Options);
+
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
     const FString GetRecognizedString() const;
 
     /* Get Recognition Duration in Milliseconds */

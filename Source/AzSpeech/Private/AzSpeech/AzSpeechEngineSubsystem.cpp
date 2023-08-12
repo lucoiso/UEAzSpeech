@@ -4,6 +4,16 @@
 
 #include "AzSpeech/AzSpeechEngineSubsystem.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
+#include "AzSpeech/Tasks/SpeechToTextAsync.h"
+#include "AzSpeech/Tasks/SSMLToAudioDataAsync.h"
+#include "AzSpeech/Tasks/SSMLToSoundWaveAsync.h"
+#include "AzSpeech/Tasks/SSMLToSpeechAsync.h"
+#include "AzSpeech/Tasks/SSMLToWavFileAsync.h"
+#include "AzSpeech/Tasks/TextToAudioDataAsync.h"
+#include "AzSpeech/Tasks/TextToSoundWaveAsync.h"
+#include "AzSpeech/Tasks/TextToSpeechAsync.h"
+#include "AzSpeech/Tasks/TextToWavFileAsync.h"
+#include "AzSpeech/Tasks/WavFileToTextAsync.h"
 #include "LogAzSpeech.h"
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
@@ -60,31 +70,42 @@ TArray<class UAzSpeechTaskBase*> UAzSpeechEngineSubsystem::GetAllRegisteredAzSpe
 
 void UAzSpeechEngineSubsystem::InsertTaskInQueue(const int64 QueueId, UAzSpeechTaskBase* const Task) const
 {
-    UE_LOG(LogAzSpeech, Display, TEXT("%s: Inserting task %s (%d) in AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID(), QueueId);
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Inserting task %s (%d) in AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID(), QueueId);
 
     const bool bTaskStatus = TaskQueueMap.Contains(QueueId) ? TaskQueueMap.FindRef(QueueId).Key : false;
     AzSpeechTaskQueueValue& Item = TaskQueueMap.FindOrAdd(QueueId);
     Item.Key = bTaskStatus;
-    Item.Value = { TWeakObjectPtr<UAzSpeechTaskBase>(Task) };
+    Item.Value.Emplace(Task);
 }
 
-void UAzSpeechEngineSubsystem::ResetQueue(const int64 QueueId) const
+void UAzSpeechEngineSubsystem::InvalidateQueue(const int64 QueueId) const
 {
-    UE_LOG(LogAzSpeech, Display, TEXT("%s: Resetting AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
-    TaskQueueMap.Remove(QueueId);
+    UE_LOG(LogAzSpeech, Display, TEXT("%s: Invalidating AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
+
+    if (TaskQueueMap.Contains(QueueId) || TaskAudioQueueMap.Contains(QueueId))
+    {
+        TaskQueueMap.Remove(QueueId);
+        TaskAudioQueueMap.Remove(QueueId);
+    }
 }
 
 void UAzSpeechEngineSubsystem::InitializeQueueExecution(const int64 QueueId) const
 {
     if (TaskQueueMap.Contains(QueueId))
     {
-        UE_LOG(LogAzSpeech, Display, TEXT("%s: Initializing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
+        if (TaskQueueMap.Find(QueueId)->Key)
+        {
+            return;
+        }
+
+        UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Initializing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
 
         TaskQueueMap.Find(QueueId)->Key = true;
+        DequeueExecutionQueue(QueueId);
     }
     else
     {
-        ResetQueue(QueueId);
+        InvalidateQueue(QueueId);
     }
 }
 
@@ -92,13 +113,13 @@ void UAzSpeechEngineSubsystem::StopQueueExecution(const int64 QueueId) const
 {
     if (TaskQueueMap.Contains(QueueId))
     {
-        UE_LOG(LogAzSpeech, Display, TEXT("%s: Stopping AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
+        UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Stopping AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
 
         TaskQueueMap.Find(QueueId)->Key = false;
     }
     else
     {
-        ResetQueue(QueueId);
+        InvalidateQueue(QueueId);
     }
 }
 
@@ -106,7 +127,6 @@ bool UAzSpeechEngineSubsystem::IsQueueActive(const int64 QueueId) const
 {
     if (!TaskQueueMap.Contains(QueueId))
     {
-        ResetQueue(QueueId);
         return false;
     }
 
@@ -117,18 +137,67 @@ bool UAzSpeechEngineSubsystem::IsQueueEmpty(const int64 QueueId) const
 {
     if (!TaskQueueMap.Contains(QueueId))
     {
-        ResetQueue(QueueId);
         return true;
     }
 
     return TaskQueueMap.Find(QueueId)->Value.IsEmpty();
 }
 
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSpeechToTextTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+{
+    return USpeechToTextAsync::SpeechToText_CustomOptions(WorldContextObject, SubscriptionOptions, RecognitionOptions, AudioInputDeviceID, PhraseListGroup);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToAudioDataTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+{
+    return USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToSoundWaveTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+{
+    return USSMLToSoundWaveAsync::SSMLToSoundWave_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToSpeechTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+{
+    return USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToWavFileTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
+{
+    return USSMLToWavFileAsync::SSMLToWavFile_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML, FilePath, FileName);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToAudioDataTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+{
+    return UTextToAudioDataAsync::TextToAudioData_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToSoundWaveTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+{
+    return UTextToSoundWaveAsync::TextToSoundWave_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToSpeechTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+{
+    return UTextToSpeechAsync::TextToSpeech_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToWavFileTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
+{
+    return UTextToWavFileAsync::TextToWavFile_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText, FilePath, FileName);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateWavFileToTextTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
+{
+    return UWavFileToTextAsync::WavFileToText_CustomOptions(WorldContextObject, SubscriptionOptions, RecognitionOptions, FilePath, FileName, PhraseListGroup);
+}
+
 void UAzSpeechEngineSubsystem::RegisterAzSpeechTask(UAzSpeechTaskBase* const Task) const
 {
     if (UAzSpeechTaskStatus::IsTaskStillValid(Task) && !RegisteredTasks.Contains(Task))
     {
-        UE_LOG(LogAzSpeech, Display, TEXT("%s: Registering task %s (%d) in AzSpeech Engine Subsystem."), *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID());
+        UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Registering task %s (%d) in AzSpeech Engine Subsystem."), *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID());
 
         RegisteredTasks.Add(Task);
         OnAzSpeechTaskRegistered.Broadcast(FAzSpeechTaskData{ static_cast<int64>(Task->GetUniqueID()), Task->GetClass() });
@@ -141,7 +210,7 @@ void UAzSpeechEngineSubsystem::UnregisterAzSpeechTask(UAzSpeechTaskBase* const T
 {
     if (UAzSpeechTaskStatus::IsTaskStillValid(Task) && RegisteredTasks.Contains(Task))
     {
-        UE_LOG(LogAzSpeech, Display, TEXT("%s: Unregistering task %s (%d) from AzSpeech Engine Subsystem."), *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID());
+        UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Unregistering task %s (%d) from AzSpeech Engine Subsystem."), *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID());
 
         RegisteredTasks.Remove(Task);
         OnAzSpeechTaskUnregistered.Broadcast(FAzSpeechTaskData{ static_cast<int64>(Task->GetUniqueID()), Task->GetClass() });
@@ -168,25 +237,33 @@ void UAzSpeechEngineSubsystem::DequeueExecutionQueue(const int64 QueueId) const
     }
 
     AzSpeechTaskQueueValue* const ExecQueue = TaskQueueMap.Find(QueueId);
-    if (!ExecQueue || !ExecQueue->Key)
+    if (!ExecQueue || ExecQueue->Value.IsEmpty())
+    {
+        TaskQueueMap.Remove(QueueId);
+        return;
+    }
+
+    if (!ExecQueue->Key)
     {
         return;
     }
 
-    if (ExecQueue->Value.IsEmpty())
-    {
-        ResetQueue(QueueId);
-        return;
-    }
-
-    UE_LOG(LogAzSpeech, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
 
     const TWeakObjectPtr<UAzSpeechTaskBase> Task = ExecQueue->Value[0];
-    ExecQueue->Value.RemoveAt(0);
 
     if (Task.IsValid())
     {
         Task->InternalOnTaskFinished.BindUObject(this, &UAzSpeechEngineSubsystem::OnQueueExecutionCompleted, QueueId);
+
+        if (UAzSpeechSpeechSynthesisBase* const SpeechSynthesis = Cast<UAzSpeechSpeechSynthesisBase>(Task))
+        {
+            SpeechSynthesis->bAutoPlayAudio = false;
+            SpeechSynthesis->InternalAudioFinished.BindUObject(this, &UAzSpeechEngineSubsystem::OnQueueAudioExecutionCompleted, QueueId);
+
+            TaskAudioQueueMap.FindOrAdd(QueueId).Emplace(SpeechSynthesis);
+        }
+
         Task->Activate();
     }
     else
@@ -197,6 +274,96 @@ void UAzSpeechEngineSubsystem::DequeueExecutionQueue(const int64 QueueId) const
 
 void UAzSpeechEngineSubsystem::OnQueueExecutionCompleted(const FAzSpeechTaskData Data, const int64 QueueId) const
 {
+    if (Data.Class && Data.Class->IsChildOf<UAzSpeechSpeechSynthesisBase>() && TaskAudioQueueMap.Contains(QueueId))
+    {
+        if (const TArray<TWeakObjectPtr<class UAzSpeechTaskBase>>& TaskQueue = TaskAudioQueueMap.FindRef(QueueId);
+            TaskQueue.Num() == 1 && TaskQueue[0].IsValid() && static_cast<int64>(TaskQueue[0]->GetUniqueID()) == Data.UniqueID)
+        {
+            DequeueAudioExecutionQueue(QueueId);
+        }
+    }
+
     OnAzSpeechExecutionQueueProgressed.Broadcast(QueueId, Data);
-    DequeueExecutionQueue(QueueId);
+
+    AzSpeechTaskQueueValue* const ExecQueue = TaskQueueMap.Find(QueueId);
+    if (!ExecQueue || ExecQueue->Value.IsEmpty())
+    {
+        TaskQueueMap.Remove(QueueId);
+        return;
+    }
+
+    ExecQueue->Value.RemoveAt(0);
+
+    if (ExecQueue->Value.IsEmpty())
+    {
+        TaskQueueMap.Remove(QueueId);
+
+        if (!TaskAudioQueueMap.Contains(QueueId) || TaskAudioQueueMap.FindRef(QueueId).IsEmpty())
+        {
+            InvalidateQueue(QueueId);
+        }
+    }
+    else
+    {
+        DequeueExecutionQueue(QueueId);
+    }
+}
+
+void UAzSpeechEngineSubsystem::DequeueAudioExecutionQueue(const int64 QueueId) const
+{
+    if (!TaskAudioQueueMap.Contains(QueueId))
+    {
+        return;
+    }
+
+    TArray<TWeakObjectPtr<class UAzSpeechTaskBase>>* const ExecQueue = TaskAudioQueueMap.Find(QueueId);
+    if (!ExecQueue || ExecQueue->IsEmpty())
+    {
+        TaskAudioQueueMap.Remove(QueueId);
+        return;
+    }
+
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem audio execution queue with ID '%d'."), *FString(__func__), QueueId);
+
+    const TWeakObjectPtr<UAzSpeechTaskBase> Task = (*ExecQueue)[0];
+
+    if (Task.IsValid() && Task->IsA<UAzSpeechSpeechSynthesisBase>())
+    {
+        Cast<UAzSpeechSpeechSynthesisBase>(Task)->PlayAudio();
+    }
+    else
+    {
+        DequeueAudioExecutionQueue(QueueId);
+    }
+}
+
+void UAzSpeechEngineSubsystem::OnQueueAudioExecutionCompleted([[maybe_unused]] const FAzSpeechTaskData Data, const int64 QueueId) const
+{
+    TArray<TWeakObjectPtr<class UAzSpeechTaskBase>>* const ExecQueue = TaskAudioQueueMap.Find(QueueId);
+    if (!ExecQueue)
+    {
+        return;
+    }
+
+    if (!ExecQueue || ExecQueue->IsEmpty())
+    {
+        TaskAudioQueueMap.Remove(QueueId);
+        return;
+    }
+
+    ExecQueue->RemoveAt(0);
+
+    if (ExecQueue->IsEmpty())
+    {
+        TaskAudioQueueMap.Remove(QueueId);
+
+        if (!TaskQueueMap.Contains(QueueId) || TaskQueueMap.FindRef(QueueId).Value.IsEmpty())
+        {
+            InvalidateQueue(QueueId);
+        }
+    }
+    else
+    {
+        DequeueAudioExecutionQueue(QueueId);
+    }
 }
