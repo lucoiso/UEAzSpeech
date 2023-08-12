@@ -23,7 +23,7 @@ class FAzSpeechRunnableBase : public FRunnable
 {
 public:
     FAzSpeechRunnableBase() = delete;
-    FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
     void StartAzSpeechRunnableTask();
     void StopAzSpeechRunnableTask();
@@ -74,7 +74,7 @@ private:
 
     bool bStopTask = false;
     TUniquePtr<FRunnableThread> Thread;
-    UAzSpeechTaskBase* OwningTask;
+    TWeakObjectPtr<UAzSpeechTaskBase> OwningTask;
     std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
 
 protected:

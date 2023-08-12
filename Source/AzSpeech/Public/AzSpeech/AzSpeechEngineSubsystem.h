@@ -12,7 +12,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAzSpeechTaskRegistrationUpdate, const FAzSpeechTaskData, TaskData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAzSpeechTaskQueueExecutionProgress, const int64, QueueId, const FAzSpeechTaskData, TaskData);
 
-UCLASS()
+UCLASS(Category = "AzSpeech")
 class UAzSpeechEngineSubsystem : public UEngineSubsystem
 {
     GENERATED_BODY()
@@ -59,13 +59,13 @@ private:
     void OnQueueExecutionCompleted(const FAzSpeechTaskData Data, const int64 QueueId) const;
 
 public:
-    UPROPERTY(BlueprintAssignable)
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech | Management")
     FAzSpeechTaskRegistrationUpdate OnAzSpeechTaskRegistered;
 
-    UPROPERTY(BlueprintAssignable)
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech | Management")
     FAzSpeechTaskRegistrationUpdate OnAzSpeechTaskUnregistered;
 
-    UPROPERTY(BlueprintAssignable)
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech | Management")
     FAzSpeechTaskQueueExecutionProgress OnAzSpeechExecutionQueueProgressed;
 
 private:

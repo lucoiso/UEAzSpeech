@@ -20,7 +20,7 @@
 #include <HAL/PlatformFileManager.h>
 #endif
 
-FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
+FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
 {
 }
 
@@ -92,12 +92,12 @@ void FAzSpeechRunnableBase::Exit()
 
 UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const
 {
-    if (!OwningTask)
+    if (!OwningTask.IsValid())
     {
         UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid AzSpeech task."), *GetThreadName(), *FString(__func__));
     }
 
-    return OwningTask;
+    return OwningTask.Get();
 }
 
 std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> FAzSpeechRunnableBase::GetAudioConfig() const

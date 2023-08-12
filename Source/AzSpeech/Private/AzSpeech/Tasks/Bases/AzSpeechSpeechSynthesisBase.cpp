@@ -56,7 +56,7 @@ void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
     AsyncTask(ENamedThreads::GameThread,
         [this]
         {
-            AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject, UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
+            AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject.Get(), UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
 
             FScriptDelegate UniqueDelegate_AudioStateChanged;
             UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));

@@ -14,11 +14,11 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-class FAzSpeechSynthesisRunnable : public FAzSpeechRunnableBase
+    class FAzSpeechSynthesisRunnable : public FAzSpeechRunnableBase
 {
 public:
     FAzSpeechSynthesisRunnable() = delete;
-    FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
 protected:
     // FRunnable interface
