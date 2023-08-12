@@ -16,18 +16,17 @@
 /**
  *
  */
-
 class FAzSpeechModule : public IModuleInterface
 {
 public:
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
 
 #ifdef AZSPEECH_WHITELISTED_BINARIES
 private:
-	void LoadRuntimeLibraries();
-	void UnloadRuntimeLibraries();
+    void LoadRuntimeLibraries();
+    void UnloadRuntimeLibraries();
 
-	TArray<void*> RuntimeLibraries;
+    TArray<void*> RuntimeLibraries;
 #endif
 };

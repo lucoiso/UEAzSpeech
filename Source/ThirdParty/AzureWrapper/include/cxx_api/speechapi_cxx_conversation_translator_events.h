@@ -50,7 +50,7 @@ namespace Transcription {
         }
 
         template<typename THandle>
-        static SPXSTRING GetStringValue(THandle hevent, SPXHR(SPXAPI_CALLTYPE * func)(THandle hevent, char * psz, uint32_t * pcch))
+        static SPXSTRING GetStringValue(THandle hevent, SPXHR(SPXAPI_CALLTYPE* func)(THandle hevent, char* psz, uint32_t* pcch))
         {
             // query the string length
             uint32_t length = 0;
@@ -76,7 +76,7 @@ namespace Transcription {
     public:
         explicit ConversationTranslationResult(SPXRESULTHANDLE resultHandle) :
             Translation::TranslationRecognitionResult(resultHandle),
-            m_participantId(GetStringValue(resultHandle, conversation_transcription_result_get_user_id)),
+            m_participantId(GetStringValue(resultHandle, conversation_translator_result_get_user_id)),
             m_originalLang(GetStringValue(resultHandle, conversation_translator_result_get_original_lang)),
             ParticipantId(m_participantId),
             OriginalLanguage(m_originalLang)

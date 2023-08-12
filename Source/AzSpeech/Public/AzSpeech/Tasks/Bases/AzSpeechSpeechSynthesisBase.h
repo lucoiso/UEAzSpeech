@@ -16,22 +16,29 @@ class UAudioComponent;
 UCLASS(Abstract, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
 class AZSPEECH_API UAzSpeechSpeechSynthesisBase : public UAzSpeechAudioDataSynthesisBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
+
+    friend class UAzSpeechEngineSubsystem;
 
 public:
-	/* Task delegate that will be called when completed */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FBooleanSynthesisDelegate SynthesisCompleted;
+    /* Task delegate that will be called when completed */
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+    FBooleanSynthesisDelegate SynthesisCompleted;
 
-	virtual void StopAzSpeechTask() override;
-	virtual void SetReadyToDestroy() override;
+    virtual void StopAzSpeechTask() override;
+    virtual void SetReadyToDestroy() override;
 
 protected:
-	virtual void BroadcastFinalResult() override;
+    virtual void BroadcastFinalResult() override;
 
-	UFUNCTION()
-	void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);
+    UFUNCTION()
+    void OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState);
 
 private:
-	TWeakObjectPtr<class UAudioComponent> AudioComponent;
+
+    bool bAutoPlayAudio = true;
+    FAzSpeechTaskGenericDelegate_Internal InternalAudioFinished;
+    TWeakObjectPtr<class UAudioComponent> AudioComponent;
+
+    void PlayAudio();
 };

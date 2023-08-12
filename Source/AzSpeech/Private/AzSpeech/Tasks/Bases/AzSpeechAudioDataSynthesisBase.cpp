@@ -10,19 +10,19 @@
 #endif
 
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
-{	
-	if (!Super::StartAzureTaskWork())
-	{
-		return false;
-	}
-	
-	if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
-	{
-		return false;
-	}
+{
+    if (!Super::StartAzureTaskWork())
+    {
+        return false;
+    }
 
-	const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream());
-	StartSynthesisWork(AudioConfig);
+    if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
+    {
+        return false;
+    }
 
-	return true;
+    const auto AudioConfig = Microsoft::CognitiveServices::Speech::Audio::AudioConfig::FromStreamOutput(Microsoft::CognitiveServices::Speech::Audio::AudioOutputStream::CreatePullStream());
+    StartSynthesisWork(AudioConfig);
+
+    return true;
 }

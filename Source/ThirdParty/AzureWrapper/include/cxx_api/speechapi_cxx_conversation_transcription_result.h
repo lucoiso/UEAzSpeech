@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // See https://aka.ms/csspeech/license for the full license information.
 //
-// speechapi_cxx_conversation_transcriber_result.h: Public API declarations for ConversationTranscription C++ class
+// speechapi_cxx_conversation_transcription_result.h: Public API declarations for ConversationTranscription C++ class
 //
 
 #pragma once
@@ -12,7 +12,6 @@
 #include <speechapi_cxx_recognition_result.h>
 #include <speechapi_c.h>
 
-
 namespace Microsoft {
 namespace CognitiveServices {
 namespace Speech {
@@ -20,7 +19,6 @@ namespace Transcription {
 
 /// <summary>
 /// Represents the result of a conversation transcriber.
-/// Added in version 1.5.0.
 /// </summary>
 class ConversationTranscriptionResult final : public RecognitionResult
 {
@@ -32,12 +30,10 @@ public:
     /// <param name="hresult">Result handle.</param>
     explicit ConversationTranscriptionResult(SPXRESULTHANDLE hresult) :
         RecognitionResult(hresult),
-        UserId(m_userId),
-        UtteranceId(m_utteranceId)
+        SpeakerId(m_speakerId)
     {
-        PopulateSpeakerFields(hresult, &m_userId);
-        PopulateUtteranceFields(hresult, &m_utteranceId);
-        SPX_DBG_TRACE_VERBOSE("%s (this=0x%p, handle=0x%p) -- resultid=%s; reason=0x%x; text=%s, userid=%s, utteranceid=%s", __FUNCTION__, (void*)this, (void*)Handle, Utils::ToUTF8(ResultId).c_str(), Reason, Utils::ToUTF8(Text).c_str(), Utils::ToUTF8(UserId).c_str(), Utils::ToUTF8(UtteranceId).c_str());
+        PopulateSpeakerFields(hresult, &m_speakerId);
+        SPX_DBG_TRACE_VERBOSE("%s (this=0x%p, handle=0x%p) -- resultid=%s; reason=0x%x; text=%s, speakerid=%s, utteranceid=%s", __FUNCTION__, (void*)this, (void*)Handle, Utils::ToUTF8(ResultId).c_str(), Reason, Utils::ToUTF8(Text).c_str(), Utils::ToUTF8(SpeakerId).c_str());
     }
 
     /// <summary>
@@ -51,47 +47,26 @@ public:
     /// <summary>
     /// Unique Speaker id.
     /// </summary>
-    const SPXSTRING& UserId;
-
-    /// <summary>
-    /// Unique id that is consistent across all the intermediates and final speech recognition result from one user.
-    /// </summary>
-    const SPXSTRING& UtteranceId;
+    const SPXSTRING& SpeakerId;
 
 private:
     DISABLE_DEFAULT_CTORS(ConversationTranscriptionResult);
 
-    void PopulateSpeakerFields(SPXRESULTHANDLE hresult, SPXSTRING* puserId)
+    void PopulateSpeakerFields(SPXRESULTHANDLE hresult, SPXSTRING* pspeakerId)
     {
         SPX_INIT_HR(hr);
 
         const size_t maxCharCount = 1024;
         char sz[maxCharCount + 1] = {};
 
-        if (puserId != nullptr && recognizer_result_handle_is_valid(hresult))
+        if (pspeakerId != nullptr && recognizer_result_handle_is_valid(hresult))
         {
-            SPX_THROW_ON_FAIL(hr = conversation_transcription_result_get_user_id(hresult, sz, maxCharCount));
-            *puserId = Utils::ToSPXString(sz);
+            SPX_THROW_ON_FAIL(hr = conversation_transcription_result_get_speaker_id(hresult, sz, maxCharCount));
+            *pspeakerId = Utils::ToSPXString(sz);
         }
     }
 
-    void PopulateUtteranceFields(SPXRESULTHANDLE hresult, SPXSTRING* putteranceId)
-    {
-        SPX_INIT_HR(hr);
-
-        const size_t maxCharCount = 1024;
-        char sz[maxCharCount + 1] = {};
-
-        if (putteranceId != nullptr && recognizer_result_handle_is_valid(hresult))
-        {
-            SPX_THROW_ON_FAIL(hr = conversation_transcription_result_get_utterance_id(hresult, sz, maxCharCount));
-            *putteranceId = Utils::ToSPXString(sz);
-        }
-    }
-
-    SPXSTRING m_userId;
-    SPXSTRING m_utteranceId;
+    SPXSTRING m_speakerId;
 };
-
 
 } } } }  // Microsoft::CognitiveServices::Speech::Transcription

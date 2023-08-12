@@ -383,6 +383,15 @@ enum class PropertyId
     SpeechServiceResponse_RequestSentenceBoundary = 4202,
 
     /// <summary>
+    /// A boolean value specifying whether the SDK should synchronize synthesis metadata events,
+    /// (e.g. word boundary, viseme, etc.) to the audio playback. This only takes effect when the audio is played through the SDK.
+    /// Default is true.
+    /// If set to false, the SDK will fire the events as they come from the service, which may be out of sync with the audio playback.
+    /// Added in version 1.31.0.
+    /// </summary>
+    SpeechServiceResponse_SynthesisEventsSyncToAudio = 4210,
+
+    /// <summary>
     /// The Cognitive Services Speech Service response output (in JSON format). This property is available on recognition result objects only.
     /// </summary>
     SpeechServiceResponse_JsonResult = 5000,

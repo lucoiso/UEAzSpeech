@@ -10,21 +10,21 @@
 
 UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& FilePath, const FString& FileName, const FString& Voice, const FString& Locale)
 {
-	return TextToWavFile_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText, FilePath, FileName);
+    return TextToWavFile_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText, FilePath, FileName);
 }
 
 UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
 {
-	UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
-	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
-	NewAsyncTask->SynthesisOptions = SynthesisOptions;
-	NewAsyncTask->FilePath = FilePath;
-	NewAsyncTask->FileName = FileName;
-	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+    UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
+    NewAsyncTask->SynthesisText = SynthesisText;
+    NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+    NewAsyncTask->SynthesisOptions = SynthesisOptions;
+    NewAsyncTask->FilePath = FilePath;
+    NewAsyncTask->FileName = FileName;
+    NewAsyncTask->bIsSSMLBased = false;
+    NewAsyncTask->TaskName = *FString(__func__);
 
-	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
+    NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
-	return NewAsyncTask;
+    return NewAsyncTask;
 }

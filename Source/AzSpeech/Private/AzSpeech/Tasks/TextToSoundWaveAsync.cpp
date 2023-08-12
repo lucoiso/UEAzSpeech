@@ -12,35 +12,35 @@
 
 UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& Voice, const FString& Locale)
 {
-	return TextToSoundWave_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
+    return TextToSoundWave_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
 }
 
 UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
 {
-	UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
-	NewAsyncTask->WorldContextObject = WorldContextObject;
-	NewAsyncTask->SynthesisText = SynthesisText;
-	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
-	NewAsyncTask->SynthesisOptions = SynthesisOptions;
-	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+    UTextToSoundWaveAsync* const NewAsyncTask = NewObject<UTextToSoundWaveAsync>();
+    NewAsyncTask->WorldContextObject = WorldContextObject;
+    NewAsyncTask->SynthesisText = SynthesisText;
+    NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+    NewAsyncTask->SynthesisOptions = SynthesisOptions;
+    NewAsyncTask->bIsSSMLBased = false;
+    NewAsyncTask->TaskName = *FString(__func__);
 
-	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
+    NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
-	return NewAsyncTask;
+    return NewAsyncTask;
 }
 
 void UTextToSoundWaveAsync::BroadcastFinalResult()
 {
-	FScopeLock Lock(&Mutex);
+    FScopeLock Lock(&Mutex);
 
-	if (!UAzSpeechTaskStatus::IsTaskActive(this))
-	{
-		return;
-	}
+    if (!UAzSpeechTaskStatus::IsTaskActive(this))
+    {
+        return;
+    }
 
-	Super::BroadcastFinalResult();
+    Super::BroadcastFinalResult();
 
-	const TArray<uint8> LastBuffer = GetAudioData();
-	SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+    const TArray<uint8> LastBuffer = GetAudioData();
+    SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
 }

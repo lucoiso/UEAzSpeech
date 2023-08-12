@@ -51,6 +51,8 @@ SPXAPI conversation_translator_event_get_expiration_time(SPXEVENTHANDLE hevent, 
 SPXAPI conversation_translator_event_get_participant_changed_reason(SPXEVENTHANDLE hevent, ParticipantChangedReason* preason);
 SPXAPI conversation_translator_event_get_participant_changed_at_index(SPXEVENTHANDLE hevent, int index, SPXPARTICIPANTHANDLE* phparticipant);
 
+SPXAPI conversation_translator_result_get_user_id(SPXRESULTHANDLE hresult, char* pszUserId, uint32_t cchUserId);
+
 SPXAPI conversation_translator_result_get_original_lang(SPXRESULTHANDLE hresult, char * psz, uint32_t * pcch);
 
 SPXAPI conversation_translator_participant_get_avatar(SPXEVENTHANDLE hevent, char * psz, uint32_t * pcch);

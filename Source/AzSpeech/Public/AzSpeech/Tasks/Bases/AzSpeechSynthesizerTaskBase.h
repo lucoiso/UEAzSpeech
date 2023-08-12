@@ -28,94 +28,97 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBooleanSynthesisDelegate, const boo
 UCLASS(Abstract, NotPlaceable, Category = "AzSpeech", meta = (ExposedAsyncProxy = AsyncTask))
 class AZSPEECH_API UAzSpeechSynthesizerTaskBase : public UAzSpeechTaskBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	friend class FAzSpeechSynthesisRunnable;
+    friend class FAzSpeechSynthesisRunnable;
 
 public:
-	/* Task delegate that will be called when dpdated */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FAzSpeechTaskGenericDelegate SynthesisUpdated;
+    /* Task delegate that will be called when dpdated */
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+    FAzSpeechTaskGenericDelegate SynthesisUpdated;
 
-	/* Task delegate that will be called when started */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FAzSpeechTaskGenericDelegate SynthesisStarted;
+    /* Task delegate that will be called when started */
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+    FAzSpeechTaskGenericDelegate SynthesisStarted;
 
-	/* Task delegate that will be called when failed */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FAzSpeechTaskGenericDelegate SynthesisFailed;
+    /* Task delegate that will be called when failed */
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+    FAzSpeechTaskGenericDelegate SynthesisFailed;
 
-	/* Task delegate that will be called when receive a new viseme data */
-	UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
-	FVisemeReceived VisemeReceived;
+    /* Task delegate that will be called when receive a new viseme data */
+    UPROPERTY(BlueprintAssignable, Category = "AzSpeech")
+    FVisemeReceived VisemeReceived;
 
-	/* Get the last viseme data received by this task */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FAzSpeechVisemeData GetLastVisemeData() const;
+    /* Get the last viseme data received by this task */
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const FAzSpeechVisemeData GetLastVisemeData() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const TArray<FAzSpeechVisemeData> GetVisemeDataArray() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const TArray<FAzSpeechVisemeData> GetVisemeDataArray() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const TArray<uint8> GetAudioData() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const TArray<uint8> GetAudioData() const;
 
-	/* Get the extracted animation data from the last viseme data received by this task */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FAzSpeechAnimationData GetLastExtractedAnimationData() const;
+    /* Get the extracted animation data from the last viseme data received by this task */
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const FAzSpeechAnimationData GetLastExtractedAnimationData() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const TArray<FAzSpeechAnimationData> GetExtractedAnimationDataArray() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const TArray<FAzSpeechAnimationData> GetExtractedAnimationDataArray() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const bool IsLastResultValid() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const bool IsLastResultValid() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FString GetSynthesisText() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const FString GetSynthesisText() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const FAzSpeechSynthesisOptions GetSynthesisOptions() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const FAzSpeechSynthesisOptions GetSynthesisOptions() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
-	const bool IsSSMLBased() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    void SetSynthesisOptions(const FAzSpeechSynthesisOptions& Options);
 
-	/* Get Audio Duration in Milliseconds */
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const int64 GetAudioDuration() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech", Meta = (DisplayName = "Is SSML Based"))
+    const bool IsSSMLBased() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const int32 GetConnectionLatency() const;
+    /* Get Audio Duration in Milliseconds */
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const int64 GetAudioDuration() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const int32 GetFinishLatency() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const int32 GetConnectionLatency() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const int32 GetFirstByteLatency() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const int32 GetFinishLatency() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const int32 GetNetworkLatency() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const int32 GetFirstByteLatency() const;
 
-	UFUNCTION(BlueprintPure, Category = "AzSpeech")
-	const int32 GetServiceLatency() const;
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const int32 GetNetworkLatency() const;
+
+    UFUNCTION(BlueprintPure, Category = "AzSpeech")
+    const int32 GetServiceLatency() const;
 
 protected:
-	FString SynthesisText;
-	FAzSpeechSynthesisOptions SynthesisOptions;
+    FString SynthesisText;
+    FAzSpeechSynthesisOptions SynthesisOptions;
 
-	void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
-	virtual void OnVisemeReceived(const FAzSpeechVisemeData& VisemeData);
-	virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
+    virtual void OnVisemeReceived(const FAzSpeechVisemeData& VisemeData);
+    virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
 
 private:
-	std::vector<uint8_t> AudioData;
-	TArray<FAzSpeechVisemeData> VisemeDataArray;
-	bool bLastResultIsValid = false;
+    std::vector<uint8_t> AudioData;
+    TArray<FAzSpeechVisemeData> VisemeDataArray;
+    bool bLastResultIsValid = false;
 
-	int64 AudioDuration = 0;
+    int64 AudioDuration = 0;
 
-	int32 ConnectionLatency = 0;
-	int32 FinishLatency = 0;
-	int32 FirstByteLatency = 0;
-	int32 NetworkLatency = 0;
-	int32 ServiceLatency = 0;
+    int32 ConnectionLatency = 0;
+    int32 FinishLatency = 0;
+    int32 FirstByteLatency = 0;
+    int32 NetworkLatency = 0;
+    int32 ServiceLatency = 0;
 };

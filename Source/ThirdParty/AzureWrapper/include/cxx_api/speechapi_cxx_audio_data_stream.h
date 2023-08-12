@@ -103,7 +103,7 @@ public:
     /// <returns>Current status</returns>
     StreamStatus GetStatus()
     {
-        Stream_Status status;
+        Stream_Status status = StreamStatus_Unknown;
         SPX_THROW_ON_FAIL(audio_data_stream_get_status(m_haudioStream, &status));
         return (StreamStatus)status;
     }

@@ -251,7 +251,7 @@ public:
     /// <returns>A value of type PresetMicrophoneArrayGeometry enum.</returns>
     PresetMicrophoneArrayGeometry GetPresetMicrophoneArrayGeometry() const
     {
-        PresetMicrophoneArrayGeometry microphoneArrayGeometry;
+        PresetMicrophoneArrayGeometry microphoneArrayGeometry = PresetMicrophoneArrayGeometry::Uninitialized;
         SPX_THROW_ON_FAIL(audio_processing_options_get_preset_microphone_array_geometry(m_hoptions, (AudioProcessingOptions_PresetMicrophoneArrayGeometry*)&microphoneArrayGeometry));
         return microphoneArrayGeometry;
     }
@@ -262,7 +262,7 @@ public:
     /// <returns>A value of type MicrophoneArrayType enum.</returns>
     MicrophoneArrayType GetMicrophoneArrayType() const
     {
-        MicrophoneArrayType microphoneArrayType;
+        MicrophoneArrayType microphoneArrayType = MicrophoneArrayType::Linear;
         SPX_THROW_ON_FAIL(audio_processing_options_get_microphone_array_type(m_hoptions, (AudioProcessingOptions_MicrophoneArrayType*)&microphoneArrayType));
         return microphoneArrayType;
     }
@@ -309,7 +309,7 @@ public:
     /// <returns>A value of type SpeakerReferenceChannel enum.</returns>
     SpeakerReferenceChannel GetSpeakerReferenceChannel() const
     {
-        SpeakerReferenceChannel speakerReferenceChannel;
+        SpeakerReferenceChannel speakerReferenceChannel = SpeakerReferenceChannel::None;
         SPX_THROW_ON_FAIL(audio_processing_options_get_speaker_reference_channel(m_hoptions, (AudioProcessingOptions_SpeakerReferenceChannel*)&speakerReferenceChannel));
         return speakerReferenceChannel;
     }

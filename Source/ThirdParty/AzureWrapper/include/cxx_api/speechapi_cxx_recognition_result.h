@@ -227,7 +227,7 @@ private:
 
     Speech::CancellationReason GetCancellationReason(RecognitionResult* result)
     {
-        Result_CancellationReason reason;
+        Result_CancellationReason reason = CancellationReason_Error;
 
         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
         SPX_IFFAILED_THROW_HR(result_get_reason_canceled(hresult, &reason));
@@ -237,7 +237,7 @@ private:
 
     Speech::CancellationErrorCode GetCancellationErrorCode(RecognitionResult* result)
     {
-        Result_CancellationErrorCode errorCode;
+        Result_CancellationErrorCode errorCode = CancellationErrorCode_NoError;
 
         SPXRESULTHANDLE hresult = (SPXRESULTHANDLE)(*result);
         SPX_IFFAILED_THROW_HR(result_get_canceled_error_code(hresult, &errorCode));

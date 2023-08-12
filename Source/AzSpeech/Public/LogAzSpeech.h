@@ -9,7 +9,6 @@
 /**
  *
  */
-
 DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech, Display, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech_Internal, NoLogging, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogAzSpeech_Debugging, NoLogging, All);
