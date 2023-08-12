@@ -215,7 +215,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
         return true;
     }
 
-#if PLATFORM_ANDROID || UE_BUILD_SHIPPING
+#if PLATFORM_ANDROID || PLATFORM_IOS || UE_BUILD_SHIPPING
     return true;
 #else
 

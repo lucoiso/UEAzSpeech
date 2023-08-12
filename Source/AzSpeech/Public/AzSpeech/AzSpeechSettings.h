@@ -43,7 +43,7 @@ public:
     UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Filter Viseme Facial Expression"))
     bool bFilterVisemeFacialExpression;
 
-    /* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android & Shipping builds */
+    /* If enabled, logs will be generated inside Saved/Logs/AzSpeech folder whenever a task fails - Disabled for Android, iOS & Shipping builds */
     UPROPERTY(GlobalConfig, EditAnywhere, Category = "Information", Meta = (DisplayName = "Enable Azure SDK Logs"))
     bool bEnableSDKLogs;
 
