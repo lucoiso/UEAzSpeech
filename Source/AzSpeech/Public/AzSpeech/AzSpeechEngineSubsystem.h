@@ -71,6 +71,7 @@ public:
 private:
     mutable TArray<TWeakObjectPtr<class UAzSpeechTaskBase>> RegisteredTasks;
 
+    // TMap doesnt support TQueue, so we use TArray instead
     typedef TPair<bool, TArray<TWeakObjectPtr<class UAzSpeechTaskBase>>> AzSpeechTaskQueueValue;
     mutable TMap<int64, AzSpeechTaskQueueValue> TaskQueueMap;
 };
