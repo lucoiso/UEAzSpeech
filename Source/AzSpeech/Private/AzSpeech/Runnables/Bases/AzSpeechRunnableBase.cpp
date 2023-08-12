@@ -81,8 +81,11 @@ void FAzSpeechRunnableBase::Exit()
                 return;
             }
 
-            Task->BroadcastFinalResult();
-            Task->SetReadyToDestroy();
+            if (UAzSpeechTaskStatus::IsTaskActive(Task))
+            {
+                Task->BroadcastFinalResult();
+                Task->SetReadyToDestroy();
+            }
         }
     );
 }

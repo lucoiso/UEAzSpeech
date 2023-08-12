@@ -10,14 +10,14 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettingsOptions)
 #endif
 
-bool IsAutoLanguage(const FName& Value)
+bool IsAutoLanguage(const FName& InValue)
 {
-    return Value.IsEqual("Auto", ENameCase::IgnoreCase);
+    return InValue.IsEqual("Auto", ENameCase::IgnoreCase);
 }
 
-bool IsDefault(const FName& Value)
+bool IsDefault(const FName& InValue)
 {
-    return Value.IsEqual("Default", ENameCase::IgnoreCase) || AzSpeech::Internal::HasEmptyParam(Value);
+    return InValue.IsEqual("Default", ENameCase::IgnoreCase) || AzSpeech::Internal::HasEmptyParam(InValue);
 }
 
 FAzSpeechSettingsOptions::FAzSpeechSettingsOptions()
@@ -63,22 +63,22 @@ FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions()
     SetDefaults();
 }
 
-FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions(const FName& Locale)
+FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions(const FName& InLocale)
 {
     SetDefaults();
 
-    if (IsAutoLanguage(Locale))
+    if (IsAutoLanguage(InLocale))
     {
         this->bUseLanguageIdentification = true;
-        this->Locale = Locale;
+        this->Locale = InLocale;
     }
-    else if (IsDefault(Locale))
+    else if (IsDefault(InLocale))
     {
         this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.RecognitionOptions.Locale;
     }
     else
     {
-        this->Locale = Locale;
+        this->Locale = InLocale;
     }
 }
 
@@ -119,44 +119,44 @@ FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions()
     SetDefaults();
 }
 
-FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale)
+FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& InLocale)
 {
     SetDefaults();
 
     if (IsAutoLanguage(Locale))
     {
-        this->bUseLanguageIdentification = true;
-        this->Locale = Locale;
+        bUseLanguageIdentification = true;
+        Locale = Locale;
     }
     else if (IsDefault(Locale))
     {
-        this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
+        Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
     }
     else
     {
-        this->Locale = Locale;
+        Locale = Locale;
     }
 }
 
-FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& Locale, const FName& Voice)
+FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& InLocale, const FName& InVoice)
 {
     SetDefaults();
 
-    if (IsAutoLanguage(Locale))
+    if (IsAutoLanguage(InLocale))
     {
-        this->bUseLanguageIdentification = true;
-        this->Locale = Locale;
+        bUseLanguageIdentification = true;
+        Locale = InLocale;
     }
-    else if (IsDefault(Locale))
+    else if (IsDefault(InLocale))
     {
-        this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
+        Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
     }
     else
     {
-        this->Locale = Locale;
+        Locale = InLocale;
     }
 
-    this->Voice = IsDefault(Voice) ? GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Voice : Voice;
+    Voice = IsDefault(InVoice) ? GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Voice : InVoice;
 }
 
 void FAzSpeechSynthesisOptions::SetDefaults()

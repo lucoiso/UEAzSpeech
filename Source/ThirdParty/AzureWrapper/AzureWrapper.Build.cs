@@ -238,7 +238,7 @@ public class AzureWrapper : ModuleRules
         foreach (string DynamicLib in GetDynamicLibraries())
         {
             PublicDelayLoadDLLs.Add(DynamicLib);
-            RuntimeDependencies.Add(Path.Combine(@"$(TargetOutputDir)", "ThirdParty", "AzSpeech", DynamicLib), Path.Combine(GetRuntimesAbsoluteDirectory(), DynamicLib));
+            RuntimeDependencies.Add(Path.Combine(@"$(BinaryOutputDir)", DynamicLib), Path.Combine(GetRuntimesAbsoluteDirectory(), DynamicLib));
         }
 
         if (Target.Platform == UnrealTargetPlatform.Mac)

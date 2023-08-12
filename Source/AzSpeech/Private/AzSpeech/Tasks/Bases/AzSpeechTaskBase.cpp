@@ -6,6 +6,8 @@
 #include "AzSpeech/Runnables/Bases/AzSpeechRunnableBase.h"
 #include "AzSpeech/AzSpeechHelper.h"
 #include "AzSpeech/AzSpeechSettings.h"
+#include "AzSpeech/AzSpeechEngineSubsystem.h"
+#include "AzSpeech/Structures/AzSpeechTaskData.h"
 #include "AzSpeechInternalFuncs.h"
 #include "LogAzSpeech.h"
 #include <Misc/ScopeTryLock.h>
@@ -48,6 +50,11 @@ void UAzSpeechTaskBase::Activate()
         SetReadyToDestroy();
 
         return;
+    }
+
+    if (const UAzSpeechEngineSubsystem* const Subsystem = GEngine->GetEngineSubsystem<UAzSpeechEngineSubsystem>())
+    {
+        Subsystem->RegisterAzSpeechTask(this);
     }
 
 #if WITH_EDITOR
@@ -99,6 +106,13 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
     if (!TryLock.IsLocked() || UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
     {
         return;
+    }
+
+    InternalOnTaskFinished.ExecuteIfBound(FAzSpeechTaskData{ GetUniqueID(), GetClass() });
+
+    if (const UAzSpeechEngineSubsystem* const Subsystem = GEngine->GetEngineSubsystem<UAzSpeechEngineSubsystem>())
+    {
+        Subsystem->UnregisterAzSpeechTask(this);
     }
 
     UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));

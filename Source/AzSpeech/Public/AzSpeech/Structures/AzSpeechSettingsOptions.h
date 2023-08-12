@@ -87,7 +87,7 @@ struct AZSPEECH_API FAzSpeechRecognitionOptions
 
 public:
     FAzSpeechRecognitionOptions();
-    FAzSpeechRecognitionOptions(const FName& Locale);
+    FAzSpeechRecognitionOptions(const FName& InLocale);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Locale"))
     FName Locale;
@@ -132,8 +132,8 @@ struct AZSPEECH_API FAzSpeechSynthesisOptions
 
 public:
     FAzSpeechSynthesisOptions();
-    FAzSpeechSynthesisOptions(const FName& Locale);
-    FAzSpeechSynthesisOptions(const FName& Locale, const FName& Voice);
+    FAzSpeechSynthesisOptions(const FName& InLocale);
+    FAzSpeechSynthesisOptions(const FName& InLocale, const FName& InVoice);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Locale"))
     FName Locale;
