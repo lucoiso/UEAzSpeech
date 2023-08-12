@@ -30,10 +30,10 @@ void FAzSpeechEditorModule::ShutdownModule()
 TSharedRef<SDockTab> FAzSpeechEditorModule::OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs) const
 {
     return SNew(SDockTab)
-        .TabRole(NomadTab)
-        [
-            SNew(SAzSpeechAudioGenerator)
-        ];
+    .TabRole(NomadTab)
+    [
+        SNew(SAzSpeechAudioGenerator)
+    ];
 }
 
 void FAzSpeechEditorModule::RegisterMenus()
