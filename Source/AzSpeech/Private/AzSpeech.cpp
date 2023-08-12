@@ -46,7 +46,6 @@ FString GetRuntimeLibsDirectory()
 #endif
 #else
     BinariesDirectory = FPaths::GetPath(FPlatformProcess::ExecutablePath());
-    BinariesDirectory = FPaths::Combine(BinariesDirectory, TEXT("ThirdParty"), TEXT("AzSpeech"));
 #endif
 
     if (AzSpeech::Internal::HasEmptyParam(BinariesDirectory))
