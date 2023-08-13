@@ -69,16 +69,16 @@ FAzSpeechRecognitionOptions::FAzSpeechRecognitionOptions(const FName& InLocale)
 
     if (IsAutoLanguage(InLocale))
     {
-        this->bUseLanguageIdentification = true;
-        this->Locale = InLocale;
+        bUseLanguageIdentification = true;
+        Locale = InLocale;
     }
     else if (IsDefault(InLocale))
     {
-        this->Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.RecognitionOptions.Locale;
+        Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.RecognitionOptions.Locale;
     }
     else
     {
-        this->Locale = InLocale;
+        Locale = InLocale;
     }
 }
 
@@ -123,18 +123,18 @@ FAzSpeechSynthesisOptions::FAzSpeechSynthesisOptions(const FName& InLocale)
 {
     SetDefaults();
 
-    if (IsAutoLanguage(Locale))
+    if (IsAutoLanguage(InLocale))
     {
         bUseLanguageIdentification = true;
-        Locale = Locale;
+        Locale = InLocale;
     }
-    else if (IsDefault(Locale))
+    else if (IsDefault(InLocale))
     {
         Locale = GetDefault<UAzSpeechSettings>()->DefaultOptions.SynthesisOptions.Locale;
     }
     else
     {
-        Locale = Locale;
+        Locale = InLocale;
     }
 }
 
