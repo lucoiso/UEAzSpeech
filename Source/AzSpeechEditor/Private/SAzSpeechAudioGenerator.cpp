@@ -98,11 +98,11 @@ void SAzSpeechAudioGenerator::Construct([[maybe_unused]] const FArguments&)
         };
 
     TextTypes = GetStringArrayAsSharedPtr({ "Text", "SSML" });
-    SelectVoice = MakeShareable(new FString("Select a Voice (Set Locale to Update the List)"));
+    SelectVoice = MakeShared<FString>("Select a Voice (Set Locale to Update the List)");
 
     AvailableVoices = { SelectVoice };
 
-    GameModule = MakeShareable(new FString("Game"));
+    GameModule = MakeShared<FString>("Game");
     Module = *GameModule.Get();
 
     AvailableModules = { GameModule };
@@ -337,7 +337,7 @@ TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetStringArrayAsSharedPtr(c
 
     for (const auto& String : Input)
     {
-        Output.Add(MakeShareable<FString>(new FString(String)));
+        Output.Add(MakeShared<FString>(String));
     }
 
     return Output;
