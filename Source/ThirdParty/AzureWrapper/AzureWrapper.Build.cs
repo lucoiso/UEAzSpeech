@@ -33,11 +33,6 @@ public class AzureWrapper : ModuleRules
 
         string ArchSubDir = isArmArch() ? "Arm64" : "x64";
 
-        if (Target.Platform == UnrealTargetPlatform.HoloLens)
-        {
-            return Path.Combine("libs", "HoloLens", ArchSubDir);
-        }
-
         if (Target.Platform == UnrealTargetPlatform.Mac)
         {
             return Path.Combine("libs", "Mac", ArchSubDir);
@@ -58,7 +53,7 @@ public class AzureWrapper : ModuleRules
 
     private string GetRuntimesSubDirectory()
     {
-        if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             return Path.Combine(GetPlatformLibsSubDirectory(), "Runtime");
         }
@@ -75,7 +70,7 @@ public class AzureWrapper : ModuleRules
     {
         List<string> Output = new List<string>();
 
-        if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             Output.AddRange(new[]
             {
@@ -143,7 +138,7 @@ public class AzureWrapper : ModuleRules
     {
         List<string> Output = new List<string>();
 
-        if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             Output.AddRange(new[]
             {
@@ -152,23 +147,9 @@ public class AzureWrapper : ModuleRules
                 "Microsoft.CognitiveServices.Speech.extension.kws.dll",
                 "Microsoft.CognitiveServices.Speech.extension.kws.ort.dll",
                 "Microsoft.CognitiveServices.Speech.extension.lu.dll",
-                "Microsoft.CognitiveServices.Speech.extension.mas.dll"
+                "Microsoft.CognitiveServices.Speech.extension.mas.dll",
+                "Microsoft.CognitiveServices.Speech.extension.codec.dll"
             });
-
-            if (Target.Platform == UnrealTargetPlatform.Win64)
-            {
-                Output.AddRange(new[]
-                {
-                    "Microsoft.CognitiveServices.Speech.extension.codec.dll"
-                });
-            }
-            else if (Target.Platform == UnrealTargetPlatform.HoloLens && !isArmArch())
-            {
-                Output.AddRange(new[]
-                {
-                    "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"
-                });
-            }
         }
         else if (Target.Platform.ToString().ToLower().Contains("linux") || Target.Platform == UnrealTargetPlatform.Mac)
         {
@@ -186,7 +167,6 @@ public class AzureWrapper : ModuleRules
     private bool IsRuntimePlatform()
     {
         return Target.Platform == UnrealTargetPlatform.Win64 ||
-            Target.Platform == UnrealTargetPlatform.HoloLens ||
             Target.Platform == UnrealTargetPlatform.Mac ||
             Target.Platform.ToString().ToLower().Contains("linux");
     }
@@ -205,7 +185,7 @@ public class AzureWrapper : ModuleRules
             return;
         }
 
-        if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             PublicDefinitions.Add(string.Format("AZSPEECH_THIRDPARTY_BINARY_SUBDIR=\"{0}\"", GetRuntimesSubDirectory().Replace(@"\", @"\\")));
         }
