@@ -81,7 +81,7 @@ void UAzSpeechSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
         if (DefaultOptions.RecognitionOptions.CandidateLanguages.Num() > MaxCandidateLanguages)
         {
-            FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID."));
+            FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("You can only include up to 4 languages for at-start LID and up to 10 languages for continuous LID.")));
             DefaultOptions.RecognitionOptions.CandidateLanguages.RemoveAtSwap(MaxCandidateLanguages, DefaultOptions.RecognitionOptions.CandidateLanguages.Num() - MaxCandidateLanguages, true);
         }
 
