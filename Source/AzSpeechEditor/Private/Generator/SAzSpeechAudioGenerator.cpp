@@ -50,7 +50,7 @@ TSharedRef<SWidget> SAzSpeechAudioGenerator::ConstructContent()
         .Padding(MarginSpacing)
         [
             SNew(SGridPanel)
-            .FillColumn(1, 1.f)
+                .FillColumn(1, 1.f)
                 + SGridPanel::Slot(0, 0)
                 .Padding(MarginSpacing)
                 [
