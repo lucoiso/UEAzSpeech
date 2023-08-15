@@ -14,7 +14,7 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-class FAzSpeechSynthesisRunnable : public FAzSpeechRunnableBase
+    class FAzSpeechSynthesisRunnable : public FAzSpeechRunnableBase
 {
 public:
     FAzSpeechSynthesisRunnable() = delete;
