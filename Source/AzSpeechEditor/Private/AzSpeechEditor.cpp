@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
 #include "AzSpeechEditor.h"
-#include "SAzSpeechAudioGenerator.h"
+#include "Generator/SAzSpeechAudioGenerator.h"
 #include <ToolMenus.h>
 #include <Widgets/Docking/SDockTab.h>
 #include <WorkspaceMenuStructure.h>
@@ -50,8 +50,8 @@ void FAzSpeechEditorModule::RegisterMenus()
     const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("AzSpeechCategory", "AzSpeech"), LOCTEXT("AzSpeechCategoryTooltip", "AzSpeech Plugin Tabs"), FSlateIcon(AppStyleName, "Icons.Package"));
 
     FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AzSpeechEditorTabName, EditorTabSpawnerDelegate)
-        .SetDisplayName(FText::FromString("AzSpeech Audio Generator"))
-        .SetTooltipText(FText::FromString("Open AzSpeech Audio Generator"))
+        .SetDisplayName(FText::FromString(TEXT("AzSpeech Audio Generator")))
+        .SetTooltipText(FText::FromString(TEXT("Open AzSpeech Audio Generator")))
         .SetIcon(FSlateIcon(AppStyleName, "Icons.Plus"))
         .SetGroup(Menu.ToSharedRef());
 }

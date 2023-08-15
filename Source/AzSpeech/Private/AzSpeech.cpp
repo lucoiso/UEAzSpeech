@@ -151,7 +151,7 @@ void FAzSpeechModule::StartupModule()
 #endif
 
 #if WITH_EDITOR && !AZSPEECH_SUPPORTED_PLATFORM
-    FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Currently, AzSpeech does not officially support the platform you're using/targeting. If you encounter any issue and can/want to contribute, get in touch! :)\n\nRepository Link: github.com/lucoiso/UEAzSpeech"));
+    FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Currently, AzSpeech does not officially support the platform you're using/targeting. If you encounter any issue and can/want to contribute, get in touch! :)\n\nRepository Link: github.com/lucoiso/UEAzSpeech")));
 #endif
 }
 

@@ -525,7 +525,7 @@ const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData
     }
 
     const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(VisemeData.Animation);
-    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+    TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
     FJsonSerializer::Deserialize(Reader, JsonObject);
 
     if (!JsonObject.IsValid())
