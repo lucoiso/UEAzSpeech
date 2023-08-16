@@ -9,13 +9,13 @@
 #include <Async/Async.h>
 #include <Misc/ScopeTryLock.h>
 
-FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : Super(InOwningTask, InAudioConfig)
+FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : FAzSpeechRunnableBase(InOwningTask, InAudioConfig)
 {
 }
 
 uint32 FAzSpeechSynthesisRunnable::Run()
 {
-    if (Super::Run() == 0u)
+    if (FAzSpeechRunnableBase::Run() == 0u)
     {
         UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
         return 0u;
@@ -76,7 +76,7 @@ void FAzSpeechSynthesisRunnable::Exit()
 {
     FScopeTryLock Lock(&Mutex);
 
-    Super::Exit();
+    FAzSpeechRunnableBase::Exit();
 
     if (Lock.IsLocked() && SpeechSynthesizer)
     {
@@ -114,7 +114,7 @@ UAzSpeechSynthesizerTaskBase* FAzSpeechSynthesisRunnable::GetOwningSynthesizerTa
 
 const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const
 {
-    if (!Super::ApplySDKSettings(InConfig))
+    if (!FAzSpeechRunnableBase::ApplySDKSettings(InConfig))
     {
         return false;
     }
@@ -155,7 +155,7 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 
 bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 {
-    if (!Super::InitializeAzureObject())
+    if (!FAzSpeechRunnableBase::InitializeAzureObject())
     {
         return false;
     }

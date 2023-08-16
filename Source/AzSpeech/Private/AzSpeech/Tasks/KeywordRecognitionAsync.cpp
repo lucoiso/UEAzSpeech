@@ -2,22 +2,24 @@
 // Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/Tasks/SpeechToTextAsync.h"
+#include "AzSpeech/Tasks/KeywordRecognitionAsync.h"
 #include "AzSpeech/AzSpeechHelper.h"
+#include "AzSpeech/Runnables/AzSpeechKeywordRecognitionRunnable.h"
 #include "AzSpeechInternalFuncs.h"
+#include <HAL/FileManager.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
-#include UE_INLINE_GENERATED_CPP_BY_NAME(SpeechToTextAsync)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(KeywordRecognitionAsync)
 #endif
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText_DefaultOptions(UObject* const WorldContextObject, const FString& Locale, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_DefaultOptions(UObject* const WorldContextObject, const FString& Locale, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
-    return SpeechToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*Locale), AudioInputDeviceID, PhraseListGroup);
+    return KeywordRecognition_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*Locale), AudioInputDeviceID, PhraseListGroup);
 }
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
-    USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
+    UKeywordRecognitionAsync* const NewAsyncTask = NewObject<UKeywordRecognitionAsync>();
     NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
     NewAsyncTask->RecognitionOptions = RecognitionOptions;
     NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
@@ -30,7 +32,7 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* cons
     return NewAsyncTask;
 }
 
-void USpeechToTextAsync::Activate()
+void UKeywordRecognitionAsync::Activate()
 {
 #if PLATFORM_ANDROID
     if (!UAzSpeechHelper::CheckAndroidPermission("android.permission.RECORD_AUDIO"))
@@ -43,12 +45,12 @@ void USpeechToTextAsync::Activate()
     Super::Activate();
 }
 
-bool USpeechToTextAsync::IsUsingDefaultAudioInputDevice() const
+bool UKeywordRecognitionAsync::IsUsingDefaultAudioInputDevice() const
 {
     return AzSpeech::Internal::HasEmptyParam(AudioInputDeviceID) || AudioInputDeviceID.Equals("Default", ESearchCase::IgnoreCase);
 }
 
-bool USpeechToTextAsync::StartAzureTaskWork()
+bool UKeywordRecognitionAsync::StartAzureTaskWork()
 {
     if (!Super::StartAzureTaskWork())
     {
@@ -74,4 +76,32 @@ bool USpeechToTextAsync::StartAzureTaskWork()
     StartRecognitionWork(AudioConfig);
 
     return true;
+}
+
+void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig)
+{
+    const FString ModelPath = GetRecognitionOptions().KeywordRecognitionModelPath;
+
+    if (!IFileManager::Get().FileExists(*ModelPath))
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' not found"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *ModelPath);
+        SetReadyToDestroy();
+        return;
+    }
+
+    if (IFileManager::Get().FileSize(*ModelPath) <= 0)
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' is invalid"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *ModelPath);
+        SetReadyToDestroy();
+        return;
+    }
+
+    RunnableTask = MakeShared<FAzSpeechKeywordRecognitionRunnable>(this, InAudioConfig, Microsoft::CognitiveServices::Speech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
+    if (!RunnableTask)
+    {
+        SetReadyToDestroy();
+        return;
+    }
+
+    RunnableTask->StartAzSpeechRunnableTask();
 }

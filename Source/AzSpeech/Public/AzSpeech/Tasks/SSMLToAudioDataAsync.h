@@ -27,11 +27,11 @@ public:
 
     /* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data with Default Options"))
-    static USSMLToAudioDataAsync* SSMLToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML);
+    static USSMLToAudioDataAsync* SSMLToAudioData_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisSSML);
 
     /* Creates a SSML-To-AudioData task that will convert your SSML file to a audio data */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Audio Data with Custom Options"))
-    static USSMLToAudioDataAsync* SSMLToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
+    static USSMLToAudioDataAsync* SSMLToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
 
 protected:
     virtual void BroadcastFinalResult() override;

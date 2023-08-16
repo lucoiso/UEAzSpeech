@@ -117,6 +117,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Initial Silence Timeout in Miliseconds", ClampMin = "0", UIMin = "0"))
     int32 InitialSilenceTimeoutMs;
 
+    /* Path to the keyword recognition model to use in Keyword Recognition tasks */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tasks", Meta = (DisplayName = "Profanity Filter"))
+    FString KeywordRecognitionModelPath;
+
     uint8 GetMaxAllowedCandidateLanguages() const;
 
 private:

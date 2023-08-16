@@ -4,6 +4,7 @@
 
 #include "AzSpeech/AzSpeechEngineSubsystem.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
+#include "AzSpeech/Tasks/KeywordRecognitionAsync.h"
 #include "AzSpeech/Tasks/SpeechToTextAsync.h"
 #include "AzSpeech/Tasks/SSMLToAudioDataAsync.h"
 #include "AzSpeech/Tasks/SSMLToSoundWaveAsync.h"
@@ -143,52 +144,57 @@ bool UAzSpeechEngineSubsystem::IsQueueEmpty(const int64 QueueId) const
     return TaskQueueMap.Find(QueueId)->Value.IsEmpty();
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSpeechToTextTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateKeywordRecognitionTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+{
+    return UKeywordRecognitionAsync::KeywordRecognition_CustomOptions(WorldContextObject, SubscriptionOptions, RecognitionOptions, AudioInputDeviceID, PhraseListGroup);
+}
+
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSpeechToTextTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
 {
     return USpeechToTextAsync::SpeechToText_CustomOptions(WorldContextObject, SubscriptionOptions, RecognitionOptions, AudioInputDeviceID, PhraseListGroup);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToAudioDataTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToAudioDataTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
 {
     return USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToSoundWaveTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToSoundWaveTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
 {
     return USSMLToSoundWaveAsync::SSMLToSoundWave_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToSpeechTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToSpeechTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
 {
     return USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToWavFileTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateSSMLToWavFileTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
 {
     return USSMLToWavFileAsync::SSMLToWavFile_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisSSML, FilePath, FileName);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToAudioDataTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToAudioDataTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
 {
     return UTextToAudioDataAsync::TextToAudioData_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToSoundWaveTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToSoundWaveTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
 {
     return UTextToSoundWaveAsync::TextToSoundWave_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToSpeechTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToSpeechTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
 {
     return UTextToSpeechAsync::TextToSpeech_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToWavFileTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateTextToWavFileTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
 {
     return UTextToWavFileAsync::TextToWavFile_CustomOptions(WorldContextObject, SubscriptionOptions, SynthesisOptions, SynthesisText, FilePath, FileName);
 }
 
-UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateWavFileToTextTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
+UAzSpeechTaskBase* UAzSpeechEngineSubsystem::CreateWavFileToTextTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
 {
     return UWavFileToTextAsync::WavFileToText_CustomOptions(WorldContextObject, SubscriptionOptions, RecognitionOptions, FilePath, FileName, PhraseListGroup);
 }

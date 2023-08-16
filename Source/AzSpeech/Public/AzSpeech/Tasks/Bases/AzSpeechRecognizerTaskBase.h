@@ -24,7 +24,7 @@ class AZSPEECH_API UAzSpeechRecognizerTaskBase : public UAzSpeechTaskBase
 {
     GENERATED_BODY()
 
-    friend class FAzSpeechRecognitionRunnable;
+    friend class FAzSpeechRecognitionRunnableBase;
 
 public:
     /* Task delegate that will be called when completed */
@@ -63,7 +63,7 @@ protected:
     FName PhraseListGroup = NAME_None;
     FAzSpeechRecognitionOptions RecognitionOptions;
 
-    void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    virtual void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
     virtual void BroadcastFinalResult() override;
     virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);

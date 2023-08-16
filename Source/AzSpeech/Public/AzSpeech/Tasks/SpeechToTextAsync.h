@@ -19,11 +19,11 @@ class AZSPEECH_API USpeechToTextAsync : public UAzSpeechRecognizerTaskBase
 public:
     /* Creates a Speech-To-Text task that will convert your speech to string */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Speech to Text with Default Options"))
-    static USpeechToTextAsync* SpeechToText_DefaultOptions(UObject* WorldContextObject, const FString& Locale = "Default", const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
+    static USpeechToTextAsync* SpeechToText_DefaultOptions(UObject* const WorldContextObject, const FString& Locale = "Default", const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
 
     /* Creates a Speech-To-Text task that will convert your speech to string */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Speech to Text with Custom Options"))
-    static USpeechToTextAsync* SpeechToText_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
+    static USpeechToTextAsync* SpeechToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
 
     virtual void Activate() override;
 

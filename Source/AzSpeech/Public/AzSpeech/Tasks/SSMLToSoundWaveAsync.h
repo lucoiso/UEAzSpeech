@@ -23,11 +23,11 @@ public:
 
     /* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Default Options"))
-    static USSMLToSoundWaveAsync* SSMLToSoundWave_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML);
+    static USSMLToSoundWaveAsync* SSMLToSoundWave_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisSSML);
 
     /* Creates a SSML-To-SoundWave task that will convert your SSML file to a USoundWave */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Sound Wave with Custom Options"))
-    static USSMLToSoundWaveAsync* SSMLToSoundWave_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
+    static USSMLToSoundWaveAsync* SSMLToSoundWave_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
 
 protected:
     virtual void BroadcastFinalResult() override;

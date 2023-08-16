@@ -30,7 +30,7 @@ public:
 
     /* Get the available synthesis voices */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Get Available Voices Async"))
-    static UGetAvailableVoicesAsync* GetAvailableVoicesAsync(UObject* WorldContextObject, const FString& Locale = "");
+    static UGetAvailableVoicesAsync* GetAvailableVoicesAsync(UObject* const WorldContextObject, const FString& Locale = "");
 
     virtual void Activate() override;
     virtual void SetReadyToDestroy() override;

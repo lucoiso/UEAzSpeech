@@ -15,7 +15,7 @@ THIRD_PARTY_INCLUDES_END
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GetAvailableVoicesAsync)
 #endif
 
-UGetAvailableVoicesAsync* UGetAvailableVoicesAsync::GetAvailableVoicesAsync(UObject* WorldContextObject, const FString& Locale)
+UGetAvailableVoicesAsync* UGetAvailableVoicesAsync::GetAvailableVoicesAsync(UObject* const WorldContextObject, const FString& Locale)
 {
     UGetAvailableVoicesAsync* const NewAsyncTask = NewObject<UGetAvailableVoicesAsync>();
     NewAsyncTask->TaskName = *FString(__func__);

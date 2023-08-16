@@ -22,12 +22,12 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::EditorTask(const FString& Synthesi
 }
 #endif
 
-USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML)
+USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisSSML)
 {
     return SSMLToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(), SynthesisSSML);
 }
 
-USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
 {
     USSMLToAudioDataAsync* const NewAsyncTask = NewObject<USSMLToAudioDataAsync>();
     NewAsyncTask->WorldContextObject = WorldContextObject;

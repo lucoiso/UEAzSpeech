@@ -27,11 +27,11 @@ public:
 
     /* Creates a Text-To-AudioData task that will convert your text to a audio data stream */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Audio Data with Default Options"))
-    static UTextToAudioDataAsync* TextToAudioData_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisText, const FString& Voice = "Default", const FString& Locale = "Default");
+    static UTextToAudioDataAsync* TextToAudioData_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisText, const FString& Voice = "Default", const FString& Locale = "Default");
 
     /* Creates a Text-To-AudioData task that will convert your text to a audio data stream */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Text To Audio Data with Custom Options"))
-    static UTextToAudioDataAsync* TextToAudioData_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
+    static UTextToAudioDataAsync* TextToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
 
 protected:
     virtual void BroadcastFinalResult() override;

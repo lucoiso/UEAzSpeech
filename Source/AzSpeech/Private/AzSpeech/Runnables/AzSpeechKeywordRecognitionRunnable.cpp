@@ -2,17 +2,17 @@
 // Year: 2023
 // Repo: https://github.com/lucoiso/UEAzSpeech
 
-#include "AzSpeech/Runnables/AzSpeechRecognitionRunnable.h"
+#include "AzSpeech/Runnables/AzSpeechKeywordRecognitionRunnable.h"
 #include "AzSpeech/Tasks/Bases/AzSpeechRecognizerTaskBase.h"
 #include "LogAzSpeech.h"
 #include <Async/Async.h>
 #include <Misc/ScopeTryLock.h>
 
-FAzSpeechRecognitionRunnable::FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : FAzSpeechRecognitionRunnableBase(InOwningTask, InAudioConfig)
+FAzSpeechKeywordRecognitionRunnable::FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig, const std::shared_ptr<Microsoft::CognitiveServices::Speech::KeywordRecognitionModel>& InModel) : FAzSpeechRecognitionRunnableBase(InOwningTask, InAudioConfig), Model(InModel)
 {
 }
 
-uint32 FAzSpeechRecognitionRunnable::Run()
+uint32 FAzSpeechKeywordRecognitionRunnable::Run()
 {
     if (FAzSpeechRecognitionRunnableBase::Run() == 0u)
     {
@@ -25,13 +25,19 @@ uint32 FAzSpeechRecognitionRunnable::Run()
         return 0u;
     }
 
+    if (!Model)
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Model is invalid"), *GetThreadName(), *FString(__func__));
+        return 0u;
+    }
+
     UAzSpeechRecognizerTaskBase* const RecognizerTask = GetOwningRecognizerTask();
     if (!UAzSpeechTaskStatus::IsTaskStillValid(RecognizerTask))
     {
         return 0u;
     }
 
-    const std::future<void> Future = SpeechRecognizer->StartContinuousRecognitionAsync();
+    const std::future<void> Future = SpeechRecognizer->StartKeywordRecognitionAsync(Model);
 
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting recognition"), *GetThreadName(), *FString(__func__));
     if (Future.wait_for(GetTaskTimeout()); Future.valid())
@@ -60,15 +66,15 @@ uint32 FAzSpeechRecognitionRunnable::Run()
     return 1u;
 }
 
-void FAzSpeechRecognitionRunnable::Exit()
+void FAzSpeechKeywordRecognitionRunnable::Exit()
 {
     FScopeTryLock Lock(&Mutex);
 
-    FAzSpeechRunnableBase::Exit();
+    FAzSpeechRecognitionRunnableBase::Exit();
 
     if (Lock.IsLocked() && SpeechRecognizer)
     {
-        SpeechRecognizer->StopContinuousRecognitionAsync().wait_for(GetTaskTimeout());
+        SpeechRecognizer->StopKeywordRecognitionAsync().wait_for(GetTaskTimeout());
     }
 
     SpeechRecognizer = nullptr;

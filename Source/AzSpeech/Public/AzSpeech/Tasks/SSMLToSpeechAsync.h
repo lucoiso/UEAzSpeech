@@ -19,9 +19,9 @@ class AZSPEECH_API USSMLToSpeechAsync : public UAzSpeechSpeechSynthesisBase
 public:
     /* Creates a SSML-To-Speech task that will convert your SSML file to speech */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech with Default Options"))
-    static USSMLToSpeechAsync* SSMLToSpeech_DefaultOptions(UObject* WorldContextObject, const FString& SynthesisSSML);
+    static USSMLToSpeechAsync* SSMLToSpeech_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisSSML);
 
     /* Creates a SSML-To-Speech task that will convert your SSML file to speech */
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "SSML To Speech with Custom Options"))
-    static USSMLToSpeechAsync* SSMLToSpeech_CustomOptions(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
+    static USSMLToSpeechAsync* SSMLToSpeech_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
 };

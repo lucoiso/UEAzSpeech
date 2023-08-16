@@ -26,16 +26,11 @@ protected:
     virtual void Exit() override;
     // End of FRunnable interface
 
-private:
-    std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SpeechSynthesizer;
-
 protected:
     const bool IsSpeechSynthesizerValid() const;
-
     class UAzSpeechSynthesizerTaskBase* GetOwningSynthesizerTask() const;
 
     virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const override;
-
     virtual bool InitializeAzureObject() override;
 
 private:
@@ -46,5 +41,7 @@ private:
 
     const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat GetOutputFormat() const;
 
+protected:
     bool bFilterVisemeData = false;
+    std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesizer> SpeechSynthesizer;
 };

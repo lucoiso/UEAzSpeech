@@ -100,16 +100,6 @@ UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const
     return OwningTask.Get();
 }
 
-std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> FAzSpeechRunnableBase::GetAudioConfig() const
-{
-    if (!AudioConfig)
-    {
-        UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid Audio Config."), *GetThreadName(), *FString(__func__));
-    }
-
-    return AudioConfig;
-}
-
 bool FAzSpeechRunnableBase::InitializeAzureObject()
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing Azure Object"), *GetThreadName(), *FString(__func__));
@@ -130,6 +120,21 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
     return UAzSpeechSettings::CheckAzSpeechSettings(OwningTask_Local->GetSubscriptionOptions()) && UAzSpeechTaskStatus::IsTaskStillValid(OwningTask_Local);
 }
 
+const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
+{
+    return std::chrono::seconds(GetTimeout());
+}
+
+std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> FAzSpeechRunnableBase::GetAudioConfig() const
+{
+    if (!AudioConfig)
+    {
+        UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid Audio Config."), *GetThreadName(), *FString(__func__));
+    }
+
+    return AudioConfig;
+}
+
 std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
@@ -147,11 +152,6 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
     return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().RegionID.ToString()));
 }
 
-const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
-{
-    return std::chrono::seconds(GetTimeout());
-}
-
 const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
 {
     if (!InSpeechConfig)
@@ -165,6 +165,42 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
     EnableLogInConfiguration(InSpeechConfig);
 
     return true;
+}
+
+const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+{
+    if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
+    {
+        return true;
+    }
+
+#if PLATFORM_ANDROID || PLATFORM_IOS || UE_BUILD_SHIPPING
+    return true;
+#else
+
+    if (!InSpeechConfig)
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
+        return false;
+    }
+
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Enabling Azure SDK log"), *GetThreadName(), *FString(__func__));
+
+    if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir(); IFileManager::Get().MakeDirectory(*AzSpeechLogPath, true))
+    {
+        const FString LogFilename = "AzSpeech " + FDateTime::Now().ToString() + ".log";
+        AzSpeechLogPath = FPaths::Combine(AzSpeechLogPath, LogFilename);
+        FPaths::NormalizeFilename(AzSpeechLogPath);
+
+        if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
+        {
+            InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
+            return true;
+        }
+    }
+
+    return false;
+#endif
 }
 
 void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
@@ -206,42 +242,6 @@ void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeech
     default:
         break;
     }
-}
-
-const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
-{
-    if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
-    {
-        return true;
-    }
-
-#if PLATFORM_ANDROID || PLATFORM_IOS || UE_BUILD_SHIPPING
-    return true;
-#else
-
-    if (!InSpeechConfig)
-    {
-        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
-        return false;
-    }
-
-    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Enabling Azure SDK log"), *GetThreadName(), *FString(__func__));
-
-    if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir(); IFileManager::Get().MakeDirectory(*AzSpeechLogPath, true))
-    {
-        const FString LogFilename = "AzSpeech " + FDateTime::Now().ToString() + ".log";
-        AzSpeechLogPath = FPaths::Combine(AzSpeechLogPath, LogFilename);
-        FPaths::NormalizeFilename(AzSpeechLogPath);
-
-        if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
-        {
-            InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
-            return true;
-        }
-    }
-
-    return false;
-#endif
 }
 
 const FString FAzSpeechRunnableBase::CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const
