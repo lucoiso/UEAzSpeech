@@ -4,6 +4,7 @@
 
 #include "AzSpeech/AzSpeechSettings.h"
 #include "AzSpeechInternalFuncs.h"
+#include "LogAzSpeech.h"
 #include <Runtime/Launch/Resources/Version.h>
 
 #if WITH_EDITOR
@@ -14,7 +15,17 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AzSpeechSettings)
 #endif
 
-UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), TaskInitTimeOut(15.f), TasksThreadPriority(EAzSpeechThreadPriority::Normal), ThreadUpdateInterval(0.016667f), bFilterVisemeFacialExpression(true), bEnableSDKLogs(true), bEnableInternalLogs(false), bEnableDebuggingLogs(false), bEnableDebuggingPrints(false), StringDelimiters(" ,.;:[]{}!'\"?")
+UAzSpeechSettings::UAzSpeechSettings(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+    , TaskInitTimeOut(15.f)
+    , TasksThreadPriority(EAzSpeechThreadPriority::Normal)
+    , ThreadUpdateInterval(0.016667f)
+    , bFilterVisemeFacialExpression(true)
+    , bEnableSDKLogs(true)
+    , bEnableInternalLogs(false)
+    , bEnableDebuggingLogs(false)
+    , bEnableDebuggingPrints(false)
+    , StringDelimiters(TEXT(R"( ,.;:[]{}!'"?)"))
 {
     CategoryName = TEXT("Plugins");
 
