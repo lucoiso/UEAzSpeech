@@ -141,7 +141,7 @@ TSharedRef<SWidget> SAzSpeechAudioGenerator::ConstructContent()
                         .OptionsSource(&AvailableVoices)
                         .InitiallySelectedItem(SelectVoice)
                         .OnSelectionChanged_Lambda(
-                            [this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+                            [this](const FTextDisplayStringPtr& InStr, [[maybe_unused]] ESelectInfo::Type)
                             {
                                 Voice = InStr->TrimStartAndEnd();
                             }
@@ -162,7 +162,7 @@ TSharedRef<SWidget> SAzSpeechAudioGenerator::ConstructContent()
                         .OptionsSource(&AvailableModules)
                         .InitiallySelectedItem(GameModule)
                         .OnSelectionChanged_Lambda(
-                            [this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+                            [this](const FTextDisplayStringPtr& InStr, [[maybe_unused]] ESelectInfo::Type)
                             {
                                 Module = InStr->TrimStartAndEnd();
                             }
@@ -284,9 +284,9 @@ bool SAzSpeechAudioGenerator::IsGenerationEnabled() const
     return !Voice.Equals(*SelectVoice.Get()) && !AzSpeech::Internal::HasEmptyParam(Voice, Module, AssetName, SynthesisText.ToString());
 }
 
-TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetStringArrayAsSharedPtr(const TArray<FString>& Input) const
+TArray<FTextDisplayStringPtr> SAzSpeechAudioGenerator::GetStringArrayAsSharedPtr(const TArray<FString>& Input) const
 {
-    TArray<TSharedPtr<FString>> Output;
+    TArray<FTextDisplayStringPtr> Output;
 
     for (const auto& String : Input)
     {
@@ -296,7 +296,7 @@ TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetStringArrayAsSharedPtr(c
     return Output;
 }
 
-TArray<TSharedPtr<FString>> SAzSpeechAudioGenerator::GetAvailableContentModules() const
+TArray<FTextDisplayStringPtr> SAzSpeechAudioGenerator::GetAvailableContentModules() const
 {
     TArray<FString> Output = UAzSpeechHelper::GetAvailableContentModules();
     Output.Remove("Game");

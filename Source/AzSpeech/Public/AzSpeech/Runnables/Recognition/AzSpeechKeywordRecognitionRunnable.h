@@ -14,7 +14,7 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-    class FAzSpeechKeywordRecognitionRunnable : public FAzSpeechRecognitionRunnableBase
+class FAzSpeechKeywordRecognitionRunnable : public FAzSpeechRecognitionRunnableBase
 {
 public:
     FAzSpeechKeywordRecognitionRunnable() = delete;

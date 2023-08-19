@@ -30,12 +30,12 @@ private:
     FString AssetName;
     FText SynthesisText;
 
-    TSharedPtr<FString> SelectVoice;
-    TSharedPtr<FString> GameModule;
+    FTextDisplayStringPtr SelectVoice;
+    FTextDisplayStringPtr GameModule;
 
-    TArray<TSharedPtr<FString>> AvailableVoices;
-    TArray<TSharedPtr<FString>> TextTypes;
-    TArray<TSharedPtr<FString>> AvailableModules;
+    TArray<FTextDisplayStringPtr> AvailableVoices;
+    TArray<FTextDisplayStringPtr> TextTypes;
+    TArray<FTextDisplayStringPtr> AvailableModules;
 
     TSharedPtr<class STextComboBox> VoiceComboBox;
     TSharedPtr<class SEditableTextBox> PathInput;
@@ -43,8 +43,8 @@ private:
 
     TSharedRef<SWidget> ConstructContent();
 
-    TArray<TSharedPtr<FString>> GetStringArrayAsSharedPtr(const TArray<FString>& Input) const;
-    TArray<TSharedPtr<FString>> GetAvailableContentModules() const;
+    TArray<FTextDisplayStringPtr> GetStringArrayAsSharedPtr(const TArray<FString>& Input) const;
+    TArray<FTextDisplayStringPtr> GetAvailableContentModules() const;
 
     void OnAvailableVoicesChanged(const TArray<FString>& Voices);
     void OnFileInfoCommited(const FText& InText, FString& Member, TSharedPtr<SEditableTextBox>& InputRef);
