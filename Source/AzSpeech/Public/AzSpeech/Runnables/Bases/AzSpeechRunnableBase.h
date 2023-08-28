@@ -39,38 +39,30 @@ protected:
     virtual void Exit() override;
     // End of FRunnable interface
 
-    typedef FAzSpeechRunnableBase Super;
-
     UAzSpeechTaskBase* GetOwningTask() const;
-    std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
-
+    const std::chrono::seconds GetTaskTimeout() const;
     virtual bool InitializeAzureObject();
     virtual bool CanInitializeTask() const;
 
+    std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
     std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig() const;
 
-    const std::chrono::seconds GetTaskTimeout() const;
-
     virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+    const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
 
     void InsertProfanityFilterProperty(const EAzSpeechProfanityFilter& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
     void InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
-
-    const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
 
     const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const;
     void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const;
 
     const EThreadPriority GetCPUThreadPriority() const;
     const float GetThreadUpdateInterval() const;
-
     const int32 GetTimeout() const;
-
     const FString GetThreadName() const;
 
 private:
     FName ThreadName;
-
     void StoreThreadInformation();
 
     bool bStopTask = false;
