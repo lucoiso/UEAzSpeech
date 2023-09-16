@@ -111,6 +111,7 @@ void FAzSpeechRecognitionOptions::SetDefaults()
         LanguageIdentificationMode = Settings->DefaultOptions.RecognitionOptions.LanguageIdentificationMode;
         SegmentationSilenceTimeoutMs = Settings->DefaultOptions.RecognitionOptions.SegmentationSilenceTimeoutMs;
         InitialSilenceTimeoutMs = Settings->DefaultOptions.RecognitionOptions.InitialSilenceTimeoutMs;
+        KeywordRecognitionModelPath = Settings->DefaultOptions.RecognitionOptions.KeywordRecognitionModelPath;
     }
 }
 

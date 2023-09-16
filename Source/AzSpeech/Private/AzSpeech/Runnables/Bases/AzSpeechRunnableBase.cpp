@@ -20,7 +20,11 @@
 #include <HAL/PlatformFileManager.h>
 #endif
 
-FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) : OwningTask(InOwningTask), AudioConfig(InAudioConfig)
+namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
+
+FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+    : OwningTask(InOwningTask)
+    , AudioConfig(InAudioConfig)
 {
 }
 
@@ -100,16 +104,6 @@ UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const
     return OwningTask.Get();
 }
 
-std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> FAzSpeechRunnableBase::GetAudioConfig() const
-{
-    if (!AudioConfig)
-    {
-        UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid Audio Config."), *GetThreadName(), *FString(__func__));
-    }
-
-    return AudioConfig;
-}
-
 bool FAzSpeechRunnableBase::InitializeAzureObject()
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing Azure Object"), *GetThreadName(), *FString(__func__));
@@ -130,7 +124,22 @@ bool FAzSpeechRunnableBase::CanInitializeTask() const
     return UAzSpeechSettings::CheckAzSpeechSettings(OwningTask_Local->GetSubscriptionOptions()) && UAzSpeechTaskStatus::IsTaskStillValid(OwningTask_Local);
 }
 
-std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const
+const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
+{
+    return std::chrono::seconds(GetTimeout());
+}
+
+std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> FAzSpeechRunnableBase::GetAudioConfig() const
+{
+    if (!AudioConfig)
+    {
+        UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid Audio Config."), *GetThreadName(), *FString(__func__));
+    }
+
+    return AudioConfig;
+}
+
+std::shared_ptr<MicrosoftSpeech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(), *FString(__func__));
 
@@ -141,18 +150,13 @@ std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> FAzSpeechRun
 
     if (OwningTask->GetSubscriptionOptions().bUsePrivateEndpoint)
     {
-        return Microsoft::CognitiveServices::Speech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()));
+        return MicrosoftSpeech::SpeechConfig::FromEndpoint(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().PrivateEndpoint.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()));
     }
 
-    return Microsoft::CognitiveServices::Speech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().RegionID.ToString()));
+    return MicrosoftSpeech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().RegionID.ToString()));
 }
 
-const std::chrono::seconds FAzSpeechRunnableBase::GetTaskTimeout() const
-{
-    return std::chrono::seconds(GetTimeout());
-}
-
-const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
     if (!InSpeechConfig)
     {
@@ -167,48 +171,7 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
     return true;
 }
 
-void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
-{
-    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding profanity filter property"), *GetThreadName(), *FString(__func__));
-    switch (Mode)
-    {
-    case EAzSpeechProfanityFilter::Raw:
-        InSpeechConfig->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Raw);
-        break;
-
-    case EAzSpeechProfanityFilter::Removed:
-        InSpeechConfig->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Removed);
-        break;
-
-    case EAzSpeechProfanityFilter::Masked:
-        InSpeechConfig->SetProfanity(Microsoft::CognitiveServices::Speech::ProfanityOption::Masked);
-        break;
-
-    default:
-        break;
-    }
-}
-
-void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode& Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
-{
-    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding language identification property"), *GetThreadName(), *FString(__func__));
-
-    switch (Mode)
-    {
-    case EAzSpeechLanguageIdentificationMode::AtStart:
-        InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_LanguageIdMode, "AtStart");
-        break;
-
-    case EAzSpeechLanguageIdentificationMode::Continuous:
-        InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::SpeechServiceConnection_LanguageIdMode, "Continuous");
-        break;
-
-    default:
-        break;
-    }
-}
-
-const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const
+const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
     if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
     {
@@ -235,7 +198,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
         if (FFileHelper::SaveStringToFile(FString(), *AzSpeechLogPath))
         {
-            InSpeechConfig->SetProperty(Microsoft::CognitiveServices::Speech::PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
+            InSpeechConfig->SetProperty(MicrosoftSpeech::PropertyId::Speech_LogFilename, TCHAR_TO_UTF8(*AzSpeechLogPath));
             return true;
         }
     }
@@ -244,17 +207,58 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 #endif
 }
 
-const FString FAzSpeechRunnableBase::CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason& CancellationReason) const
+void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter& Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
+{
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding profanity filter property"), *GetThreadName(), *FString(__func__));
+    switch (Mode)
+    {
+    case EAzSpeechProfanityFilter::Raw:
+        InSpeechConfig->SetProfanity(MicrosoftSpeech::ProfanityOption::Raw);
+        break;
+
+    case EAzSpeechProfanityFilter::Removed:
+        InSpeechConfig->SetProfanity(MicrosoftSpeech::ProfanityOption::Removed);
+        break;
+
+    case EAzSpeechProfanityFilter::Masked:
+        InSpeechConfig->SetProfanity(MicrosoftSpeech::ProfanityOption::Masked);
+        break;
+
+    default:
+        break;
+    }
+}
+
+void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode& Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
+{
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding language identification property"), *GetThreadName(), *FString(__func__));
+
+    switch (Mode)
+    {
+    case EAzSpeechLanguageIdentificationMode::AtStart:
+        InSpeechConfig->SetProperty(MicrosoftSpeech::PropertyId::SpeechServiceConnection_LanguageIdMode, "AtStart");
+        break;
+
+    case EAzSpeechLanguageIdentificationMode::Continuous:
+        InSpeechConfig->SetProperty(MicrosoftSpeech::PropertyId::SpeechServiceConnection_LanguageIdMode, "Continuous");
+        break;
+
+    default:
+        break;
+    }
+}
+
+const FString FAzSpeechRunnableBase::CancellationReasonToString(const MicrosoftSpeech::CancellationReason& CancellationReason) const
 {
     switch (CancellationReason)
     {
-    case Microsoft::CognitiveServices::Speech::CancellationReason::Error:
+    case MicrosoftSpeech::CancellationReason::Error:
         return FString("Error");
 
-    case Microsoft::CognitiveServices::Speech::CancellationReason::EndOfStream:
+    case MicrosoftSpeech::CancellationReason::EndOfStream:
         return FString("EndOfStream");
 
-    case Microsoft::CognitiveServices::Speech::CancellationReason::CancelledByUser:
+    case MicrosoftSpeech::CancellationReason::CancelledByUser:
         return FString("CancelledByUser");
 
     default:
@@ -262,60 +266,60 @@ const FString FAzSpeechRunnableBase::CancellationReasonToString(const Microsoft:
     }
 }
 
-void FAzSpeechRunnableBase::ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const
+void FAzSpeechRunnableBase::ProcessCancellationError(const MicrosoftSpeech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const
 {
     FString ErrorCodeStr;
     switch (ErrorCode)
     {
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::NoError:
+    case MicrosoftSpeech::CancellationErrorCode::NoError:
         ErrorCodeStr = "Error";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::AuthenticationFailure:
+    case MicrosoftSpeech::CancellationErrorCode::AuthenticationFailure:
         ErrorCodeStr = "AuthenticationFailure";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::BadRequest:
+    case MicrosoftSpeech::CancellationErrorCode::BadRequest:
         ErrorCodeStr = "BadRequest";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::TooManyRequests:
+    case MicrosoftSpeech::CancellationErrorCode::TooManyRequests:
         ErrorCodeStr = "TooManyRequests";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::Forbidden:
+    case MicrosoftSpeech::CancellationErrorCode::Forbidden:
         ErrorCodeStr = "Forbidden";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::ConnectionFailure:
+    case MicrosoftSpeech::CancellationErrorCode::ConnectionFailure:
         ErrorCodeStr = "ConnectionFailure";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::ServiceTimeout:
+    case MicrosoftSpeech::CancellationErrorCode::ServiceTimeout:
         ErrorCodeStr = "ServiceTimeout";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::ServiceError:
+    case MicrosoftSpeech::CancellationErrorCode::ServiceError:
         ErrorCodeStr = "ServiceError";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::ServiceUnavailable:
+    case MicrosoftSpeech::CancellationErrorCode::ServiceUnavailable:
         ErrorCodeStr = "ServiceUnavailable";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::RuntimeError:
+    case MicrosoftSpeech::CancellationErrorCode::RuntimeError:
         ErrorCodeStr = "RuntimeError";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::ServiceRedirectTemporary:
+    case MicrosoftSpeech::CancellationErrorCode::ServiceRedirectTemporary:
         ErrorCodeStr = "ServiceRedirectTemporary";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::ServiceRedirectPermanent:
+    case MicrosoftSpeech::CancellationErrorCode::ServiceRedirectPermanent:
         ErrorCodeStr = "ServiceRedirectPermanent";
         break;
 
-    case Microsoft::CognitiveServices::Speech::CancellationErrorCode::EmbeddedModelError:
+    case MicrosoftSpeech::CancellationErrorCode::EmbeddedModelError:
         ErrorCodeStr = "EmbeddedModelError";
         break;
 

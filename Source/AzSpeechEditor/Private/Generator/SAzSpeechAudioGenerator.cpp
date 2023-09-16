@@ -7,9 +7,9 @@
 #include <AzSpeechInternalFuncs.h>
 #include <AzSpeech/AzSpeechSettings.h>
 #include <AzSpeech/AzSpeechHelper.h>
-#include <AzSpeech/Tasks/GetAvailableVoicesAsync.h>
-#include <AzSpeech/Tasks/TextToAudioDataAsync.h>
-#include <AzSpeech/Tasks/SSMLToAudioDataAsync.h>
+#include <AzSpeech/Tasks/Utils/GetAvailableVoicesAsync.h>
+#include <AzSpeech/Tasks/Synthesis/TextToAudioDataAsync.h>
+#include <AzSpeech/Tasks/Synthesis/SSMLToAudioDataAsync.h>
 #include <Kismet/GameplayStatics.h>
 #include <Sound/SoundWave.h>
 #include <Widgets/Input/STextComboBox.h>

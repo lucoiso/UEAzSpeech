@@ -49,36 +49,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "AzSpeech | Management")
     bool IsQueueEmpty(const int64 QueueId) const;
 
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateSpeechToTextTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateSSMLToAudioDataTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateSSMLToSoundWaveTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateSSMLToSpeechTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateSSMLToWavFileTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateTextToAudioDataTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateTextToSoundWaveTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateTextToSpeechTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateTextToWavFileTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName);
-
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Tasks", meta = (WorldContext = "WorldContextObject"))
-    class UAzSpeechTaskBase* CreateWavFileToTextTask(UObject* WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup = NAME_None);
-
 private:
     void RegisterAzSpeechTask(class UAzSpeechTaskBase* const Task) const;
     void UnregisterAzSpeechTask(class UAzSpeechTaskBase* const Task) const;

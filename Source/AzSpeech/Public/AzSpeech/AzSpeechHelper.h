@@ -170,17 +170,61 @@ public:
     UFUNCTION(BlueprintPure, Category = "AzSpeech | Data")
     static const TArray<FAzSpeechAnimationData> ExtractAnimationDataFromVisemeDataArray(const TArray<FAzSpeechVisemeData>& VisemeData);
 
-    /*  */
+    /* Cast object to AzSpeech Task Base */
     UFUNCTION(BlueprintPure, Category = "AzSpeech | Casting")
-    static class UAzSpeechTaskBase* CastToAzSpeechTaskBase(UObject* Object);
+    static class UAzSpeechTaskBase* CastToAzSpeechTaskBase(UObject* const Object);
 
-    /*  */
+    /* Cast object to AzSpeech Recognizer Task Base */
     UFUNCTION(BlueprintPure, Category = "AzSpeech | Casting")
-    static class UAzSpeechRecognizerTaskBase* CastToAzSpeechRecognizerTaskBase(UObject* Object);
+    static class UAzSpeechRecognizerTaskBase* CastToAzSpeechRecognizerTaskBase(UObject* const Object);
 
-    /*  */
+    /* Cast object to AzSpeech Synthesizer Task Base */
     UFUNCTION(BlueprintPure, Category = "AzSpeech | Casting")
-    static class UAzSpeechSynthesizerTaskBase* CastToAzSpeechSynthesizerTaskBase(UObject* Object);
+    static class UAzSpeechSynthesizerTaskBase* CastToAzSpeechSynthesizerTaskBase(UObject* const Object);
 
     static const FString GetAzSpeechLogsBaseDir();
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateKeywordRecognitionTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateSpeechToTextTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID = "Default", const FName PhraseListGroup = NAME_None);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateSSMLToAudioDataTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateSSMLToSoundWaveTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateSSMLToSpeechTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateSSMLToWavFileTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateTextToAudioDataTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateTextToSoundWaveTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateTextToSpeechTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateTextToWavFileTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName);
+
+    /* Create a task object that doesnt activate on creation. Use it to insert the task in an execution queue of AzSpeech Subsystem */
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Execution Queue", meta = (WorldContext = "WorldContextObject"))
+    static class UAzSpeechTaskBase* CreateWavFileToTextTask(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup = NAME_None);
 };
