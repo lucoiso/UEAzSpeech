@@ -40,7 +40,7 @@ void UTextToSoundWaveAsync::BroadcastFinalResult()
     }
 
     Super::BroadcastFinalResult();
+    SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
 
-    const TArray<uint8> LastBuffer = GetAudioData();
-    SynthesisCompleted.Broadcast(UAzSpeechHelper::ConvertAudioDataToSoundWave(LastBuffer));
+    SetReadyToDestroy();
 }

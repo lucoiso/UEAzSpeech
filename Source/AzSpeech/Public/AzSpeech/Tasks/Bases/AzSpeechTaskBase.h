@@ -48,7 +48,7 @@ public:
     virtual void SetReadyToDestroy() override;
 
 protected:
-    TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
+    TUniquePtr<class FAzSpeechRunnableBase> RunnableTask;
     FName TaskName = NAME_None;
 
     FAzSpeechSubscriptionOptions SubscriptionOptions;
