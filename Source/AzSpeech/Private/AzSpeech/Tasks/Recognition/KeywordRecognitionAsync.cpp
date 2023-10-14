@@ -80,7 +80,7 @@ bool UKeywordRecognitionAsync::StartAzureTaskWork()
     return true;
 }
 
-void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
 {
     const FString ModelPath = GetRecognitionOptions().KeywordRecognitionModelPath;
 

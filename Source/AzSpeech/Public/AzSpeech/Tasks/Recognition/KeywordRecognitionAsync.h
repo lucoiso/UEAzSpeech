@@ -32,7 +32,7 @@ public:
 
 protected:
     virtual bool StartAzureTaskWork() override;
-    virtual void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig) override;
+    virtual void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig) override;
 
 private:
     FString AudioInputDeviceID;
