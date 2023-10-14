@@ -28,6 +28,21 @@ FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTa
 {
 }
 
+FAzSpeechRunnableBase::~FAzSpeechRunnableBase()
+{
+    if (IsRunning())
+    {
+        Stop();
+    }
+
+    if (Thread.IsValid())
+    {
+        Thread->Kill(true);
+    }
+
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Destructing runnable thread"), *GetThreadName(), *FString(__func__));
+}
+
 void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
 {
     Thread.Reset(FRunnableThread::Create(this, *FString::Printf(TEXT("AzSpeech_%s_%d"), *GetOwningTask()->GetTaskName().ToString(), GetOwningTask()->GetUniqueID()), 0u, GetCPUThreadPriority()));
@@ -37,6 +52,11 @@ void FAzSpeechRunnableBase::StopAzSpeechRunnableTask()
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Setting runnable work as pending stop"), *GetThreadName(), *FString(__func__));
     bStopTask = true;
+}
+
+bool FAzSpeechRunnableBase::IsRunning() const
+{
+    return !bStopTask;
 }
 
 bool FAzSpeechRunnableBase::IsPendingStop() const

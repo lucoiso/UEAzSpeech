@@ -52,6 +52,7 @@ void USSMLToAudioDataAsync::BroadcastFinalResult()
     }
 
     Super::BroadcastFinalResult();
-
     SynthesisCompleted.Broadcast(GetAudioData());
+
+    SetReadyToDestroy();
 }

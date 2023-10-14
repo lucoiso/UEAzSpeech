@@ -80,8 +80,8 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 
     UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Stopping task"), *TaskName.ToString(), GetUniqueID(), *FString(__func__));
     bIsTaskActive = false;
-
-    if (RunnableTask)
+    
+    if (RunnableTask.IsValid())
     {
         RunnableTask->StopAzSpeechRunnableTask();
     }
@@ -148,9 +148,10 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
     }
 #endif
 
-    if (RunnableTask)
+    if (RunnableTask.IsValid())
     {
         RunnableTask->StopAzSpeechRunnableTask();
+        RunnableTask.Reset();
     }
 
     Super::SetReadyToDestroy();

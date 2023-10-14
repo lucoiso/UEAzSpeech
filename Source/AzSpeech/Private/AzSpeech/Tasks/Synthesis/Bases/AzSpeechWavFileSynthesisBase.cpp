@@ -69,8 +69,9 @@ void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
     }
 
     Super::BroadcastFinalResult();
-
     SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
+
+    SetReadyToDestroy();
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()

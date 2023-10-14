@@ -62,7 +62,7 @@ const int32 UAzSpeechRecognizerTaskBase::GetRecognitionLatency() const
 
 void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
 {
-    RunnableTask = MakeShared<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
+    RunnableTask = MakeUnique<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
 
     if (!RunnableTask)
     {
@@ -88,6 +88,7 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
         [this]
         {
             RecognitionCompleted.Broadcast(GetRecognizedString());
+            SetReadyToDestroy();
         }
     );
 }

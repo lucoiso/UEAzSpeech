@@ -98,7 +98,7 @@ void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<Micros
         return;
     }
 
-    RunnableTask = MakeShared<FAzSpeechKeywordRecognitionRunnable>(this, InAudioConfig, MicrosoftSpeech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
+    RunnableTask = MakeUnique<FAzSpeechKeywordRecognitionRunnable>(this, InAudioConfig, MicrosoftSpeech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
     if (!RunnableTask)
     {
         SetReadyToDestroy();

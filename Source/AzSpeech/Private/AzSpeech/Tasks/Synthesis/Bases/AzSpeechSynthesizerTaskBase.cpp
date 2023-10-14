@@ -145,7 +145,7 @@ const int32 UAzSpeechSynthesizerTaskBase::GetServiceLatency() const
 
 void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
 {
-    RunnableTask = MakeShared<FAzSpeechSynthesisRunnable>(this, InAudioConfig);
+    RunnableTask = MakeUnique<FAzSpeechSynthesisRunnable>(this, InAudioConfig);
 
     if (!RunnableTask)
     {

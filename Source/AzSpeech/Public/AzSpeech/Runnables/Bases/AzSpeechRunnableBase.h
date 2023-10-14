@@ -26,9 +26,12 @@ public:
     FAzSpeechRunnableBase() = delete;
     FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
 
+    ~FAzSpeechRunnableBase();
+
     void StartAzSpeechRunnableTask();
     void StopAzSpeechRunnableTask();
 
+    bool IsRunning() const;
     bool IsPendingStop() const;
 
 protected:
