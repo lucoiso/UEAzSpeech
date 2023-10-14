@@ -10,7 +10,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechKeywordRecognitionRunnable::FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig, const std::shared_ptr<MicrosoftSpeech::KeywordRecognitionModel>& InModel)
+FAzSpeechKeywordRecognitionRunnable::FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig, const std::shared_ptr<MicrosoftSpeech::KeywordRecognitionModel> InModel)
     : FAzSpeechRecognitionRunnableBase(InOwningTask, InAudioConfig)
     , Model(InModel)
 {

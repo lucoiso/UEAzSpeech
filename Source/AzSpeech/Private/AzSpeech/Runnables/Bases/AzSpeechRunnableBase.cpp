@@ -22,7 +22,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
     : OwningTask(InOwningTask)
     , AudioConfig(InAudioConfig)
 {
@@ -156,7 +156,7 @@ std::shared_ptr<MicrosoftSpeech::SpeechConfig> FAzSpeechRunnableBase::CreateSpee
     return MicrosoftSpeech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().RegionID.ToString()));
 }
 
-const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
+const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
 {
     if (!InSpeechConfig)
     {
@@ -171,7 +171,7 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
     return true;
 }
 
-const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
+const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
 {
     if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
     {
@@ -207,7 +207,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 #endif
 }
 
-void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter& Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
+void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding profanity filter property"), *GetThreadName(), *FString(__func__));
     switch (Mode)
@@ -229,7 +229,7 @@ void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfani
     }
 }
 
-void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode& Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
+void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding language identification property"), *GetThreadName(), *FString(__func__));
 
@@ -248,7 +248,7 @@ void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeech
     }
 }
 
-const FString FAzSpeechRunnableBase::CancellationReasonToString(const MicrosoftSpeech::CancellationReason& CancellationReason) const
+const FString FAzSpeechRunnableBase::CancellationReasonToString(const MicrosoftSpeech::CancellationReason CancellationReason) const
 {
     switch (CancellationReason)
     {
@@ -266,7 +266,7 @@ const FString FAzSpeechRunnableBase::CancellationReasonToString(const MicrosoftS
     }
 }
 
-void FAzSpeechRunnableBase::ProcessCancellationError(const MicrosoftSpeech::CancellationErrorCode& ErrorCode, const std::string& ErrorDetails) const
+void FAzSpeechRunnableBase::ProcessCancellationError(const MicrosoftSpeech::CancellationErrorCode ErrorCode, const std::string& ErrorDetails) const
 {
     FString ErrorCodeStr;
     switch (ErrorCode)
@@ -329,7 +329,7 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const MicrosoftSpeech::Canc
     }
 
     UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__), *ErrorCodeStr);
-    UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error details: %s"), *GetThreadName(), *FString(__func__), UTF8_TO_TCHAR(ErrorDetails.c_str()));
+    UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error details: %s"), *GetThreadName(), *FString(__func__), *FString(UTF8_TO_TCHAR(ErrorDetails.c_str())));
     UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Log generated in directory: %s"), *GetThreadName(), *FString(__func__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
 }
 

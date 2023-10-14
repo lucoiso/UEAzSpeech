@@ -38,13 +38,14 @@ public:
     static constexpr size_t MAX_MEETING_ID_LEN = 1024;
 
     /// <summary>
-    /// Create a meeting using a speech config and an optional meeting id.
+    /// Create a meeting using a speech config and a meeting id.
     /// </summary>
     /// <param name="speechConfig">A shared smart pointer of a speech config object.</param>
     /// <param name="meetingId">meeting Id.</param>
     /// <returns>A shared smart pointer of the created meeting object.</returns>
-    static std::future<std::shared_ptr<Meeting>> CreateMeetingAsync(std::shared_ptr<SpeechConfig> speechConfig, const SPXSTRING& meetingId = SPXSTRING())
+    static std::future<std::shared_ptr<Meeting>> CreateMeetingAsync(std::shared_ptr<SpeechConfig> speechConfig, const SPXSTRING& meetingId)
     {
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, meetingId.empty());
         auto future = std::async(std::launch::async, [meetingId, speechConfig]() -> std::shared_ptr<Meeting> {
             SPXMEETINGHANDLE hmeeting;
             SPX_THROW_ON_FAIL(meeting_create_from_config(&hmeeting, (SPXSPEECHCONFIGHANDLE)(*speechConfig), Utils::ToUTF8(meetingId).c_str()));

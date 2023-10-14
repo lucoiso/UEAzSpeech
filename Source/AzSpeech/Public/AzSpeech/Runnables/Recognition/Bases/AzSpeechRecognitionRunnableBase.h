@@ -20,7 +20,7 @@ THIRD_PARTY_INCLUDES_END
 {
 public:
     FAzSpeechRecognitionRunnableBase() = delete;
-    FAzSpeechRecognitionRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    FAzSpeechRecognitionRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
 
 protected:
 
@@ -37,7 +37,7 @@ protected:
     const TArray<FString> GetPhraseListFromGroup(const FName& InGroup) const;
     const Microsoft::CognitiveServices::Speech::OutputFormat GetOutputFormat() const;
 
-    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const override;
+    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> InConfig) const override;
     virtual bool InitializeAzureObject() override;
 
 private:
@@ -45,7 +45,7 @@ private:
     bool ConnectRecognitionUpdatedSignals();
     bool InsertPhraseList() const;
 
-    bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
+    bool ProcessRecognitionResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastResult);
 
 protected:
     std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognizer> SpeechRecognizer;

@@ -11,7 +11,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
     : FAzSpeechRunnableBase(InOwningTask, InAudioConfig)
 {
 }
@@ -115,7 +115,7 @@ UAzSpeechSynthesizerTaskBase* FAzSpeechSynthesisRunnable::GetOwningSynthesizerTa
     return Cast<UAzSpeechSynthesizerTaskBase>(GetOwningTask());
 }
 
-const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InConfig) const
+const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InConfig) const
 {
     if (!FAzSpeechRunnableBase::ApplySDKSettings(InConfig))
     {
@@ -172,6 +172,7 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating synthesizer object"), *GetThreadName(), *FString(__func__));
 
     const auto SpeechConfig = CreateSpeechConfig();
+
     if (!SpeechConfig)
     {
         UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
@@ -185,9 +186,13 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
         UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing auto language detection"), *GetThreadName(), *FString(__func__));
         SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromOpenRange(), GetAudioConfig());
     }
+    else if (const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> TaskAudioConfig = GetAudioConfig())
+    {
+        SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, TaskAudioConfig);
+    }
     else
     {
-        SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, GetAudioConfig());
+        return false;
     }
 
     return ConnectVisemeSignal() && ConnectSynthesisStartedSignal() && ConnectSynthesisUpdateSignals();
@@ -225,7 +230,7 @@ bool FAzSpeechSynthesisRunnable::ConnectVisemeSignal()
             FAzSpeechVisemeData LastVisemeData;
             LastVisemeData.VisemeID = VisemeEventArgs.VisemeId;
             LastVisemeData.AudioOffsetMilliseconds = VisemeEventArgs.AudioOffset / 10000;
-            LastVisemeData.Animation = UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str());
+            LastVisemeData.Animation = FString(UTF8_TO_TCHAR(VisemeEventArgs.Animation.c_str()));
 
             AsyncTask(ENamedThreads::GameThread,
                 [SynthesizerTask, LastVisemeData]
@@ -334,7 +339,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
     return true;
 }
 
-bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult>& LastResult)
+bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult> LastResult)
 {
     bool bOutput = true;
 

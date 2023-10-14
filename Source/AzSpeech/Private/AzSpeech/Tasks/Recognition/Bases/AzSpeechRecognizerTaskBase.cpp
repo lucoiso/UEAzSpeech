@@ -43,7 +43,7 @@ const FString UAzSpeechRecognizerTaskBase::GetRecognizedString() const
         return FString();
     }
 
-    return UTF8_TO_TCHAR(RecognizedText.c_str());
+    return FString(UTF8_TO_TCHAR(RecognizedText.c_str()));
 }
 
 const int64 UAzSpeechRecognizerTaskBase::GetRecognitionDuration() const
@@ -60,7 +60,7 @@ const int32 UAzSpeechRecognizerTaskBase::GetRecognitionLatency() const
     return RecognitionLatency;
 }
 
-void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
 {
     RunnableTask = MakeShared<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
 
@@ -92,7 +92,7 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
     );
 }
 
-void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult>& LastResult)
+void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult> LastResult)
 {
     check(IsInGameThread());
 
@@ -116,11 +116,11 @@ void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<Mic
             TaskName.ToString(),
             GetUniqueID(),
             FString(__func__),
-            UTF8_TO_TCHAR(LastResult->Text.c_str()),
+            FString(UTF8_TO_TCHAR(LastResult->Text.c_str())),
             RecognitionDuration,
             TicksToMs(LastResult->Offset()),
             static_cast<int32>(LastResult->Reason),
-            UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
+            FString(UTF8_TO_TCHAR(LastResult->ResultId.c_str())),
             RecognitionLatency
         };
 

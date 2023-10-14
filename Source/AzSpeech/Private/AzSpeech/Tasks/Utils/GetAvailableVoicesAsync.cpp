@@ -116,17 +116,17 @@ const TArray<FString> UGetAvailableVoicesAsync::GetAvailableVoices() const
 
             for (const auto& Voice : SynthesisVoices->Voices)
             {
-                Output.Add(UTF8_TO_TCHAR(Voice->ShortName.c_str()));
+                Output.Emplace(UTF8_TO_TCHAR(Voice->ShortName.c_str()));
 
                 const FStringFormatOrderedArguments Arguments{
                     TaskName.ToString(),
                     GetUniqueID(),
                     FString(__func__),
-                    UTF8_TO_TCHAR(Voice->Name.c_str()),
-                    UTF8_TO_TCHAR(Voice->ShortName.c_str()),
-                    UTF8_TO_TCHAR(Voice->LocalName.c_str()),
-                    UTF8_TO_TCHAR(Voice->VoicePath.c_str()),
-                    UTF8_TO_TCHAR(Voice->Locale.c_str()),
+                    FString(UTF8_TO_TCHAR(Voice->Name.c_str())),
+                    FString(UTF8_TO_TCHAR(Voice->ShortName.c_str())),
+                    FString(UTF8_TO_TCHAR(Voice->LocalName.c_str())),
+                    FString(UTF8_TO_TCHAR(Voice->VoicePath.c_str())),
+                    FString(UTF8_TO_TCHAR(Voice->Locale.c_str())),
                     static_cast<int32>(Voice->Gender),
                     static_cast<int32>(Voice->VoiceType)
                 };
