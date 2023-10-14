@@ -52,6 +52,7 @@ void UTextToAudioDataAsync::BroadcastFinalResult()
     }
 
     Super::BroadcastFinalResult();
-
     SynthesisCompleted.Broadcast(GetAudioData());
+
+    SetReadyToDestroy();
 }

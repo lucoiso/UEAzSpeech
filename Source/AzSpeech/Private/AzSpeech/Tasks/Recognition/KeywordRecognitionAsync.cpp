@@ -80,7 +80,7 @@ bool UKeywordRecognitionAsync::StartAzureTaskWork()
     return true;
 }
 
-void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
 {
     const FString ModelPath = GetRecognitionOptions().KeywordRecognitionModelPath;
 
@@ -98,7 +98,7 @@ void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<Micros
         return;
     }
 
-    RunnableTask = MakeShared<FAzSpeechKeywordRecognitionRunnable>(this, InAudioConfig, MicrosoftSpeech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
+    RunnableTask = MakeUnique<FAzSpeechKeywordRecognitionRunnable>(this, InAudioConfig, MicrosoftSpeech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
     if (!RunnableTask)
     {
         SetReadyToDestroy();

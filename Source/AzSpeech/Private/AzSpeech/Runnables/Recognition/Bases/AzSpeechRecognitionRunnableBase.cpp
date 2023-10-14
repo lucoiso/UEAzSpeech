@@ -16,7 +16,7 @@ THIRD_PARTY_INCLUDES_END
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechRecognitionRunnableBase::FAzSpeechRecognitionRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+FAzSpeechRecognitionRunnableBase::FAzSpeechRecognitionRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
     : FAzSpeechRunnableBase(InOwningTask, InAudioConfig)
 {
 }
@@ -125,7 +125,7 @@ const MicrosoftSpeech::OutputFormat FAzSpeechRecognitionRunnableBase::GetOutputF
     return MicrosoftSpeech::OutputFormat::Detailed;
 }
 
-const bool FAzSpeechRecognitionRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InConfig) const
+const bool FAzSpeechRecognitionRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InConfig) const
 {
     if (!FAzSpeechRunnableBase::ApplySDKSettings(InConfig))
     {
@@ -186,18 +186,22 @@ bool FAzSpeechRecognitionRunnableBase::InitializeAzureObject()
     if (RecognizerTask->GetRecognitionOptions().bUseLanguageIdentification)
     {
         const std::vector<std::string> Candidates = GetCandidateLanguages();
+
         if (Candidates.empty())
         {
             UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Result: Invalid candidate languages"), *GetThreadName(), *FString(__func__));
-
             return false;
         }
 
         SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromLanguages(Candidates), GetAudioConfig());
     }
+    else if (const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> TaskAudioConfig = GetAudioConfig())
+    {
+        SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, TaskAudioConfig);
+    }
     else
     {
-        SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, GetAudioConfig());
+        return false;
     }
 
     return InsertPhraseList() && ConnectRecognitionStartedSignals() && ConnectRecognitionUpdatedSignals();
@@ -328,7 +332,7 @@ bool FAzSpeechRecognitionRunnableBase::InsertPhraseList() const
     return true;
 }
 
-bool FAzSpeechRecognitionRunnableBase::ProcessRecognitionResult(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult>& LastResult)
+bool FAzSpeechRecognitionRunnableBase::ProcessRecognitionResult(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult> LastResult)
 {
     bool bOutput = true;
 

@@ -48,7 +48,7 @@ public:
     virtual void SetReadyToDestroy() override;
 
 protected:
-    TSharedPtr<class FAzSpeechRunnableBase> RunnableTask;
+    TUniquePtr<class FAzSpeechRunnableBase> RunnableTask;
     FName TaskName = NAME_None;
 
     FAzSpeechSubscriptionOptions SubscriptionOptions;
@@ -68,7 +68,7 @@ protected:
 #endif
 
     template <typename ReturnTy, typename ResultType>
-    constexpr ReturnTy GetProperty(const ResultType& Result, const Microsoft::CognitiveServices::Speech::PropertyId& ID)
+    constexpr ReturnTy GetProperty(const ResultType& Result, const Microsoft::CognitiveServices::Speech::PropertyId ID)
     {
         const auto Property = Result->Properties.GetProperty(ID);
         if (Property.empty())
@@ -78,23 +78,23 @@ protected:
 
         if constexpr (std::is_same_v<ReturnTy, FString>)
         {
-            return FString(Property.c_str());
+            return FString(UTF8_TO_TCHAR(Property.c_str()));
         }
         else if constexpr (std::is_same_v<ReturnTy, FName>)
         {
-            return FName(Property.c_str());
+            return FName(UTF8_TO_TCHAR(Property.c_str()));
         }
         else if constexpr (std::is_same_v<ReturnTy, int32>)
         {
-            return FCString::Atoi(*FString(Property.c_str()));
+            return FCString::Atoi(*FString(UTF8_TO_TCHAR(Property.c_str())));
         }
         else if constexpr (std::is_same_v<ReturnTy, float>)
         {
-            return FCString::Atof(*FString(Property.c_str()));
+            return FCString::Atof(*FString(UTF8_TO_TCHAR(Property.c_str())));
         }
         else if constexpr (std::is_same_v<ReturnTy, bool>)
         {
-            return FCString::ToBool(Property.c_str());
+            return FCString::ToBool(*FString(UTF8_TO_TCHAR(Property.c_str())));
         }
 
         return ReturnTy();

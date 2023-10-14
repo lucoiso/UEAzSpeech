@@ -63,10 +63,10 @@ protected:
     FName PhraseListGroup = NAME_None;
     FAzSpeechRecognitionOptions RecognitionOptions;
 
-    virtual void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+    virtual void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
 
     virtual void BroadcastFinalResult() override;
-    virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
+    virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastResult);
 
 private:
     std::string RecognizedText;

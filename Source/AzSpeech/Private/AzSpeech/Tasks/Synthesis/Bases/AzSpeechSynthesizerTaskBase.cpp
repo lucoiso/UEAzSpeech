@@ -143,9 +143,9 @@ const int32 UAzSpeechSynthesizerTaskBase::GetServiceLatency() const
     return ServiceLatency;
 }
 
-void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
+void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
 {
-    RunnableTask = MakeShared<FAzSpeechSynthesisRunnable>(this, InAudioConfig);
+    RunnableTask = MakeUnique<FAzSpeechSynthesisRunnable>(this, InAudioConfig);
 
     if (!RunnableTask)
     {
@@ -190,7 +190,7 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
     }
 }
 
-void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult>& LastResult)
+void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult> LastResult)
 {
     check(IsInGameThread());
 
@@ -219,7 +219,7 @@ void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<Micro
             static_cast<uint32>(LastResult->GetAudioLength()),
             static_cast<uint32>(LastResult->GetAudioData().get()->size()),
             static_cast<int32>(LastResult->Reason),
-            UTF8_TO_TCHAR(LastResult->ResultId.c_str()),
+            FString(UTF8_TO_TCHAR(LastResult->ResultId.c_str())),
             ConnectionLatency,
             FinishLatency,
             FirstByteLatency,
