@@ -183,6 +183,13 @@ bool FAzSpeechRecognitionRunnableBase::InitializeAzureObject()
 
     ApplySDKSettings(SpeechConfig);
 
+    const auto TaskAudioConfig = GetAudioConfig();
+    if (!SpeechConfig)
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid audio config"), *GetThreadName(), *FString(__func__));
+        return false;
+    }
+
     if (RecognizerTask->GetRecognitionOptions().bUseLanguageIdentification)
     {
         const std::vector<std::string> Candidates = GetCandidateLanguages();
@@ -193,15 +200,11 @@ bool FAzSpeechRecognitionRunnableBase::InitializeAzureObject()
             return false;
         }
 
-        SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromLanguages(Candidates), GetAudioConfig());
-    }
-    else if (const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> TaskAudioConfig = GetAudioConfig())
-    {
-        SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, TaskAudioConfig);
+        SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromLanguages(Candidates), TaskAudioConfig);
     }
     else
     {
-        return false;
+        SpeechRecognizer = MicrosoftSpeech::SpeechRecognizer::FromConfig(SpeechConfig, TaskAudioConfig);
     }
 
     return InsertPhraseList() && ConnectRecognitionStartedSignals() && ConnectRecognitionUpdatedSignals();

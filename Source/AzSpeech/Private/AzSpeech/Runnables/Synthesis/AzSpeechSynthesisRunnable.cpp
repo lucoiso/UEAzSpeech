@@ -181,18 +181,21 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 
     ApplySDKSettings(SpeechConfig);
 
+    const auto TaskAudioConfig = GetAudioConfig();
+    if (!SpeechConfig)
+    {
+        UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid audio config"), *GetThreadName(), *FString(__func__));
+        return false;
+    }
+
     if (!SynthesizerTask->IsSSMLBased() && SynthesizerTask->GetSynthesisOptions().bUseLanguageIdentification)
     {
         UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing auto language detection"), *GetThreadName(), *FString(__func__));
-        SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromOpenRange(), GetAudioConfig());
-    }
-    else if (const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> TaskAudioConfig = GetAudioConfig())
-    {
-        SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, TaskAudioConfig);
+        SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromOpenRange(), TaskAudioConfig);
     }
     else
     {
-        return false;
+        SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(SpeechConfig, TaskAudioConfig);
     }
 
     return ConnectVisemeSignal() && ConnectSynthesisStartedSignal() && ConnectSynthesisUpdateSignals();
