@@ -22,7 +22,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
+FAzSpeechRunnableBase::FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
     : OwningTask(InOwningTask)
     , AudioConfig(InAudioConfig)
 {
@@ -100,7 +100,7 @@ void FAzSpeechRunnableBase::Exit()
         {
             FScopeTryLock Lock(&OwningTask_Local->Mutex);
 
-            if (Lock.IsLocked())
+            if (!Lock.IsLocked())
             {
                 return;
             }
@@ -176,7 +176,7 @@ std::shared_ptr<MicrosoftSpeech::SpeechConfig> FAzSpeechRunnableBase::CreateSpee
     return MicrosoftSpeech::SpeechConfig::FromSubscription(TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().SubscriptionKey.ToString()), TCHAR_TO_UTF8(*OwningTask->GetSubscriptionOptions().RegionID.ToString()));
 }
 
-const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
+const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
     if (!InSpeechConfig)
     {
@@ -191,7 +191,7 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
     return true;
 }
 
-const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
+const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
     if (!UAzSpeechSettings::Get()->bEnableSDKLogs)
     {
@@ -227,7 +227,7 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 #endif
 }
 
-void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
+void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding profanity filter property"), *GetThreadName(), *FString(__func__));
     switch (Mode)
@@ -249,7 +249,7 @@ void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfani
     }
 }
 
-void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InSpeechConfig) const
+void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode, const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding language identification property"), *GetThreadName(), *FString(__func__));
 

@@ -10,7 +10,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechKeywordRecognitionRunnable::FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig, const std::shared_ptr<MicrosoftSpeech::KeywordRecognitionModel> InModel)
+FAzSpeechKeywordRecognitionRunnable::FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig, const std::shared_ptr<MicrosoftSpeech::KeywordRecognitionModel>& InModel)
     : FAzSpeechRecognitionRunnableBase(InOwningTask, InAudioConfig)
     , Model(InModel)
 {
@@ -68,18 +68,4 @@ uint32 FAzSpeechKeywordRecognitionRunnable::Run()
     }
 
     return 1u;
-}
-
-void FAzSpeechKeywordRecognitionRunnable::Exit()
-{
-    FScopeTryLock Lock(&Mutex);
-
-    FAzSpeechRecognitionRunnableBase::Exit();
-
-    if (Lock.IsLocked() && SpeechRecognizer)
-    {
-        SpeechRecognizer->StopKeywordRecognitionAsync().wait_for(GetTaskTimeout());
-    }
-
-    SpeechRecognizer = nullptr;
 }

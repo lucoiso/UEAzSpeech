@@ -94,7 +94,7 @@ const FName UAzSpeechTaskBase::GetTaskName() const
     return TaskName;
 }
 
-const FAzSpeechSubscriptionOptions UAzSpeechTaskBase::GetSubscriptionOptions() const
+const FAzSpeechSubscriptionOptions& UAzSpeechTaskBase::GetSubscriptionOptions() const
 {
     return SubscriptionOptions;
 }
@@ -151,7 +151,6 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
     if (RunnableTask.IsValid())
     {
         RunnableTask->StopAzSpeechRunnableTask();
-        RunnableTask.Reset();
     }
 
     Super::SetReadyToDestroy();
@@ -198,17 +197,17 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 }
 #endif
 
-bool UAzSpeechTaskStatus::IsTaskActive(const UAzSpeechTaskBase* Test)
+bool UAzSpeechTaskStatus::IsTaskActive(const UAzSpeechTaskBase* const Test)
 {
     return IsValid(Test) && Test->bIsTaskActive;
 }
 
-bool UAzSpeechTaskStatus::IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test)
+bool UAzSpeechTaskStatus::IsTaskReadyToDestroy(const UAzSpeechTaskBase* const Test)
 {
     return IsValid(Test) && Test->bIsReadyToDestroy;
 }
 
-bool UAzSpeechTaskStatus::IsTaskStillValid(const UAzSpeechTaskBase* Test)
+bool UAzSpeechTaskStatus::IsTaskStillValid(const UAzSpeechTaskBase* const Test)
 {
     bool bOutput = IsValid(Test) && !IsTaskReadyToDestroy(Test);
 

@@ -119,6 +119,164 @@ ScopeGuard<F> MakeScopeGuard(F fn)
 }
 
 /// <summary>
+/// A wrapper around ABI handles that simplifies resource cleanup on exit
+/// </summary>
+/// <typeparam name="THandle">The type of the ABI handle</typeparam>
+/// <typeparam name="THandleDefault">The default value to set the handle to when initialising or after destroying</typeparam>
+/// <typeparam name="TRet">The return type of the free function</typeparam>
+/// <typeparam name="TFreeFunc">The signature of the free function called to release the ABI handle</typeparam>
+template<
+    typename THandle,
+    typename TRet = AZACHR,
+    typename TFreeFunc = TRet(AZAC_API_CALLTYPE*)(THandle)>
+class AbiHandleWrapper : public NonCopyable
+{
+private:
+    THandle m_handle;
+    TFreeFunc m_free;
+    bool m_isValid;
+
+public:
+    /// <summary>
+    /// The signature of the free function
+    /// </summary>
+    using FreeFunc = TFreeFunc;
+
+    /// <summary>
+    /// Creates and ABI handle wrapper for SPXHANDLE types initializing the handle
+    /// to be SPXHANDLE_INVALID
+    /// </summary>
+    /// <param name="freeFunc">The function used to release the ABI handle</param>
+    template<
+        typename IsHandle = THandle,
+        std::enable_if_t<std::is_same<IsHandle, SPXHANDLE>::value, bool> = true
+    >
+    AbiHandleWrapper(TFreeFunc freeFunc) :
+        m_handle{ SPXHANDLE_INVALID },
+        m_free{ freeFunc },
+        m_isValid{ false }
+    {
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, freeFunc == nullptr);
+    }
+
+    /// <summary>
+    /// Creates an ABI handle wrapper
+    /// </summary>
+    /// <param name="freeFunc">The function used to release the ABI handle</param>
+    template<
+        typename IsHandle = THandle,
+        std::enable_if_t<!std::is_same<IsHandle, SPXHANDLE>::value, bool> = true
+    >
+    AbiHandleWrapper(TFreeFunc freeFunc) :
+        m_handle{ nullptr },
+        m_free{ freeFunc },
+        m_isValid{ false }
+    {
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, freeFunc == nullptr);
+    }
+
+    /// <summary>
+    /// Creates an ABI handle wrapper
+    /// </summary>
+    /// <param name="freeFunc">The function used to release the ABI handle</param>
+    /// <param name="handle">The initial ABI handle value</param>
+    AbiHandleWrapper(TFreeFunc freeFunc, THandle&& handle) :
+        m_handle{ std::move(handle) },
+        m_free{ freeFunc },
+        m_isValid{ true }
+    {
+        SPX_THROW_HR_IF(SPXERR_INVALID_ARG, freeFunc == nullptr);
+    }
+
+    /// <summary>
+    /// Destructor
+    /// </summary>
+    ~AbiHandleWrapper() { Destroy(); }
+
+    /// <summary>
+    /// Move constructor
+    /// </summary>
+    /// <param name="other">The other item being moved</param>
+    AbiHandleWrapper(AbiHandleWrapper&& other) :
+        m_handle{ other.m_handle },
+        m_free{ other.m_free },
+        m_isValid{ other.m_isValid }
+    {
+        other.m_handle = THandle{};
+        other.m_free = nullptr;
+        other.m_isValid = false;
+    }
+
+    /// <summary>
+    /// Move assignment operator
+    /// </summary>
+    /// <param name="other">The item being moved</param>
+    /// <returns>Reference to ABI handle</returns>
+    AbiHandleWrapper& operator=(AbiHandleWrapper&& other)
+    {
+        if (this != &other)
+        {
+            Destroy();
+
+            m_handle = std::move(other.m_handle);
+            m_free = other.m_free;
+            m_isValid = other.m_isValid;
+
+            other.m_free = nullptr;
+            other.m_isValid = false;
+        }
+
+        return *this;
+    }
+
+    /// <summary>
+    /// Helper to simplify assigning a new ABI handle value to this wrapper
+    /// </summary>
+    /// <param name="other">The handle to assign</param>
+    /// <returns>Reference to assigned handle</returns>
+    THandle& operator=(const THandle& other)
+    {
+        Destroy();
+
+        m_handle = other;
+        return m_handle;
+    }
+
+    /// <summary>
+    /// Gets the address of the ABI handle. This is useful when calling ABI functions that set the value
+    /// </summary>
+    THandle* operator&() { return &m_handle; }
+
+    /// <summary>
+    /// Gets the ABI handle value
+    /// </summary>
+    operator THandle() const { return m_handle; }
+
+private:
+    void Destroy()
+    {
+        if (m_isValid)
+        {
+            m_isValid = false;
+            if (m_free != nullptr)
+            {
+                m_free(m_handle);
+            }
+        }
+    }
+};
+
+/// <summary>
+/// A wrapper around ABI handles
+/// </summary>
+using AbiHandle = AbiHandleWrapper<SPXHANDLE>;
+
+/// <summary>
+/// A wrapper around strings allocated in the ABI layer
+/// </summary>
+using AbiStringHandle = AbiHandleWrapper<const char*, void>;
+
+/// <summary>
 /// Function that converts a handle to its underlying type.
 /// </summary>
 /// <typeparam name="Handle">Handle type.</typeparam>

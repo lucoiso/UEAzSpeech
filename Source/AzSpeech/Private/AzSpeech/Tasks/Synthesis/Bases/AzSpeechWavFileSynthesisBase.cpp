@@ -91,7 +91,7 @@ bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
         return false;
     }
 
-    const auto AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromWavFileOutput(TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName)));
+    AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromWavFileOutput(TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName)));
     StartSynthesisWork(AudioConfig);
 
     return true;

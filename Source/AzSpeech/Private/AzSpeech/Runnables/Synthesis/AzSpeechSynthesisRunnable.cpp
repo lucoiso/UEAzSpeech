@@ -11,7 +11,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
+FAzSpeechSynthesisRunnable::FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
     : FAzSpeechRunnableBase(InOwningTask, InAudioConfig)
 {
 }
@@ -88,8 +88,6 @@ void FAzSpeechSynthesisRunnable::Exit()
         SpeechSynthesizer->SynthesisCompleted.DisconnectAll();
         SpeechSynthesizer->SynthesisStarted.DisconnectAll();
         SpeechSynthesizer->Synthesizing.DisconnectAll();
-
-        SpeechSynthesizer->StopSpeakingAsync().wait_for(GetTaskTimeout());
     }
 
     SpeechSynthesizer = nullptr;
@@ -115,7 +113,7 @@ UAzSpeechSynthesizerTaskBase* FAzSpeechSynthesisRunnable::GetOwningSynthesizerTa
     return Cast<UAzSpeechSynthesizerTaskBase>(GetOwningTask());
 }
 
-const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InConfig) const
+const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InConfig) const
 {
     if (!FAzSpeechRunnableBase::ApplySDKSettings(InConfig))
     {
@@ -182,7 +180,7 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
     ApplySDKSettings(SpeechConfig);
 
     const auto TaskAudioConfig = GetAudioConfig();
-    if (!SpeechConfig)
+    if (!TaskAudioConfig)
     {
         UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid audio config"), *GetThreadName(), *FString(__func__));
         return false;
@@ -342,7 +340,7 @@ bool FAzSpeechSynthesisRunnable::ConnectSynthesisUpdateSignals()
     return true;
 }
 
-bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult> LastResult)
+bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult>& LastResult)
 {
     bool bOutput = true;
 

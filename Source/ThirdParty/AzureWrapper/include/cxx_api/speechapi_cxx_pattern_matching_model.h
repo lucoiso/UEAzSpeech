@@ -11,6 +11,7 @@
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_pattern_matching_intent.h>
 #include <speechapi_cxx_pattern_matching_entity.h>
+#include <speechapi_c_json.h>
 #include <speechapi_c.h>
 #include <fstream>
 
@@ -100,7 +101,7 @@ namespace Intent {
         /// Returns id for this model.
         /// </summary>
         /// <returns>A string representing the id of this model.</returns>
-        SPXSTRING GetModelId() { return m_modelId; }
+        SPXSTRING GetModelId() const { return m_modelId; }
 
         /// <summary>
         /// This container of Intents is used to define all the Intents this model will look for.

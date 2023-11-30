@@ -91,7 +91,7 @@ public:
 
 protected:
 #if WITH_EDITOR
-    virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
+    virtual void PreEditChange(FProperty* const PropertyAboutToChange) override;
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 

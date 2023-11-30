@@ -18,7 +18,7 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-const FAzSpeechRecognitionOptions UAzSpeechRecognizerTaskBase::GetRecognitionOptions() const
+const FAzSpeechRecognitionOptions& UAzSpeechRecognizerTaskBase::GetRecognitionOptions() const
 {
     return RecognitionOptions;
 }
@@ -60,9 +60,9 @@ const int32 UAzSpeechRecognizerTaskBase::GetRecognitionLatency() const
     return RecognitionLatency;
 }
 
-void UAzSpeechRecognizerTaskBase::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
+void UAzSpeechRecognizerTaskBase::StartRecognitionWork()
 {
-    RunnableTask = MakeUnique<FAzSpeechRecognitionRunnable>(this, InAudioConfig);
+    RunnableTask = MakeUnique<FAzSpeechRecognitionRunnable>(this, AudioConfig);
 
     if (!RunnableTask)
     {
@@ -93,7 +93,7 @@ void UAzSpeechRecognizerTaskBase::BroadcastFinalResult()
     );
 }
 
-void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult> LastResult)
+void UAzSpeechRecognizerTaskBase::OnRecognitionUpdated(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult>& LastResult)
 {
     check(IsInGameThread());
 

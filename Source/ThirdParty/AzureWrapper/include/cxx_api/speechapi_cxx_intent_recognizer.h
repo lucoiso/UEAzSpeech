@@ -10,6 +10,7 @@
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_c.h>
 #include "speechapi_c_json.h"
+#include <speechapi_cxx_recognition_async_recognizer.h>
 #include <speechapi_cxx_conversational_language_understanding_model.h>
 #include <speechapi_cxx_recognizer.h>
 #include <speechapi_cxx_intent_recognition_result.h>
@@ -19,6 +20,8 @@
 #include <speechapi_cxx_properties.h>
 #include <speechapi_cxx_speech_config.h>
 #include <speechapi_cxx_audio_stream.h>
+#include <speechapi_cxx_session.h>
+#include <speechapi_cxx_embedded_speech_config.h>
 
 namespace Microsoft {
 namespace CognitiveServices {
@@ -221,8 +224,7 @@ namespace Intent {
                 case LanguageUnderstandingModel::LanguageUnderstandingModelType::PatternMatchingModel:
                 {
                     intent_recognizer_clear_language_models(m_hreco);
-                    auto jsonBuild = BuildModelJson(model);
-                    intent_recognizer_import_pattern_matching_model(m_hreco, jsonBuild.c_str());
+                    AddPatternMatchingModel(model);
                     break;
                 }
                 case LanguageUnderstandingModel::LanguageUnderstandingModelType::ConversationalLanguageUnderstandingModel:
@@ -263,8 +265,7 @@ namespace Intent {
                 case LanguageUnderstandingModel::LanguageUnderstandingModelType::PatternMatchingModel:
                 {
                     intent_recognizer_clear_language_models(m_hreco);
-                    auto jsonBuild = BuildModelJson(model);
-                    intent_recognizer_import_pattern_matching_model(m_hreco, jsonBuild.c_str());
+                    AddPatternMatchingModel(model);
                     break;
                 }
                 case LanguageUnderstandingModel::LanguageUnderstandingModelType::ConversationalLanguageUnderstandingModel:
@@ -304,8 +305,7 @@ namespace Intent {
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::PatternMatchingModel:
             {
                 intent_recognizer_clear_language_models(m_hreco);
-                auto jsonBuild = BuildModelJson(model);
-                intent_recognizer_import_pattern_matching_model(m_hreco, jsonBuild.c_str());
+                AddPatternMatchingModel(model);
                 break;
             }
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::ConversationalLanguageUnderstandingModel:
@@ -345,8 +345,7 @@ namespace Intent {
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::PatternMatchingModel:
             {
                 intent_recognizer_clear_language_models(m_hreco);
-                auto jsonBuild = BuildModelJson(model);
-                intent_recognizer_import_pattern_matching_model(m_hreco, jsonBuild.c_str());
+                AddPatternMatchingModel(model);
                 break;
             }
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::ConversationalLanguageUnderstandingModel:
@@ -406,7 +405,7 @@ namespace Intent {
     /// </summary>
     /// <param name="collection">A vector of shared pointers to LanguageUnderstandingModels.</param>
     /// <returns>True if the application of the models takes effect immediately. Otherwise false.</returns>
-    bool ApplyLanguageModels(std::vector<std::shared_ptr<LanguageUnderstandingModel>> collection)
+    bool ApplyLanguageModels(const std::vector<std::shared_ptr<LanguageUnderstandingModel>>& collection)
     {
         bool result = true;
         SPXTRIGGERHANDLE htrigger = SPXHANDLE_INVALID;
@@ -426,8 +425,7 @@ namespace Intent {
                 break;
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::PatternMatchingModel:
             {
-                auto jsonBuild = BuildModelJson(model);
-                intent_recognizer_import_pattern_matching_model(m_hreco, jsonBuild.c_str());
+                AddPatternMatchingModel(model);
                 break;
             }
             case LanguageUnderstandingModel::LanguageUnderstandingModelType::ConversationalLanguageUnderstandingModel:
@@ -450,70 +448,60 @@ namespace Intent {
     }
 
 private:
-
-    std::string BuildModelJson(std::shared_ptr<LanguageUnderstandingModel> model)
+    void AddPatternMatchingModel(const std::shared_ptr<LanguageUnderstandingModel>& luModel) const
     {
-        SPXHANDLE builder = SPXHANDLE_INVALID;
-        auto root = ai_core_json_builder_create(&builder, "", 0);
-        auto simpleModel = static_cast<const PatternMatchingModel*>(model.get());
+        auto model = static_cast<const PatternMatchingModel*>(luModel.get());
+        std::string modelId = model->GetModelId();
 
-        auto modelIdItem = ai_core_json_builder_item_add(builder, root, 0, "modelId");
-        auto modelIdString = model->GetModelId();
-        SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, modelIdItem, nullptr, 0, 34, modelIdString.c_str(), modelIdString.length(), false, 0, 0));
-        
-        auto intentsArrayRootItem = ai_core_json_builder_item_add(builder, root, 0, "intents");
-        SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, intentsArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
+        Utils::AbiHandle hModel(language_understanding_model__handle_release);
+        SPX_THROW_ON_FAIL(pattern_matching_model_create(&hModel, m_hreco, modelId.c_str()));
 
-        unsigned int index = 0;
-        for (auto& intent : simpleModel->Intents)
+        PATTERN_MATCHING_MODEL_GET_STR_FROM_INDEX vectorGetter = [](void* context, size_t index, const char** phrase, size_t* phraseLen) -> AZACHR
         {
-            auto intentsArrayItem = ai_core_json_builder_item_add(builder, intentsArrayRootItem, index, nullptr);
-            auto intentItem = ai_core_json_builder_item_add(builder, intentsArrayItem, 0, "id");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, intentItem, nullptr, 0, 34, intent.Id.c_str(), intent.Id.length(), false, 0, 0));
-            intentItem = ai_core_json_builder_item_add(builder, intentsArrayItem, 0, "priority");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, intentItem, nullptr, 0, 49, nullptr, 0, false, 0, 0));
-
-            unsigned int phraseIndex = 0;
-            auto phrasesArrayRootItem = ai_core_json_builder_item_add(builder, intentsArrayItem, 0, "phrases");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
-            for (auto& phrase : intent.Phrases)
+            try
             {
-                auto phrasesArrayItem = ai_core_json_builder_item_add(builder, phrasesArrayRootItem, phraseIndex, nullptr);
-                SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayItem, nullptr, 0, 34, phrase.c_str(), phrase.length(), false, 0, 0));
-                phraseIndex++;
+                SPX_RETURN_HR_IF(SPXERR_INVALID_ARG, context == nullptr || phrase == nullptr || phraseLen == nullptr);
+                
+                auto phrases = static_cast<std::vector<std::string>*>(context);
+                SPX_RETURN_HR_IF(SPXERR_OUT_OF_RANGE, index >= phrases->size());
+
+                *phrase = phrases->at(index).c_str();
+                *phraseLen = phrases->at(index).length();
+                return SPX_NOERROR;
             }
-            index++;
+            catch (...)
+            {
+                return SPXERR_UNHANDLED_EXCEPTION;
+            }
+        };
+
+        for (const auto& entity : model->Entities)
+        {
+            SPX_THROW_ON_FAIL(pattern_matching_model_add_entity(
+                hModel,
+                entity.Id.c_str(),
+                (int)entity.Type,
+                (int)entity.Mode,
+                entity.Phrases.size(),
+                (void*)&entity.Phrases,
+                vectorGetter));
         }
 
-        index = 0;
-        auto entitiesArrayRootItem = ai_core_json_builder_item_add(builder, root, 0, "entities");
-        SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitiesArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
-        for (auto& entity : simpleModel->Entities)
+        for (const auto& intent : model->Intents)
         {
-            auto entitiesArrayItem = ai_core_json_builder_item_add(builder, entitiesArrayRootItem, index, nullptr);
-            auto entitityItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "id");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitityItem, nullptr, 0, 34, entity.Id.c_str(), entity.Id.length(), false, 0, 0));
-
-            entitityItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "type");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitityItem, nullptr, 0, 49, nullptr, 0, false, (unsigned int)entity.Type, 0));
-
-            entitityItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "mode");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, entitityItem, nullptr, 0, 49, nullptr, 0, false, (unsigned int)entity.Mode, 0));
-
-            unsigned int phraseIndex = 0;
-            auto phrasesArrayRootItem = ai_core_json_builder_item_add(builder, entitiesArrayItem, 0, "phrases");
-            SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayRootItem, "[]", 2, 91, nullptr, 0, false, 0, 0));
-            for (auto& phrase : entity.Phrases)
-            {
-                auto phrasesArrayItem = ai_core_json_builder_item_add(builder, phrasesArrayRootItem, phraseIndex, nullptr);
-                SPX_THROW_ON_FAIL(ai_core_json_builder_item_set(builder, phrasesArrayItem, nullptr, 0, 34, phrase.c_str(), phrase.length(), false, 0, 0));
-                phraseIndex++;
-            }
-            index++;
+            SPX_THROW_ON_FAIL(pattern_matching_model_add_intent(
+                hModel,
+                intent.Id.c_str(),
+                0, // no priority at the moment so set to 0
+                intent.Phrases.size(),
+                (void*)&intent.Phrases,
+                vectorGetter));
         }
-        auto jsonCharString = ai_core_json_value_as_json_copy(builder, root);
-        ai_core_json_builder_handle_release(builder);
-        return jsonCharString;
+
+        Utils::AbiHandle hTrigger(intent_trigger_handle_release);
+        SPX_THROW_ON_FAIL(intent_trigger_create_from_language_understanding_model(&hTrigger, hModel, ""));
+
+        SPX_THROW_ON_FAIL(intent_recognizer_add_intent_with_model_id(m_hreco, hTrigger, modelId.c_str()));
     }
 
     DISABLE_COPY_AND_MOVE(IntentRecognizer);

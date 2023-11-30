@@ -129,8 +129,10 @@ enum  PropertyId
     PronunciationAssessment_EnableMiscue = 12005,
     PronunciationAssessment_PhonemeAlphabet = 12006,
     PronunciationAssessment_NBestPhonemeCount = 12007,
+    PronunciationAssessment_EnableProsodyAssessment = 12008,
     PronunciationAssessment_Json = 12009,
     PronunciationAssessment_Params = 12010,
+    PronunciationAssessment_ContentTopic = 12020,
     SpeakerRecognition_Api_Version = 13001,
 
     SpeechTranslation_ModelName = 13100,

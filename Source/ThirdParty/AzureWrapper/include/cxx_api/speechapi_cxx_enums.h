@@ -677,6 +677,14 @@ enum class PropertyId
     PronunciationAssessment_NBestPhonemeCount = 12007,
 
     /// <summary>
+    /// Whether to enable prosody assessment.
+    /// Under normal circumstances, you shouldn't have to use this property directly.
+    /// Instead, use <see cref="PronunciationAssessmentConfig::EnableProsodyAssessment"/>.
+    /// Added in version 1.33.0
+    /// </summary>
+    PronunciationAssessment_EnableProsodyAssessment = 12008,
+
+    /// <summary>
     /// The json string of pronunciation assessment parameters
     /// Under normal circumstances, you shouldn't have to use this property directly.
     /// Instead, use <see cref="PronunciationAssessmentConfig::Create"/>.
@@ -690,6 +698,14 @@ enum class PropertyId
     /// Added in version 1.14.0
     /// </summary>
     PronunciationAssessment_Params = 12010,
+
+    /// <summary>
+    /// The content topic of the pronunciation assessment.
+    /// Under normal circumstances, you shouldn't have to use this property directly.
+    /// Instead, use <see cref="PronunciationAssessmentConfig::EnableContentAssessmentWithTopic"/>.
+    /// Added in version 1.33.0
+    /// </summary>
+    PronunciationAssessment_ContentTopic = 12020,
 
     /// <summary>
     /// Speaker Recognition backend API version.

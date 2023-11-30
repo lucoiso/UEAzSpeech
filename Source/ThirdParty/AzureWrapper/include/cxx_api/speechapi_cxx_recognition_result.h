@@ -11,6 +11,7 @@
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_enums.h>
 #include <speechapi_cxx_properties.h>
+#include <speechapi_c_recognizer.h>
 #include <speechapi_c_result.h>
 
 

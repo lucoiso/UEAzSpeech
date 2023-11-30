@@ -155,6 +155,25 @@ public:
     }
 
     /// <summary>
+    /// Enables prosody assessment.
+    /// </summary>
+    /// Added in version 1.33.0.
+    void EnableProsodyAssessment()
+    {
+        property_bag_set_string(m_propertybag, static_cast<int>(PropertyId::PronunciationAssessment_EnableProsodyAssessment), nullptr, "true");
+    }
+
+    /// <summary>
+    /// Enables the content assessment with topic.
+    /// </summary>
+    /// Added in version 1.33.0.
+    /// <param name="contentTopic">The content topic.</param>
+    void EnableContentAssessmentWithTopic(const SPXSTRING& contentTopic)
+    {
+        property_bag_set_string(m_propertybag, static_cast<int>(PropertyId::PronunciationAssessment_ContentTopic), nullptr, Utils::ToUTF8(contentTopic).c_str());
+    }
+
+    /// <summary>
     /// Applies the settings in this config to a Recognizer.
     /// </summary>
     /// <param name="recognizer">The target Recognizer.</param>
