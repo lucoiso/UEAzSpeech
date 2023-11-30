@@ -40,7 +40,7 @@ public:
     const FName GetTaskName() const;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
-    const FAzSpeechSubscriptionOptions GetSubscriptionOptions() const;
+    const FAzSpeechSubscriptionOptions& GetSubscriptionOptions() const;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
     void SetSubscriptionOptions(const FAzSpeechSubscriptionOptions& Options);
@@ -48,6 +48,8 @@ public:
     virtual void SetReadyToDestroy() override;
 
 protected:
+    std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
+
     TUniquePtr<class FAzSpeechRunnableBase> RunnableTask;
     FName TaskName = NAME_None;
 
@@ -118,11 +120,11 @@ class AZSPEECH_API UAzSpeechTaskStatus final : public UBlueprintFunctionLibrary
 
 public:
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
-    static bool IsTaskActive(const UAzSpeechTaskBase* Test);
+    static bool IsTaskActive(const UAzSpeechTaskBase* const Test);
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
-    static bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* Test);
+    static bool IsTaskReadyToDestroy(const UAzSpeechTaskBase* const Test);
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
-    static bool IsTaskStillValid(const UAzSpeechTaskBase* Test);
+    static bool IsTaskStillValid(const UAzSpeechTaskBase* const Test);
 };

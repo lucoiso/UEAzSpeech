@@ -13,7 +13,7 @@ UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_DefaultOptions(UObject* 
     return TextToWavFile_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText, FilePath, FileName);
 }
 
-UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
+UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText, const FString& FilePath, const FString& FileName)
 {
     UTextToWavFileAsync* const NewAsyncTask = NewObject<UTextToWavFileAsync>();
     NewAsyncTask->SynthesisText = SynthesisText;

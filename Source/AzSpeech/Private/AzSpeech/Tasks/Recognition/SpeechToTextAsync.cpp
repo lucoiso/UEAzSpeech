@@ -12,12 +12,12 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText_DefaultOptions(UObject* const WorldContextObject, const FString& Locale, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText_DefaultOptions(UObject* const WorldContextObject, const FString& Locale, const FString& AudioInputDeviceID, const FName& PhraseListGroup)
 {
     return SpeechToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*Locale), AudioInputDeviceID, PhraseListGroup);
 }
 
-USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& AudioInputDeviceID, const FName& PhraseListGroup)
 {
     USpeechToTextAsync* const NewAsyncTask = NewObject<USpeechToTextAsync>();
     NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
@@ -72,8 +72,8 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using audio input device: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
 
-    const auto AudioConfig = IsUsingDefaultAudioInputDevice() ? MicrosoftSpeech::Audio::AudioConfig::FromDefaultMicrophoneInput() : MicrosoftSpeech::Audio::AudioConfig::FromMicrophoneInput(TCHAR_TO_UTF8(*DeviceInfo.GetAudioInputDeviceEndpointID()));
-    StartRecognitionWork(AudioConfig);
+    AudioConfig = IsUsingDefaultAudioInputDevice() ? MicrosoftSpeech::Audio::AudioConfig::FromDefaultMicrophoneInput() : MicrosoftSpeech::Audio::AudioConfig::FromMicrophoneInput(TCHAR_TO_UTF8(*DeviceInfo.GetAudioInputDeviceEndpointID()));
+    StartRecognitionWork();
 
     return true;
 }

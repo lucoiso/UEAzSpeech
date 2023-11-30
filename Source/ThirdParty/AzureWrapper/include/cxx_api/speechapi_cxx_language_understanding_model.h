@@ -88,7 +88,7 @@ public:
     /// Returns id for this model.
     /// </summary>
     /// <returns>An string representing the id of this model.</returns>
-    virtual SPXSTRING GetModelId() { return language_understanding_model_get_model_id(m_hlumodel); }
+    virtual SPXSTRING GetModelId() const { return Utils::ToSPXString(language_understanding_model_get_model_id(m_hlumodel)); }
 
     /// <summary>
     /// Gets the model type.

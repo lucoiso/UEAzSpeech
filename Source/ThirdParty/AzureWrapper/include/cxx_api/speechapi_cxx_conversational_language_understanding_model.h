@@ -42,7 +42,7 @@ namespace Intent {
         /// Returns id for this model. Defaults to projectName-deploymentName.
         /// </summary>
         /// <returns>A string representing the id of this model.</returns>
-        SPXSTRING GetModelId() { return m_modelId; }
+        SPXSTRING GetModelId() const { return m_modelId; }
 
         /// <summary>
         /// Sets the id for this model. Defaults to projectName-deploymentName.

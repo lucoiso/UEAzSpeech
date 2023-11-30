@@ -80,7 +80,7 @@ const FString UAzSpeechSynthesizerTaskBase::GetSynthesisText() const
     return SynthesisText;
 }
 
-const FAzSpeechSynthesisOptions UAzSpeechSynthesizerTaskBase::GetSynthesisOptions() const
+const FAzSpeechSynthesisOptions& UAzSpeechSynthesizerTaskBase::GetSynthesisOptions() const
 {
     return SynthesisOptions;
 }
@@ -143,7 +143,7 @@ const int32 UAzSpeechSynthesizerTaskBase::GetServiceLatency() const
     return ServiceLatency;
 }
 
-void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
+void UAzSpeechSynthesizerTaskBase::StartSynthesisWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
 {
     RunnableTask = MakeUnique<FAzSpeechSynthesisRunnable>(this, InAudioConfig);
 
@@ -190,7 +190,7 @@ void UAzSpeechSynthesizerTaskBase::OnVisemeReceived(const FAzSpeechVisemeData& V
     }
 }
 
-void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult> LastResult)
+void UAzSpeechSynthesizerTaskBase::OnSynthesisUpdate(const std::shared_ptr<MicrosoftSpeech::SpeechSynthesisResult>& LastResult)
 {
     check(IsInGameThread());
 

@@ -13,12 +13,12 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_DefaultOptions(UObject* const WorldContextObject, const FString& FilePath, const FString& FileName, const FString& Locale, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_DefaultOptions(UObject* const WorldContextObject, const FString& FilePath, const FString& FileName, const FString& Locale, const FName& PhraseListGroup)
 {
     return WavFileToText_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*Locale), FilePath, FileName, PhraseListGroup);
 }
 
-UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup)
+UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& FilePath, const FString& FileName, const FName& PhraseListGroup)
 {
     UWavFileToTextAsync* const NewAsyncTask = NewObject<UWavFileToTextAsync>();
     NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
@@ -84,8 +84,8 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
         delete Archive;
     }
 
-    const auto AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromWavFileInput(TCHAR_TO_UTF8(*QualifiedPath));
-    StartRecognitionWork(AudioConfig);
+    AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromWavFileInput(TCHAR_TO_UTF8(*QualifiedPath));
+    StartRecognitionWork();
 
     return true;
 }

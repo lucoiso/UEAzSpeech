@@ -16,7 +16,7 @@ THIRD_PARTY_INCLUDES_END
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-FAzSpeechRecognitionRunnableBase::FAzSpeechRecognitionRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
+FAzSpeechRecognitionRunnableBase::FAzSpeechRecognitionRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig>& InAudioConfig)
     : FAzSpeechRunnableBase(InOwningTask, InAudioConfig)
 {
 }
@@ -38,6 +38,8 @@ void FAzSpeechRecognitionRunnableBase::Exit()
         SpeechRecognizer->Recognizing.DisconnectAll();
         SpeechRecognizer->SessionStarted.DisconnectAll();
     }
+
+    SpeechRecognizer = nullptr;
 }
 
 const bool FAzSpeechRecognitionRunnableBase::IsSpeechRecognizerValid() const
@@ -125,7 +127,7 @@ const MicrosoftSpeech::OutputFormat FAzSpeechRecognitionRunnableBase::GetOutputF
     return MicrosoftSpeech::OutputFormat::Detailed;
 }
 
-const bool FAzSpeechRecognitionRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig> InConfig) const
+const bool FAzSpeechRecognitionRunnableBase::ApplySDKSettings(const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InConfig) const
 {
     if (!FAzSpeechRunnableBase::ApplySDKSettings(InConfig))
     {
@@ -184,7 +186,7 @@ bool FAzSpeechRecognitionRunnableBase::InitializeAzureObject()
     ApplySDKSettings(SpeechConfig);
 
     const auto TaskAudioConfig = GetAudioConfig();
-    if (!SpeechConfig)
+    if (!TaskAudioConfig)
     {
         UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid audio config"), *GetThreadName(), *FString(__func__));
         return false;
@@ -335,7 +337,7 @@ bool FAzSpeechRecognitionRunnableBase::InsertPhraseList() const
     return true;
 }
 
-bool FAzSpeechRecognitionRunnableBase::ProcessRecognitionResult(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult> LastResult)
+bool FAzSpeechRecognitionRunnableBase::ProcessRecognitionResult(const std::shared_ptr<MicrosoftSpeech::SpeechRecognitionResult>& LastResult)
 {
     bool bOutput = true;
 

@@ -12,7 +12,7 @@
 #include <speechapi_cxx_eventsignal.h>
 #include <speechapi_cxx_recognition_result.h>
 #include <speechapi_cxx_session_eventargs.h>
-#include <speechapi_cxx_recognition_base_async_recognizer.h>
+#include <speechapi_cxx_recognition_async_recognizer.h>
 
 namespace Microsoft {
 namespace CognitiveServices {

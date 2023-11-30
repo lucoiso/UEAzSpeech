@@ -13,7 +13,7 @@ USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile_DefaultOptions(UObject* 
     return SSMLToWavFile_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(), SynthesisSSML, FilePath, FileName);
 }
 
-USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
+USSMLToWavFileAsync* USSMLToWavFileAsync::SSMLToWavFile_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisSSML, const FString& FilePath, const FString& FileName)
 {
     USSMLToWavFileAsync* const NewAsyncTask = NewObject<USSMLToWavFileAsync>();
     NewAsyncTask->SynthesisText = SynthesisSSML;

@@ -72,7 +72,7 @@ void UAzSpeechSettings::SetDefaultOptions(const FAzSpeechSettingsOptions& Value)
 }
 
 #if WITH_EDITOR
-void UAzSpeechSettings::PreEditChange(FProperty* PropertyAboutToChange)
+void UAzSpeechSettings::PreEditChange(FProperty* const PropertyAboutToChange)
 {
     Super::PreEditChange(PropertyAboutToChange);
 

@@ -13,7 +13,7 @@ UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_DefaultOptions(UObject* con
     return TextToSpeech_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
 }
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
 {
     UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
     NewAsyncTask->WorldContextObject = WorldContextObject;

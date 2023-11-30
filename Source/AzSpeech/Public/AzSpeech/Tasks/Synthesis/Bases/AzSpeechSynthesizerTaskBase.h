@@ -73,7 +73,7 @@ public:
     const FString GetSynthesisText() const;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
-    const FAzSpeechSynthesisOptions GetSynthesisOptions() const;
+    const FAzSpeechSynthesisOptions& GetSynthesisOptions() const;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
     void SetSynthesisOptions(const FAzSpeechSynthesisOptions& Options);
@@ -104,10 +104,10 @@ protected:
     FString SynthesisText;
     FAzSpeechSynthesisOptions SynthesisOptions;
 
-    void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
+    void StartSynthesisWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
     virtual void OnVisemeReceived(const FAzSpeechVisemeData& VisemeData);
-    virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult> LastResult);
+    virtual void OnSynthesisUpdate(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
 
 private:
     std::vector<uint8_t> AudioData;

@@ -18,12 +18,12 @@ class AZSPEECH_API UWavFileToTextAsync : public UAzSpeechRecognizerTaskBase
 
 public:
     /* Creates a WavFile-To-Text task that will convert your Wav file to string */
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = ".wav File To Text with Default Options"))
-    static UWavFileToTextAsync* WavFileToText_DefaultOptions(UObject* const WorldContextObject, const FString& FilePath, const FString& FileName, const FString& Locale = "Default", const FName PhraseListGroup = NAME_None);
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Default", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = ".wav File To Text with Default Options", AutoCreateRefTerm = "PhraseListGroup"))
+    static UWavFileToTextAsync* WavFileToText_DefaultOptions(UObject* const WorldContextObject, const FString& FilePath, const FString& FileName, const FString& Locale = "Default", const FName& PhraseListGroup = NAME_None);
 
     /* Creates a WavFile-To-Text task that will convert your Wav file to string */
-    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = ".wav File To Text with Custom Options"))
-    static UWavFileToTextAsync* WavFileToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& FilePath, const FString& FileName, const FName PhraseListGroup = NAME_None);
+    UFUNCTION(BlueprintCallable, Category = "AzSpeech | Custom", meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = ".wav File To Text with Custom Options", AutoCreateRefTerm = "PhraseListGroup"))
+    static UWavFileToTextAsync* WavFileToText_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& FilePath, const FString& FileName, const FName& PhraseListGroup = NAME_None);
 
     virtual void Activate() override;
 

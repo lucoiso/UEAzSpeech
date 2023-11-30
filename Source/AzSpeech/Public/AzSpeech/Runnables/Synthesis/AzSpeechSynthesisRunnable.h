@@ -18,7 +18,7 @@ THIRD_PARTY_INCLUDES_END
 {
 public:
     FAzSpeechSynthesisRunnable() = delete;
-    FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
+    FAzSpeechSynthesisRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
 protected:
     // FRunnable interface
@@ -30,14 +30,14 @@ protected:
     const bool IsSpeechSynthesizerValid() const;
     class UAzSpeechSynthesizerTaskBase* GetOwningSynthesizerTask() const;
 
-    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> InConfig) const override;
+    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InConfig) const override;
     virtual bool InitializeAzureObject() override;
 
 private:
     bool ConnectVisemeSignal();
     bool ConnectSynthesisStartedSignal();
     bool ConnectSynthesisUpdateSignals();
-    bool ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult> LastResult);
+    bool ProcessSynthesisResult(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechSynthesisResult>& LastResult);
 
     const Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat GetOutputFormat() const;
 

@@ -121,13 +121,41 @@ typedef struct
 
 #pragma pack(pop)
 
+/// <summary>
+/// Disables built-in input audio processing.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_NONE = 0x00000000;
+/// <summary>
+/// Enables default built-in input audio processing.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT = 0x00000001;
+/// <summary>
+/// Disables dereverberation in the default audio processing pipeline.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_DISABLE_DEREVERBERATION = 0x00000002;
+/// <summary>
+/// Disables noise suppression in the default audio processing pipeline.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_DISABLE_NOISE_SUPPRESSION = 0x00000004;
+/// <summary>
+/// Disables automatic gain control in the default audio processing pipeline.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_DISABLE_GAIN_CONTROL = 0x00000008;
+/// <summary>
+/// Disables echo cancellation in the default audio processing pipeline.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_DISABLE_ECHO_CANCELLATION = 0x00000010;
+/// <summary>
+/// Enables voice activity detection in input audio processing.
+/// </summary>
 const int AUDIO_INPUT_PROCESSING_ENABLE_VOICE_ACTIVITY_DETECTION = 0x00000020;
+/// <summary>
+/// Enables the new version (V2) of input audio processing with improved echo cancellation performance.
+/// This flag is mutually exclusive with AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT flag.
+/// AUDIO_INPUT_PROCESSING_DISABLE_* flags do not affect this pipeline.
+/// This feature is currently in preview and only available for Windows x64 and ARM64 platform.
+/// </summary>
+const int AUDIO_INPUT_PROCESSING_ENABLE_V2 = 0x00000040;
 
 SPXAPI_(bool) audio_processing_options_is_handle_valid(SPXAUDIOPROCESSINGOPTIONSHANDLE hoptions);
 SPXAPI audio_processing_options_create(SPXAUDIOPROCESSINGOPTIONSHANDLE* hoptions, int audioProcessingFlags);

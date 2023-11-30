@@ -27,7 +27,7 @@ USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_DefaultOptions(UOb
     return SSMLToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(), SynthesisSSML);
 }
 
-USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisSSML)
+USSMLToAudioDataAsync* USSMLToAudioDataAsync::SSMLToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisSSML)
 {
     USSMLToAudioDataAsync* const NewAsyncTask = NewObject<USSMLToAudioDataAsync>();
     NewAsyncTask->WorldContextObject = WorldContextObject;

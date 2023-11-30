@@ -24,7 +24,7 @@ class FAzSpeechRunnableBase : public FRunnable
 {
 public:
     FAzSpeechRunnableBase() = delete;
-    FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
+    FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
 
     ~FAzSpeechRunnableBase();
 
@@ -50,11 +50,11 @@ protected:
     std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
     std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig() const;
 
-    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> InSpeechConfig) const;
-    const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> InSpeechConfig) const;
+    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+    const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
 
-    void InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> InSpeechConfig) const;
-    void InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> InSpeechConfig) const;
+    void InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+    void InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
 
     const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason CancellationReason) const;
     void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode ErrorCode, const std::string& ErrorDetails) const;

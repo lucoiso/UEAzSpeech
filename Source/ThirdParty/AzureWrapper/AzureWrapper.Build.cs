@@ -112,8 +112,7 @@ public class AzureWrapper : ModuleRules
                 "libMicrosoft.CognitiveServices.Speech.extension.kws.so",
                 "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so",
                 "libMicrosoft.CognitiveServices.Speech.extension.lu.so",
-                "libMicrosoft.CognitiveServices.Speech.extension.codec.so",
-                "libMicrosoft.CognitiveServices.Speech.extension.mas.so"
+                "libMicrosoft.CognitiveServices.Speech.extension.codec.so"
             });
         }
         else if (Target.Platform == UnrealTargetPlatform.IOS)
@@ -147,7 +146,6 @@ public class AzureWrapper : ModuleRules
                 "Microsoft.CognitiveServices.Speech.extension.kws.dll",
                 "Microsoft.CognitiveServices.Speech.extension.kws.ort.dll",
                 "Microsoft.CognitiveServices.Speech.extension.lu.dll",
-                "Microsoft.CognitiveServices.Speech.extension.mas.dll",
                 "Microsoft.CognitiveServices.Speech.extension.codec.dll"
             });
         }

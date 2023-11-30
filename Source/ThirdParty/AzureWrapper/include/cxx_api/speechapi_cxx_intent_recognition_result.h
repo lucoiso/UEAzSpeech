@@ -12,6 +12,7 @@
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_recognition_result.h>
 #include <speechapi_c.h>
+#include <speechapi_cxx_utils.h>
 
 #include "speechapi_c_json.h"
 
@@ -48,7 +49,7 @@ public:
     /// <remarks>
     /// This currently does not report LUIS entities.
     /// </remarks>
-    const std::map<SPXSTRING, SPXSTRING>& GetEntities()
+    const std::map<SPXSTRING, SPXSTRING>& GetEntities() const
     {
         return m_entities;
     }

@@ -8,6 +8,7 @@
 #include "AzSpeech/Tasks/Bases/AzSpeechTaskBase.h"
 
 THIRD_PARTY_INCLUDES_START
+#include <speechapi_cxx_recognition_base_async_recognizer.h>
 #include <speechapi_cxx_speech_recognition_result.h>
 THIRD_PARTY_INCLUDES_END
 
@@ -44,7 +45,7 @@ public:
     FAzSpeechTaskGenericDelegate RecognitionFailed;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
-    const FAzSpeechRecognitionOptions GetRecognitionOptions() const;
+    const FAzSpeechRecognitionOptions& GetRecognitionOptions() const;
 
     UFUNCTION(BlueprintPure, Category = "AzSpeech")
     void SetRecognitionOptions(const FAzSpeechRecognitionOptions& Options);
@@ -63,10 +64,10 @@ protected:
     FName PhraseListGroup = NAME_None;
     FAzSpeechRecognitionOptions RecognitionOptions;
 
-    virtual void StartRecognitionWork(const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> InAudioConfig);
+    virtual void StartRecognitionWork();
 
     virtual void BroadcastFinalResult() override;
-    virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult> LastResult);
+    virtual void OnRecognitionUpdated(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechRecognitionResult>& LastResult);
 
 private:
     std::string RecognizedText;

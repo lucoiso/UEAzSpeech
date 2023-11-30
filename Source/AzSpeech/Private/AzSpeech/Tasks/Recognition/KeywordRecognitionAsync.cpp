@@ -14,12 +14,12 @@
 
 namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
-UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_DefaultOptions(UObject* const WorldContextObject, const FString& Locale, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_DefaultOptions(UObject* const WorldContextObject, const FString& Locale, const FString& AudioInputDeviceID, const FName& PhraseListGroup)
 {
     return KeywordRecognition_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechRecognitionOptions(*Locale), AudioInputDeviceID, PhraseListGroup);
 }
 
-UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechRecognitionOptions RecognitionOptions, const FString& AudioInputDeviceID, const FName PhraseListGroup)
+UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechRecognitionOptions& RecognitionOptions, const FString& AudioInputDeviceID, const FName& PhraseListGroup)
 {
     UKeywordRecognitionAsync* const NewAsyncTask = NewObject<UKeywordRecognitionAsync>();
     NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
@@ -74,13 +74,13 @@ bool UKeywordRecognitionAsync::StartAzureTaskWork()
 
     UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using audio input device: %s"), *TaskName.ToString(), GetUniqueID(), *FString(__func__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
 
-    const auto AudioConfig = IsUsingDefaultAudioInputDevice() ? MicrosoftSpeech::Audio::AudioConfig::FromDefaultMicrophoneInput() : MicrosoftSpeech::Audio::AudioConfig::FromMicrophoneInput(TCHAR_TO_UTF8(*DeviceInfo.GetAudioInputDeviceEndpointID()));
-    StartRecognitionWork(AudioConfig);
+    AudioConfig = IsUsingDefaultAudioInputDevice() ? MicrosoftSpeech::Audio::AudioConfig::FromDefaultMicrophoneInput() : MicrosoftSpeech::Audio::AudioConfig::FromMicrophoneInput(TCHAR_TO_UTF8(*DeviceInfo.GetAudioInputDeviceEndpointID()));
+    StartRecognitionWork();
 
     return true;
 }
 
-void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> InAudioConfig)
+void UKeywordRecognitionAsync::StartRecognitionWork()
 {
     const FString ModelPath = GetRecognitionOptions().KeywordRecognitionModelPath;
 
@@ -98,7 +98,7 @@ void UKeywordRecognitionAsync::StartRecognitionWork(const std::shared_ptr<Micros
         return;
     }
 
-    RunnableTask = MakeUnique<FAzSpeechKeywordRecognitionRunnable>(this, InAudioConfig, MicrosoftSpeech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
+    RunnableTask = MakeUnique<FAzSpeechKeywordRecognitionRunnable>(this, AudioConfig, MicrosoftSpeech::KeywordRecognitionModel::FromFile(TCHAR_TO_UTF8(*ModelPath)));
     if (!RunnableTask)
     {
         SetReadyToDestroy();

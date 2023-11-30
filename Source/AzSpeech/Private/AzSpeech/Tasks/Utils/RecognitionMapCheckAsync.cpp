@@ -13,7 +13,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(RecognitionMapCheckAsync)
 #endif
 
-URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(UObject* const WorldContextObject, const FString& InString, const FName GroupName, const bool bStopAtFirstTrigger)
+URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(UObject* const WorldContextObject, const FString& InString, const FName& GroupName, const bool bStopAtFirstTrigger)
 {
     URecognitionMapCheckAsync* const NewAsyncTask = NewObject<URecognitionMapCheckAsync>();
     NewAsyncTask->InputString = InString;

@@ -27,7 +27,7 @@ UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_DefaultOptions(UOb
     return TextToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
 }
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions SubscriptionOptions, const FAzSpeechSynthesisOptions SynthesisOptions, const FString& SynthesisText)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
 {
     UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
     NewAsyncTask->WorldContextObject = WorldContextObject;
