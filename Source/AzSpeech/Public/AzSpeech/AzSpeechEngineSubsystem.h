@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAzSpeechTaskRegistrationUpdate, con
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAzSpeechTaskQueueExecutionProgress, const int64, QueueId, const FAzSpeechTaskData, TaskData);
 
 UCLASS(Category = "AzSpeech")
-class UAzSpeechEngineSubsystem : public UEngineSubsystem
+class AZSPEECH_API UAzSpeechEngineSubsystem : public UEngineSubsystem
 {
     GENERATED_BODY()
 
