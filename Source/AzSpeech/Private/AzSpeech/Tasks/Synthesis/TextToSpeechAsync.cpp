@@ -8,22 +8,25 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TextToSpeechAsync)
 #endif
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisText, const FString& Voice, const FString& Locale)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisText,
+                                                                    const FString& Voice, const FString& Locale)
 {
-    return TextToSpeech_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
+	return TextToSpeech_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
 }
 
-UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
+UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_CustomOptions(UObject* const WorldContextObject,
+                                                                   const FAzSpeechSubscriptionOptions& SubscriptionOptions,
+                                                                   const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
 {
-    UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
-    NewAsyncTask->WorldContextObject = WorldContextObject;
-    NewAsyncTask->SynthesisText = SynthesisText;
-    NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
-    NewAsyncTask->SynthesisOptions = SynthesisOptions;
-    NewAsyncTask->bIsSSMLBased = false;
-    NewAsyncTask->TaskName = *FString(__func__);
+	UTextToSpeechAsync* const NewAsyncTask = NewObject<UTextToSpeechAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->SynthesisText = SynthesisText;
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->SynthesisOptions = SynthesisOptions;
+	NewAsyncTask->bIsSSMLBased = false;
+	NewAsyncTask->TaskName = *FString(__func__);
 
-    NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
-    return NewAsyncTask;
+	return NewAsyncTask;
 }

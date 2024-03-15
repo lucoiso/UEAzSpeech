@@ -10,42 +10,43 @@
 class SAzSpeechAudioGenerator final : public SCompoundWidget
 {
 public:
-    SLATE_USER_ARGS(SAzSpeechAudioGenerator)
-        {
-        }
-    SLATE_END_ARGS()
+	SLATE_USER_ARGS(SAzSpeechAudioGenerator)
+		{
+		}
 
-    void Construct(const FArguments& InArgs);
-    void UpdateAvailableVoices();
+	SLATE_END_ARGS()
 
-    FReply HandleGenerateAudioButtonClicked();
-    bool IsGenerationEnabled() const;
+	void Construct(const FArguments& InArgs);
+	void UpdateAvailableVoices();
+
+	FReply HandleGenerateAudioButtonClicked();
+	bool IsGenerationEnabled() const;
 
 private:
-    bool bIsSSMLBased;
-    FString Locale;
-    FString Voice;
-    FString Module;
-    FString RelativePath;
-    FString AssetName;
-    FText SynthesisText;
+	bool bIsSSMLBased;
+	FString Locale;
+	FString Voice;
+	FString Module;
+	FString RelativePath;
+	FString AssetName;
+	FText SynthesisText;
 
-    TSharedPtr<FString> SelectVoice;
-    TSharedPtr<FString> GameModule;
+	TSharedPtr<FString> SelectVoice;
+	TSharedPtr<FString> GameModule;
 
-    TArray<TSharedPtr<FString>> AvailableVoices;
-    TArray<TSharedPtr<FString>> TextTypes;
-    TArray<TSharedPtr<FString>> AvailableModules;
+	TArray<TSharedPtr<FString>> AvailableVoices;
+	TArray<TSharedPtr<FString>> TextTypes;
+	TArray<TSharedPtr<FString>> AvailableModules;
 
-    TSharedPtr<class STextComboBox> VoiceComboBox;
-    TSharedPtr<class SEditableTextBox> PathInput;
-    TSharedPtr<class SEditableTextBox> AssetNameInput;
+	TSharedPtr<class STextComboBox> VoiceComboBox;
+	TSharedPtr<class SEditableTextBox> PathInput;
+	TSharedPtr<class SEditableTextBox> AssetNameInput;
 
-    TSharedRef<SWidget> ConstructContent();
+	TSharedRef<SWidget> ConstructContent();
 
-    TArray<TSharedPtr<FString>> GetStringArrayAsSharedPtr(const TArray<FString>& Input) const;
-    TArray<TSharedPtr<FString>> GetAvailableContentModules() const;
+	TArray<TSharedPtr<FString>> GetStringArrayAsSharedPtr(const TArray<FString>& Input) const;
+	TArray<TSharedPtr<FString>> GetAvailableContentModules() const;
 
-    void OnAvailableVoicesChanged(const TArray<FString>& Voices);
-    void OnFileInfoCommited(const FText& InText, FString& Member, TSharedPtr<SEditableTextBox>& InputRef);
+	void OnAvailableVoicesChanged(const TArray<FString>& Voices);
+	void OnFileInfoCommited(const FText& InText, FString& Member, TSharedPtr<SEditableTextBox>& InputRef);
 };

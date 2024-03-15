@@ -9,11 +9,11 @@
 class FAzSpeechEditorModule : public IModuleInterface
 {
 protected:
-    virtual void StartupModule() override;
-    virtual void ShutdownModule() override;
+	virtual void StartupModule() override;
+	virtual void ShutdownModule() override;
 
-    TSharedRef<SDockTab> OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs) const;
+	TSharedRef<SDockTab> OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs) const;
 
 private:
-    void RegisterMenus();
+	void RegisterMenus();
 };

@@ -10,14 +10,17 @@
 USTRUCT(BlueprintType, Category = "AzSpeech")
 struct AZSPEECH_API FAzSpeechTaskData
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    FAzSpeechTaskData() = default;
-    FAzSpeechTaskData(const int64 InID, UClass* const InClass) : UniqueID(InID), Class(InClass) {}
+	FAzSpeechTaskData() = default;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-    int64 UniqueID;
+	FAzSpeechTaskData(const int64 InID, UClass* const InClass) : UniqueID(InID), Class(InClass)
+	{
+	}
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-    UClass* Class;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	int64 UniqueID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	UClass* Class;
 };

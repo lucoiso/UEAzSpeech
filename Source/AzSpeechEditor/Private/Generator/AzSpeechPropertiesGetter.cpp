@@ -14,27 +14,27 @@ UAzSpeechPropertiesGetter::UAzSpeechPropertiesGetter(const FObjectInitializer& O
 
 void UAzSpeechPropertiesGetter::OnAvailableVoicesChanged(const TArray<FString>& Voices)
 {
-    OnAvailableVoicesUpdated.ExecuteIfBound(Voices);
-    Destroy();
+	OnAvailableVoicesUpdated.ExecuteIfBound(Voices);
+	Destroy();
 }
 
 void UAzSpeechPropertiesGetter::SynthesisCompleted(const TArray<uint8>& AudioData)
 {
-    OnAudioDataGenerated.ExecuteIfBound(AudioData);
-    Destroy();
+	OnAudioDataGenerated.ExecuteIfBound(AudioData);
+	Destroy();
 }
 
 void UAzSpeechPropertiesGetter::TaskFail()
 {
-    Destroy();
+	Destroy();
 }
 
 void UAzSpeechPropertiesGetter::Destroy()
 {
-    ClearFlags(RF_Standalone);
+	ClearFlags(RF_Standalone);
 
 #if ENGINE_MAJOR_VERSION >= 5
-    MarkAsGarbage();
+	MarkAsGarbage();
 #else
     MarkPendingKill();
 #endif

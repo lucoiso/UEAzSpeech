@@ -13,18 +13,18 @@ namespace MicrosoftSpeech = Microsoft::CognitiveServices::Speech;
 
 bool UAzSpeechAudioDataSynthesisBase::StartAzureTaskWork()
 {
-    if (!Super::StartAzureTaskWork())
-    {
-        return false;
-    }
+	if (!Super::StartAzureTaskWork())
+	{
+		return false;
+	}
 
-    if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
-    {
-        return false;
-    }
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText))
+	{
+		return false;
+	}
 
-    AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromStreamOutput(MicrosoftSpeech::Audio::AudioOutputStream::CreatePullStream());
-    StartSynthesisWork(AudioConfig);
+	auto AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromStreamOutput(MicrosoftSpeech::Audio::AudioOutputStream::CreatePullStream());
+	StartSynthesisWork(std::move(AudioConfig));
 
-    return true;
+	return true;
 }
