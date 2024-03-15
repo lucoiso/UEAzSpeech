@@ -24,75 +24,79 @@ void UAzSpeechWavFileSynthesisBase::Activate()
     }
 #endif
 
-    Super::Activate();
+	Super::Activate();
 }
 
 void UAzSpeechWavFileSynthesisBase::SetReadyToDestroy()
 {
-    if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
-    {
-        return;
-    }
+	if (UAzSpeechTaskStatus::IsTaskReadyToDestroy(this))
+	{
+		return;
+	}
 
-    Super::SetReadyToDestroy();
+	Super::SetReadyToDestroy();
 
-    const FString Full_FileName = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
+	const FString Full_FileName = UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName);
 
-    if (IsLastResultValid() && IFileManager::Get().FileSize(*Full_FileName) > 0)
-    {
-        return;
-    }
+	if (IsLastResultValid() && IFileManager::Get().FileSize(*Full_FileName) > 0)
+	{
+		return;
+	}
 
-    // If the task was cancelled due to SDK errors, we need to delete the generated invalid file
-    if (IFileManager::Get().FileExists(*Full_FileName))
-    {
-        const bool bDeleteResult = IFileManager::Get().Delete(*Full_FileName);
+	// If the task was cancelled due to SDK errors, we need to delete the generated invalid file
+	if (IFileManager::Get().FileExists(*Full_FileName))
+	{
+		const bool bDeleteResult = IFileManager::Get().Delete(*Full_FileName);
 
-        if (bDeleteResult)
-        {
-            UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: File '%s' deleted successfully."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
-        }
-        else
-        {
-            UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' could not be deleted."), *TaskName.ToString(), GetUniqueID(), *FString(__func__), *Full_FileName);
-        }
-    }
+		if (bDeleteResult)
+		{
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: File '%s' deleted successfully."), *TaskName.ToString(),
+			       GetUniqueID(), *FString(__func__), *Full_FileName);
+		}
+		else
+		{
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' could not be deleted."), *TaskName.ToString(),
+			       GetUniqueID(), *FString(__func__), *Full_FileName);
+		}
+	}
 }
 
 void UAzSpeechWavFileSynthesisBase::BroadcastFinalResult()
 {
-    FScopeLock Lock(&Mutex);
+	FScopeLock Lock(&Mutex);
 
-    if (!UAzSpeechTaskStatus::IsTaskActive(this))
-    {
-        return;
-    }
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
+	{
+		return;
+	}
 
-    Super::BroadcastFinalResult();
-    SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
+	Super::BroadcastFinalResult();
+	SynthesisCompleted.Broadcast(IsLastResultValid() && UAzSpeechHelper::IsAudioDataValid(GetAudioData()));
 
-    SetReadyToDestroy();
+	SetReadyToDestroy();
 }
 
 bool UAzSpeechWavFileSynthesisBase::StartAzureTaskWork()
 {
-    if (!Super::StartAzureTaskWork())
-    {
-        return false;
-    }
+	if (!Super::StartAzureTaskWork())
+	{
+		return false;
+	}
 
-    if (AzSpeech::Internal::HasEmptyParam(SynthesisText, FilePath, FileName) || (!bIsSSMLBased && AzSpeech::Internal::HasEmptyParam(GetSynthesisOptions().Voice, GetSynthesisOptions().Locale)))
-    {
-        return false;
-    }
+	if (AzSpeech::Internal::HasEmptyParam(SynthesisText, FilePath, FileName) || (!bIsSSMLBased && AzSpeech::Internal::HasEmptyParam(
+		GetSynthesisOptions().Voice, GetSynthesisOptions().Locale)))
+	{
+		return false;
+	}
 
-    if (!UAzSpeechHelper::CreateNewDirectory(FilePath))
-    {
-        return false;
-    }
+	if (!UAzSpeechHelper::CreateNewDirectory(FilePath))
+	{
+		return false;
+	}
 
-    AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromWavFileOutput(TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName)));
-    StartSynthesisWork(AudioConfig);
+	auto AudioConfig = MicrosoftSpeech::Audio::AudioConfig::FromWavFileOutput(
+		TCHAR_TO_UTF8(*UAzSpeechHelper::QualifyWAVFileName(FilePath, FileName)));
+	StartSynthesisWork(std::move(AudioConfig));
 
-    return true;
+	return true;
 }

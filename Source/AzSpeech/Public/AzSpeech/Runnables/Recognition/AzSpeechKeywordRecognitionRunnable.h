@@ -14,17 +14,19 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-    class FAzSpeechKeywordRecognitionRunnable : public FAzSpeechRecognitionRunnableBase
+class FAzSpeechKeywordRecognitionRunnable : public FAzSpeechRecognitionRunnableBase
 {
 public:
-    FAzSpeechKeywordRecognitionRunnable() = delete;
-    FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig, const std::shared_ptr<Microsoft::CognitiveServices::Speech::KeywordRecognitionModel>& InModel = nullptr);
+	FAzSpeechKeywordRecognitionRunnable() = delete;
+	FAzSpeechKeywordRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask,
+	                                    std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>&& InAudioConfig,
+	                                    const std::shared_ptr<Microsoft::CognitiveServices::Speech::KeywordRecognitionModel>& InModel = nullptr);
 
 protected:
-    // FRunnable interface
-    virtual uint32 Run() override;
-    // End of FRunnable interface
+	// FRunnable interface
+	virtual uint32 Run() override;
+	// End of FRunnable interface
 
 private:
-    std::shared_ptr<Microsoft::CognitiveServices::Speech::KeywordRecognitionModel> Model;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::KeywordRecognitionModel> Model;
 };

@@ -10,25 +10,26 @@
 USTRUCT(BlueprintType, Category = "AzSpeech")
 struct AZSPEECH_API FAzSpeechVisemeData
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    FAzSpeechVisemeData() = default;
+	FAzSpeechVisemeData() = default;
 
-    FAzSpeechVisemeData(const int32 InVisemeID, const int64 InAudioOffsetMilliseconds, const FString& InAnimation) : VisemeID(InVisemeID), AudioOffsetMilliseconds(InAudioOffsetMilliseconds), Animation(InAnimation)
-    {
-    }
+	FAzSpeechVisemeData(const int32 InVisemeID, const int64 InAudioOffsetMilliseconds, const FString& InAnimation) : VisemeID(InVisemeID),
+		AudioOffsetMilliseconds(InAudioOffsetMilliseconds), Animation(InAnimation)
+	{
+	}
 
-    const bool IsValid() const
-    {
-        return VisemeID != -1 && AudioOffsetMilliseconds != -1;
-    }
+	const bool IsValid() const
+	{
+		return VisemeID != -1 && AudioOffsetMilliseconds != -1;
+	}
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-    int32 VisemeID = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	int32 VisemeID = -1;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-    int64 AudioOffsetMilliseconds = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	int64 AudioOffsetMilliseconds = -1;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-    FString Animation = FString();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
+	FString Animation = FString();
 };

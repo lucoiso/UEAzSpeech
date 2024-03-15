@@ -14,22 +14,22 @@ DECLARE_DELEGATE_OneParam(FAudioDataGenerated, TArray<uint8>);
 UCLASS(MinimalAPI, NotBlueprintable, NotPlaceable, Category = "Implementation")
 class UAzSpeechPropertiesGetter : public UObject
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    explicit UAzSpeechPropertiesGetter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	explicit UAzSpeechPropertiesGetter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-    FAvailableVoicesUpdated OnAvailableVoicesUpdated;
-    FAudioDataGenerated OnAudioDataGenerated;
+	FAvailableVoicesUpdated OnAvailableVoicesUpdated;
+	FAudioDataGenerated OnAudioDataGenerated;
 
-    UFUNCTION()
-    void OnAvailableVoicesChanged(const TArray<FString>& Voices);
+	UFUNCTION()
+	void OnAvailableVoicesChanged(const TArray<FString>& Voices);
 
-    UFUNCTION()
-    void SynthesisCompleted(const TArray<uint8>& AudioData);
+	UFUNCTION()
+	void SynthesisCompleted(const TArray<uint8>& AudioData);
 
-    UFUNCTION()
-    void TaskFail();
+	UFUNCTION()
+	void TaskFail();
 
-    void Destroy();
+	void Destroy();
 };

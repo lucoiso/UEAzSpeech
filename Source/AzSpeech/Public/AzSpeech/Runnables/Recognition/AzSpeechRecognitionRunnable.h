@@ -14,14 +14,15 @@ THIRD_PARTY_INCLUDES_END
 /**
  *
  */
-    class FAzSpeechRecognitionRunnable : public FAzSpeechRecognitionRunnableBase
+class FAzSpeechRecognitionRunnable : public FAzSpeechRecognitionRunnableBase
 {
 public:
-    FAzSpeechRecognitionRunnable() = delete;
-    FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+	FAzSpeechRecognitionRunnable() = delete;
+	FAzSpeechRecognitionRunnable(UAzSpeechTaskBase* const InOwningTask,
+	                             std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>&& InAudioConfig);
 
 protected:
-    // FRunnable interface
-    virtual uint32 Run() override;
-    // End of FRunnable interface
+	// FRunnable interface
+	virtual uint32 Run() override;
+	// End of FRunnable interface
 };

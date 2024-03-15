@@ -7,39 +7,36 @@ using UnrealBuildTool;
 
 public class AzSpeech : ModuleRules
 {
-    public AzSpeech(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-        CppStandard = CppStandardVersion.Cpp17;
-        bEnableExceptions = true;
+	public AzSpeech(ReadOnlyTargetRules Target) : base(Target)
+	{
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		CppStandard = CppStandardVersion.Cpp17;
+		bEnableExceptions = true;
 
-        PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
-        PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
+		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
-        PublicDependencyModuleNames.AddRange(new[]
-        {
-            "Core",
-            "AzureWrapper"
-        });
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core",
+			"AzureWrapper"
+		});
 
-        PrivateDependencyModuleNames.AddRange(new[]
-        {
-            "Engine",
-            "CoreUObject",
-            "Projects",
-            "AndroidPermission",
-            "DeveloperSettings",
-            "AudioCaptureCore",
-            "AssetRegistry",
-            "Projects",
-            "Json"
-        });
+		PrivateDependencyModuleNames.AddRange(new[]
+		{
+			"Engine",
+			"CoreUObject",
+			"Projects",
+			"AndroidPermission",
+			"DeveloperSettings",
+			"AudioCaptureCore",
+			"AssetRegistry",
+			"Projects",
+			"Json"
+		});
 
-        if (Target.bBuildEditor)
-        {
-            PrivateDependencyModuleNames.Add("UnrealEd");
-        }
+		if (Target.bBuildEditor) PrivateDependencyModuleNames.Add("UnrealEd");
 
-        PrivateIncludePathModuleNames.Add("DesktopPlatform");
-    }
+		PrivateIncludePathModuleNames.Add("DesktopPlatform");
+	}
 }

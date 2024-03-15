@@ -15,44 +15,50 @@
 #if WITH_EDITOR
 UTextToAudioDataAsync* UTextToAudioDataAsync::EditorTask(const FString& SynthesisText, const FString& Voice, const FString& Locale)
 {
-    UTextToAudioDataAsync* const NewAsyncTask = TextToAudioData_DefaultOptions(GEditor->GetEditorWorldContext().World(), SynthesisText, Voice, Locale);
-    NewAsyncTask->bIsEditorTask = true;
+	UTextToAudioDataAsync* const NewAsyncTask = TextToAudioData_DefaultOptions(
+		GEditor->GetEditorWorldContext().World(), SynthesisText, Voice, Locale);
+	NewAsyncTask->bIsEditorTask = true;
 
-    return NewAsyncTask;
+	return NewAsyncTask;
 }
 #endif
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisText, const FString& Voice, const FString& Locale)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_DefaultOptions(UObject* const WorldContextObject, const FString& SynthesisText,
+                                                                             const FString& Voice, const FString& Locale)
 {
-    return TextToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice), SynthesisText);
+	return TextToAudioData_CustomOptions(WorldContextObject, FAzSpeechSubscriptionOptions(), FAzSpeechSynthesisOptions(*Locale, *Voice),
+	                                     SynthesisText);
 }
 
-UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* const WorldContextObject, const FAzSpeechSubscriptionOptions& SubscriptionOptions, const FAzSpeechSynthesisOptions& SynthesisOptions, const FString& SynthesisText)
+UTextToAudioDataAsync* UTextToAudioDataAsync::TextToAudioData_CustomOptions(UObject* const WorldContextObject,
+                                                                            const FAzSpeechSubscriptionOptions& SubscriptionOptions,
+                                                                            const FAzSpeechSynthesisOptions& SynthesisOptions,
+                                                                            const FString& SynthesisText)
 {
-    UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
-    NewAsyncTask->WorldContextObject = WorldContextObject;
-    NewAsyncTask->SynthesisText = SynthesisText;
-    NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
-    NewAsyncTask->SynthesisOptions = SynthesisOptions;
-    NewAsyncTask->bIsSSMLBased = false;
-    NewAsyncTask->TaskName = *FString(__func__);
+	UTextToAudioDataAsync* const NewAsyncTask = NewObject<UTextToAudioDataAsync>();
+	NewAsyncTask->WorldContextObject = WorldContextObject;
+	NewAsyncTask->SynthesisText = SynthesisText;
+	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
+	NewAsyncTask->SynthesisOptions = SynthesisOptions;
+	NewAsyncTask->bIsSSMLBased = false;
+	NewAsyncTask->TaskName = *FString(__func__);
 
-    NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
+	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
-    return NewAsyncTask;
+	return NewAsyncTask;
 }
 
 void UTextToAudioDataAsync::BroadcastFinalResult()
 {
-    FScopeLock Lock(&Mutex);
+	FScopeLock Lock(&Mutex);
 
-    if (!UAzSpeechTaskStatus::IsTaskActive(this))
-    {
-        return;
-    }
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
+	{
+		return;
+	}
 
-    Super::BroadcastFinalResult();
-    SynthesisCompleted.Broadcast(GetAudioData());
+	Super::BroadcastFinalResult();
+	SynthesisCompleted.Broadcast(GetAudioData());
 
-    SetReadyToDestroy();
+	SetReadyToDestroy();
 }

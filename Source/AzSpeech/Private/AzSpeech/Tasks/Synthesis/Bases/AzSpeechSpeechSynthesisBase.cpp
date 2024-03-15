@@ -16,90 +16,88 @@
 
 void UAzSpeechSpeechSynthesisBase::StopAzSpeechTask()
 {
-    Super::StopAzSpeechTask();
+	Super::StopAzSpeechTask();
 
-    if (!AudioComponent.IsValid())
-    {
-        return;
-    }
+	if (!AudioComponent.IsValid())
+	{
+		return;
+	}
 
-    if (AudioComponent->IsPlaying())
-    {
-        AudioComponent->Stop();
-    }
+	if (AudioComponent->IsPlaying())
+	{
+		AudioComponent->Stop();
+	}
 
-    AudioComponent->DestroyComponent();
-    AudioComponent.Reset();
+	AudioComponent->DestroyComponent();
+	AudioComponent.Reset();
 }
 
 void UAzSpeechSpeechSynthesisBase::SetReadyToDestroy()
 {
-    // Only set as ready to destroy after the sound stop playing normally or the user ask to stop
-    if (AudioComponent.IsValid() && AudioComponent->IsPlaying())
-    {
-        return;
-    }
+	// Only set as ready to destroy after the sound stop playing normally or the user ask to stop
+	if (AudioComponent.IsValid() && AudioComponent->IsPlaying())
+	{
+		return;
+	}
 
-    Super::SetReadyToDestroy();
+	Super::SetReadyToDestroy();
 }
 
 void UAzSpeechSpeechSynthesisBase::BroadcastFinalResult()
 {
-    FScopeLock Lock(&Mutex);
+	FScopeLock Lock(&Mutex);
 
-    if (!UAzSpeechTaskStatus::IsTaskActive(this))
-    {
-        return;
-    }
+	if (!UAzSpeechTaskStatus::IsTaskActive(this))
+	{
+		return;
+	}
 
-    Super::BroadcastFinalResult();
+	Super::BroadcastFinalResult();
 
-    AsyncTask(ENamedThreads::GameThread,
-        [this]
-        {
-            if (bAutoPlayAudio)
-            {
-                PlayAudio();
-            }
+	AsyncTask(ENamedThreads::GameThread, [this]
+	{
+		if (bAutoPlayAudio)
+		{
+			PlayAudio();
+		}
 
-            SynthesisCompleted.Broadcast(IsLastResultValid());
-        }
-    );
+		SynthesisCompleted.Broadcast(IsLastResultValid());
+	});
 }
 
 void UAzSpeechSpeechSynthesisBase::OnAudioPlayStateChanged(const EAudioComponentPlayState PlayState)
 {
-    FScopeLock Lock(&Mutex);
+	FScopeLock Lock(&Mutex);
 
-    if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
-    {
-        return;
-    }
+	if (!UAzSpeechTaskStatus::IsTaskStillValid(this))
+	{
+		return;
+	}
 
-    if (PlayState == EAudioComponentPlayState::Stopped)
-    {
-        InternalAudioFinished.ExecuteIfBound(FAzSpeechTaskData{ GetUniqueID(), GetClass() });
-        InternalAudioFinished.Unbind();
+	if (PlayState == EAudioComponentPlayState::Stopped)
+	{
+		InternalAudioFinished.ExecuteIfBound(FAzSpeechTaskData{GetUniqueID(), GetClass()});
+		InternalAudioFinished.Unbind();
 
-        SetReadyToDestroy();
-    }
+		SetReadyToDestroy();
+	}
 }
 
 void UAzSpeechSpeechSynthesisBase::PlayAudio()
 {
-    check(IsInGameThread());
+	check(IsInGameThread());
 
-    AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject.Get(), UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
+	AudioComponent = UGameplayStatics::CreateSound2D(WorldContextObject.Get(), UAzSpeechHelper::ConvertAudioDataToSoundWave(GetAudioData()));
 
-    if (!AudioComponent.IsValid())
-    {
-        SetReadyToDestroy();
-        return;
-    }
+	if (!AudioComponent.IsValid())
+	{
+		SetReadyToDestroy();
+		return;
+	}
 
-    FScriptDelegate UniqueDelegate_AudioStateChanged;
-    UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
-    AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
+	FScriptDelegate UniqueDelegate_AudioStateChanged;
+	UniqueDelegate_AudioStateChanged.BindUFunction(this, TEXT("OnAudioPlayStateChanged"));
+	AudioComponent->OnAudioPlayStateChanged.AddUnique(UniqueDelegate_AudioStateChanged);
 
-    AudioComponent->Play();
+	AudioComponent->Play();
 }

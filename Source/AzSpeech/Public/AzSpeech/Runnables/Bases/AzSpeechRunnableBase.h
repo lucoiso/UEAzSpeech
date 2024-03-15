@@ -23,56 +23,59 @@ class UAzSpeechTaskBase;
 class FAzSpeechRunnableBase : public FRunnable
 {
 public:
-    FAzSpeechRunnableBase() = delete;
-    FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask, const std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>& InAudioConfig);
+	FAzSpeechRunnableBase() = delete;
+	FAzSpeechRunnableBase(UAzSpeechTaskBase* const InOwningTask,
+	                      std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig>&& InAudioConfig);
 
-    ~FAzSpeechRunnableBase();
+	virtual ~FAzSpeechRunnableBase() override;
 
-    void StartAzSpeechRunnableTask();
-    void StopAzSpeechRunnableTask();
+	void StartAzSpeechRunnableTask();
+	void StopAzSpeechRunnableTask();
 
-    bool IsRunning() const;
-    bool IsPendingStop() const;
+	bool IsRunning() const;
+	bool IsPendingStop() const;
 
 protected:
-    // FRunnable interface
-    virtual bool Init() override;
-    virtual uint32 Run() override;
-    virtual void Stop() override;
-    virtual void Exit() override;
-    // End of FRunnable interface
+	// FRunnable interface
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+	// End of FRunnable interface
 
-    UAzSpeechTaskBase* GetOwningTask() const;
-    const std::chrono::seconds GetTaskTimeout() const;
-    virtual bool InitializeAzureObject();
-    virtual bool CanInitializeTask() const;
+	UAzSpeechTaskBase* GetOwningTask() const;
+	const std::chrono::seconds GetTaskTimeout() const;
+	virtual bool InitializeAzureObject();
+	virtual bool CanInitializeTask() const;
 
-    std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
-    std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig() const;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> GetAudioConfig() const;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig> CreateSpeechConfig() const;
 
-    virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
-    const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+	virtual const bool ApplySDKSettings(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+	const bool EnableLogInConfiguration(const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
 
-    void InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
-    void InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode, const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+	void InsertProfanityFilterProperty(const EAzSpeechProfanityFilter Mode,
+	                                   const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
+	void InsertLanguageIdentificationProperty(const EAzSpeechLanguageIdentificationMode Mode,
+	                                          const std::shared_ptr<Microsoft::CognitiveServices::Speech::SpeechConfig>& InSpeechConfig) const;
 
-    const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason CancellationReason) const;
-    void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode ErrorCode, const std::string& ErrorDetails) const;
+	const FString CancellationReasonToString(const Microsoft::CognitiveServices::Speech::CancellationReason CancellationReason) const;
+	void ProcessCancellationError(const Microsoft::CognitiveServices::Speech::CancellationErrorCode ErrorCode, const std::string& ErrorDetails) const;
 
-    const EThreadPriority GetCPUThreadPriority() const;
-    const float GetThreadUpdateInterval() const;
-    const int32 GetTimeout() const;
-    const FString GetThreadName() const;
+	const EThreadPriority GetCPUThreadPriority() const;
+	const float GetThreadUpdateInterval() const;
+	const int32 GetTimeout() const;
+	const FString GetThreadName() const;
 
 private:
-    FName ThreadName;
-    void StoreThreadInformation();
+	FName ThreadName;
+	void StoreThreadInformation();
 
-    bool bStopTask = false;
-    TUniquePtr<FRunnableThread> Thread;
-    TWeakObjectPtr<UAzSpeechTaskBase> OwningTask;
-    std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
+	bool bStopTask = false;
+	TUniquePtr<FRunnableThread> Thread;
+	TWeakObjectPtr<UAzSpeechTaskBase> OwningTask;
+	std::shared_ptr<Microsoft::CognitiveServices::Speech::Audio::AudioConfig> AudioConfig;
 
 protected:
-    mutable FCriticalSection Mutex;
+	mutable FCriticalSection Mutex;
 };

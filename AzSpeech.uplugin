@@ -1,45 +1,45 @@
 {
-	"FileVersion": 3,
-	"Version": 33,
-	"VersionName": "1.6.16",
-	"FriendlyName": "AzSpeech - Voice and Text",
-	"Description": "Integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.",
-	"Category": "Game Features",
-	"CreatedBy": "Lucas Vilas-Boas",
-	"CreatedByURL": "https://github.com/lucoiso",
-	"DocsURL": "https://github.com/lucoiso/UEAzSpeech/wiki",
-	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/94ad3e51c6f443718cdb312b48742bb3",
-	"SupportURL": "https://github.com/lucoiso/UEAzSpeech/issues",
-	"CanContainContent": false,
-	"IsBetaVersion": true,
-	"IsExperimentalVersion": false,
-	"Installed": false,
-	"Modules": [
-		{
-			"Name": "AzSpeech",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Android"
-			]
-		},
-		{
-			"Name": "AzSpeechEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Mac",
-				"Linux"
-			]
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "AndroidPermission",
-			"Enabled": true,
-			"Optional": true
-		}
-	]
+  "FileVersion": 3,
+  "Version": 34,
+  "VersionName": "1.6.17",
+  "FriendlyName": "AzSpeech - Voice and Text",
+  "Description": "Integrates Azure Speech Cognitive Services into the Engine by adding functions to perform recognition and synthesis via asynchronous tasks.",
+  "Category": "Game Features",
+  "CreatedBy": "Lucas Vilas-Boas",
+  "CreatedByURL": "https://github.com/lucoiso",
+  "DocsURL": "https://github.com/lucoiso/UEAzSpeech/wiki",
+  "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/94ad3e51c6f443718cdb312b48742bb3",
+  "SupportURL": "https://github.com/lucoiso/UEAzSpeech/issues",
+  "CanContainContent": false,
+  "IsBetaVersion": true,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "AzSpeech",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Android"
+      ]
+    },
+    {
+      "Name": "AzSpeechEditor",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Mac",
+        "Linux"
+      ]
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "AndroidPermission",
+      "Enabled": true,
+      "Optional": true
+    }
+  ]
 }
