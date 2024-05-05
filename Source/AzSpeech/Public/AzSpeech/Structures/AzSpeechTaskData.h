@@ -19,7 +19,7 @@ struct AZSPEECH_API FAzSpeechTaskData
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
-	int64 UniqueID;
+	int64 UniqueID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
 	UClass* Class;

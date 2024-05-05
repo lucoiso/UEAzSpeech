@@ -12,9 +12,7 @@ struct AZSPEECH_API FAzSpeechRecognitionData
 {
 	GENERATED_BODY()
 
-	FAzSpeechRecognitionData() : Value(0), Weight(1)
-	{
-	};
+	FAzSpeechRecognitionData() = default;
 
 	FAzSpeechRecognitionData(const int32 InValue) : Value(InValue)
 	{
@@ -30,7 +28,7 @@ struct AZSPEECH_API FAzSpeechRecognitionData
 
 	/* Weight property to use in recognition checks */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech", Meta = (ClampMin = "1", UIMin = "1"))
-	int32 Weight = 0;
+	int32 Weight = 1;
 
 	/* Keys that will define if this recognition data is a good match */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
@@ -51,9 +49,7 @@ struct AZSPEECH_API FAzSpeechRecognitionMap
 {
 	GENERATED_BODY()
 
-	FAzSpeechRecognitionMap() : GroupName(NAME_None)
-	{
-	};
+	FAzSpeechRecognitionMap() = default;
 
 	/* The name of this recognition data group */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech")
