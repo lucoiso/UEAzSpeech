@@ -39,7 +39,7 @@ void UAzSpeechTaskBase::Activate()
 	SubscriptionOptions.SyncEndpointWithRegion();
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	bIsTaskActive = true;
 
@@ -48,7 +48,7 @@ void UAzSpeechTaskBase::Activate()
 	if (!StartAzureTaskWork())
 	{
 		UE_LOG(LogAzSpeech, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to activate task"), *TaskName.ToString(), GetUniqueID(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 		SetReadyToDestroy();
 
 		return;
@@ -81,7 +81,7 @@ void UAzSpeechTaskBase::StopAzSpeechTask()
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Stopping task"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 	bIsTaskActive = false;
 
 	if (RunnableTask.IsValid())
@@ -107,7 +107,7 @@ void UAzSpeechTaskBase::SetSubscriptionOptions(const FAzSpeechSubscriptionOption
 	if (UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Can't change the options while the task is active."),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__));
 		return;
 	}
 
@@ -132,7 +132,7 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 	bIsReadyToDestroy = true;
 
 #if WITH_EDITOR
@@ -164,7 +164,7 @@ void UAzSpeechTaskBase::SetReadyToDestroy()
 bool UAzSpeechTaskBase::StartAzureTaskWork()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Starting Azure SDK task"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	return UAzSpeechTaskStatus::IsTaskStillValid(this);
 }
@@ -184,7 +184,7 @@ void UAzSpeechTaskBase::BroadcastFinalResult()
 	InternalOnTaskFinished.Unbind();
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed, broadcasting final result"),
-	       *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+	       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__));
 
 	bIsTaskActive = false;
 }
@@ -198,7 +198,7 @@ void UAzSpeechTaskBase::PrePIEEnded(bool bIsSimulating)
 	}
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Trying to finish task due to PIE end"), *TaskName.ToString(),
-	       GetUniqueID(), *FString(__func__));
+	       GetUniqueID(), *FString(__FUNCTION__));
 
 	bEndingPIE = true;
 	StopAzSpeechTask();

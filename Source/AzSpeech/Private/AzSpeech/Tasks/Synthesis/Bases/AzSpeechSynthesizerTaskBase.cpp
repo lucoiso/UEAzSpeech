@@ -26,7 +26,7 @@ const FAzSpeechVisemeData UAzSpeechSynthesizerTaskBase::GetLastVisemeData() cons
 	if (AzSpeech::Internal::HasEmptyParam(VisemeDataArray))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Viseme data is empty"), *TaskName.ToString(), GetUniqueID(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 		return FAzSpeechVisemeData();
 	}
 
@@ -91,7 +91,7 @@ void UAzSpeechSynthesizerTaskBase::SetSynthesisOptions(const FAzSpeechSynthesisO
 	if (UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Can't change the options while the task is active."),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__));
 		return;
 	}
 

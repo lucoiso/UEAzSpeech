@@ -21,7 +21,7 @@ uint32 FAzSpeechKeywordRecognitionRunnable::Run()
 {
 	if (FAzSpeechRecognitionRunnableBase::Run() == 0u)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__FUNCTION__));
 		return 0u;
 	}
 
@@ -32,7 +32,7 @@ uint32 FAzSpeechKeywordRecognitionRunnable::Run()
 
 	if (!Model)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Model is invalid"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Model is invalid"), *GetThreadName(), *FString(__FUNCTION__));
 		return 0u;
 	}
 
@@ -44,15 +44,15 @@ uint32 FAzSpeechKeywordRecognitionRunnable::Run()
 
 	const std::future<void> Future = SpeechRecognizer->StartKeywordRecognitionAsync(Model);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting recognition"), *GetThreadName(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting recognition"), *GetThreadName(), *FString(__FUNCTION__));
 	if (Future.wait_for(GetTaskTimeout()); Future.valid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Recognition started."), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Recognition started."), *GetThreadName(), *FString(__FUNCTION__));
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Recognition failed to start."), *GetThreadName(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 		AsyncTask(ENamedThreads::GameThread, [RecognizerTask]
 		{
 			RecognizerTask->RecognitionFailed.Broadcast();

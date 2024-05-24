@@ -39,7 +39,7 @@ void UGetAvailableVoicesAsync::Activate()
 	Super::Activate();
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
 	{
@@ -54,7 +54,7 @@ void UGetAvailableVoicesAsync::Activate()
 void UGetAvailableVoicesAsync::SetReadyToDestroy()
 {
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	Super::SetReadyToDestroy();
 }
@@ -66,13 +66,13 @@ void UGetAvailableVoicesAsync::BroadcastResult(const TArray<FString>& Result)
 	if (Result.Num() <= 0)
 	{
 		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task failed. Broadcasting failure"), *TaskName.ToString(),
-		       GetUniqueID(), *FString(__func__));
+		       GetUniqueID(), *FString(__FUNCTION__));
 		Fail.Broadcast();
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Broadcasting result with size: %d"),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), Result.Num());
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), Result.Num());
 		Success.Broadcast(Result);
 	}
 

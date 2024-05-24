@@ -136,7 +136,12 @@ enum  PropertyId
     SpeakerRecognition_Api_Version = 13001,
 
     SpeechTranslation_ModelName = 13100,
-    SpeechTranslation_ModelKey = 13101
+    SpeechTranslation_ModelKey = 13101,
+
+    KeywordRecognition_ModelName = 13200,
+    KeywordRecognition_ModelKey = 13201,
+
+    EmbeddedSpeech_EnablePerformanceMetrics = 13300
 };
 
 typedef enum _ParticipantChangedReason

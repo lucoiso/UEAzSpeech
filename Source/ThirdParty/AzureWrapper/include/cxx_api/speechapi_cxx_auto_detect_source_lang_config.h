@@ -35,7 +35,7 @@ public:
 
     /// <summary>
     /// Creates an instance of the AutoDetectSourceLanguageConfig with open range as source languages
-    /// Note: only <see cref="SpeechSynthesizer"/> supports source language auto detection from open range,
+    /// Note: only <see cref="SpeechSynthesizer"/>, embedded speech translation and multilingual <see cref="TranslationRecognizer"/> support source language auto detection from open range,
     /// for <see cref="Recognizer"/>, please use AutoDetectSourceLanguageConfig with specific source languages.
     /// Added in 1.13.0
     /// </summary>

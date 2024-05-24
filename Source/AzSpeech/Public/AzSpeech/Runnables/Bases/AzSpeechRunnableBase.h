@@ -6,6 +6,7 @@
 
 #include <CoreMinimal.h>
 #include <HAL/Runnable.h>
+#include "AzSpeech/Structures/AzSpeechSettingsOptions.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <speechapi_cxx_embedded_speech_config.h>

@@ -23,7 +23,7 @@ USSMLToSpeechAsync* USSMLToSpeechAsync::SSMLToSpeech_CustomOptions(UObject* cons
 	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->SynthesisText = SynthesisSSML;
 	NewAsyncTask->bIsSSMLBased = true;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 

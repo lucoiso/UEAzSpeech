@@ -28,7 +28,7 @@ UTextToWavFileAsync* UTextToWavFileAsync::TextToWavFile_CustomOptions(UObject* c
 	NewAsyncTask->FilePath = FilePath;
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 

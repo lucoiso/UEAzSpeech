@@ -726,7 +726,31 @@ enum class PropertyId
     /// Do not use this property directly.
     /// Currently this is only valid when EmbeddedSpeechConfig is used.
     /// </summary>
-    SpeechTranslation_ModelKey = 13101
+    SpeechTranslation_ModelKey = 13101,
+
+    /// <summary>
+    /// The name of a model to be used for keyword recognition.
+    /// Do not use this property directly.
+    /// Currently this is only valid when EmbeddedSpeechConfig is used.
+    /// </summary>
+    KeywordRecognition_ModelName = 13200,
+
+    /// <summary>
+    /// The decryption key of a model to be used for keyword recognition.
+    /// Do not use this property directly.
+    /// Currently this is only valid when EmbeddedSpeechConfig is used.
+    /// </summary>
+    KeywordRecognition_ModelKey = 13201,
+
+    /// <summary>
+    /// Enable the collection of embedded speech performance metrics which can
+    /// be used to evaluate the capability of a device to use embedded speech.
+    /// The collected data is included in results from specific scenarios like
+    /// speech recognition.
+    /// The default setting is "false". Note that metrics may not be available
+    /// from all embedded speech scenarios.
+    /// </summary>
+    EmbeddedSpeech_EnablePerformanceMetrics = 13300
 };
 
 /// <summary>

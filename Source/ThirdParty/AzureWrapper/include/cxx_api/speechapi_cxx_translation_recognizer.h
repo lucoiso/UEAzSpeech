@@ -148,6 +148,27 @@ public:
         return std::make_shared<TranslationRecognizer>(hreco);
     }
 
+    /// <summary>
+    /// Create a translation recognizer from an embedded speech config, auto detection source language config and audio config.
+    /// </summary>
+    /// <param name="speechConfig">Embedded speech config.</param>
+    /// <param name="autoDetectSourceLangConfig">Auto detection source language config.</param>
+    /// <param name="audioInput">Audio config.</param>
+    /// <returns>The shared smart pointer of the created translation recognizer.</returns>
+    static std::shared_ptr<TranslationRecognizer> FromConfig(
+        std::shared_ptr<EmbeddedSpeechConfig> speechConfig,
+        std::shared_ptr<AutoDetectSourceLanguageConfig> autoDetectSourceLangConfig,
+        std::shared_ptr<Audio::AudioConfig> audioInput = nullptr)
+    {
+        SPXRECOHANDLE hreco{ SPXHANDLE_INVALID };
+        SPX_THROW_ON_FAIL(::recognizer_create_translation_recognizer_from_auto_detect_source_lang_config(
+            &hreco,
+            HandleOrInvalid<SPXSPEECHCONFIGHANDLE, EmbeddedSpeechConfig>(speechConfig),
+            HandleOrInvalid<SPXAUTODETECTSOURCELANGCONFIGHANDLE, AutoDetectSourceLanguageConfig>(autoDetectSourceLangConfig),
+            HandleOrInvalid<SPXAUDIOCONFIGHANDLE, Audio::AudioConfig>(audioInput)));
+        return std::make_shared<TranslationRecognizer>(hreco);
+    }
+
     // The AsyncRecognizer only deals with events for translation text result. The audio output event
     // is managed by OnTranslationSynthesisResult.
     using BaseType = AsyncRecognizer<TranslationRecognitionResult, TranslationRecognitionEventArgs, TranslationRecognitionCanceledEventArgs>;

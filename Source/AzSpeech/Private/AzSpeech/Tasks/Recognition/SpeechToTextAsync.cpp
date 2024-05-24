@@ -30,7 +30,7 @@ USpeechToTextAsync* USpeechToTextAsync::SpeechToText_CustomOptions(UObject* cons
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
@@ -71,13 +71,13 @@ bool USpeechToTextAsync::StartAzureTaskWork()
 	if (!IsUsingDefaultAudioInputDevice() && !UAzSpeechHelper::IsAudioInputDeviceIDValid(DeviceInfo.GetDeviceID()))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Audio input device %s isn't available."),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *DeviceInfo.GetAudioInputDeviceEndpointID());
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *DeviceInfo.GetAudioInputDeviceEndpointID());
 
 		return false;
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using audio input device: %s"), *TaskName.ToString(),
-	       GetUniqueID(), *FString(__func__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
+	       GetUniqueID(), *FString(__FUNCTION__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
 
 	auto AudioConfig = IsUsingDefaultAudioInputDevice()
 		                   ? MicrosoftSpeech::Audio::AudioConfig::FromDefaultMicrophoneInput()

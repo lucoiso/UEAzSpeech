@@ -21,7 +21,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 {
 	if (FAzSpeechRunnableBase::Run() == 0u)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Run returned 0"), *GetThreadName(), *FString(__FUNCTION__));
 		return 0u;
 	}
 
@@ -36,7 +36,7 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 		return 0u;
 	}
 
-	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Thread: %s; Function: %s; Message: Using text: %s"), *GetThreadName(), *FString(__func__),
+	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Thread: %s; Function: %s; Message: Using text: %s"), *GetThreadName(), *FString(__FUNCTION__),
 	       *SynthesizerTask->GetSynthesisText());
 
 	const std::string SynthesisStr = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisText());
@@ -50,15 +50,15 @@ uint32 FAzSpeechSynthesisRunnable::Run()
 		Future = SpeechSynthesizer->StartSpeakingTextAsync(SynthesisStr);
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting synthesis."), *GetThreadName(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Starting synthesis."), *GetThreadName(), *FString(__FUNCTION__));
 	if ([[maybe_unused]] const auto _ = Future.wait_for(GetTaskTimeout()); Future.valid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Synthesis started."), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Synthesis started."), *GetThreadName(), *FString(__FUNCTION__));
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Synthesis failed to start."), *GetThreadName(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 		AsyncTask(ENamedThreads::GameThread, [SynthesizerTask]
 		{
 			SynthesizerTask->SynthesisFailed.Broadcast();
@@ -100,7 +100,7 @@ bool FAzSpeechSynthesisRunnable::IsSpeechSynthesizerValid() const
 {
 	if (!SpeechSynthesizer)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid synthesizer"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid synthesizer"), *GetThreadName(), *FString(__FUNCTION__));
 	}
 
 	return SpeechSynthesizer != nullptr;
@@ -148,11 +148,11 @@ const bool FAzSpeechSynthesisRunnable::ApplySDKSettings(const std::shared_ptr<Mi
 	const std::string UsedLang = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().Locale.ToString());
 	const std::string UsedVoice = TCHAR_TO_UTF8(*SynthesizerTask->GetSynthesisOptions().Voice.ToString());
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__func__),
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using language: %s"), *GetThreadName(), *FString(__FUNCTION__),
 	       *SynthesizerTask->GetSynthesisOptions().Locale.ToString());
 	InConfig->SetSpeechSynthesisLanguage(UsedLang);
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__func__),
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Using voice: %s"), *GetThreadName(), *FString(__FUNCTION__),
 	       *SynthesizerTask->GetSynthesisOptions().Voice.ToString());
 	InConfig->SetSpeechSynthesisVoiceName(UsedVoice);
 
@@ -173,13 +173,13 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating synthesizer object"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	const auto SpeechConfig = CreateSpeechConfig();
 
 	if (!SpeechConfig)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -188,14 +188,14 @@ bool FAzSpeechSynthesisRunnable::InitializeAzureObject()
 	const auto TaskAudioConfig = GetAudioConfig();
 	if (!TaskAudioConfig)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid audio config"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid audio config"), *GetThreadName(), *FString(__FUNCTION__));
 		return false;
 	}
 
 	if (!SynthesizerTask->IsSSMLBased() && SynthesizerTask->GetSynthesisOptions().bUseLanguageIdentification)
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing auto language detection"), *GetThreadName(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 		SpeechSynthesizer = MicrosoftSpeech::SpeechSynthesizer::FromConfig(
 			SpeechConfig, MicrosoftSpeech::AutoDetectSourceLanguageConfig::FromOpenRange(), TaskAudioConfig);
 	}
@@ -342,19 +342,19 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 	{
 	case MicrosoftSpeech::ResultReason::SynthesizingAudio: UE_LOG(LogAzSpeech_Internal, Display,
 	                                                              TEXT("Thread: %s; Function: %s; Message: Task running. Reason: SynthesizingAudio"),
-	                                                              *GetThreadName(), *FString(__func__))
+	                                                              *GetThreadName(), *FString(__FUNCTION__))
 		break;
 
 	case MicrosoftSpeech::ResultReason::SynthesizingAudioCompleted: UE_LOG(LogAzSpeech_Internal, Display,
 	                                                                       TEXT(
 		                                                                       "Thread: %s; Function: %s; Message: Task completed. Reason: SynthesizingAudioCompleted"
-	                                                                       ), *GetThreadName(), *FString(__func__));
+	                                                                       ), *GetThreadName(), *FString(__FUNCTION__));
 		break;
 
 	case MicrosoftSpeech::ResultReason::SynthesizingAudioStarted: UE_LOG(LogAzSpeech_Internal, Display,
 	                                                                     TEXT(
 		                                                                     "Thread: %s; Function: %s; Message: Task started. Reason: SynthesizingAudioStarted"
-	                                                                     ), *GetThreadName(), *FString(__func__));
+	                                                                     ), *GetThreadName(), *FString(__FUNCTION__));
 		break;
 
 	default:
@@ -364,12 +364,12 @@ bool FAzSpeechSynthesisRunnable::ProcessSynthesisResult(const std::shared_ptr<Mi
 	if (LastResult->Reason == MicrosoftSpeech::ResultReason::Canceled)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Task failed. Reason: Canceled"), *GetThreadName(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 
 		bOutput = false;
 		const auto CancellationDetails = MicrosoftSpeech::SpeechSynthesisCancellationDetails::FromResult(LastResult);
 
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Cancellation Reason: %s"), *GetThreadName(), *FString(__func__),
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Cancellation Reason: %s"), *GetThreadName(), *FString(__FUNCTION__),
 		       *CancellationReasonToString(CancellationDetails->Reason));
 		if (CancellationDetails->Reason == MicrosoftSpeech::CancellationReason::Error)
 		{

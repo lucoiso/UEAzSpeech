@@ -72,6 +72,7 @@
 
 #include <speechapi_cxx_audio_data_stream.h>
 
+#include <speechapi_cxx_speech_synthesis_request.h>
 #include <speechapi_cxx_speech_synthesis_result.h>
 #include <speechapi_cxx_speech_synthesis_eventargs.h>
 #include <speechapi_cxx_speech_synthesis_word_boundary_eventargs.h>

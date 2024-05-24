@@ -19,12 +19,12 @@ void UAzSpeechEngineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: AzSpeech Engine Subsystem initialized."), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: AzSpeech Engine Subsystem initialized."), *FString(__FUNCTION__));
 }
 
 void UAzSpeechEngineSubsystem::Deinitialize()
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: AzSpeech Engine Subsystem deinitialized."), *FString(__func__));
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: AzSpeech Engine Subsystem deinitialized."), *FString(__FUNCTION__));
 
 	Super::Deinitialize();
 }
@@ -59,7 +59,7 @@ TArray<class UAzSpeechTaskBase*> UAzSpeechEngineSubsystem::GetAllRegisteredAzSpe
 void UAzSpeechEngineSubsystem::InsertTaskInQueue(const int64 QueueId, UAzSpeechTaskBase* const Task) const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Inserting task %s (%d) in AzSpeech Engine Subsystem execution queue with ID '%d'."),
-	       *FString(__func__), *Task->TaskName.ToString(), Task->GetUniqueID(), QueueId);
+	       *FString(__FUNCTION__), *Task->TaskName.ToString(), Task->GetUniqueID(), QueueId);
 
 	const bool bTaskStatus = TaskQueueMap.Contains(QueueId) ? TaskQueueMap.FindRef(QueueId).Key : false;
 	AzSpeechTaskQueueValue& Item = TaskQueueMap.FindOrAdd(QueueId);
@@ -69,7 +69,7 @@ void UAzSpeechEngineSubsystem::InsertTaskInQueue(const int64 QueueId, UAzSpeechT
 
 void UAzSpeechEngineSubsystem::InvalidateQueue(const int64 QueueId) const
 {
-	UE_LOG(LogAzSpeech, Display, TEXT("%s: Invalidating AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
+	UE_LOG(LogAzSpeech, Display, TEXT("%s: Invalidating AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__FUNCTION__), QueueId);
 
 	if (TaskQueueMap.Contains(QueueId) || TaskAudioQueueMap.Contains(QueueId))
 	{
@@ -87,7 +87,7 @@ void UAzSpeechEngineSubsystem::InitializeQueueExecution(const int64 QueueId) con
 			return;
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Initializing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__),
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Initializing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__FUNCTION__),
 		       QueueId);
 
 		TaskQueueMap.Find(QueueId)->Key = true;
@@ -103,7 +103,7 @@ void UAzSpeechEngineSubsystem::StopQueueExecution(const int64 QueueId) const
 {
 	if (TaskQueueMap.Contains(QueueId))
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Stopping AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__),
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Stopping AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__FUNCTION__),
 		       QueueId);
 
 		TaskQueueMap.Find(QueueId)->Key = false;
@@ -138,7 +138,7 @@ void UAzSpeechEngineSubsystem::RegisterAzSpeechTask(UAzSpeechTaskBase* const Tas
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(Task) && !RegisteredTasks.Contains(Task))
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Registering task %s (%d) in AzSpeech Engine Subsystem."), *FString(__func__),
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Registering task %s (%d) in AzSpeech Engine Subsystem."), *FString(__FUNCTION__),
 		       *Task->TaskName.ToString(), Task->GetUniqueID());
 
 		RegisteredTasks.Add(Task);
@@ -152,7 +152,7 @@ void UAzSpeechEngineSubsystem::UnregisterAzSpeechTask(UAzSpeechTaskBase* const T
 {
 	if (UAzSpeechTaskStatus::IsTaskStillValid(Task) && RegisteredTasks.Contains(Task))
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Unregistering task %s (%d) from AzSpeech Engine Subsystem."), *FString(__func__),
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Unregistering task %s (%d) from AzSpeech Engine Subsystem."), *FString(__FUNCTION__),
 		       *Task->TaskName.ToString(), Task->GetUniqueID());
 
 		RegisteredTasks.Remove(Task);
@@ -189,7 +189,7 @@ void UAzSpeechEngineSubsystem::DequeueExecutionQueue(const int64 QueueId) const
 		return;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__func__), QueueId);
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem execution queue with ID '%d'."), *FString(__FUNCTION__), QueueId);
 
 	const TWeakObjectPtr<UAzSpeechTaskBase> Task = ExecQueue->Value[0];
 
@@ -264,7 +264,7 @@ void UAzSpeechEngineSubsystem::DequeueAudioExecutionQueue(const int64 QueueId) c
 		return;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem audio execution queue with ID '%d'."), *FString(__func__),
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Dequeuing AzSpeech Engine Subsystem audio execution queue with ID '%d'."), *FString(__FUNCTION__),
 	       QueueId);
 
 	const TWeakObjectPtr<UAzSpeechTaskBase> Task = (*ExecQueue)[0];

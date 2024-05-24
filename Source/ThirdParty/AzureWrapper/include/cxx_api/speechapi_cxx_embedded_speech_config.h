@@ -238,6 +238,28 @@ public:
     }
 
     /// <summary>
+    /// Sets the model for keyword recognition.
+    /// This is for customer specific models that are tailored for detecting
+    /// wake words and direct commands.
+    /// </summary>
+    /// <param name="name">Model name.</param>
+    /// <param name="key">Model decryption key.</param>
+    void SetKeywordRecognitionModel(const SPXSTRING& name, const SPXSTRING& key)
+    {
+        SetProperty(PropertyId::KeywordRecognition_ModelName, name);
+        SetProperty(PropertyId::KeywordRecognition_ModelKey, key);
+    }
+
+    /// <summary>
+    /// Gets the model name for keyword recognition.
+    /// </summary>
+    /// <returns>The keyword recognition model name.</returns>
+    SPXSTRING GetKeywordRecognitionModelName() const
+    {
+        return GetProperty(PropertyId::KeywordRecognition_ModelName);
+    }
+
+    /// <summary>
     /// Sets a property value by name.
     /// </summary>
     /// <param name="name">The property name.</param>

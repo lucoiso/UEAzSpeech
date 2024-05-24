@@ -53,6 +53,17 @@ public:
     {
         SPX_DBG_TRACE_SCOPE(__FUNCTION__, __FUNCTION__);
 
+        // Disconnect the event signals in reverse construction order
+        TurnStatusReceived.DisconnectAll();
+        ActivityReceived.DisconnectAll();
+        Canceled.DisconnectAll();
+        SpeechEndDetected.DisconnectAll();
+        SpeechStartDetected.DisconnectAll();
+        SessionStopped.DisconnectAll();
+        SessionStarted.DisconnectAll();
+        Recognizing.DisconnectAll();
+        Recognized.DisconnectAll();
+
         if (m_handle != SPXHANDLE_INVALID)
         {
             ::dialog_service_connector_handle_release(m_handle);

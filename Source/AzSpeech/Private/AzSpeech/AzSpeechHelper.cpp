@@ -77,7 +77,7 @@ const FString UAzSpeechHelper::QualifyPath(const FString& Path)
 		Output += '/';
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Log, TEXT("%s: Qualified directory path: %s"), *FString(__func__), *Output);
+	UE_LOG(LogAzSpeech_Internal, Log, TEXT("%s: Qualified directory path: %s"), *FString(__FUNCTION__), *Output);
 
 	return Output;
 }
@@ -86,7 +86,7 @@ const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const F
 {
 	if (AzSpeech::Internal::HasEmptyParam(Path, Name, Extension))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath, Filename or Extension is empty"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath, Filename or Extension is empty"), *FString(__FUNCTION__));
 		return FString();
 	}
 
@@ -102,7 +102,7 @@ const FString UAzSpeechHelper::QualifyFileExtension(const FString& Path, const F
 	FString QualifiedName = LocalPath + LocalName;
 	FPaths::NormalizeFilename(QualifiedName);
 
-	UE_LOG(LogAzSpeech_Internal, Log, TEXT("%s: Qualified %s file path: %s"), *FString(__func__), *LocalExtension.ToUpper(), *QualifiedName);
+	UE_LOG(LogAzSpeech_Internal, Log, TEXT("%s: Qualified %s file path: %s"), *FString(__FUNCTION__), *LocalExtension.ToUpper(), *QualifiedName);
 
 	return QualifiedName;
 }
@@ -112,7 +112,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath or Filename is empty"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Filepath or Filename is empty"), *FString(__FUNCTION__));
 	}
 
 	else if (const FString Full_FileName = QualifyWAVFileName(FilePath, FileName); IFileManager::Get().FileExists(*Full_FileName))
@@ -126,7 +126,7 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 
 		if (TArray<uint8> RawData; FFileHelper::LoadFileToArray(RawData, *Full_FileName))
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__FUNCTION__));
 			if (USoundWave* const SoundWave = ConvertAudioDataToSoundWave(RawData, OutputModule, RelativeOutputDirectory, OutputAssetName))
 			{
 #if WITH_EDITORONLY_DATA
@@ -136,10 +136,10 @@ USoundWave* UAzSpeechHelper::ConvertWavFileToSoundWave(const FString& FilePath, 
 			}
 		}
 		// else
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file '%s'"), *FString(__func__), *Full_FileName);
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file '%s'"), *FString(__FUNCTION__), *Full_FileName);
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Cannot find the specified file"), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Cannot find the specified file"), *FString(__FUNCTION__));
 	return nullptr;
 }
 
@@ -155,7 +155,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 	if (!IsAudioDataValid(RawData))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: RawData is empty"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: RawData is empty"), *FString(__FUNCTION__));
 		return nullptr;
 	}
 
@@ -181,7 +181,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 	{
 		if (!IsContentModuleAvailable(OutputModule))
 		{
-			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Module '%s' is not available"), *FString(__func__), *OutputModule);
+			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Module '%s' is not available"), *FString(__FUNCTION__), *OutputModule);
 			return nullptr;
 		}
 
@@ -233,6 +233,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 #if ENGINE_MAJOR_VERSION >= 5
 		SoundWave->SetImportedSampleRate(*WaveInfo.pSamplesPerSec);
 
+#if ENGINE_MINOR_VERSION <= 3
 		SoundWave->CuePoints.Reset(WaveInfo.WaveCues.Num());
 		for (FWaveCue& WaveCue : WaveInfo.WaveCues)
 		{
@@ -244,6 +245,7 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 
 			SoundWave->CuePoints.Add(NewCuePoint);
 		}
+#endif
 #endif
 
 #if WITH_EDITORONLY_DATA && (ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1))
@@ -301,11 +303,11 @@ USoundWave* UAzSpeechHelper::ConvertAudioDataToSoundWave(const TArray<uint8>& Ra
 			AudioComponent->Play();
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__FUNCTION__));
 		return SoundWave;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Cannot create a new Sound Wave"), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Cannot create a new Sound Wave"), *FString(__FUNCTION__));
 	return nullptr;
 }
 
@@ -313,18 +315,18 @@ const FString UAzSpeechHelper::LoadXMLToString(const FString& FilePath, const FS
 {
 	if (AzSpeech::Internal::HasEmptyParam(FilePath, FileName))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: FilePath or FileName is empty"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: FilePath or FileName is empty"), *FString(__FUNCTION__));
 	}
 	else if (const FString Full_FileName = QualifyXMLFileName(FilePath, FileName); IFileManager::Get().FileExists(*Full_FileName))
 	{
 		if (FString OutputStr; FFileHelper::LoadFileToString(OutputStr, *Full_FileName))
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: '%s' loaded"), *FString(__func__), *Full_FileName);
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: '%s' loaded"), *FString(__FUNCTION__), *Full_FileName);
 			return OutputStr;
 		}
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file"), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to load file"), *FString(__FUNCTION__));
 	return FString();
 }
 
@@ -337,17 +339,17 @@ const bool UAzSpeechHelper::CreateNewDirectory(const FString& Path, const bool b
 
 	if (!bOutput)
 	{
-		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Folder does not exist, trying to create a new with the specified path"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Folder does not exist, trying to create a new with the specified path"), *FString(__FUNCTION__));
 		bOutput = IFileManager::Get().MakeDirectory(*LocalPath, bCreateParents);
 	}
 
 	if (bOutput)
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success. Output path: %s"), *FString(__func__), *LocalPath);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success. Output path: %s"), *FString(__FUNCTION__), *LocalPath);
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to create a new folder"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to create a new folder"), *FString(__FUNCTION__));
 	}
 
 	return bOutput;
@@ -362,20 +364,20 @@ const FString UAzSpeechHelper::OpenDesktopFolderPicker()
 	{
 		if (DesktopPlatform->OpenDirectoryDialog(nullptr, TEXT("Select a folder"), TEXT(""), OutputPath))
 		{
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__FUNCTION__));
 		}
 		else
 		{
 			UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to open a folder picker or the user cancelled the operation"),
-			       *FString(__func__));
+			       *FString(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to get Desktop Platform"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Result: Failed to get Desktop Platform"), *FString(__FUNCTION__));
 	}
 #else
-    UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
+    UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__FUNCTION__), *UGameplayStatics::GetPlatformName());
 #endif
 
 	return OutputPath;
@@ -384,7 +386,7 @@ const FString UAzSpeechHelper::OpenDesktopFolderPicker()
 const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FString& InPermission)
 {
 #if PLATFORM_ANDROID
-    UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Checking android permission: %s"), *FString(__func__), *InPermission);
+    UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Checking android permission: %s"), *FString(__FUNCTION__), *InPermission);
     if (!UAndroidPermissionFunctionLibrary::CheckPermission(InPermission))
     {
         UAndroidPermissionFunctionLibrary::AcquirePermissions({ InPermission });
@@ -392,7 +394,7 @@ const bool UAzSpeechHelper::CheckAndroidPermission([[maybe_unused]] const FStrin
     }
 
 #else
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__func__), *UGameplayStatics::GetPlatformName());
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Platform %s is not supported"), *FString(__FUNCTION__), *UGameplayStatics::GetPlatformName());
 #endif
 
 	return true;
@@ -403,7 +405,7 @@ const bool UAzSpeechHelper::IsAudioDataValid(const TArray<uint8>& RawData)
 	const bool bOutput = !AzSpeech::Internal::HasEmptyParam(RawData);
 	if (!bOutput)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid audio data."), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid audio data."), *FString(__FUNCTION__));
 	}
 
 	return bOutput;
@@ -416,16 +418,16 @@ const TArray<FAzSpeechAudioInputDeviceInfo> UAzSpeechHelper::GetAvailableAudioIn
 
 	if (Audio::FAudioCapture AudioCapture; AudioCapture.GetCaptureDevicesAvailable(Internal_Devices) <= 0)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: There's no available audio input devices"), *FString(__FUNCTION__));
 	}
 	else
 	{
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Result: Success"), *FString(__FUNCTION__));
 
 		for (const Audio::FCaptureDeviceInfo& DeviceInfo : Internal_Devices)
 		{
 			Output.Add(FAzSpeechAudioInputDeviceInfo(DeviceInfo.DeviceName, DeviceInfo.DeviceId));
-			UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Found available audio input device: %s - %s"), *FString(__func__),
+			UE_LOG(LogAzSpeech_Debugging, Display, TEXT("%s: Found available audio input device: %s - %s"), *FString(__FUNCTION__),
 			       *Output.Last().DeviceName, *Output.Last().GetAudioInputDeviceEndpointID());
 		}
 	}
@@ -446,8 +448,10 @@ const ReturnTy GetInformationFromDeviceID_T(const FString& DeviceID)
 		{
 			return FAzSpeechAudioInputDeviceInfo(FAzSpeechAudioInputDeviceInfo::InvalidDeviceID, FAzSpeechAudioInputDeviceInfo::InvalidDeviceID);
 		}
-
-		return ReturnTy();
+		else
+		{
+			return ReturnTy {};
+		}
 	};
 
 	if (!UAzSpeechHelper::IsAudioInputDeviceIDValid(DeviceID))
@@ -550,13 +554,13 @@ const FAzSpeechAnimationData UAzSpeechHelper::ExtractAnimationDataFromVisemeData
 
 	if (!JsonObject.IsValid())
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to deserialize animation data"), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Failed to deserialize animation data"), *FString(__FUNCTION__));
 		return Output;
 	}
 
-	Output.FrameIndex = JsonObject->GetIntegerField("FrameIndex");
+	Output.FrameIndex = JsonObject->GetIntegerField(TEXT("FrameIndex"));
 
-	for (const TSharedPtr<FJsonValue>& IteratorArray : JsonObject->GetArrayField("BlendShapes"))
+	for (const TSharedPtr<FJsonValue>& IteratorArray : JsonObject->GetArrayField(TEXT("BlendShapes")))
 	{
 		FAzSpeechBlendShapes CurrentBlendShapes;
 		for (const TSharedPtr<FJsonValue>& IteratorValue : IteratorArray->AsArray())

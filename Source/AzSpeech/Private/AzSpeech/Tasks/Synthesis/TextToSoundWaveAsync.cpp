@@ -28,7 +28,7 @@ UTextToSoundWaveAsync* UTextToSoundWaveAsync::TextToSoundWave_CustomOptions(UObj
 	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
 	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 

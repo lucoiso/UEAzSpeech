@@ -52,7 +52,7 @@ FString GetRuntimeLibsDirectory()
 	if (AzSpeech::Internal::HasEmptyParam(BinariesDirectory))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error,
-		       TEXT( "%s: Failed to get the location of the runtime libraries. Please check and validate your installation." ), *FString(__func__));
+		       TEXT( "%s: Failed to get the location of the runtime libraries. Please check and validate your installation." ), *FString(__FUNCTION__));
 		return FString();
 	}
 
@@ -71,7 +71,7 @@ void LogLastError(const FString& FailLib)
 	TCHAR ErrorBuffer[MAX_SPRINTF];
 	FPlatformMisc::GetSystemErrorMessage(ErrorBuffer, MAX_SPRINTF, ErrorID);
 
-	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\": %u (%s)."), *FString(__func__), *FailLib, ErrorID,
+	UE_LOG(LogAzSpeech_Internal, Warning, TEXT("%s: Failed to load runtime library \"%s\": %u (%s)."), *FString(__FUNCTION__), *FailLib, ErrorID,
 	       ErrorBuffer);
 }
 
@@ -80,7 +80,7 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 	const FString BinariesDirectory = GetRuntimeLibsDirectory();
 	const TArray<FString> WhitelistedLibs = GetWhitelistedRuntimeLibs();
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in directory \"%s\"."), *FString(__func__), *BinariesDirectory);
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loading runtime libraries in directory \"%s\"."), *FString(__FUNCTION__), *BinariesDirectory);
 
 	FPlatformProcess::PushDllDirectory(*BinariesDirectory);
 
@@ -98,7 +98,7 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 				FPlatformProcess::Sleep(AttemptSleepDelay);
 			}
 
-			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__func__), *RuntimeLib,
+			UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Attempting to load runtime library \"%s\" (%u/%u)."), *FString(__FUNCTION__), *RuntimeLib,
 			       Attempt, MaxAttempt);
 			if (Handle = FPlatformProcess::GetDllHandle(*RuntimeLib); Handle)
 			{
@@ -112,7 +112,7 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 			continue;
 		}
 
-		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__func__), *RuntimeLib);
+		UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Loaded runtime library \"%s\"."), *FString(__FUNCTION__), *RuntimeLib);
 		RuntimeLibraries.Add(Handle);
 	}
 
@@ -121,7 +121,7 @@ void FAzSpeechModule::LoadRuntimeLibraries()
 
 void FAzSpeechModule::UnloadRuntimeLibraries()
 {
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Unloading runtime libraries."), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("%s: Unloading runtime libraries."), *FString(__FUNCTION__));
 
 	for (void*& Handle : RuntimeLibraries)
 	{

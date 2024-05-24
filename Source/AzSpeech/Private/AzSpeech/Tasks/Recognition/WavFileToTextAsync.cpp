@@ -32,7 +32,7 @@ UWavFileToTextAsync* UWavFileToTextAsync::WavFileToText_CustomOptions(UObject* c
 	NewAsyncTask->FileName = FileName;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
@@ -69,14 +69,14 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 	if (!IFileManager::Get().FileExists(*QualifiedPath))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' not found"), *TaskName.ToString(), GetUniqueID(),
-		       *FString(__func__), *QualifiedPath);
+		       *FString(__FUNCTION__), *QualifiedPath);
 		return false;
 	}
 
 	if (IFileManager::Get().FileSize(*QualifiedPath) <= 0)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' is invalid"), *TaskName.ToString(), GetUniqueID(),
-		       *FString(__func__), *QualifiedPath);
+		       *FString(__FUNCTION__), *QualifiedPath);
 		return false;
 	}
 
@@ -84,7 +84,7 @@ bool UWavFileToTextAsync::StartAzureTaskWork()
 	if (const FArchive* const Archive = IFileManager::Get().CreateFileReader(*QualifiedPath); Archive == nullptr)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to load file '%s'"), *TaskName.ToString(),
-		       GetUniqueID(), *FString(__func__), *QualifiedPath);
+		       GetUniqueID(), *FString(__FUNCTION__), *QualifiedPath);
 		return false;
 	}
 	else

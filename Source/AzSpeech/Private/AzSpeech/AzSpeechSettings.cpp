@@ -195,21 +195,21 @@ void UAzSpeechSettings::ValidateRecognitionMap()
 	{
 		if (AzSpeech::Internal::HasEmptyParam(RecognitionMapGroup.GroupName))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map has a group with invalid name."), *FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map has a group with invalid name."), *FString(__FUNCTION__));
 		}
 
 		for (const FAzSpeechRecognitionData& Data : RecognitionMapGroup.Data)
 		{
 			if (Data.Value < 0)
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data with invalid value."), *FString(__func__),
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data with invalid value."), *FString(__FUNCTION__),
 				       *RecognitionMapGroup.GroupName.ToString());
 				break;
 			}
 
 			if (AzSpeech::Internal::HasEmptyParam(Data.TriggerKeys))
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data without Trigger Keys."), *FString(__func__),
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a Recognition Data without Trigger Keys."), *FString(__FUNCTION__),
 				       *RecognitionMapGroup.GroupName.ToString());
 				break;
 			}
@@ -218,7 +218,7 @@ void UAzSpeechSettings::ValidateRecognitionMap()
 			{
 				if (AzSpeech::Internal::HasEmptyParam(TriggerKey))
 				{
-					UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a empty Trigger Key."), *FString(__func__),
+					UE_LOG(LogAzSpeech, Error, TEXT("%s: Recognition Map Group %s has a empty Trigger Key."), *FString(__FUNCTION__),
 					       *RecognitionMapGroup.GroupName.ToString());
 					break;
 				}
@@ -233,14 +233,14 @@ void UAzSpeechSettings::ValidatePhraseList()
 	{
 		if (AzSpeech::Internal::HasEmptyParam(PhraseListData.GroupName))
 		{
-			UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map has a group with invalid name."), *FString(__func__));
+			UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map has a group with invalid name."), *FString(__FUNCTION__));
 		}
 
 		for (const FString& Data : PhraseListData.Data)
 		{
 			if (AzSpeech::Internal::HasEmptyParam(Data))
 			{
-				UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map Group %s contains empty objects"), *FString(__func__));
+				UE_LOG(LogAzSpeech, Error, TEXT("%s: Phrase List Map Group %s contains empty objects"), *FString(__FUNCTION__), *PhraseListData.GroupName.ToString());
 				break;
 			}
 		}
@@ -261,19 +261,19 @@ const bool UAzSpeechSettings::CheckAzSpeechSettings(const FAzSpeechSubscriptionO
 {
 	if (Options.bUsePrivateEndpoint && AzSpeech::Internal::HasEmptyParam(Options.PrivateEndpoint))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Endpoint."), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Endpoint."), *FString(__FUNCTION__));
 		return false;
 	}
 
 	if (!Options.bUsePrivateEndpoint && AzSpeech::Internal::HasEmptyParam(Options.RegionID))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Region ID."), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Region ID."), *FString(__FUNCTION__));
 		return false;
 	}
 
 	if (AzSpeech::Internal::HasEmptyParam(Options.SubscriptionKey))
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Subscription Key."), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("%s: Invalid Subscription Key."), *FString(__FUNCTION__));
 		return false;
 	}
 

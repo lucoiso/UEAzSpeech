@@ -98,8 +98,10 @@ public:
     /// Creates an instance of SpeechConfig with specified endpoint.
     /// This method is intended only for users who use a non-standard service endpoint.
     /// Note: The query parameters specified in the endpoint URI are not changed, even if they are set by any other APIs.
+    /// Whether a specific query parameter is supported or not, depends on the endpoint and scenario.
     /// For example, if the recognition language is defined in URI as query parameter "language=de-DE", and also set by SetSpeechRecognitionLanguage("en-US"),
     /// the language setting in URI takes precedence, and the effective language is "de-DE".
+    /// The example only applies when the endpoint and scenario combination supports language as a query parameter.
     /// Only the parameters that are not specified in the endpoint URI can be set by other APIs.
     /// Note: If the endpoint requires a subscription key for authentication, use FromEndpoint(const SPXSTRING&, const SPXSTRING&) to pass
     /// the subscription key as parameter.

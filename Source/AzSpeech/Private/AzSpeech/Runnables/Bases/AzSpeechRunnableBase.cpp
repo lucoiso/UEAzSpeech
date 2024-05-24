@@ -41,7 +41,7 @@ FAzSpeechRunnableBase::~FAzSpeechRunnableBase()
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Destructing runnable thread"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 }
 
 void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
@@ -54,7 +54,7 @@ void FAzSpeechRunnableBase::StartAzSpeechRunnableTask()
 void FAzSpeechRunnableBase::StopAzSpeechRunnableTask()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Setting runnable work as pending stop"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 	bStopTask = true;
 }
 
@@ -73,7 +73,7 @@ bool FAzSpeechRunnableBase::Init()
 	StoreThreadInformation();
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing runnable thread"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	return CanInitializeTask();
 }
@@ -81,7 +81,7 @@ bool FAzSpeechRunnableBase::Init()
 uint32 FAzSpeechRunnableBase::Run()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Running runnable thread work"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	return InitializeAzureObject() ? 1u : 0u;
 }
@@ -89,12 +89,12 @@ uint32 FAzSpeechRunnableBase::Run()
 void FAzSpeechRunnableBase::Stop()
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Stopping runnable thread work"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 }
 
 void FAzSpeechRunnableBase::Exit()
 {
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Exiting thread"), *GetThreadName(), *FString(__FUNCTION__));
 
 	UAzSpeechTaskBase* const OwningTask_Local = GetOwningTask();
 	if (!UAzSpeechTaskStatus::IsTaskActive(OwningTask_Local))
@@ -124,7 +124,7 @@ UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const
 	if (!OwningTask.IsValid())
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid AzSpeech task."), *GetThreadName(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 	}
 
 	return OwningTask.Get();
@@ -132,7 +132,7 @@ UAzSpeechTaskBase* FAzSpeechRunnableBase::GetOwningTask() const
 
 bool FAzSpeechRunnableBase::InitializeAzureObject()
 {
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing Azure Object"), *GetThreadName(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Initializing Azure Object"), *GetThreadName(), *FString(__FUNCTION__));
 
 	return true;
 }
@@ -140,7 +140,7 @@ bool FAzSpeechRunnableBase::InitializeAzureObject()
 bool FAzSpeechRunnableBase::CanInitializeTask() const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Checking if can initialize task in current context"),
-	       *GetThreadName(), *FString(__func__));
+	       *GetThreadName(), *FString(__FUNCTION__));
 
 	const UAzSpeechTaskBase* const OwningTask_Local = GetOwningTask();
 	if (!IsValid(OwningTask_Local))
@@ -162,7 +162,7 @@ std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> FAzSpeechRunnableBase::GetA
 	if (!AudioConfig)
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function %s; Message: Tried to get an invalid Audio Config."), *GetThreadName(),
-		       *FString(__func__));
+		       *FString(__FUNCTION__));
 	}
 
 	return AudioConfig;
@@ -171,7 +171,7 @@ std::shared_ptr<MicrosoftSpeech::Audio::AudioConfig> FAzSpeechRunnableBase::GetA
 std::shared_ptr<MicrosoftSpeech::SpeechConfig> FAzSpeechRunnableBase::CreateSpeechConfig() const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Creating Azure SDK speech config"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	if (!UAzSpeechTaskStatus::IsTaskStillValid(GetOwningTask()))
 	{
@@ -194,12 +194,12 @@ const bool FAzSpeechRunnableBase::ApplySDKSettings(const std::shared_ptr<Microso
 {
 	if (!InSpeechConfig)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__FUNCTION__));
 		return false;
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Applying Azure SDK Settings"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	EnableLogInConfiguration(InSpeechConfig);
 
@@ -219,11 +219,11 @@ const bool FAzSpeechRunnableBase::EnableLogInConfiguration(const std::shared_ptr
 
 	if (!InSpeechConfig)
 	{
-		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__func__));
+		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Invalid speech config"), *GetThreadName(), *FString(__FUNCTION__));
 		return false;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Enabling Azure SDK log"), *GetThreadName(), *FString(__func__));
+	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Enabling Azure SDK log"), *GetThreadName(), *FString(__FUNCTION__));
 
 	if (FString AzSpeechLogPath = UAzSpeechHelper::GetAzSpeechLogsBaseDir(); IFileManager::Get().MakeDirectory(*AzSpeechLogPath, true))
 	{
@@ -246,7 +246,7 @@ void FAzSpeechRunnableBase::InsertProfanityFilterProperty(const EAzSpeechProfani
                                                           const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding profanity filter property"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 	switch (Mode)
 	{
 	case EAzSpeechProfanityFilter::Raw:
@@ -270,7 +270,7 @@ void FAzSpeechRunnableBase::InsertLanguageIdentificationProperty(const EAzSpeech
                                                                  const std::shared_ptr<MicrosoftSpeech::SpeechConfig>& InSpeechConfig) const
 {
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Thread: %s; Function: %s; Message: Adding language identification property"), *GetThreadName(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	switch (Mode)
 	{
@@ -367,12 +367,12 @@ void FAzSpeechRunnableBase::ProcessCancellationError(const MicrosoftSpeech::Canc
 		break;
 	}
 
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__func__),
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error code: %s"), *GetThreadName(), *FString(__FUNCTION__),
 	       *ErrorCodeStr);
-	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error details: %s"), *GetThreadName(), *FString(__func__),
+	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Error details: %s"), *GetThreadName(), *FString(__FUNCTION__),
 	       *FString(UTF8_TO_TCHAR(ErrorDetails.c_str())));
 	UE_LOG(LogAzSpeech_Internal, Error, TEXT("Thread: %s; Function: %s; Message: Log generated in directory: %s"), *GetThreadName(),
-	       *FString(__func__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
+	       *FString(__FUNCTION__), *UAzSpeechHelper::GetAzSpeechLogsBaseDir());
 }
 
 const EThreadPriority FAzSpeechRunnableBase::GetCPUThreadPriority() const

@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <speechapi_cxx_common.h>
+#include <speechapi_cxx_string_helpers.h>
 #include <speechapi_cxx_smart_handle.h>
 #include <speechapi_c_audio_processing_options.h>
 
@@ -161,7 +162,11 @@ public:
     /// Creates a new instance using the provided handle.
     /// </summary>
     /// <param name="hoptions">A handle to audio processing options.</param>
-    explicit AudioProcessingOptions(SPXAUDIOPROCESSINGOPTIONSHANDLE hoptions) : m_hoptions(hoptions) {}
+    explicit AudioProcessingOptions(SPXAUDIOPROCESSINGOPTIONSHANDLE hoptions)
+        : m_hoptions(hoptions)
+    {
+        SPX_THROW_ON_FAIL(audio_processing_options_get_property_bag(m_hoptions, &m_propertybag));
+    }
 
     /// <summary>
     /// Destructs an instance of the AudioProcessingOptions class.
@@ -314,6 +319,27 @@ public:
         return speakerReferenceChannel;
     }
 
+    /// <summary>
+    /// Sets a property value by name.
+    /// </summary>
+    /// <param name="name">The property name.</param>
+    /// <param name="value">The property value.</param>
+    void SetProperty(const SPXSTRING& name, const SPXSTRING& value)
+    {
+        property_bag_set_string(m_propertybag, -1, Utils::ToUTF8(name).c_str(), Utils::ToUTF8(value).c_str());
+    }
+
+    /// <summary>
+    /// Gets a property value by name.
+    /// </summary>
+    /// <param name="name">The parameter name.</param>
+    /// <returns>The property value.</returns>
+    SPXSTRING GetProperty(const SPXSTRING& name) const
+    {
+        const char* value = property_bag_get_string(m_propertybag, -1, Utils::ToUTF8(name).c_str(), "");
+        return Utils::ToSPXString(Utils::CopyAndFreePropertyString(value));
+    }
+
 private:
 
     DISABLE_COPY_AND_MOVE(AudioProcessingOptions);
@@ -322,6 +348,11 @@ private:
     /// Internal member variable that holds the smart handle.
     /// </summary>
     SmartHandle<SPXAUDIOPROCESSINGOPTIONSHANDLE, &audio_processing_options_release> m_hoptions;
+
+    /// <summary>
+    /// Internal member variable that holds the properties of the audio processing options.
+    /// </summary>
+    SmartHandle<SPXPROPERTYBAGHANDLE, &property_bag_release> m_propertybag;
 };
 
 } } } } // Microsoft::CognitiveServices::Speech::Audio

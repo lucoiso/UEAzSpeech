@@ -32,7 +32,7 @@ UKeywordRecognitionAsync* UKeywordRecognitionAsync::KeywordRecognition_CustomOpt
 	NewAsyncTask->AudioInputDeviceID = AudioInputDeviceID;
 	NewAsyncTask->PhraseListGroup = PhraseListGroup;
 	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
@@ -73,13 +73,13 @@ bool UKeywordRecognitionAsync::StartAzureTaskWork()
 	if (!IsUsingDefaultAudioInputDevice() && !UAzSpeechHelper::IsAudioInputDeviceIDValid(DeviceInfo.GetDeviceID()))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Audio input device %s isn't available."),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *DeviceInfo.GetAudioInputDeviceEndpointID());
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *DeviceInfo.GetAudioInputDeviceEndpointID());
 
 		return false;
 	}
 
 	UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: Using audio input device: %s"), *TaskName.ToString(),
-	       GetUniqueID(), *FString(__func__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
+	       GetUniqueID(), *FString(__FUNCTION__), IsUsingDefaultAudioInputDevice() ? *FString("Default") : *DeviceInfo.GetAudioInputDeviceEndpointID());
 
 	auto AudioConfig = IsUsingDefaultAudioInputDevice()
 		                   ? MicrosoftSpeech::Audio::AudioConfig::FromDefaultMicrophoneInput()
@@ -96,7 +96,7 @@ void UKeywordRecognitionAsync::StartRecognitionWork(std::shared_ptr<Microsoft::C
 	if (!IFileManager::Get().FileExists(*ModelPath))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' not found"), *TaskName.ToString(), GetUniqueID(),
-		       *FString(__func__), *ModelPath);
+		       *FString(__FUNCTION__), *ModelPath);
 		SetReadyToDestroy();
 		return;
 	}
@@ -104,7 +104,7 @@ void UKeywordRecognitionAsync::StartRecognitionWork(std::shared_ptr<Microsoft::C
 	if (IFileManager::Get().FileSize(*ModelPath) <= 0)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: File '%s' is invalid"), *TaskName.ToString(), GetUniqueID(),
-		       *FString(__func__), *ModelPath);
+		       *FString(__FUNCTION__), *ModelPath);
 		SetReadyToDestroy();
 		return;
 	}

@@ -20,7 +20,7 @@ URecognitionMapCheckAsync* URecognitionMapCheckAsync::RecognitionMapCheckAsync(U
 	NewAsyncTask->InputString = InString;
 	NewAsyncTask->GroupName = GroupName;
 	NewAsyncTask->bStopAtFirstTrigger = bStopAtFirstTrigger;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 
@@ -32,7 +32,7 @@ void URecognitionMapCheckAsync::Activate()
 	Super::Activate();
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Activating task"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]
 	{
@@ -47,7 +47,7 @@ void URecognitionMapCheckAsync::Activate()
 void URecognitionMapCheckAsync::SetReadyToDestroy()
 {
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Setting task as Ready to Destroy"), *TaskName.ToString(), GetUniqueID(),
-	       *FString(__func__));
+	       *FString(__FUNCTION__));
 
 	Super::SetReadyToDestroy();
 }
@@ -57,7 +57,7 @@ void URecognitionMapCheckAsync::BroadcastResult(const int32 Result)
 	check(IsInGameThread());
 
 	UE_LOG(LogAzSpeech, Display, TEXT("Task: %s (%d); Function: %s; Message: Task completed. Broadcasting result: %d"), *TaskName.ToString(),
-	       GetUniqueID(), *FString(__func__), Result);
+	       GetUniqueID(), *FString(__FUNCTION__), Result);
 
 	if (Result < 0)
 	{
@@ -86,7 +86,7 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult() const
 	if (AzSpeech::Internal::HasEmptyParam(InputString, GroupName))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Invalid input string or group name"), *TaskName.ToString(),
-		       GetUniqueID(), *FString(__func__));
+		       GetUniqueID(), *FString(__FUNCTION__));
 		return -1;
 	}
 
@@ -111,7 +111,7 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult() const
 	{
 		UE_LOG(LogAzSpeech_Internal, Error,
 		       TEXT( "Task: %s (%d); Function: %s; Message: Aborting check: String '%s' does not contains any requirement key from group %s" ),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *InputString, *GroupName.ToString());
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *InputString, *GroupName.ToString());
 		return -1;
 	}
 
@@ -151,7 +151,7 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult() const
 				{
 					UE_LOG(LogAzSpeech_Internal, Display,
 					       TEXT( "Task: %s (%d); Function: %s; Message: Returning first triggered key from group %s. Result: %d" ),
-					       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GroupName.ToString(), OutputResult.Value);
+					       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *GroupName.ToString(), OutputResult.Value);
 					return Iterator.Value;
 				}
 			}
@@ -168,13 +168,13 @@ const int32 URecognitionMapCheckAsync::CheckRecognitionResult() const
 	if (OutputResult.Value < 0 || MatchPoints == 0u)
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Failed to find matching data in recognition map group %s"),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GroupName.ToString());
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *GroupName.ToString());
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech_Internal, Display,
 		       TEXT( "Task: %s (%d); Function: %s; Message: Found matching data in recognition map group %s. Result: %d; Matching Points: %d" ),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *GroupName.ToString(), OutputResult.Value, MatchPoints);
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *GroupName.ToString(), OutputResult.Value, MatchPoints);
 	}
 
 	return OutputResult.Value;
@@ -185,7 +185,7 @@ const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType
 	if (AzSpeech::Internal::HasEmptyParam(Key))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Empty %s key in group %s"), *TaskName.ToString(),
-		       GetUniqueID(), *FString(__func__), *KeyType, *GroupName.ToString());
+		       GetUniqueID(), *FString(__FUNCTION__), *KeyType, *GroupName.ToString());
 		return false;
 	}
 
@@ -195,13 +195,13 @@ const bool URecognitionMapCheckAsync::CheckStringContains(const FString& KeyType
 	if (bOutput)
 	{
 		UE_LOG(LogAzSpeech_Internal, Display, TEXT("Task: %s (%d); Function: %s; Message: String '%s' contains the %s key '%s' from group %s"),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *InputString, *KeyType, *Key, *GroupName.ToString());
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *InputString, *KeyType, *Key, *GroupName.ToString());
 	}
 	else
 	{
 		UE_LOG(LogAzSpeech_Debugging, Error,
 		       TEXT("Task: %s (%d); Function: %s; Message: String '%s' does not contains the %s key '%s' from group %s" ), *TaskName.ToString(),
-		       GetUniqueID(), *FString(__func__), *InputString, *KeyType, *Key, *GroupName.ToString());
+		       GetUniqueID(), *FString(__FUNCTION__), *InputString, *KeyType, *Key, *GroupName.ToString());
 	}
 
 	return bOutput;
@@ -227,12 +227,12 @@ const bool URecognitionMapCheckAsync::CheckStringDelimiters(const int32 Index) c
 		const bool bResult = StringDelimiters.Contains(PreviousSubStr);
 
 		UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: Checking delimiter in string '%s' index %d. Result: %d"),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__), *InputString, Index, bResult);
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__), *InputString, Index, bResult);
 		return bResult;
 	}
 
 	UE_LOG(LogAzSpeech_Debugging, Display, TEXT("Task: %s (%d); Function: %s; Message: String '%s' does not contains index %d"), *TaskName.ToString(),
-	       GetUniqueID(), *FString(__func__), *InputString, Index);
+	       GetUniqueID(), *FString(__FUNCTION__), *InputString, Index);
 	return true;
 }
 

@@ -24,7 +24,7 @@ UTextToSpeechAsync* UTextToSpeechAsync::TextToSpeech_CustomOptions(UObject* cons
 	NewAsyncTask->SubscriptionOptions = SubscriptionOptions;
 	NewAsyncTask->SynthesisOptions = SynthesisOptions;
 	NewAsyncTask->bIsSSMLBased = false;
-	NewAsyncTask->TaskName = *FString(__func__);
+	NewAsyncTask->TaskName = *FString(__FUNCTION__);
 
 	NewAsyncTask->RegisterWithGameInstance(WorldContextObject);
 

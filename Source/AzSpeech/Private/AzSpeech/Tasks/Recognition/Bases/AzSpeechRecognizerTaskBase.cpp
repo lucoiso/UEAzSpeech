@@ -28,7 +28,7 @@ void UAzSpeechRecognizerTaskBase::SetRecognitionOptions(const FAzSpeechRecogniti
 	if (UAzSpeechTaskStatus::IsTaskActive(this))
 	{
 		UE_LOG(LogAzSpeech_Internal, Error, TEXT("Task: %s (%d); Function: %s; Message: Can't change the options while the task is active."),
-		       *TaskName.ToString(), GetUniqueID(), *FString(__func__));
+		       *TaskName.ToString(), GetUniqueID(), *FString(__FUNCTION__));
 		return;
 	}
 

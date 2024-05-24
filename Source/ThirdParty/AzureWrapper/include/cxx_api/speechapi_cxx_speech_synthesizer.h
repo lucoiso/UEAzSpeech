@@ -12,9 +12,14 @@
 #include <speechapi_cxx_string_helpers.h>
 #include <speechapi_c.h>
 #include <speechapi_cxx_properties.h>
+#include <speechapi_cxx_audio_config.h> // #lucoiso : added include
+#include <speechapi_cxx_eventsignal.h> // #lucoiso : added include
+#include <speechapi_cxx_embedded_speech_config.h> // #lucoiso : added include
+#include <speechapi_cxx_hybrid_speech_config.h> // #lucoiso : added include
 #include <speechapi_cxx_speech_config.h>
 #include <speechapi_cxx_auto_detect_source_lang_config.h>
 #include <speechapi_cxx_utils.h>
+#include <speechapi_cxx_speech_synthesis_request.h>
 #include <speechapi_cxx_speech_synthesis_result.h>
 #include <speechapi_cxx_synthesis_voices_result.h>
 #include <speechapi_cxx_speech_synthesis_eventargs.h>
@@ -260,6 +265,22 @@ public:
     }
 
     /// <summary>
+    /// Execute the speech synthesis on request, synchronously.
+    /// This API could be used to synthesize speech from an input text stream, to reduce latency for text generation scenarios.
+    /// Note: the feature is in preview and is subject to change.
+    /// Added in version 1.37.0
+    /// </summary>
+    /// <param name="request">The synthesis request.</param>
+    /// <returns>A smart pointer wrapping a speech synthesis result.</returns>
+    std::shared_ptr<SpeechSynthesisResult> Speak(const std::shared_ptr<SpeechSynthesisRequest>& request)
+    {
+        SPXRESULTHANDLE hresult = SPXHANDLE_INVALID;
+        SPX_THROW_ON_FAIL(::synthesizer_speak_request(m_hsynth, Utils::HandleOrInvalid<SPXREQUESTHANDLE, SpeechSynthesisRequest>(request), &hresult));
+
+        return std::make_shared<SpeechSynthesisResult>(hresult);
+    }
+
+    /// <summary>
     /// Execute the speech synthesis on plain text, asynchronously.
     /// </summary>
     /// <param name="text">The plain text for synthesis.</param>
@@ -332,6 +353,34 @@ public:
     }
 
     /// <summary>
+    /// Execute the speech synthesis on on request, synchronously.
+    /// This API could be used to synthesize speech from an input text stream, to reduce latency for text generation scenarios.
+    /// Note: the feature is in preview and is subject to change.
+    /// Added in version 1.37.0
+    /// </summary>
+    /// <param name="request">The synthesis request.</param>
+    /// <returns>An asynchronous operation representing the synthesis. It returns a value of <see cref="SpeechSynthesisResult"/> as result.</returns>
+    std::future<std::shared_ptr<SpeechSynthesisResult>> SpeakAsync(const std::shared_ptr<SpeechSynthesisRequest>& request)
+    {
+        auto keepAlive = this->shared_from_this();
+
+        auto future = std::async(std::launch::async, [keepAlive, this, request]() -> std::shared_ptr<SpeechSynthesisResult> {
+            SPXRESULTHANDLE hresult = SPXHANDLE_INVALID;
+            SPXASYNCHANDLE hasync = SPXHANDLE_INVALID;
+            SPX_THROW_ON_FAIL(::synthesizer_speak_request_async(m_hsynth, Utils::HandleOrInvalid<SPXREQUESTHANDLE, SpeechSynthesisRequest>(request), &hasync));
+            SPX_EXITFN_ON_FAIL(::synthesizer_speak_async_wait_for(hasync, UINT32_MAX, &hresult));
+
+        SPX_EXITFN_CLEANUP:
+            auto releaseHr = synthesizer_async_handle_release(hasync);
+            SPX_REPORT_ON_FAIL(releaseHr);
+
+            return std::make_shared<SpeechSynthesisResult>(hresult);
+        });
+
+        return future;
+    }
+
+    /// <summary>
     /// Start the speech synthesis on plain text, synchronously.
     /// </summary>
     /// <param name="text">The plain text for synthesis.</param>
@@ -377,6 +426,22 @@ public:
     std::shared_ptr<SpeechSynthesisResult> StartSpeakingSsml(const std::wstring& ssml)
     {
         return StartSpeakingSsml(Utils::ToUTF8(ssml));
+    }
+
+    /// <summary>
+    /// Start the speech synthesis on on request, synchronously.
+    /// This API could be used to synthesize speech from an input text stream, to reduce latency for text generation scenarios.
+    /// Note: the feature is in preview and is subject to change.
+    /// Added in version 1.37.0
+    /// </summary>
+    /// <param name="request">The synthesis request.</param>
+    /// <returns>A smart pointer wrapping a speech synthesis result.</returns>
+    std::shared_ptr<SpeechSynthesisResult> StartSpeaking(const std::shared_ptr<SpeechSynthesisRequest>& request)
+    {
+        SPXRESULTHANDLE hresult = SPXHANDLE_INVALID;
+        SPX_THROW_ON_FAIL(::synthesizer_start_speaking_request(m_hsynth, Utils::HandleOrInvalid<SPXREQUESTHANDLE, SpeechSynthesisRequest>(request), &hresult));
+
+        return std::make_shared<SpeechSynthesisResult>(hresult);
     }
 
     /// <summary>

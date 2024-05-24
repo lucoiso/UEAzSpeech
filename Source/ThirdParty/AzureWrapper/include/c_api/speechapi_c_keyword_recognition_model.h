@@ -13,3 +13,5 @@ SPXAPI_(bool) keyword_recognition_model_handle_is_valid(SPXKEYWORDHANDLE hkeywor
 SPXAPI keyword_recognition_model_handle_release(SPXKEYWORDHANDLE hkeyword);
 
 SPXAPI keyword_recognition_model_create_from_file(const char* fileName, SPXKEYWORDHANDLE* phkwmodel);
+SPXAPI keyword_recognition_model_create_from_config(SPXSPEECHCONFIGHANDLE hconfig, SPXKEYWORDHANDLE* phkwmodel);
+SPXAPI keyword_recognition_model_add_user_defined_wake_word(SPXKEYWORDHANDLE hkwmodel, const char* wakeWord);
