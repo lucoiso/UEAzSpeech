@@ -79,24 +79,56 @@ public class AzureWrapper : ModuleRules
         }
         else if (Target.Platform == UnrealTargetPlatform.Android)
         {
+        }
+        else if (Target.Platform.ToString().ToLower().Contains("linux"))
+        {
+        }
+        else if (Target.Platform == UnrealTargetPlatform.IOS)
+        {
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Mac)
+        {
+        }
+
+        return Output;
+    }
+
+    private List<string> GetDynamicLibraries()
+    {
+        List<string> Output = new List<string>();
+
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
             Output.AddRange(new[]
             {
-				// arm64-v8a
-				Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"),
+                "Microsoft.CognitiveServices.Speech.core.dll",
+                "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
+                "Microsoft.CognitiveServices.Speech.extension.kws.dll",
+                "Microsoft.CognitiveServices.Speech.extension.kws.ort.dll",
+                "Microsoft.CognitiveServices.Speech.extension.lu.dll",
+                "Microsoft.CognitiveServices.Speech.extension.codec.dll"
+            });
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Android)
+        {
+            Output.AddRange(new[]
+            {
+                // arm64-v8a
+                Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.core.so"),
                 Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
                 Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
                 Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
                 Path.Combine("arm64-v8a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"),
 
-				// armeabi-v7a
-				Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"),
+                // armeabi-v7a
+                Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.core.so"),
                 Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
                 Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
                 Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
                 Path.Combine("armeabi-v7a", "libMicrosoft.CognitiveServices.Speech.extension.lu.so"),
 
-				// x86_64
-				Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.core.so"),
+                // x86_64
+                Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.core.so"),
                 Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"),
                 Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.kws.so"),
                 Path.Combine("x86_64", "libMicrosoft.CognitiveServices.Speech.extension.kws.ort.so"),
@@ -128,35 +160,6 @@ public class AzureWrapper : ModuleRules
             {
                 "libMicrosoft.CognitiveServices.Speech.core.dylib"
             });
-        }
-
-        return Output;
-    }
-
-    private List<string> GetDynamicLibraries()
-    {
-        List<string> Output = new List<string>();
-
-        if (Target.Platform == UnrealTargetPlatform.Win64)
-        {
-            Output.AddRange(new[]
-            {
-                "Microsoft.CognitiveServices.Speech.core.dll",
-                "Microsoft.CognitiveServices.Speech.extension.audio.sys.dll",
-                "Microsoft.CognitiveServices.Speech.extension.kws.dll",
-                "Microsoft.CognitiveServices.Speech.extension.kws.ort.dll",
-                "Microsoft.CognitiveServices.Speech.extension.lu.dll",
-                "Microsoft.CognitiveServices.Speech.extension.codec.dll"
-            });
-        }
-        else if (Target.Platform.ToString().ToLower().Contains("linux") || Target.Platform == UnrealTargetPlatform.Mac)
-        {
-            // Using the same list as for static libraries
-            Output = GetStaticLibraries();
-        }
-        else if (Target.Platform == UnrealTargetPlatform.Android || Target.Platform == UnrealTargetPlatform.IOS)
-        {
-            // Empty
         }
 
         return Output;
